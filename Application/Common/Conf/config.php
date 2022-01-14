@@ -138,6 +138,14 @@ $config['UMENT_API_CONFIG'] = array(
          'ios_App_Master_Secret' =>'wgyklqy5uu8dacj9yartpic9xmpkezs4',
      ),
 );
+$config['ALL_COMPANY'] = array(
+    '1'=>'拉萨经济技术开发区热点信息技术有限公司',
+    '2'=>'拉萨经济技术开发区热点信息技术有限公司北京分公司',
+    '3'=>'拉萨经济技术开发区热点信息技术有限公司上海分公司',
+    '4'=>'拉萨经济技术开发区热点信息技术有限公司广州分公司',
+    '5'=>'拉萨经济技术开发区热点信息技术有限公司深圳分公司',
+    '6'=>'北京热点投屏科技发展有限公司'
+);
 
 $config['USER_GRP_CONFIG'] = array(
     '0'=>'无',
