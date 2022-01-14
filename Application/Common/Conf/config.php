@@ -117,12 +117,7 @@ $config['SMS_CONFIG'] = array(
     //'notice_templateid'=>'107928',
     'notice_templateid'=>'146776',
 );
-$config['ACTIVITY_SOURCE_ARR'] = array(
-    '1'=>'App',
-    '2'=>'App推送',  
-    '3'=>'微信客户端',
-    '4'=>'微信公众号',
-);
+
 $config['SMALL_WARN'] = array(
     '1'=>'未处理',
     '2'=>'已处理',
@@ -134,51 +129,6 @@ $config['SP_GR_STATE'] = array(
     '2'=>'已删除',
 );
 
-$config['WX_DYH_CONFIG'] = array(
-    'appid'=>'wxb19f976865ae9404',
-    'appsecret'=>'977d15e1ce3c342c123ae6f30bcfeb48',
-);
-
-$config['WX_FWH_CONFIG'] = array(
-    'appid'=>'wx7036d73746ff1a14',
-    'appsecret'=>'8b658fc90d7105d5cf66cb2193edb7d4',
-    'key_ticket'=>'savor_wx_xiaorefu_jsticket',
-    'key_token'=>'savor_wx_xiaorefu_token',
-);
-$config['WX_MP_CONFIG'] = array(
-    'cache_key'=>'wxmp',
-    'appid'=>'wxcb1e088545260931',
-    'appsecret'=>'9f1ebb78d1dc7afe73dcb22a135cfcf9'
-);
-
-$config['SMALLAPP_CONFIG'] = array(
-    'cache_key'=>'smallapp_token',
-    'appid'=>'wxfdf0346934bb672f',
-    'appsecret'=>'b9b93aef8d6609722596e35385ff05c5'
-);
-
-$config['SMALLAPP_SALE_CONFIG'] = array(
-    'cache_key'=>'smallapp_sale_token',
-    'appid'=>'wxfc48bdfa3fcaf358',
-    'appsecret'=>'8fe57f640a23cc3ecfb3d5f8fff70144'
-);
-
-$config['XIAO_REDIAN_DING'] = array(
-    'appid'=>'wxb19f976865ae9404',
-    'appsecret'=>'977d15e1ce3c342c123ae6f30bcfeb48',
-    'key_ticket'=>'savor_wx_xiaore_jsticket',
-    'key_token'=>'savor_wx_xiaore_token',
-);
-
-$config['ZHI_XIANG_CONFIG'] = array(
-    'appid'=>'wx75025eb1e60df2cf',
-    'appsecret'=>'32427ebb0caae2d9e76747fed56e2071',
-    'key_ticket'=>'savor_wx_zhixiang_jsticket',
-    'key_token'=>'savor_wx_zhixiang_token',
-    'cardapi_ticket'=>'savor_wx_zhixiang_cardapiticket',
-    'token'=>'savor',
-);
-
 $config['UMENT_API_CONFIG'] = array(
      'API_URL'=>'http://msg.umeng.com/api/send',
      'opclient'=>array(
@@ -187,46 +137,6 @@ $config['UMENT_API_CONFIG'] = array(
          'ios_AppKey'=>'59b1260a734be41803000022',
          'ios_App_Master_Secret' =>'wgyklqy5uu8dacj9yartpic9xmpkezs4',
      ),
-);
-
-$config['SMALLAPP_CONFIG'] = array(
-    'cache_key'=>'smallapp_token',
-    'appid'=>'wxfdf0346934bb672f',
-    'appsecret'=>'b9b93aef8d6609722596e35385ff05c5'
-);
-
-$config['UMENBAI_API_CONFIG'] = array(
-    'API_URL'=>'http://msg.umeng.com/api/send',
-    'opclient'=>array(
-        'android_appkey'=>'59acb7f0f29d98425d000cfa',
-        'android_master_secret'=>'75h0agzaqlibje6t2rtph4uuuocjyfse',
-        'ios_appkey'=>'59b1260a734be41803000022',
-        'ios_master_secret' =>'wgyklqy5uu8dacj9yartpic9xmpkezs4',
-    ),
-    'boxclient'=>array(
-        'android_appkey'=>'58576b54677baa3b41000809',
-        'android_master_secret'=>'v6fr959wpmczeayq34utymxcm7fizufu',
-        //'ios_appkey'=>'59b1260a734be41803000022',
-        //'ios_master_secret' =>'wgyklqy5uu8dacj9yartpic9xmpkezs4',
-    ),
-);
-$config['WXAPPIDS'] = array(
-    'wx13e41a437b8a1d2e'=>'京东爆款',
-    'wxf96ad76f27597d65'=>'故宫书店',
-    'wx91d27dbf599dff74'=>'京东购物',
-    'wx52af38651932e8d3'=>'赖茅',
-);
-//推送通知的后续行为必填值
-$config['AFTER_APP'] = array(
-    0=>"go_app",
-    1=>"go_url",
-    2=>"go_activity",
-    3=>"go_custom",
-);
-$config['REDPACKET_SENDTYPES'] = array(
-    '1'=>'立即发送',
-    '2'=>'单次定时',
-    '3'=>'多次定时'
 );
 
 $config['USER_GRP_CONFIG'] = array(
