@@ -5,7 +5,7 @@ $config = array(
     'URL_MODEL'				=>2,
     'URL_CASE_INSENSITIVE'  => true, //url支持大小写
     'MODULE_DENY_LIST'      => array('Common','Runtime'), // 禁止访问的模块列表
-    'MODULE_ALLOW_LIST'     => array('Admin','H5','Smallapp','Dataexport','Integral'), //模块配置
+    'MODULE_ALLOW_LIST'     => array('Admin'), //模块配置
     'DEFAULT_MODULE'        => 'Admin',
     //session cookie配置
     'SESSION_AUTO_START'    =>  true,    // 是否自动开启Session
@@ -29,7 +29,7 @@ $config = array(
     'HTML_FILE_SUFFIX' => '.html',// 默认静态文件后缀
     'HOST_NAME'=>'http://'.$_SERVER['HTTP_HOST'],
     'HTTPS_HOST_NAME'=>'https://'.$_SERVER['HTTP_HOST'],
-    'SITE_NAME'=> '寻味后台管理',
+    'SITE_NAME'=> '热点财务后台管理',
     'SHOW_ERROR_MSG' =>  true, //显示错误信息
     'OSS_ADDR_PATH'=>'media/resource/',
 	'SECRET_KEY' => 'sw&a-lvd0onr!',//解密接口数据key
@@ -42,23 +42,6 @@ $config = array(
     'SAPP_CALL_NETY_CMD'=>'call-mini-program',
     'SAPP_SALE'=>'smallappsale:',
     'SAPP_OPS'=>'smallappops:',
-    'SAPP_SALE_ACTIVITYGOODS_PROGRAM'=>'smallappsale:activitygoodsprogram',
-    'SAPP_SHOP_PROGRAM'=>'smallapp:shopprogram',
-    'SAPP_SALE_WELCOME_RESOURCE'=>'smallappsale:welcomeresource',
-    'SAPP_SALE_ACTIVITY_PROMOTE'=>'smallappsale:activitypromote:',
-    'SAPP_FIND_TOP'=>'smallapp:findtop',
-    'SAPP_HOTPLAY_PRONUM'=>'smallapp:hotplaypronum',
-    'SAPP_FORSCREENTRACK'=>'smallapp:trackforscreen:',
-    'FEAST_TIME'=>array('lunch'=>array('11:30','14:30'),'dinner'=>array('18:00','21:00')),
-    'SALEFEAST_TIME'=>array('lunch'=>array('11:00','14:00'),'dinner'=>array('16:45','21:00')),
-    'SAPP_CANCEL_FORSCREEN'=>'smallapp:cancelforscreen:',
-    'MEAL_TIME'=>array('lunch'=>array('10:00','15:00'),'dinner'=>array('17:00','23:59')),
-    'SCAN_QRCODE_TYPES'=>array(1,2,3,5,6,7,8,9,10,11,12,13,15,16,19,20,21,29,30),
-//     scan_qrcode_type 1:小码2:大码(节目)3:手机小程序呼码5:大码（新节目）6:极简版7:主干版桌牌码8:小程序二维码9:极简版节目大码
-//     10:极简版大码11:极简版呼玛12:大二维码（节目）13:小程序呼二维码 15:大二维码（新节目）16：极简版二维码19:极简版节目大二维码
-//     20:极简版大二维码21:极简版呼二维码22购物二维码 23销售二维码 24菜品商家 25单个菜品 26海报分销售卖商品 27 商城商家 28商城商品大屏购买
-//     29推广渠道投屏码 30投屏帮助视频 31活动霸王菜
-
 
 );
 if(APP_DEBUG === false){
@@ -104,26 +87,12 @@ $config['MANGER_STATE'] = array(
     '3'=>'审核不通过',
 );
 $config['MANGER_KEY'] = array(
-    'colum'=>'版本管理节点',
-    'cms'=>'程序节点',
-    'system'=>'系统节点',
-    'send' =>'内容节点',
-    'version'=>'版本更新节点',
-    'menu' =>'节目节点',
-    'ad' =>'广告节点',
-    'hotel' =>'酒楼节点',
-    'report'=>'报表节点',
-    'testreport'=>'测试报表节点',
-    'checkaccount'=>'对账系统节点',
-    'dailycontent'=>'每日知享节点',
-    'newmenu'=>'新节目节点',
-    'advdelivery'=>'广告投放节点',
-	'option'=>'运维客户端',
-    'installoffer'=>'网络设备报价',
-    'smallapp'=>'小程序数据统计节点',
-    'miniprogram'=>'小程序管理',
-    'integral'=>'积分系统',
-
+    'system'=>'系统管理',
+    'hotelcontract'=>'酒楼合同管理',
+    'goodscontract'=>'商品代销合同管理',
+    'advcontract'=>'广告销售合同管理',
+    'purchasecontract'=>'采购合同管理',
+    'administrationcontract'=>'行政合同管理',
 );
 $config['MOBILE_TYPE'] = array(
     '1' => array('id'=>1, 't'=>'Iphone 4', 'w'=>'320', 'h'=>'480'),

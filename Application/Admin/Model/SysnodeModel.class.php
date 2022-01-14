@@ -4,7 +4,7 @@ use Think\Model;
 use Common\Lib\Page;
 class SysnodeModel extends Model{
 
-    protected $trueTableName='finance_nodemenu';
+    protected $trueTableName='savor_finance_nodemenu';
 
     public function getList($where, $order='id desc', $start=0,$size=5){
         $data = array();

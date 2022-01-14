@@ -1,6 +1,6 @@
 <!--修改样式2 p元素自适应宽度 start-->
 <div class="pageContent">
-  <form method="post" action="{$host_name}/user/userAdd" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+  <form method="post" action="{$host_name}/sysuser/userEdit" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone)">
     <input type="hidden" name="acttype" value="{$acttype}">
     <input type="hidden" name="id" value="{$vinfo.id}">
     <div class="pageFormContent modal-body">
@@ -17,15 +17,16 @@
           登录名称：
         </label>
         <div class="col-xs-12 col-sm-10">
-          <input name="username" type="text" value="{$vinfo.username}"  minlength="4" maxlength="10" class="form-control" required/>
+          <input name="username" type="text" value="{$vinfo.username}"  minlength="4" maxlength="10" class="form-control" readonly/>
         </div>
       </div>
       <div class="form-group row">
         <label class="col-xs-12 col-sm-2 control-label">
-          密码：
+          新密码：
         </label>
         <div class="col-xs-12 col-sm-10">
-          <input name="userpwd" type="text" value="{$vinfo.password}"  minlength="6" maxlength="20" class="form-control" required/>
+          <input name="newuserpwd" type="text" value=""  minlength="5" maxlength="20" class="form-control" />
+          <input name="o_userpwd" type="hidden" value="{$vinfo.password}"/>
         </div>
       </div>
 
@@ -37,7 +38,7 @@
           <select name="group" id="group" class="form-control bs-select" title="请选择分组...">
             <!--<option value=0>未分组</option>-->
             <volist name="groupslist" id="vo">
-              <option value="{$vo.id}" groupid="{$vo.id}" <if condition="$vinfo['gid'] eq $vo['id']">selected</if>> {$vo.name} </option>
+              <option value="{$vo.id}" groupid="{$vo.id}" <if condition="$vinfo['groupid'] eq $vo['id']">selected</if>> {$vo.name} </option>
             </volist>
           </select>
         </div>
@@ -49,7 +50,7 @@
         </label>
         <div class="col-xs-12 col-sm-10">
           <input type="hidden" name="status" value="2">
-          <input type="checkbox" value="1" class="make-switch status" name="status" data-size="small" data-on-text="启用" data-off-text="禁用" <if condition="$vinfo.status neq 0 or 2" >checked</if>>
+          <input type="checkbox" value="1" class="make-switch status" name="status" data-size="small" data-on-text="启用" data-off-text="禁用" <if condition="$vinfo.status eq 1" >checked</if>>
         </div>
       </div>
     </div>

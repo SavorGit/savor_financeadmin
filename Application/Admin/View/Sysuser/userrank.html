@@ -7,7 +7,7 @@
 
 
 <div class="pageContent">
-  <form method="post" action="{$host_name}/user/userRank" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone)">
+  <form method="post" action="{$host_name}/sysuser/userRank" class="pageForm required-validate" onsubmit="return validateCallback(this, dialogAjaxDone)">
     <input type="hidden" name="acttype" value="{$acttype}">
     <input type="hidden" name="uid" value="{$vinfo.id}">
     <div class="pageFormContent modal-body">
@@ -71,7 +71,7 @@ $(function(){
 
   $("#group").change(function(){
     var gid = $(this).find(":selected").attr("groupid");
-    $.post("{$host_name}/user/currentRank", { gid:gid },function(data){
+    $.post("{$host_name}/sysuser/currentRank", { gid:gid },function(data){
       $("#allow_module").empty();
       $("#allow_module").html(data);
       });
