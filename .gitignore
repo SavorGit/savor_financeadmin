@@ -31,3 +31,4 @@
 *.out
 *.app
 .DS_Store
+Application/Common/Conf/config_online.php
