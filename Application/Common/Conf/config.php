@@ -89,7 +89,7 @@ $config['MANGER_STATE'] = array(
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
     'hotelcontract'=>'酒楼合同管理',
-    'goodscontract'=>'商品代销合同管理',
+    'proxysale'=>'商品代销合同管理',
     'advcontract'=>'广告销售合同管理',
     'purchasecontract'=>'采购合同管理',
     'administrationcontract'=>'行政合同管理',
@@ -157,6 +157,25 @@ $config['ROOM_TYPE'] = array(
     3=>'等候区'
 );
 $config['HEART_LOSS_HOURS'] = 48;
+$config['PROXY_SALE_CONTRACT'] = array(
+	'company_property' => array( 
+								array('id'=>1,'name'=>'一般纳税人'),
+								array('id'=>'2','name'=>'小规模纳税人')),
+	'invoice_type'     => array( 
+								array('id'=>1,'name'=>'专票'),
+								array('id'=>'2','name'=>'普票'))
+);
+$config['CONTRACT_COMPANY']= array(
+	array=>('id'=>1,'name'=>'拉萨经济技术开发区热点信息技术有限公司'),
+	array=>('id'=>2,'name'=>'拉萨经济技术开发区热点信息技术有限公司北京分公司'),
+	array=>('id'=>3,'name'=>'拉萨经济技术开发区热点信息技术有限公司上海分公司'),
+	array=>('id'=>4,'name'=>'拉萨经济技术开发区热点信息技术有限公司广州分公司'),
+	array=>('id'=>5,'name'=>'拉萨经济技术开发区热点信息技术有限公司深圳分公司'),
+	array=>('id'=>6,'name'=>'北京热点投屏科技发展有限公司'),
+);
+
+
+
 //发送邮件配置
 $config['MAIL_ADDRESS'] = 'xxx@xxx.com'; // 邮箱地址
 $config['MAIL_SMTP'] = 'smtp.xxx.com'; // 邮箱SMTP服务
