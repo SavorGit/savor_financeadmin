@@ -157,13 +157,29 @@ $config['ROOM_TYPE'] = array(
     3=>'等候区'
 );
 $config['HEART_LOSS_HOURS'] = 48;
-$config['PROXY_SALE_CONTRACT'] = array(
+$config['FINACE_CONTRACT'] = array(
 	'company_property' => array( 
 								array('id'=>1,'name'=>'一般纳税人'),
 								array('id'=>'2','name'=>'小规模纳税人')),
 	'invoice_type'     => array( 
 								array('id'=>1,'name'=>'专票'),
-								array('id'=>'2','name'=>'普票'))
+								array('id'=>'2','name'=>'普票')),
+	'contract_ctype'   => array(
+								'proxysale'=>array(
+									array('id'=>21,'name'=>'酒水'),
+									array('id'=>22,'name'=>'食品'),
+									array('id'=>23,'name'=>'其他'),
+								),
+								'purchase'=>array(
+									array('id'=>41,'name'=>'视频'),
+									array('id'=>42,'name'=>'酒水'),
+									array('id'=>43,'name'=>'机顶盒'),
+									array('id'=>44,'name'=>'电'),
+									array('id'=>45,'name'=>'网络设备'),
+									array('id'=>46,'name'=>'其它'),
+								)
+									
+	)
 );
 $config['CONTRACT_COMPANY']= array(
 	array('id'=>1,'name'=>'拉萨经济技术开发区热点信息技术有限公司'),
