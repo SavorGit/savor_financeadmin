@@ -183,14 +183,15 @@ $config['FINACE_CONTRACT'] = array(
 									array('id'=>45,'name'=>'网络设备'),
 									array('id'=>46,'name'=>'其它'),
 								),
-	'contract_status'=>array(
+	
+									
+	),
+	'contract_status'=> array(
 									array('id'=>1,'name'=>'待生效'),
 									array('id'=>2,'name'=>'进行中'),
 									array('id'=>3,'name'=>'已结束'),
 									array('id'=>4,'name'=>'已终止'),
 								)
-									
-	)
 );
 $config['CONTRACT_COMPANY']= array(
 	array('id'=>1,'name'=>'拉萨经济技术开发区热点信息技术有限公司'),
