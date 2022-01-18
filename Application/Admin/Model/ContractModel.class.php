@@ -5,14 +5,16 @@ use Think\Model;
 class ContractModel extends BaseModel{
 	protected $tableName='finance_contract';
 
-    public function getList($fields,$where, $order='id desc', $start=0,$size=5){
-		$list = $this->field($fields)
+    public function getList($fields,$where, $order='a.id desc', $start=0,$size=5){
+		$list = $this->alias('a')
+			->join('savor_finance_signuser b on a.sign_user_id= b.id','left')
+			->field($fields)
 			->where($where)
 			->order($order)
 			->limit($start,$size)
 			->select();
 			
-			$count = $this->alias('ct')
+			$count = $this->alias('a')
 			->where($where)
 			->count();
 		$objPage = new Page($count,$size);

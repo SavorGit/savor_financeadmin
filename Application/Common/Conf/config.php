@@ -177,7 +177,8 @@ $config['FINACE_CONTRACT'] = array(
 									array('id'=>44,'name'=>'电'),
 									array('id'=>45,'name'=>'网络设备'),
 									array('id'=>46,'name'=>'其它'),
-								)
+								),
+
 									
 	)
 );

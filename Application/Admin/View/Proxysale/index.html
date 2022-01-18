@@ -1,0 +1,232 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start
+<style type="text/css">
+  
+</style>-->
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/proxysale/index" method="post" >
+    <input type="hidden" name="pageNum" value="{$pageNum}"/>
+    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <input type="hidden" name="_order" value="{$_order}"/>
+    <input type="hidden" name="_sort" value="{$_sort}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="form-inline" style="margin-top:3px;">
+        <div class="form-group">
+        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$start_date}">
+          		<input style="margin-left: 6px;" name="start_date" type="text" size="16" class="form-control date" placeholder="签约开始日期" value="{$start_date}" readonly>
+                <span class="input-group-btn">
+                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                </span>
+       	 	</div>
+
+        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$end_date}" >
+
+          		<input    name="end_date" type="text" size="16" class="form-control date" placeholder="签约结束日期" value="{$end_date}" readonly>
+                <span class="input-group-btn"  >
+                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                </span>
+        	</div>
+        </div>
+        
+        <div class="form-group">
+          <div class="input-group input-group-sm">
+            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
+              城市：
+            </label>
+                <span class="input-group-btn">
+               <select name="area_id" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                 <option value=0 >全部</option>
+                 <volist name="city_arr" id="vo">
+					<option <if condition="$area_id eq $vo.id">selected="selected" </if> value="{$vo.id}" >{$vo.region_name}</option>
+				 </volist>
+				 
+               </select>
+          </div>
+         </div>
+          <div class="form-group">
+          <div class="input-group input-group-sm">
+            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
+              合同状态：
+            </label>
+                <span class="input-group-btn">
+               <select name="status" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                 <option value=0 >全部</option>
+                 <volist name="status_arr" id="vo">
+					<option <if condition="$status eq $vo.id">selected="selected" </if> value="{$vo.id}" >{$vo.name}</option>
+				 </volist>
+				 
+               </select>
+          </div>
+         </div>
+		 
+		 <div class="form-group">
+          <div class="input-group input-group-sm">
+            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
+              合同分类：
+            </label>
+                <span class="input-group-btn">
+               <select name="ctype" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                 <option value=0 >全部</option>
+                 <volist name="contract_ctype_arr" id="vo">
+					<option <if condition="$ctype eq $vo.id">selected="selected" </if> value="{$vo.id}" >{$vo.name}</option>
+				 </volist>
+				 
+               </select>
+          </div>
+         </div>
+		  <div class="form-group">
+          <div class="input-group input-group-sm">
+            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
+              签约人：
+            </label>
+                <span class="input-group-btn">
+               <select name="sign_user_id" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                 <option value=0 >全部</option>
+                 <volist name="sign_user_arr" id="vo">
+					<option <if condition="$area_id eq $vo.id">selected="selected" </if> value="{$vo.id}" >{$vo.uname}</option>
+				 </volist>
+				 
+               </select>
+          </div>
+         </div>
+		  
+			<div class="form-group" style="margin-top:10px; margin-left:6px;">
+				<div class="input-group input-group-sm pull-right">
+				<input type="text" class="form-control" name="name" value="{$name}" placeholder="合同名称">
+				<span class="input-group-btn">
+					<button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
+				</span>
+				</div>
+			</div>
+            
+            <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
+				<a class="btn btn-success btn-sm add" href="{$host_name}/proxysale/add" title="新增代销合同" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增代销合同</a>
+				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_name}/excel/expheartlost" title="导出合同数据" target="_blank" mask="true"><i class="fa fa-plus"></i> 导出合同数据</a>
+          
+			</div>
+			
+          
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent" style="margin-top:40px;" >
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+          <tr id="post">
+            <!-- <th class="table-checkbox">
+              <input type="checkbox" data-check="all" data-parent=".table" />
+            </th> -->
+            <th>ID</th>
+            <th>合同编号</th>
+            <th>合同名称</th>
+            <th>签约人</th>
+            <th>合同类型</th>
+            <th>签约时间</th>
+            <th>合同有效期</th>
+            <th>合作状态</th>
+            <th>关联酒楼</th>
+            
+            <th class="table-tool">操作</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <volist name="list" id="vlist">
+            <tr target="sid_user">
+              
+              <td data-title="合同ID">{$vlist.id}</td>
+              <td data-title="合同编号">{$vlist.serial_number}</td>
+              <td data-title="合同名称">{$vlist.name}</td>
+              <td data-title="签约人">{$vlist.uname}</td>
+              <td data-title="合同类型">
+			  <php>
+				foreach($contract_ctype_arr as $v){
+					if($v['id']== $vlist['ctype']){
+						echo $v['name'];
+					}
+				}
+			  </php>
+			  </td>
+              <td data-title="签约时间">{$vlist.sign_time}</td>
+			  <td data-title="合同有效期">{$vlist.contract_stime}~{$vlist.contract_etime}</td>
+              <td data-title="合作状态">
+			  
+				<php>
+					$status_str = '';
+					if($vlist['status']==4){
+						$status_str =  "已终止";
+					}else{
+						$s_time  = strtotime($vlist['contract_stime']." 00:00:00");
+						$e_time  = strtotime($vlist['contract_etime']." 23:59:59");
+						$now_date  = time();
+						if($s_time>=$now_date){ 
+							$status_str =  '待生效';
+						}else if($s_time<$now_date && $e_time>now_date){
+							$status_str =  '进行中';
+						}else if($e_time<=$now_date){
+							$status_str =  '已到期';
+						}
+						
+					}
+					echo $status_str;
+				</php>
+                
+              </td>
+              <td data-title="关联酒楼">
+			  <a data-tip="关联酒楼" title="关联酒楼-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/proxysale/linkhotel?id={$vlist.id}" class="btn btn-success btn-icon">
+
+                    {$vlist.contract_hotel_nums}
+              </a>
+			  
+			  
+			  </td>
+             
+
+              <td class="table-tool" data-title="操作">
+                <div class="tools-edit">
+                  
+                  <a data-tip="修改详情" title="代销合同-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/proxysale/edit?id={$vlist.id}" class="btn btn-success btn-icon">
+
+                    <i class="fa fa-tag"></i>
+                  </a>
+
+                </div>
+              </td>
+
+            </tr>
+          </volist>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
+
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+
+
+  $(function(){
+    
+
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+</script>
