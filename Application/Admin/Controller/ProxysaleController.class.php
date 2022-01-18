@@ -13,24 +13,20 @@ class ProxysaleController extends BaseController{
 	private $invoice_type_arr    = [];
 	private $contract_ctype_arr  = [];
 	private $goods_nums = 5;
-	private $status_arr = array(
-								array('id'=>1,'name'=>'待生效'),
-								array('id'=>2,'name'=>'进行中'),
-								array('id'=>3,'name'=>'已结束'),
-								array('id'=>4,'name'=>'已终止'),
-	);
+	private $status_arr = [];
     public function __construct(){
         parent::__construct();
 		$config_proxy_sale_contract = C('FINACE_CONTRACT');
 		$this->company_property_arr = $config_proxy_sale_contract['company_property'];
 		$this->invoice_type_arr     = $config_proxy_sale_contract['invoice_type'];
 		$this->contract_ctype_arr   = $config_proxy_sale_contract['contract_ctype']['proxysale'];
+		$this->status_arr           = $config_proxy_sale_contract['contract_status'];
 		$this->contract_company_arr = C('CONTRACT_COMPANY');
         $this->oss_host = get_oss_host();
     }
     public function index(){
 		
-			
+		
 		$ajaxversion   = I('ajaxversion',0,'intval');//1 版本升级酒店列表
 		$size   = I('numPerPage',50);//显示每页记录数
 		$this->assign('numPerPage',$size);
@@ -107,6 +103,7 @@ class ProxysaleController extends BaseController{
 		foreach($result['list'] as $key=>$v){
 			$nums = $m_contract_hotel->where(array('contract_id'=>$v['id']))->count();
 			$result['list'][$key]['contract_hotel_nums'] = $nums;
+			
 		}
 		//城市
 		
@@ -227,7 +224,12 @@ class ProxysaleController extends BaseController{
 			}else if($e_time<=$now_date){//已到期
 				$data['status'] = 3;
 			}
-			
+			$media_id = I('post.media_id',0,'intval');
+			if($media_id){
+				$m_media = new \Admin\Model\MediaModel();
+				$media_info = $m_media->where('id='.$media_id)->find();
+				$data['oss_addr'] = $media_info['oss_addr'];
+			}
 			
 			
 			$m_contract = new \Admin\Model\ContractModel();
@@ -380,6 +382,14 @@ class ProxysaleController extends BaseController{
 			if($is_stop==1){
 				$data['status']= 4;
 			}
+			$media_id = I('post.media_id',0,'intval');
+			
+			if($media_id){
+				$m_media = new \Admin\Model\MediaModel();
+				$media_info = $m_media->field('oss_addr')->where('id='.$media_id)->find();
+				
+				$data['oss_addr'] = $media_info['oss_addr'];
+			}
 			
 			$m_contract = new \Admin\Model\ContractModel();
 			if($is_draft==1){//保存草稿
@@ -406,7 +416,45 @@ class ProxysaleController extends BaseController{
 	}
 	public function linkhotel(){
 		
+		$id = I('id',0,'intval');
+		$m_contract = new \Admin\Model\ContractModel;
+		$contract_info = $m_contract->where('id='.$id)->field('area_id')->find();
+		
+		
+		$m_hotel = new \Admin\Model\HotelModel();
+		$where= [];
+		$where['area_id'] = $contract_info['area_id'];
+		
+		$hotel_list = $m_hotel->where($where)->field('id,name')->select();
+		
+		$m_contract_hotel= new \Admin\Model\ContracthotelModel();
+		$link_hotel_list = $m_contract_hotel->where('contract_id='.$id)->select();
+		$link_hotel_list_arr = array_column($link_hotel_list,'hotel_id');
+		foreach($hotel_list as $key=>$v){
+			if(in_array($v['id'],$link_hotel_list_arr)){
+				$hotel_list[$key]['select'] = 'selected';
+			}
+		}
+		$this->assign('hotel_list',$hotel_list);
+		$this->assign('id',$id);
 		$this->display('linkhotel');
 	}
-    
+    public function dolinkhotel(){
+		$id = I('post.id',0,'intval');
+		$hotel_ids = I('post.hotel_ids');
+		$data = [];
+		foreach($hotel_ids as $key=>$v){
+			$data[$key]['contract_id'] = $id;
+			$data[$key]['hotel_id']    = $v;
+			$data[$key]['add_time']    = date('Y-m-d H:i:s');
+		}
+		
+		$m_contract_hotel= new \Admin\Model\ContracthotelModel();
+		$ret = $m_contract_hotel->where(array('contract_id'=>$id))->delete();
+		
+		$m_contract_hotel->addAll($data);
+		$this->output('关联成功','proxysale/index');
+		
+		
+	}
 }
