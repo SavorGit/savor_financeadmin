@@ -1,0 +1,52 @@
+<!--修改样式2 p元素自适应宽度 start-->
+<div class="pageContent">
+  <form method="post" action="{$host_name}/costtemplate/addtemplate" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+    <input type="hidden" name="id" value="{$dinfo.id}">
+    <input type="hidden" name="type" value="{$dinfo.type}">
+    <div class="pageFormContent modal-body">
+
+		<div class="form-group row">
+			<label class="col-xs-12 col-sm-2 control-label">
+				模板名称：
+			</label>
+			<div class="col-xs-12 col-sm-10">
+				<input type="text" class="form-control" name="name" minlength="1" maxlength="100" value="{$dinfo.name}" required>
+			</div>
+		</div>
+		<foreach name="content" item="cinfo">
+		<div class="form-group row">
+			<label class="col-xs-12 col-sm-2 control-label">
+				{$cinfo.name}
+			</label>
+			<div class="col-xs-12 col-sm-2">
+				<input type="text" class="form-control" name="min[]" minlength="1" maxlength="20"  value="{$cinfo.min}">
+			</div>
+			<div class="col-xs-12 col-sm-2">
+				<input type="text" class="form-control" name="max[]" minlength="1" maxlength="20"  value="{$cinfo.max}">
+			</div>
+			<label class="col-xs-12 col-sm-2 control-label">
+				费用(元/屏/月):
+			</label>
+			<div class="col-xs-12 col-sm-2">
+				<input type="text" class="form-control" name="cost[]" minlength="1" maxlength="100"  value="{$cinfo.cost}">
+			</div>
+		</div>
+		</foreach>
+
+		<div class="form-group row" id="shop_isrecommend">
+			<label class="col-xs-12 col-sm-2 control-label">
+				是否标准模板：
+			</label>
+			<div class="col-xs-12 col-sm-10">
+				<input type="hidden" name="is_standard" value="0">
+				<input type="checkbox" value="1" class="make-switch status" name="is_standard" data-size="small" data-on-text="是" data-off-text="否" <if condition="$dinfo.is_standard eq 1" >checked</if>>
+			</div>
+		</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-default close-m" type="button">取消</button>
+      <button class="btn btn-primary" type="submit">保存</button>     
+    </div>
+  </form>
+</div>
