@@ -318,7 +318,7 @@ class BaseController extends Controller {
     
     /**
      * 获取文件后缀名列表
-     * @param number $type 资源类型1视频2图片3其他4音乐5字体
+     * @param number $type 资源类型1视频2图片3其他4音乐5字体6文档
      */
     protected function get_file_exts($type=3){
         $res_files = array();
@@ -331,6 +331,7 @@ class BaseController extends Controller {
             case 1:
             case 4:
             case 5:
+            case 6:
                 if(!empty($res_files[$type])){
                     $file_ext = join(',', $res_files[$type]);
                 }

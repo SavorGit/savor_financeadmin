@@ -52,9 +52,10 @@ if(APP_DEBUG === false){
 $config['RESOURCE_TYPE'] = array(
     '1'=>'视频',
     '2'=>'图片',
-    '3'=>'其他',
-    '4'=>'音频',
-    '5'=>'字体',
+//    '3'=>'其他',
+//    '4'=>'音频',
+//    '5'=>'字体',
+    '6'=>'文档',
 );
 $config['RESOURCE_TYPEINFO'] = array(
     'mp4'=>1,
@@ -67,6 +68,10 @@ $config['RESOURCE_TYPEINFO'] = array(
     'wma'=>4,
     'mp3'=>4,
     'ttf'=>5,
+    'xls'=>6,'xlsx'=>6,'csv'=>6,
+    'pptx'=>6,'ppt'=>6,
+    'doc'=>6,'wps'=>6,'docx'=>6,
+    'pdf'=>6,'rtf'=>6,'txt'=>6,
 );
 
 $config['PWDPRE'] = 'SAVOR@&^2017^2030&*^';
