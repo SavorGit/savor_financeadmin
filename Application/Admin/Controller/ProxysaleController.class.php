@@ -140,6 +140,7 @@ class ProxysaleController extends BaseController{
     public function doadd(){
 		
 		if(IS_POST){
+			$userinfo = session('sysUserInfo');
 			$data =  [];
 			$is_draft      				 = I('post.is_draft',0,'intval');               //是否保存草稿
 			$data['serial_number']   	 = I('post.serial_number','','trim');     		//合同编号
@@ -181,6 +182,8 @@ class ProxysaleController extends BaseController{
 			$data['contact_phone22']     = I('post.contact_phone22','','trim');         //电话2
 			$data['contact_qq2']         = I('post.contact_qq2','','trim');             //qq
 			$data['contact_wechat2']     = I('post.contact_wechat2','','trim');         //微信
+			$data['type']                = 20;
+			$data['sysuser_id']          = $userinfo['id'];
 			
 			$goods_name            = I('post.goods_name');                              //商品名称
 			$goods_number          = I('post.goods_number');                            //商品编码
@@ -288,6 +291,7 @@ class ProxysaleController extends BaseController{
 		}
 		
 		if(IS_POST){
+			$userinfo = session('sysUserInfo');
 			$data =  [];
 			$is_draft      				 = I('post.is_draft',0,'intval');               //是否保存草稿
 			$data['serial_number']   	 = I('post.serial_number','','trim');     		//合同编号
@@ -331,6 +335,9 @@ class ProxysaleController extends BaseController{
 			$data['contact_phone22']     = I('post.contact_phone22','','trim');         //电话2
 			$data['contact_qq2']         = I('post.contact_qq2','','trim');             //qq
 			$data['contact_wechat2']     = I('post.contact_wechat2','','trim');         //微信
+			$data['type']                = 20;
+			$data['sysuser_id']          = $userinfo['id'];
+			$data['oss_addr']            = I('post.oss_addr');
 			
 			$goods_name            = I('post.goods_name');                              //商品名称
 			$goods_number          = I('post.goods_number');                            //商品编码
@@ -456,5 +463,30 @@ class ProxysaleController extends BaseController{
 		$this->output('关联成功','proxysale/index');
 		
 		
+	}
+	public function logs(){
+		
+		$ajaxversion   = I('ajaxversion',0,'intval');//1 版本升级酒店列表
+		$size   = I('numPerPage',50);//显示每页记录数
+		$this->assign('numPerPage',$size);
+		$start = I('pageNum',1);
+		$this->assign('pageNum',$start);
+		$order = I('_order','a.id');
+		
+		$this->assign('_order',$order);
+		$sort = I('_sort','desc');
+		$this->assign('_sort',$sort);
+		$orders = $order.' '.$sort;
+		$start  = ( $start-1 ) * $size;
+		
+		$m_contract_history = new \Admin\Model\ContracthistoryModel();
+		$where = [];
+		$where['a.type'] = 20;
+		$$fileds = "a.*,b.uname,c.remark";
+		$result = $m_contract_history->getList($fields,$where, $orders, $start,$size);
+		
+		$this->assign('list',$result['list']);
+		$this->assign('page',$result['page']);
+		$this->display('logs');
 	}
 }

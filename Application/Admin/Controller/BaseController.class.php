@@ -20,6 +20,7 @@ class BaseController extends Controller {
     
     public function handlePublicParams(){
         $this->host_name = get_host_name();
+		$this->assign('oss_host',C('OSS_HOST_NEW'));
         $this->assign('host_name',$this->host_name.'/admin');
         $this->assign('host_url',$this->host_name);
         $this->assign('site_host_name',$this->host_name);
