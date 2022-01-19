@@ -479,10 +479,13 @@ class ProxysaleController extends BaseController{
 		$orders = $order.' '.$sort;
 		$start  = ( $start-1 ) * $size;
 		
+		$contract_id = I('get.contract_id',0,'intval');
+		
 		$m_contract_history = new \Admin\Model\ContracthistoryModel();
 		$where = [];
+		$where['a.contract_id'] = $contract_id;
 		$where['a.type'] = 20;
-		$$fileds = "a.*,b.uname,c.remark";
+		$fields = "a.*,b.uname,c.remark";
 		$result = $m_contract_history->getList($fields,$where, $orders, $start,$size);
 		
 		$this->assign('list',$result['list']);
