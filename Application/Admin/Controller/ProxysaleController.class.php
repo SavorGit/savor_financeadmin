@@ -14,6 +14,15 @@ class ProxysaleController extends BaseController{
 	private $contract_ctype_arr  = [];
 	private $goods_nums = 5;
 	private $status_arr = [];
+	private $required_arr = array('serial_number'=>'请填写合同编号','name'=>'请填写合同名称','company_id'=>'请选择签约公司',
+								  'sign_department'=>'请选择签约部门','sign_user_id'=>'请填写签约人','ctype'=>'请选择合同类型',
+								  'area_id'=>'请选择签约城市','sign_time'=>'请选择签署日期','archive_time'=>'请选择归档日期',
+								  'settlement_time'=>'请选择结算日期','hotel_signer'=>'请填写合同签约人',
+								  'hotel_signer_phone1'=>'请填写合同签约人电话1',
+								  'company_name'=>'请填写公司名称','company_short_name'=>'请填写公司简介','company_area_id'=>'请选择公司所属城市',
+								  'address'=>'请填写公司注册地址','account_name'=>'请填写公司开户名称','company_property'=>'请选择公司企业性质',
+								  'bank_name'=>'请填写公司开户行名称','bank_account'=>'请填写公司开户账号','contact1'=>'请填写联系人1',
+								  'contact_phone1'=>'请填写联系人电话1','contact2'=>'请填写联系人2','contact_phone2'=>'请填写联系人电话2');
     public function __construct(){
         parent::__construct();
 		$config_proxy_sale_contract = C('FINACE_CONTRACT');
@@ -23,6 +32,7 @@ class ProxysaleController extends BaseController{
 		$this->status_arr           = $config_proxy_sale_contract['contract_status'];
 		$this->contract_company_arr = C('CONTRACT_COMPANY');
         $this->oss_host = get_oss_host();
+		
     }
     public function index(){
 		
@@ -143,6 +153,18 @@ class ProxysaleController extends BaseController{
 			$userinfo = session('sysUserInfo');
 			$data =  [];
 			$is_draft      				 = I('post.is_draft',0,'intval');               //是否保存草稿
+			if($is_draft==0){
+				foreach($this->required_arr as $key=>$v){
+					$tmp = I('post.'.$key);
+					if(empty($tmp)){
+						$this->error($v);
+						break;
+					}
+					
+				}
+			}
+			
+			
 			$data['serial_number']   	 = I('post.serial_number','','trim');     		//合同编号
 			$data['name']   	         = I('post.name','','trim');     		        //合同名称
 			$data['company_id']      	 = I('post.company_id',0,'intval');       		//签约公司          
@@ -196,6 +218,10 @@ class ProxysaleController extends BaseController{
 			$goods_discount_mount  = I('post.goods_discount_mount');                    //折扣额
 			$goods_commission 	   = I('post.goods_commission');                        //佣金
 			$balance_unit 		   = I('post.balance_unit');                            //结算单位
+			
+			
+			
+			
 			$info_goods = [];
 			for($i=0;$i<$this->goods_nums;$i++){
 				$info_goods[$i]['goods_name']          = $goods_name[$i];
@@ -269,6 +295,14 @@ class ProxysaleController extends BaseController{
 		
 		$m_contract = new \Admin\Model\ContractModel();
 		$vinfo = $m_contract->where('id='.$id)->find();
+		if($vinfo['sign_time']=='0000-00-00')       $vinfo['sign_time'] = '';
+		if($vinfo['archive_time']=='0000-00-00')    $vinfo['archive_time'] = '';
+		if($vinfo['contract_stime']=='0000-00-00')  $vinfo['contract_stime'] = '';
+		if($vinfo['contract_etime']=='0000-00-00')  $vinfo['contract_etime'] = '';
+		if($vinfo['statement_time']=='0000-00-00')  $vinfo['statement_time'] = '';
+		if($vinfo['settlement_time']=='0000-00-00') $vinfo['settlement_time'] = '';
+		
+		
 		
 		$info_goods = json_decode($vinfo['info_goods'],true);
 		$this->assign('vinfo',$vinfo);
@@ -294,6 +328,15 @@ class ProxysaleController extends BaseController{
 			$userinfo = session('sysUserInfo');
 			$data =  [];
 			$is_draft      				 = I('post.is_draft',0,'intval');               //是否保存草稿
+			if($is_draft==0){
+				foreach($this->required_arr as $key=>$v){
+					$tmp = I('post.'.$key);
+					if(empty($tmp)){
+						$this->error($v);
+						break;
+					}
+				}
+			}
 			$data['serial_number']   	 = I('post.serial_number','','trim');     		//合同编号
 			$data['name']   	         = I('post.name','','trim');     		        //合同名称
 			$data['company_id']      	 = I('post.company_id',0,'intval');       		//签约公司          
