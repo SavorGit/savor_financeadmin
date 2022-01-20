@@ -1,12 +1,12 @@
 <?php
 /**
- *代销商品合同管理控制器
+ *采购合同管理控制器
  *
  */
 namespace Admin\Controller;
 use Admin\Controller\BaseController;
 use Think\Model;
-class ProxysaleController extends BaseController{
+class PurchaseController extends BaseController{
     
     private $oss_host = '';
 	private $company_property_arr = [];
@@ -14,11 +14,12 @@ class ProxysaleController extends BaseController{
 	private $contract_ctype_arr  = [];
 	private $goods_nums = 5;
 	private $status_arr = [];
+	private $settlement_type_arr = [];
 	private $required_arr = array('serial_number'=>'请填写合同编号','name'=>'请填写合同名称','company_id'=>'请选择签约公司',
 								  'sign_department'=>'请选择签约部门','sign_user_id'=>'请填写签约人','ctype'=>'请选择合同类型',
 								  'area_id'=>'请选择签约城市','sign_time'=>'请选择签署日期','archive_time'=>'请选择归档日期',
-								  'statement_time'=>'请选择对账日期',
-								  'settlement_time'=>'请选择结算日期','hotel_signer'=>'请填写合同签约人',
+								  'purchased_item'=>'请填写采购项目','contract_money'=>'请填写采购金额',
+								  'hotel_signer'=>'请填写合同签约人',
 								  'hotel_signer_phone1'=>'请填写合同签约人电话1',
 								  'company_name'=>'请填写公司名称','company_short_name'=>'请填写公司简介','company_area_id'=>'请选择公司所属城市',
 								  'address'=>'请填写公司注册地址','account_name'=>'请填写公司开户名称','company_property'=>'请选择公司企业性质',
@@ -29,8 +30,9 @@ class ProxysaleController extends BaseController{
 		$config_proxy_sale_contract = C('FINACE_CONTRACT');
 		$this->company_property_arr = $config_proxy_sale_contract['company_property'];
 		$this->invoice_type_arr     = $config_proxy_sale_contract['invoice_type'];
-		$this->contract_ctype_arr   = $config_proxy_sale_contract['contract_ctype']['proxysale'];
+		$this->contract_ctype_arr   = $config_proxy_sale_contract['contract_ctype']['purchase'];
 		$this->status_arr           = $config_proxy_sale_contract['contract_status'];
+		$this->settlement_type_arr  = $config_proxy_sale_contract['settlement_type']['purchase'];
 		$this->contract_company_arr = C('CONTRACT_COMPANY');
         $this->oss_host = get_oss_host();
 		
@@ -146,6 +148,7 @@ class ProxysaleController extends BaseController{
 		$this->assign('invoice_type_arr',$this->invoice_type_arr);
 		$this->assign('contract_company_arr',$this->contract_company_arr);
 		$this->assign('contract_ctype_arr',$this->contract_ctype_arr);
+		$this->assign('settlement_type_arr',$this->settlement_type_arr);
         $this->display('add');
     }
     public function doadd(){
@@ -175,13 +178,16 @@ class ProxysaleController extends BaseController{
 			$data['area_id']         	 = I('post.area_id',0,'intval');            	//签约城市
 			$data['sign_time']       	 = I('post.sign_time','','trim');               //签署日期
 			$data['archive_time']    	 = I('post.archive_time','','trim');            //归档日期
-			$data['statement_time']  	 = I('post.statement_time','','trim');          //对账日期
-			$data['settlement_time'] 	 = I('post.settlement_time','','trim');         //结算日期
+			$data['purchased_item']      = I('post.purchased_item','','trim');          //采购项目
+			$data['contract_money']      = I('post.contract_money','','trim');          //采购金额
+			
 			$data['contract_stime']  	 = I('post.contract_stime','','trim');          //合同开始日期
 			$data['contract_etime']      = I('post.contract_etime','','trim');          //合同结束日期
 			$data['hotel_signer']        = I('post.hotel_signer','','trim');            //合同签约人
 			$data['hotel_signer_phone1'] = I('post.hotel_signer_phone1','','trim');     //合同签约人电话1
 			$data['hotel_signer_phone2'] = I('post.hotel_signer_phone2','','trim');     //合同签约人电话2
+			$data['change_content']      = I('post.change_content','','trim');          //变更内容
+			$data['desc']                = I('post.desc','','trim');                    //变更备注
 			
 			
 			
@@ -192,6 +198,7 @@ class ProxysaleController extends BaseController{
 			$data['company_property']    = I('post.company_property','','trim');        //公司企业性质
 			$data['invoice_type']    	 = I('post.invoice_type',0,'intval');     		//公司发票类型
 			$data['rate']                = I('post.rate','','trim');                    //公司税率
+			//$data['invoice_code']        = I('post.invoice_code','','trim');            //发票编号
 			$data['account_name']        = I('post.account_name','','trim');            //公司开户名称
 			$data['bank_name']           = I('post.bank_name','','trim');               //公司开户行名称
 			$data['bank_account']        = I('post.bank_account','','trim');            //公司开户行账号
@@ -205,40 +212,74 @@ class ProxysaleController extends BaseController{
 			$data['contact_phone22']     = I('post.contact_phone22','','trim');         //电话2
 			$data['contact_qq2']         = I('post.contact_qq2','','trim');             //qq
 			$data['contact_wechat2']     = I('post.contact_wechat2','','trim');         //微信
-			$data['type']                = 20;
+			$data['type']                = 40;
 			$data['sysuser_id']          = $userinfo['id'];
+			$data['oss_addr']            = I('post.oss_addr');
 			
-			$goods_name            = I('post.goods_name');                              //商品名称
-			$goods_number          = I('post.goods_number');                            //商品编码
-			$goods_type 		   = I('post.goods_type');                              //品类
-			$goods_unit 		   = I('post.goods_unit');                              //基本单位
-			$goods_standard 	   = I('post.goods_standard');                          //规格
-			$goods_box_standard    = I('post.goods_box_standard');                      //箱规
-			$goods_alcohol 	       = I('post.goods_alcohol');                           //酒精度
-			$goods_discount_rate   = I('post.goods_discount_rate');                     //折扣率
-			$goods_discount_mount  = I('post.goods_discount_mount');                    //折扣额
-			$goods_commission 	   = I('post.goods_commission');                        //佣金
-			$balance_unit 		   = I('post.balance_unit');                            //结算单位
+			$goods_name                  = I('post.goods_name');                              //商品名称
+			$goods_price                 = I('post.goods_price');                             //单价
+			$goods_number                = I('post.goods_number');                            //数量
+			$goods_no_tax_total_money    = I('post.goods_no_tax_total_money');                //不含税总额
+			$goods_tax_money             = I('post.goods_tax_money');                         //税额
+			$goods_total_money           = I('post.goods_total_money');                       //总额
+			
 			
 			
 			
 			
 			$info_goods = [];
 			for($i=0;$i<$this->goods_nums;$i++){
-				$info_goods[$i]['goods_name']          = $goods_name[$i];
-				$info_goods[$i]['goods_number']        = $goods_number[$i];
-				$info_goods[$i]['goods_type']          = $goods_type[$i];
-				$info_goods[$i]['goods_unit']          = $goods_unit[$i];
-				$info_goods[$i]['goods_standard']      = $goods_standard[$i];
-				$info_goods[$i]['goods_box_standard']  = $goods_box_standard[$i];
-				$info_goods[$i]['goods_alcohol'] = $goods_alcohol[$i];
-				$info_goods[$i]['goods_discount_rate'] = $goods_discount_rate[$i];
-				$info_goods[$i]['goods_discount_mount']= $goods_discount_mount[$i];
-				$info_goods[$i]['goods_commission']    = $goods_commission[$i];
-				$info_goods[$i]['balance_unit']        = $balance_unit[$i];
+				$info_goods[$i]['goods_name']               = $goods_name[$i];
+				$info_goods[$i]['goods_price']                 = $goods_price[$i];
+				$info_goods[$i]['goods_number']             = $goods_number[$i];
+				$info_goods[$i]['goods_no_tax_total_money'] = $goods_no_tax_total_money[$i];
+				$info_goods[$i]['goods_tax_money']          = $goods_tax_money[$i];
+				$info_goods[$i]['goods_total_money']        = $goods_total_money[$i];
 				
 			}
 			$data['info_goods'] = json_encode($info_goods);
+			
+			//结算信息
+			$data['settlement_type'] = I('post.settlement_type',0,'intval');         //结算方式  1一次性付款2分期付款
+			if($data['settlement_type']<=1){
+				$pay_type    			 = I('post.pay_type','','trim');            //付款方式  1 现付2 后付
+				$pay_time    			 = I('post.pay_time','','trim');             //付款日期 
+				$have_pay_monye			 = I('post.have_pay_monye','','trim');       //已付款金额
+				$no_pay_monye            = I('post.no_pay_monye','','trim');         //未付款金额
+				$info_money['pay_type']       = $pay_type;
+				$info_money['pay_time']       = $pay_time;
+				$info_money['have_pay_monye'] = $have_pay_monye;
+				$info_money['no_pay_monye']   = $no_pay_monye;
+			}else if($data['settlement_type']==2){
+				$prepayment              = I('post.prepayment','','trim');           //预付款金额
+				$prepayment_time         = I('post.prepayment_time','','trim');      //预付款日期 
+				$medium_payment          = I('post.medium_payment','','trim');       //中期结款金额
+				$medium_payment_time     = I('post.medium_payment_time','','trim');  //中期结款付款日期
+				$tail_prepayment         = I('post.tail_prepayment','','trim');      //尾款金额
+				$tail_prepayment_time    = I('post.tail_prepayment_time','','trim'); //尾款结款日期
+				$f_have_pay_monye        = I('post.f_have_pay_monye','','trim');     //已付款金额
+				$f_no_pay_monye          = I('post.f_no_pay_monye','','trim');       //未付款金额
+				$info_money['prepayment']           = $prepayment;
+				$info_money['prepayment_time']      = $prepayment_time;
+				$info_money['medium_payment']       = $medium_payment;
+				$info_money['medium_payment_time']  = $medium_payment_time;
+				$info_money['tail_prepayment']      = $tail_prepayment;
+				$info_money['tail_prepayment_time'] = $tail_prepayment_time;
+				$info_money['f_have_pay_monye']     = $f_have_pay_monye;
+				$info_money['f_no_pay_monye']       = $f_no_pay_monye;
+				
+			}
+			$data['info_money'] = json_encode($info_money);
+			//发票信息
+			$info_invoice_type = I('post.info_invoice_type','','trim');
+			$info_invoice_rate = I('post.info_invoice_rate','','trim');
+			$info_invoice_code = I('post.info_invoice_code','','trim');
+			$info_invoice['info_invoice_type'] = $info_invoice_type;
+			$info_invoice['info_invoice_rate'] = $info_invoice_rate;
+			$info_invoice['info_invoice_code'] = $info_invoice_code;
+			$data['info_invoice'] = json_encode($info_invoice);
+			
+			
 			
 			$data['update_time'] = date('Y-m-d H:i:s');
 			
@@ -267,7 +308,7 @@ class ProxysaleController extends BaseController{
 				$ret  = $m_contract->addData($data);
 				
 				if($ret){
-					$this->output('添加成功!', 'proxysale/index');
+					$this->output('添加成功!', 'purchase/index');
 				}else{
 					$this->error('添加失败');
 				}
@@ -276,7 +317,7 @@ class ProxysaleController extends BaseController{
 				if($ret){
 					$m_contract_history = new \Admin\Model\ContracthistoryModel();
 					$rts = $m_contract_history->addData($data);
-					$this->output('添加成功!', 'proxysale/index');
+					$this->output('添加成功!', 'purchase/index');
 				}else{
 					$this->error('添加失败');
 				}
@@ -305,16 +346,25 @@ class ProxysaleController extends BaseController{
 		
 		
 		
-		$info_goods = json_decode($vinfo['info_goods'],true);
+		$info_goods   = json_decode($vinfo['info_goods'],true);
+		
+		$info_money   = json_decode($vinfo['info_money'],true);
+		$info_invoice = json_decode($vinfo['info_invoice'],true);
+		
 		$this->assign('vinfo',$vinfo);
 		//print_r($info_goods);exit;
 		$this->assign('info_goods',$info_goods);
+		$this->assign('info_money',$info_money);
+		$this->assign('info_invoice',$info_invoice);
 		$this->assign('city_arr',$city_arr);
 		$this->assign('sign_user_arr',$sign_user_arr);
 		$this->assign('company_property_arr',$this->company_property_arr);
 		$this->assign('invoice_type_arr',$this->invoice_type_arr);
 		$this->assign('contract_company_arr',$this->contract_company_arr);
 		$this->assign('contract_ctype_arr',$this->contract_ctype_arr);
+		
+		$this->assign('settlement_type_arr',$this->settlement_type_arr);
+		
         $this->display('edit');
 	}
 	public function doedit(){
@@ -347,8 +397,9 @@ class ProxysaleController extends BaseController{
 			$data['area_id']         	 = I('post.area_id',0,'intval');            	//签约城市
 			$data['sign_time']       	 = I('post.sign_time','','trim');               //签署日期
 			$data['archive_time']    	 = I('post.archive_time','','trim');            //归档日期
-			$data['statement_time']  	 = I('post.statement_time','','trim');          //对账日期
-			$data['settlement_time'] 	 = I('post.settlement_time','','trim');         //结算日期
+			$data['purchased_item']      = I('post.purchased_item','','trim');          //采购项目
+			$data['contract_money']      = I('post.contract_money','','trim');          //采购金额
+			
 			$data['contract_stime']  	 = I('post.contract_stime','','trim');          //合同开始日期
 			$data['contract_etime']      = I('post.contract_etime','','trim');          //合同结束日期
 			$data['hotel_signer']        = I('post.hotel_signer','','trim');            //合同签约人
@@ -366,6 +417,7 @@ class ProxysaleController extends BaseController{
 			$data['company_property']    = I('post.company_property','','trim');        //公司企业性质
 			$data['invoice_type']    	 = I('post.invoice_type',0,'intval');     		//公司发票类型
 			$data['rate']                = I('post.rate','','trim');                    //公司税率
+			//$data['invoice_code']        = I('post.invoice_code','','trim');            //发票编号
 			$data['account_name']        = I('post.account_name','','trim');            //公司开户名称
 			$data['bank_name']           = I('post.bank_name','','trim');               //公司开户行名称
 			$data['bank_account']        = I('post.bank_account','','trim');            //公司开户行账号
@@ -379,37 +431,74 @@ class ProxysaleController extends BaseController{
 			$data['contact_phone22']     = I('post.contact_phone22','','trim');         //电话2
 			$data['contact_qq2']         = I('post.contact_qq2','','trim');             //qq
 			$data['contact_wechat2']     = I('post.contact_wechat2','','trim');         //微信
-			$data['type']                = 20;
+			$data['type']                = 40;
 			$data['sysuser_id']          = $userinfo['id'];
 			$data['oss_addr']            = I('post.oss_addr');
 			
-			$goods_name            = I('post.goods_name');                              //商品名称
-			$goods_number          = I('post.goods_number');                            //商品编码
-			$goods_type 		   = I('post.goods_type');                              //品类
-			$goods_unit 		   = I('post.goods_unit');                              //基本单位
-			$goods_standard 	   = I('post.goods_standard');                          //规格
-			$goods_box_standard    = I('post.goods_box_standard');                      //箱规
-			$goods_alcohol 	       = I('post.goods_alcohol');                           //酒精度
-			$goods_discount_rate   = I('post.goods_discount_rate');                     //折扣率
-			$goods_discount_mount  = I('post.goods_discount_mount');                    //折扣额
-			$goods_commission 	   = I('post.goods_commission');                        //佣金
-			$balance_unit 		   = I('post.balance_unit');                            //结算单位
+			$goods_name                  = I('post.goods_name');                              //商品名称
+			$goods_price                 = I('post.goods_price');                             //单价
+			$goods_number                = I('post.goods_number');                            //数量
+			$goods_no_tax_total_money    = I('post.goods_no_tax_total_money');                //不含税总额
+			$goods_tax_money             = I('post.goods_tax_money');                         //税额
+			$goods_total_money           = I('post.goods_total_money');                       //总额
+			
+			
+			
+			
+			
 			$info_goods = [];
 			for($i=0;$i<$this->goods_nums;$i++){
-				$info_goods[$i]['goods_name']          = $goods_name[$i];
-				$info_goods[$i]['goods_number']        = $goods_number[$i];
-				$info_goods[$i]['goods_type']          = $goods_type[$i];
-				$info_goods[$i]['goods_unit']          = $goods_unit[$i];
-				$info_goods[$i]['goods_standard']      = $goods_standard[$i];
-				$info_goods[$i]['goods_box_standard']  = $goods_box_standard[$i];
-				$info_goods[$i]['goods_alcohol'] = $goods_alcohol[$i];
-				$info_goods[$i]['goods_discount_rate'] = $goods_discount_rate[$i];
-				$info_goods[$i]['goods_discount_mount']= $goods_discount_mount[$i];
-				$info_goods[$i]['goods_commission']    = $goods_commission[$i];
-				$info_goods[$i]['balance_unit']        = $balance_unit[$i];
+				$info_goods[$i]['goods_name']               = $goods_name[$i];
+				$info_goods[$i]['goods_price']                 = $goods_price[$i];
+				$info_goods[$i]['goods_number']             = $goods_number[$i];
+				$info_goods[$i]['goods_no_tax_total_money'] = $goods_no_tax_total_money[$i];
+				$info_goods[$i]['goods_tax_money']          = $goods_tax_money[$i];
+				$info_goods[$i]['goods_total_money']        = $goods_total_money[$i];
 				
 			}
 			$data['info_goods'] = json_encode($info_goods);
+			//结算信息
+			$data['settlement_type'] = I('post.settlement_type',0,'intval');         //结算方式  1一次性付款2分期付款
+			if($data['settlement_type']<=1){
+				$pay_type    			 = I('post.pay_type','','trim');            //付款方式  1 现付2 后付
+				$pay_time    			 = I('post.pay_time','','trim');             //付款日期 
+				$have_pay_monye			 = I('post.have_pay_monye','','trim');       //已付款金额
+				$no_pay_monye            = I('post.no_pay_monye','','trim');         //未付款金额
+				$info_money['pay_type']       = $pay_type;
+				$info_money['pay_time']       = $pay_time;
+				$info_money['have_pay_monye'] = $have_pay_monye;
+				$info_money['no_pay_monye']   = $no_pay_monye;
+			}else if($data['settlement_type']==2){
+				$prepayment              = I('post.prepayment','','trim');           //预付款金额
+				$prepayment_time         = I('post.prepayment_time','','trim');      //预付款日期 
+				$medium_payment          = I('post.medium_payment','','trim');       //中期结款金额
+				$medium_payment_time     = I('post.medium_payment_time','','trim');  //中期结款付款日期
+				$tail_prepayment         = I('post.tail_prepayment','','trim');      //尾款金额
+				$tail_prepayment_time    = I('post.tail_prepayment_time','','trim'); //尾款结款日期
+				$f_have_pay_monye        = I('post.f_have_pay_monye','','trim');     //已付款金额
+				$f_no_pay_monye          = I('post.f_no_pay_monye','','trim');       //未付款金额
+				$info_money['prepayment']           = $prepayment;
+				$info_money['prepayment_time']      = $prepayment_time;
+				$info_money['medium_payment']       = $medium_payment;
+				$info_money['medium_payment_time']  = $medium_payment_time;
+				$info_money['tail_prepayment']      = $tail_prepayment;
+				$info_money['tail_prepayment_time'] = $tail_prepayment_time;
+				$info_money['f_have_pay_monye']     = $f_have_pay_monye;
+				$info_money['f_no_pay_monye']       = $f_no_pay_monye;
+				
+			}
+			$data['info_money'] = json_encode($info_money);
+			//发票信息
+			$info_invoice_type = I('post.info_invoice_type','','trim');
+			$info_invoice_rate = I('post.info_invoice_rate','','trim');
+			$info_invoice_code = I('post.info_invoice_code','','trim');
+			$info_invoice['info_invoice_type'] = $info_invoice_type;
+			$info_invoice['info_invoice_rate'] = $info_invoice_rate;
+			$info_invoice['info_invoice_code'] = $info_invoice_code;
+			
+			
+			$data['info_invoice'] = json_encode($info_invoice);
+			
 			
 			$data['update_time'] = date('Y-m-d H:i:s');
 			
@@ -447,7 +536,7 @@ class ProxysaleController extends BaseController{
 				$ret  = $m_contract->updateData(array('id'=>$id),$data);
 				
 				if($ret){
-					$this->output('编辑成功!', 'proxysale/index');
+					$this->output('编辑成功!', 'purchase/index');
 				}else{
 					$this->error('编辑失败');
 				}
@@ -458,56 +547,14 @@ class ProxysaleController extends BaseController{
 					$m_contract_history = new \Admin\Model\ContracthistoryModel();
 					$data['contract_id'] = $id;
 					$rts = $m_contract_history->addData($data);
-					$this->output('编辑成功!', 'proxysale/index');
+					$this->output('编辑成功!', 'purchase/index');
 				}else{
 					$this->error('编辑失败');
 				}
 			}
 		}
 	}
-	public function linkhotel(){
-		
-		$id = I('id',0,'intval');
-		$m_contract = new \Admin\Model\ContractModel;
-		$contract_info = $m_contract->where('id='.$id)->field('area_id')->find();
-		
-		
-		$m_hotel = new \Admin\Model\HotelModel();
-		$where= [];
-		$where['area_id'] = $contract_info['area_id'];
-		
-		$hotel_list = $m_hotel->where($where)->field('id,name')->select();
-		
-		$m_contract_hotel= new \Admin\Model\ContracthotelModel();
-		$link_hotel_list = $m_contract_hotel->where('contract_id='.$id)->select();
-		$link_hotel_list_arr = array_column($link_hotel_list,'hotel_id');
-		foreach($hotel_list as $key=>$v){
-			if(in_array($v['id'],$link_hotel_list_arr)){
-				$hotel_list[$key]['select'] = 'selected';
-			}
-		}
-		$this->assign('hotel_list',$hotel_list);
-		$this->assign('id',$id);
-		$this->display('linkhotel');
-	}
-    public function dolinkhotel(){
-		$id = I('post.id',0,'intval');
-		$hotel_ids = I('post.hotel_ids');
-		$data = [];
-		foreach($hotel_ids as $key=>$v){
-			$data[$key]['contract_id'] = $id;
-			$data[$key]['hotel_id']    = $v;
-			$data[$key]['add_time']    = date('Y-m-d H:i:s');
-		}
-		
-		$m_contract_hotel= new \Admin\Model\ContracthotelModel();
-		$ret = $m_contract_hotel->where(array('contract_id'=>$id))->delete();
-		
-		$m_contract_hotel->addAll($data);
-		$this->output('关联成功','proxysale/index');
-		
-		
-	}
+	
 	public function logs(){
 		
 		$ajaxversion   = I('ajaxversion',0,'intval');//1 版本升级酒店列表
@@ -528,7 +575,7 @@ class ProxysaleController extends BaseController{
 		$m_contract_history = new \Admin\Model\ContracthistoryModel();
 		$where = [];
 		$where['a.contract_id'] = $contract_id;
-		$where['a.type'] = 20;
+		$where['a.type'] = 40;
 		$fields = "a.*,b.uname,c.remark";
 		$result = $m_contract_history->getList($fields,$where, $orders, $start,$size);
 		

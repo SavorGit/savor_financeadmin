@@ -176,7 +176,7 @@ $config['FINACE_CONTRACT'] = array(
 									array('id'=>23,'name'=>'其他'),
 								),
 								'purchase'=>array(
-									array('id'=>41,'name'=>'视频'),
+									array('id'=>41,'name'=>'食品'),
 									array('id'=>42,'name'=>'酒水'),
 									array('id'=>43,'name'=>'机顶盒'),
 									array('id'=>44,'name'=>'电'),
@@ -191,7 +191,20 @@ $config['FINACE_CONTRACT'] = array(
 									array('id'=>2,'name'=>'进行中'),
 									array('id'=>3,'name'=>'已结束'),
 									array('id'=>4,'name'=>'已终止'),
-								)
+								),
+	'settlement_type'  => array( 
+						'purchase'=>array(
+										array('id'=>1,'name'=>'一次性付款'),
+										array('id'=>2,'name'=>'分期付款'),
+									),
+						'advsale'=>array(
+										array('id'=>1,'name'=>'现金'),
+										array('id'=>2,'name'=>'易货'),
+										array('id'=>2,'name'=>'现金+易货'),
+									),
+									
+	
+	)
 );
 $config['CONTRACT_COMPANY']= array(
 	array('id'=>1,'name'=>'拉萨经济技术开发区热点信息技术有限公司'),
