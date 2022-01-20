@@ -316,7 +316,11 @@
                 <input name="address" type="text" value="{$vinfo.address}"  minlength="2" maxlength="100" class="form-control" />
               </div>
 			  
-            </div><div class="col-xs-2 col-sm-2">
+            </div>
+			<label class="col-xs-2 col-sm-1 control-label">
+                	发票类型：
+              </label>
+			<div class="col-xs-2 col-sm-2">
                 <select id="invoice_type" name="invoice_type" class="form-control bs-select" title="请选择发票类型">
                   <volist name="invoice_type_arr" id="vo">
                     <option value="{$vo.id}" > {$vo.name}</option>
@@ -341,9 +345,7 @@
                   </volist>
                 </select>
               </div>
-			  <label class="col-xs-2 col-sm-1 control-label">
-                	发票类型：
-              </label>
+			  
               
             </div>
 			<div class="form-group row">

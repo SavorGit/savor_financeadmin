@@ -105,10 +105,11 @@ class PurchaseController extends BaseController{
 			$where['a.name'] = array('like',"%".$name."%");
 			$this->assign('name',$name);
 		}
+		$where['a.type'] = 40;
 		$m_contract = new \Admin\Model\ContractModel();
 		$fileds = "a.*,b.uname";
 		
-		$result = $m_contract->getList($fileds,$where, $orders, $start=0,$size);
+		$result = $m_contract->getList($fileds,$where, $orders, $start,$size);
 		
 		//print_r($this->contract_ctype_arr);exit;
 		$m_contract_hotel = new \Admin\Model\ContracthotelModel();
