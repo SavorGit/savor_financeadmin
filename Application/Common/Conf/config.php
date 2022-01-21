@@ -186,12 +186,12 @@ $config['FINACE_CONTRACT'] = array(
 	
 									
 	),
-	'contract_status'=> array(
-									array('id'=>1,'name'=>'待生效'),
-									array('id'=>2,'name'=>'进行中'),
-									array('id'=>3,'name'=>'已结束'),
-									array('id'=>4,'name'=>'已终止'),
-								),
+    'contract_status'=> array(
+        '1'=>array('id'=>1,'name'=>'待生效'),
+        '2'=>array('id'=>2,'name'=>'进行中'),
+        '3'=>array('id'=>3,'name'=>'已结束'),
+        '4'=>array('id'=>4,'name'=>'已终止'),
+    ),
 	'settlement_type'  => array( 
 						'purchase'=>array(
 										array('id'=>1,'name'=>'一次性付款'),
