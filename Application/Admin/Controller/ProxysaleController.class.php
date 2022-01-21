@@ -94,6 +94,7 @@ class ProxysaleController extends BaseController{
 			}else if($status==4){
 				$where['a.status']=4;
 			}
+			$this->assign('status',$status);
 		}
 		if($sign_user_id){
 			$where['a.sign_user_id'] = $sign_user_id;

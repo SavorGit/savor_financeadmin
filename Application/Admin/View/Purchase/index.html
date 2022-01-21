@@ -40,7 +40,7 @@
                <select name="area_id" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
                  <option value=0 >全部</option>
                  <volist name="city_arr" id="vo">
-					<option <if condition="$area_id eq $vo.id">selected="selected" </if> value="{$vo.id}" >{$vo.region_name}</option>
+					<option value="{$vo.id}" <if condition="$vo.id eq $area_id">selected</if>>{$vo.region_name}</option>
 				 </volist>
 				 
                </select>
@@ -55,7 +55,7 @@
                <select name="status" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
                  <option value=0 >全部</option>
                  <volist name="status_arr" id="vo">
-					<option <if condition="$status eq $vo.id">selected="selected" </if> value="{$vo.id}" >{$vo.name}</option>
+					<option value="{$vo.id}" <if condition="$vo.id eq $status">selected</if>>{$vo.name}</option>
 				 </volist>
 				 
                </select>
@@ -71,7 +71,7 @@
                <select name="ctype" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
                  <option value=0 >全部</option>
                  <volist name="contract_ctype_arr" id="vo">
-					<option <if condition="$ctype eq $vo.id">selected="selected" </if> value="{$vo.id}" >{$vo.name}</option>
+					<option  value="{$vo.id}" <if condition="$vo.id eq $ctype">selected</if>>{$vo.name}</option>
 				 </volist>
 				 
                </select>
@@ -86,7 +86,7 @@
                <select name="sign_user_id" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
                  <option value=0 >全部</option>
                  <volist name="sign_user_arr" id="vo">
-					<option <if condition="$area_id eq $vo.id">selected="selected" </if> value="{$vo.id}" >{$vo.uname}</option>
+					<option  value="{$vo.id}" <if condition="$vo.id eq $sign_user_id">selected</if>>{$vo.uname}</option>
 				 </volist>
 				 
                </select>
@@ -95,7 +95,7 @@
 		  
 			<div class="form-group" style="margin-top:10px; margin-left:6px;">
 				<div class="input-group input-group-sm pull-right">
-				<input type="text" class="form-control" name="name" value="{$name}" placeholder="合同名称">
+				<input type="text" class="form-control" name="name" value="{$name}" placeholder="合同名称/采购项目">
 				<span class="input-group-btn">
 					<button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
 				</span>
@@ -104,7 +104,7 @@
             
             <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
 				<a class="btn btn-success btn-sm add" href="{$host_name}/purchase/add" title="新增采购合同" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增采购合同</a>
-				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_name}/excel/expheartlost" title="导出合同数据" target="_blank" mask="true"><i class="fa fa-plus"></i> 导出合同数据</a>
+				<!--<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_name}/excel/expheartlost" title="导出合同数据" target="_blank" mask="true"><i class="fa fa-plus"></i> 导出合同数据</a>-->
           
 			</div>
 			
@@ -179,14 +179,14 @@
 				</php>
                 
               </td>
-              <td data-title="关联酒楼">
+              <!--<td data-title="关联酒楼">
 			  <a data-tip="关联酒楼" title="关联酒楼-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/purchase/linkhotel?id={$vlist.id}" class="btn btn-success btn-icon">
 
                     {$vlist.contract_hotel_nums}
               </a>
 			  
 			  
-			  </td>
+			  </td>-->
              
 
               <td class="table-tool" data-title="操作">

@@ -62,6 +62,18 @@ class PurchaseController extends BaseController{
 		$name       = I('name','','trim');
 		
 		$where = [];
+		if($name){
+			$map1['a.name']= array('like',"%".$name."%");
+			$map2['a.purchased_item'] = array('like',"%".$name."%");
+			$where['_complex'] = array(
+				$map1,
+				$map2,
+				'_logic' => 'or'
+			);
+			$this->assign('name',$name);
+		}
+		
+		
 		if($start_date){
 			$where['a.sign_time']= array('EGT',$start_date);
 			$this->assign('start_date',$start_date);
@@ -96,15 +108,13 @@ class PurchaseController extends BaseController{
 			}else if($status==4){
 				$where['a.status']=4;
 			}
+			$this->assign('status',$status);
 		}
 		if($sign_user_id){
 			$where['a.sign_user_id'] = $sign_user_id;
 			$this->assign('sign_user_id',$sign_user_id);
 		}
-		if($name){
-			$where['a.name'] = array('like',"%".$name."%");
-			$this->assign('name',$name);
-		}
+		
 		$where['a.type'] = 40;
 		$m_contract = new \Admin\Model\ContractModel();
 		$fileds = "a.*,b.uname";
