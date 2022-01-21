@@ -326,6 +326,7 @@ class PurchaseController extends BaseController{
 			}else{
 				$ret  = $m_contract->addData($data);
 				if($ret){
+					$data['contract_id'] = $ret;
 					$m_contract_history = new \Admin\Model\ContracthistoryModel();
 					$rts = $m_contract_history->addData($data);
 					$this->output('添加成功!', 'purchase/index');

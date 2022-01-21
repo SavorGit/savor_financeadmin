@@ -277,6 +277,7 @@ class ProxysaleController extends BaseController{
 				$ret  = $m_contract->addData($data);
 				if($ret){
 					$m_contract_history = new \Admin\Model\ContracthistoryModel();
+					$data['contract_id'] = $ret;
 					$rts = $m_contract_history->addData($data);
 					$this->output('添加成功!', 'proxysale/index');
 				}else{
