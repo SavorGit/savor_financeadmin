@@ -201,7 +201,11 @@
 
                     <i class="fa fa-clock-o"></i>
                   </a>
-
+				  <if condition="$vlist.oss_addr neq ''">
+				  <a class="btn btn-success btn-sm add" href="http://{$oss_host}/{$vlist.oss_addr}" title="预览合同文件" target="_blank" mask="true" >
+					<li class="fa fa-file-pdf-o"></li>
+				  </a>
+				  </if>
                 </div>
               </td>
 

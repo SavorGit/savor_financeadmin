@@ -131,7 +131,7 @@
             <th>合同类型</th>
             <th>签约时间</th>
             <th>合同有效期</th>
-            <th>合作状态</th>
+            
             <th>关联酒楼</th>
             
             <th class="table-tool">操作</th>
@@ -201,7 +201,11 @@
 
                     <i class="fa fa-clock-o"></i>
                   </a>
-
+				  <if condition="$vlist.oss_addr neq ''">
+				  <a class="btn btn-success btn-sm add" href="http://{$oss_host}/{$vlist.oss_addr}" title="预览合同文件" target="_blank" mask="true" >
+					<li class="fa fa-file-pdf-o"></li>
+				  </a>
+				  </if>
                 </div>
               </td>
 
