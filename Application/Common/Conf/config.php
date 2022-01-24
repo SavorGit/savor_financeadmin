@@ -200,7 +200,7 @@ $config['FINACE_CONTRACT'] = array(
 						'advsale'=>array(
 										array('id'=>1,'name'=>'现金'),
 										array('id'=>2,'name'=>'易货'),
-										array('id'=>2,'name'=>'现金+易货'),
+										array('id'=>3,'name'=>'现金+易货'),
 									),
 									
 	

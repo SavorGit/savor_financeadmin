@@ -4,7 +4,7 @@
   
 </style>-->
 <div class="pageHeader">
-  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/purchase/index" method="post" >
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/adsale/index" method="post" >
     <input type="hidden" name="pageNum" value="{$pageNum}"/>
     <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
     <input type="hidden" name="_order" value="{$_order}"/>
@@ -62,7 +62,7 @@
           </div>
          </div>
 		 
-		 <div class="form-group">
+		 <!--<div class="form-group">
           <div class="input-group input-group-sm">
             <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
               合同分类：
@@ -76,7 +76,7 @@
 				 
                </select>
           </div>
-         </div>
+         </div>-->
 		  <div class="form-group">
           <div class="input-group input-group-sm">
             <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
@@ -95,7 +95,7 @@
 		  
 			<div class="form-group" style="margin-top:10px; margin-left:6px;">
 				<div class="input-group input-group-sm pull-right">
-				<input type="text" class="form-control" name="name" value="{$name}" placeholder="合同名称/采购项目">
+				<input type="text" class="form-control" name="name" value="{$name}" placeholder="合同名称">
 				<span class="input-group-btn">
 					<button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
 				</span>
@@ -103,7 +103,7 @@
 			</div>
             
             <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
-				<a class="btn btn-success btn-sm add" href="{$host_name}/purchase/add" title="新增采购合同" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增采购合同</a>
+				<a class="btn btn-success btn-sm add" href="{$host_name}/adsale/add" title="新增广告销售合同" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增广告销售合同</a>
 				<!--<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_name}/excel/expheartlost" title="导出合同数据" target="_blank" mask="true"><i class="fa fa-plus"></i> 导出合同数据</a>-->
           
 			</div>
@@ -180,7 +180,7 @@
                 
               </td>
               <!--<td data-title="关联酒楼">
-			  <a data-tip="关联酒楼" title="关联酒楼-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/purchase/linkhotel?id={$vlist.id}" class="btn btn-success btn-icon">
+			  <a data-tip="关联酒楼" title="关联酒楼-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/adsale/linkhotel?id={$vlist.id}" class="btn btn-success btn-icon">
 
                     {$vlist.contract_hotel_nums}
               </a>
@@ -192,12 +192,12 @@
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
                   
-                  <a data-tip="修改详情" title="采购合同-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/purchase/edit?id={$vlist.id}" class="btn btn-success btn-icon">
+                  <a data-tip="修改详情" title="广告销售合同-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/adsale/edit?id={$vlist.id}" class="btn btn-success btn-icon">
 
                     <i class="fa fa-tag"></i>
                   </a>
 				  
-				  <a data-tip="合同记录" title="合同记录-{$vlist.id}" target="navTab" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/purchase/logs?contract_id={$vlist.id}" class="btn btn-success btn-icon">
+				  <a data-tip="合同记录" title="合同记录-{$vlist.id}" target="navTab" data-placement="left" mask="true" rel="xiugaihotel" href="{$host_name}/adsale/logs?contract_id={$vlist.id}" class="btn btn-success btn-icon">
 
                     <i class="fa fa-clock-o"></i>
                   </a>
