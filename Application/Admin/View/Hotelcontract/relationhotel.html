@@ -1,0 +1,97 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/hotelcontract/relationhotel" method="post">
+    <input type="hidden" name="id" value="{$contract_id}"/>
+    <input type="hidden" name="self_type" value="{$self_type}"/>
+    <input type="hidden" name="pageNum" value="{$pageNum}"/>
+    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="col-xs-12 col-sm-8 col-md-8 col-lg-98">
+          <div class="tools-group">
+            <a class="btn btn-success btn-sm add" href="{$host_name}/hotelcontract/addrelationhotel?contract_id={$contract_id}" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i><span>新增</span></a>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 pull-right">
+          <div class="input-group input-group-sm">
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+          <tr id="post">
+            <th>关联酒楼ID</th>
+            <th>酒楼名称</th>
+            <th>包间数量</th>
+            <th>小平台数量</th>
+            <th>机顶盒数量</th>
+            <th>电视数量</th>
+            <th>生效时间</th>
+            <th class="table-tool">操作</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <foreach name="datalist" item="dinfo">
+            <tr target="sid_user">
+              <td data-title="关联酒楼ID"><a class="click-able-title">{$dinfo.id}</a></td>
+              <td data-title="酒楼名称"><a class="click-able-title">{$dinfo.name}</a></td>
+              <td data-title="包间数量">{$dinfo.room_num}</td>
+              <td data-title="小平台数量">{$dinfo.small_num}</td>
+              <td data-title="机顶盒数量">{$dinfo.box_num}</td>
+              <td data-title="电视数量">{$dinfo.tv_num}</td>
+              <td data-title="生效时间">{$dinfo.add_time}</td>
+              <td class="table-tool" data-title="操作">
+                <div class="tools-edit">
+                  <a warn="警告" data-tip="删除" title="你确定要删除吗？" target="ajaxTodo" href="{$host_name}/hotelcontract/relationhoteldel?id={$dinfo.id}" calback="navTabAjaxDone" class="btn btn-danger btn-icon"><span><i class="fa fa-trash"></i></span></a>
+                </div>
+              </td>
+            </tr>
+            <notempty name="dinfo.boxs">
+              <volist name="dinfo.boxs" id="boxinfo">
+                <tr target="sid_user">
+                  <td data-title="ID"><span class="lvl"><em></em></span></td>
+                  <td data-title="包间名称">包间:{$boxinfo.room_name}</td>
+                  <td data-title="版位名称">版位:{$boxinfo.box_name}</td>
+                  <td data-title="电视数量">电视:{$boxinfo.tv_num}</td>
+                  <td data-title="计费数量">计费数量:{$boxinfo.tv_num}</td>
+                  <td data-title="计费模板">计费模板:{$boxinfo.template_name}</td>
+                  <td></td>
+                  <td class="table-tool" data-title="操作">
+                    <div class="tools-edit">
+                      <a title="设置计费模板" data-tip="设置计费模板" target="dialog" mask="true" href="{$host_name}/hotelcontract/setboxcost?contract_id={$contract_id}&hotel_id={$dinfo.hotel_id}&room_id={$boxinfo.room_id}&box_id={$boxinfo.box_id}&box_mac={$boxinfo.box_mac}" class="btn btn-success btn-icon">
+                        <i class="fa fa-pencil"></i>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              </volist>
+            </notempty>
+          </foreach>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
+<script>
+  $(function(){
+    $(".class-filter").change(function (){
+      $(this).closest("form").submit();
+    })
+  })
+</script>
