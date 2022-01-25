@@ -40,7 +40,9 @@
 			  <td data-title="备注">{$vlist.desc}</td>
               
               <td data-title="操作">
-			  
+			    <a data-tip="查看详情" target="dialog" mask="true" href="{$host_name}/purchase/logdetail?id={$vlist.id}&acttype=1" rel="hotel/detail" title="{$vlist.name}合同记录详情" class="btn btn-success btn-icon">
+					<i class="fa fa-search-minus"></i>
+				</a>
 				<if condition="$vlist.oss_addr neq ''">
 					<a href="http://{$oss_host}/{$vlist.oss_addr}" target="_blank">合同原件</a>
 				<else />

@@ -539,4 +539,39 @@ class ProxysaleController extends BaseController{
 		$this->assign('page',$result['page']);
 		$this->display('logs');
 	}
+	public function logdetail(){
+		$id = I('get.id',0,'intval');
+		
+		$m_area = new \Admin\Model\AreaModel();
+		$city_arr = $m_area->getHotelAreaList();
+		$m_signuser = new \Admin\Model\SignuserModel();
+		$sign_user_arr = $m_signuser->field('id,uname')->where('status=1')->select();
+		
+		
+		$m_contract = new \Admin\Model\ContracthistoryModel();
+		$vinfo = $m_contract->where('id='.$id)->find();
+		
+		if($vinfo['sign_time']=='0000-00-00')       $vinfo['sign_time'] = '';
+		if($vinfo['archive_time']=='0000-00-00')    $vinfo['archive_time'] = '';
+		if($vinfo['contract_stime']=='0000-00-00')  $vinfo['contract_stime'] = '';
+		if($vinfo['contract_etime']=='0000-00-00')  $vinfo['contract_etime'] = '';
+		if($vinfo['statement_time']=='0000-00-00')  $vinfo['statement_time'] = '';
+		if($vinfo['settlement_time']=='0000-00-00') $vinfo['settlement_time'] = '';
+		
+		
+		
+		$info_goods = json_decode($vinfo['info_goods'],true);
+		
+		$this->assign('vinfo',$vinfo);
+		//print_r($info_goods);exit;
+		$this->assign('info_goods',$info_goods);
+		$this->assign('city_arr',$city_arr);
+		$this->assign('sign_user_arr',$sign_user_arr);
+		$this->assign('company_property_arr',$this->company_property_arr);
+		$this->assign('invoice_type_arr',$this->invoice_type_arr);
+		$this->assign('contract_company_arr',$this->contract_company_arr);
+		$this->assign('contract_ctype_arr',$this->contract_ctype_arr);
+		
+		$this->display('logdetail');
+	}
 }

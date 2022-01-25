@@ -74,14 +74,27 @@
               </div>
 			  
 			  <label class="col-xs-2 col-sm-1 control-label">
-                	金额：
+                	合同类型：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <input name="contract_money" type="text" value="{$vinfo.contract_money}"  minlength="1" maxlength="100" class="form-control" />
+                <select id="ctype" name="ctype" class="form-control bs-select" title="请选择合同类型" >
+                  <volist name="contract_ctype_arr" id="vo">
+                    <!--<option value="{$vo.id}" data-content='<span class="lvl">{$vo.html}</span> {$vo.shw_title}'<if condition="$vo.id eq $vinfo['shw_cid']">selected</if>> {$vo.shw_title}</option>-->
+					<option value="{$vo.id}" <if condition="$vo.id eq $vinfo['ctype']">selected</if>> {$vo.name}</option>
+				  </volist>
+                </select>
+                
               </div>
               
             </div>
-            
+            <div class="form-group row">
+				<label class="col-xs-2 col-sm-1 control-label">
+                	金额：
+				</label>
+				<div class="col-xs-2 col-sm-2">
+					<input name="contract_money" type="text" value="{$vinfo.contract_money}"  minlength="1" maxlength="100" class="form-control" />
+				</div>
+			</div>
             
             <div class="form-group row">
               <label class="col-xs-2 col-sm-1 control-label">

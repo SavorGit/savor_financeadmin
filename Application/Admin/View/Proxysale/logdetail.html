@@ -1,0 +1,507 @@
+<include file="Public/script"/>
+<div class="pageContent" style="height:100%;overflow: auto;background-color: #EEEEEE;">
+  
+    <div class="pageFormContent modal-body">
+      <div class="tabsContent">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#etab1" data-toggle="tab"><span>基本信息</span></a></li>
+          <li class=""><a href="#etab2" data-toggle="tab"><span>企业基本信息</span></a></li>
+		  <li class=""><a href="#etab3" data-toggle="tab"><span>商品基本信息</span></a></li>
+		 
+		  <a data-tip="修改" target="dialog" mask="true" href="{$host_name}/proxysale/edit?id={$vinfo.contract_id}" class="btn btn-success btn-icon" style="margin-top:6px;">
+			<i class="fa fa-pencil"></i>
+		  </a>
+		
+        </ul>
+        <div class="tab-content">
+          <div id="etab1" class="tab-pane active fade in">
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	合同编号：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                
+                <input name="serial_number" type="text" value="{$vinfo.serial_number}"  minlength="2" maxlength="100" class="form-control" disabled/>
+              </div>
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	合同名称：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                
+                <input name="name" type="text" value="{$vinfo.name}"  minlength="2" maxlength="100" class="form-control" disabled/>
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	签约公司：
+              </label>
+              <div class="col-xs-2 col-sm-5">
+                <select id="company_id" name="company_id" class="form-control bs-select" title="请选择签约公司" disabled>
+                  <volist name="contract_company_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['company_id']">selected</if>> {$vo.name}</option>
+                  </volist>
+                </select>
+              </div>
+              
+              
+            </div>
+            
+            <div class="form-group row">
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	签约部门：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="sign_department" type="text" value="{$vinfo.sign_department}"  minlength="2" maxlength="100" class="form-control" disabled/>
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	签约人：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="sign_user_id" name="sign_user_id" class="form-control bs-select" title="请选择签约人" disabled>
+                  <volist name="sign_user_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['sign_user_id']">selected</if>> {$vo.uname}</option>
+                  </volist>
+                </select>
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	合同类型：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="ctype" name="ctype" class="form-control bs-select" title="请选择合同类型" disabled>
+                  <volist name="contract_ctype_arr" id="vo">
+                    <!--<option value="{$vo.id}" data-content='<span class="lvl">{$vo.html}</span> {$vo.shw_title}'<if condition="$vo.id eq $vinfo['shw_cid']">selected</if>> {$vo.shw_title}</option>-->
+					<option value="{$vo.id}" <if condition="$vo.id eq $vinfo['ctype']">selected</if>> {$vo.name}</option>
+				  </volist>
+                </select>
+                
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	签约城市：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="area_id" name="area_id" class="form-control bs-select" title="请选择签约城市" disabled>
+                  <volist name="city_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['area_id']">selected</if>> {$vo.region_name}</option>
+                  </volist>
+                </select>
+                
+              </div>
+              
+            </div>
+            
+            
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                签署日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-ymd="true" data-date="{$vinfo.sign_time}">
+                  <input name="sign_time" type="text" size="16" class="form-control date" placeholder="签署日期" value="{$vinfo.sign_time}" disabled>
+                  <span class="input-group-btn">
+                    
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                归档日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-date="{$vinfo.archive_time}">
+                  <input name="archive_time" type="text" size="16" class="form-control date" placeholder="归档日期" value="{$vinfo.archive_time}" disabled>
+                  <span class="input-group-btn">
+                    
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                对账日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-date="{$vinfo.statement_time}">
+                  <input name="statement_time" type="text" size="16" class="form-control date" placeholder="对账日期" value="{$vinfo.statement_time}" disabled>
+                  <span class="input-group-btn">
+                    
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+               结算日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-date="{$vinfo.settlement_time}">
+                  <input name="settlement_time" type="text" size="16" class="form-control date" placeholder="结算日期" value="{$vinfo.settlement_time}" disabled>
+                  <span class="input-group-btn">
+                    
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              
+            </div>
+            
+            
+            
+            
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+               合同有效期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-date="{$vinfo.contract_stime}">
+                  <input name="contract_stime" type="text" size="16" class="form-control date" placeholder="合同开始日期" value="{$vinfo.contract_stime}" disabled>
+                  <span class="input-group-btn">
+                    
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+               
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-date="{$vinfo.contract_etime}">
+                  <input name="contract_etime" type="text" size="16" class="form-control date" placeholder="合同结束日期" value="{$vinfo.contract_etime}" disabled>
+                  <span class="input-group-btn">
+                    
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              
+              
+              
+            </div>
+            
+            
+            
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	合同签约人：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="hotel_signer" type="text" value="{$vinfo.hotel_signer}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	电话1：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="hotel_signer_phone1" type="text" value="{$vinfo.hotel_signer_phone1}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                	电话2：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="hotel_signer_phone2" type="text" value="{$vinfo.hotel_signer_phone2}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+              
+            </div>
+			<div class="form-group row" id="defaultpic">
+			  <label class="col-xs-12 col-sm-2 control-label">
+			   合同文件：
+			  </label>
+			  <div class="col-xs-12 col-sm-10">
+			   <php >if(empty($vinfo['oss_addr'])){</php>
+			    <div class="col-xs-2 col-sm-2">
+				<span class="form-control" disabled>无合同文件</span>
+				</div>
+			   <php>}else {</php>
+			   <div class="col-xs-2 col-sm-2">
+			    <span class="form-control" disabled><a href="http://{$oss_host}/{$vinfo.oss_addr}" target="_blank" >预览合同文件</a></span>
+			   </div>
+			   <php>}</php>
+			  </div>
+			 </div>
+			
+			<div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	变更内容：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="change_content" type="text" value="{$vinfo.change_content}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	备注：
+              </label>
+              <div class="col-xs-2 col-sm-6">
+                <textarea name="desc" type="textInput" class="form-control" disabled>{$vinfo.desc}</textarea>
+              </div>
+            </div>
+			
+          </div>
+          <div id="etab2" class="tab-pane fade">
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	公司名称：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="company_name" type="text" value="{$vinfo.company_name}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	公司简称：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="company_short_name" type="text" value="{$vinfo.company_short_name}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	所属城市：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="company_area_id" name="company_area_id" class="form-control bs-select" title="请选择所属城市" disabled>
+                  <volist name="city_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['company_area_id']">selected</if>> {$vo.region_name}</option>
+                  </volist>
+                </select>
+              </div>
+            </div>
+			<div class="form-group row">
+              <label class="col-xs-12 col-sm-1 control-label">
+                	注册地址：
+              </label>
+              <div class="col-xs-12 col-sm-10">
+                <input name="address" type="text" value="{$vinfo.address}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  
+            </div>
+			<div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	企业性质：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="company_property" name="company_property" class="form-control bs-select" title="请选择企业性质" disabled>
+                  <volist name="company_property_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['company_property']">selected</if>> {$vo.name}</option>
+                  </volist>
+                </select>
+              </div>
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	发票类型：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="invoice_type" name="invoice_type" class="form-control bs-select" title="请选择发票类型" disabled>
+                  <volist name="invoice_type_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['invoice_type']">selected</if>> {$vo.name}</option>
+                  </volist>
+                </select>
+              </div>
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	税率：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="rate"  type="text" value="{$vinfo.rate}"  minlength="1" maxlength="5" class="form-control" disabled />
+				<span>%</span>
+              </div>
+            </div>
+			<div class="form-group row">
+              
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	开户名称：
+              </label>
+              <div class="col-xs-2 col-sm-8">
+                <input  name="account_name"  type="text" value="{$vinfo.account_name}"  minlength="2" maxlength="100" class="form-control" disabled />
+				
+              </div>
+			  
+            </div>
+			<div class="form-group row">
+              
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	开户行名称：
+              </label>
+              <div class="col-xs-12 col-sm-8">
+                <input  name="bank_name"  type="text" value="{$vinfo.bank_name}"  minlength="2" maxlength="100" class="form-control" disabled />
+				
+              </div>
+			  
+            </div>
+			<div class="form-group row">
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	账号：
+              </label>
+              <div class="col-xs-2 col-sm-8">
+                <input  name="bank_account"  type="text" value="{$vinfo.bank_account}"  minlength="2" maxlength="100" class="form-control" disabled />
+				
+              </div>
+            </div>
+			
+			<div class="form-group row">
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	联系人1：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact1"  type="text" value="{$vinfo.contact1}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	电话1：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact_phone1"  type="text" value="{$vinfo.contact_phone1}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	电话2：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact_phone12"  type="text" value="{$vinfo.contact_phone12}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	qq：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact_qq1"  type="text" value="{$vinfo.contact_qq1}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	微信：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact_wechat1"  type="text" value="{$vinfo.contact_wechat1}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+            </div>
+			
+			<div class="form-group row">
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	联系人2：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact2"  type="text" value="{$vinfo.contact2}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	电话1：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact_phone2"  type="text" value="{$vinfo.contact_phone2}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	电话2：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact_phone22"  type="text" value="{$vinfo.contact_phone22}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	qq：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact_qq2"  type="text" value="{$vinfo.contact_qq2}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	微信：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="contact_wechat2"  type="text" value="{$vinfo.contact_wechat2}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+            </div>
+			
+			
+            
+            
+
+          </div>
+		  <div id="etab3" class="tab-pane fade">
+		  
+			<php> for($i=0;$i<5;$i++){ </php>
+			<div class="form-group row">
+			  
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	商品名称：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_name[]"  type="text" value="{$info_goods[$i]['goods_name']}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	商品编码：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_number[]"  type="text" value="{$info_goods[$i]['goods_number']}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	品类：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_type[]"  type="text" value="{$info_goods[$i]['goods_type']}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	基本单位：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_unit[]"  type="text" value="{$info_goods[$i]['goods_unit']}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	规格：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_standard[]"  type="text" value="{$info_goods[$i]['goods_standard']}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	箱规：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_box_standard[]"  type="text" value="{$info_goods[$i]['goods_box_standard']}"   minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	酒精度：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_alcohol[]"  type="text" value="{$info_goods[$i]['goods_alcohol']}"   minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	折扣率：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_discount_rate[]"  type="text" value="{$info_goods[$i]['goods_discount_rate']}"   minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	折扣额：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_discount_mount[]"  type="text" value="{$info_goods[$i]['goods_discount_mount']}"   minlength="2" maxlength="100" class="form-control" disabled />
+              </div><label class="col-xs-1 col-sm-1 control-label">
+                	佣金：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="goods_commission[]"  type="text" value="{$info_goods[$i]['goods_commission']}"   minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+			  <label class="col-xs-1 col-sm-1 control-label">
+                	结算单位：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input  name="balance_unit[]"  type="text"  value="{$info_goods[$i]['balance_unit']}"  minlength="2" maxlength="100" class="form-control" disabled />
+              </div>
+            </div>
+			<php>}  </php>
+			
+			
+			
+		  </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <!--<button class="btn btn-default close-m" type="button">取消</button>
+	  <button class="btn btn-primary" type="submit" name="is_draft" value="1">保存草稿</button>   
+      <button class="btn btn-primary" type="submit">保存</button>-->
+      
+    </div>
+    
+</div>
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+  $(function(){
+    
+
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+</script>

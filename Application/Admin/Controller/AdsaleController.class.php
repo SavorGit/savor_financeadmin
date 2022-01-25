@@ -18,7 +18,7 @@ class AdsaleController extends BaseController{
 	private $required_arr = array('serial_number'=>'请填写合同编号','name'=>'请填写合同名称','company_id'=>'请选择签约公司',
 								  'sign_department'=>'请选择签约部门','sign_user_id'=>'请填写签约人',
 								  'area_id'=>'请选择签约城市','sign_time'=>'请选择签署日期','archive_time'=>'请选择归档日期',
-								  'contract_money'=>'请填写金额',
+								  'contract_money'=>'请填写金额','ctype'=>'请选择合同类型',
 								  'hotel_signer'=>'请填写合同签约人',
 								  'hotel_signer_phone1'=>'请填写合同签约人电话1',
 								  
@@ -38,7 +38,7 @@ class AdsaleController extends BaseController{
 		$config_proxy_sale_contract = C('FINACE_CONTRACT');
 		$this->company_property_arr = $config_proxy_sale_contract['company_property'];
 		$this->invoice_type_arr     = $config_proxy_sale_contract['invoice_type'];
-		$this->contract_ctype_arr   = $config_proxy_sale_contract['contract_ctype']['proxysale'];
+		$this->contract_ctype_arr   = $config_proxy_sale_contract['contract_ctype']['adsale'];
 		$this->status_arr           = $config_proxy_sale_contract['contract_status'];
 		$this->settlement_type_arr  = $config_proxy_sale_contract['settlement_type']['advsale'];
 		$this->contract_company_arr = C('CONTRACT_COMPANY');
@@ -195,6 +195,7 @@ class AdsaleController extends BaseController{
 			$data['sign_time']       	 = I('post.sign_time','','trim');               //签署日期
 			$data['archive_time']    	 = I('post.archive_time','','trim');            //归档日期
 			$data['contract_money']      = I('post.contract_money','','trim');          //金额
+			$data['ctype']           	 = I('post.ctype',0,'intval');                  //合同类型
 			
 			$data['contract_stime']  	 = I('post.contract_stime','','trim');          //合同开始日期
 			$data['contract_etime']      = I('post.contract_etime','','trim');          //合同结束日期
@@ -485,6 +486,7 @@ class AdsaleController extends BaseController{
 			$data['sign_time']       	 = I('post.sign_time','','trim');               //签署日期
 			$data['archive_time']    	 = I('post.archive_time','','trim');            //归档日期
 			$data['contract_money']      = I('post.contract_money','','trim');          //金额
+			$data['ctype']           	 = I('post.ctype',0,'intval');                  //合同类型
 			
 			$data['contract_stime']  	 = I('post.contract_stime','','trim');          //合同开始日期
 			$data['contract_etime']      = I('post.contract_etime','','trim');          //合同结束日期
@@ -724,5 +726,56 @@ class AdsaleController extends BaseController{
 		$this->assign('list',$result['list']);
 		$this->assign('page',$result['page']);
 		$this->display('logs');
+	}
+	public function logdetail(){
+		$id = I('get.id',0,'intval');
+		
+		$m_area = new \Admin\Model\AreaModel();
+		$city_arr = $m_area->getHotelAreaList();
+		$m_signuser = new \Admin\Model\SignuserModel();
+		$sign_user_arr = $m_signuser->field('id,uname')->where('status=1')->select();
+		
+		
+		$m_contract = new \Admin\Model\ContracthistoryModel();
+		$vinfo = $m_contract->where('id='.$id)->find();
+		if($vinfo['sign_time']=='0000-00-00')       $vinfo['sign_time'] = '';
+		if($vinfo['archive_time']=='0000-00-00')    $vinfo['archive_time'] = '';
+		if($vinfo['contract_stime']=='0000-00-00')  $vinfo['contract_stime'] = '';
+		if($vinfo['contract_etime']=='0000-00-00')  $vinfo['contract_etime'] = '';
+		if($vinfo['statement_time']=='0000-00-00')  $vinfo['statement_time'] = '';
+		if($vinfo['settlement_time']=='0000-00-00') $vinfo['settlement_time'] = '';
+		
+		
+		
+		$info_goods   = json_decode($vinfo['info_goods'],true);
+		
+		$info_money   = json_decode($vinfo['info_money'],true);
+		$info_invoice = json_decode($vinfo['info_invoice'],true);
+		
+		//投放城市
+		$putin_area_ids = $vinfo['putin_area_ids'];
+		if(!empty($putin_area_ids)){
+			$putin_area_id_arr = explode(',',$putin_area_ids);
+			$city_id_arr = [];
+			foreach($city_arr as $key=>$v){
+				if(in_array($v['id'],$putin_area_id_arr)){
+					$city_arr[$key]['select'] = 'selected';
+				}
+			}
+		}
+		$this->assign('vinfo',$vinfo);
+		$this->assign('info_goods',$info_goods);
+		$this->assign('info_money',$info_money);
+		$this->assign('info_invoice',$info_invoice);
+		$this->assign('city_arr',$city_arr);
+		$this->assign('sign_user_arr',$sign_user_arr);
+		$this->assign('company_property_arr',$this->company_property_arr);
+		$this->assign('invoice_type_arr',$this->invoice_type_arr);
+		$this->assign('contract_company_arr',$this->contract_company_arr);
+		$this->assign('contract_ctype_arr',$this->contract_ctype_arr);
+		
+		$this->assign('settlement_type_arr',$this->settlement_type_arr);
+        $this->display('logdetail');
+		
 	}
 }

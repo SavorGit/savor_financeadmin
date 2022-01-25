@@ -175,7 +175,7 @@ $config['FINACE_CONTRACT'] = array(
 									array('id'=>22,'name'=>'食品'),
 									array('id'=>23,'name'=>'其他'),
 								),
-								'proxysale'=>array(
+								'adsale'=>array(
 									array('id'=>31,'name'=>'酒水'),
 									array('id'=>32,'name'=>'食品'),
 									array('id'=>33,'name'=>'其他'),
