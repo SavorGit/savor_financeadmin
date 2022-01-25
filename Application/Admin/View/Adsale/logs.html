@@ -1,0 +1,83 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start
+<style type="text/css">
+  
+</style>-->
+
+<div class="pageContent" id="pagecontent" style="margin-top:40px;" >
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+          <tr id="post">
+            <!-- <th class="table-checkbox">
+              <input type="checkbox" data-check="all" data-parent=".table" />
+            </th> -->
+            <th>ID</th>
+            <th>合同编号</th>
+			<th>添加时间</th>
+			<th>操作人</th>
+			<th>变更内容</th>
+			<th>备注</th>
+            <th>操作</th>
+            
+            
+            
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <volist name="list" id="vlist">
+            <tr target="sid_user">
+              
+              <td data-title="合同ID">{$vlist.id}</td>
+              <td data-title="合同编号">{$vlist.serial_number}</td>
+              <td data-title="添加时间">{$vlist.add_time}</td>
+              <td data-title="操作人">{$vlist.remark}</td>
+			  
+             
+              <td data-title="变更内容">{$vlist.change_content}</td>
+			  <td data-title="备注">{$vlist.desc}</td>
+              
+              <td data-title="操作">
+			  
+				<if condition="$vlist.oss_addr neq ''">
+					<a href="http://{$oss_host}/{$vlist.oss_addr}" target="_blank">合同原件</a>
+				<else />
+					无
+				</if>
+			  </td>
+             
+
+              
+
+            </tr>
+          </volist>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
+
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+
+
+  $(function(){
+    
+
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+</script>
