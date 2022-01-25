@@ -1,0 +1,236 @@
+<include file="Public/script"/>
+<div class="pageContent" style="height:100%;overflow: auto;background-color: #EEEEEE;">
+  <form method="post" action="{$host_name}/administration/addcontract" class="pageForm -validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+    
+    <input type="hidden" name="id" value="{$vinfo.id}">
+    <div class="pageFormContent modal-body">
+      <div class="tabsContent">
+        <ul class="nav nav-tabs">
+          <li class="active"><a href="#tab1" data-toggle="tab"><span>基本信息</span></a></li>
+        </ul>
+        <div class="tab-content">
+          <div id="tab1" class="tab-pane active fade in">
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	合同编号：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="serial_number" type="text" value="{$vinfo.serial_number}"  minlength="2" maxlength="100" class="form-control" />
+              </div>
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	合同名称：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="name" type="text" value="{$vinfo.name}"  minlength="2" maxlength="100" class="form-control" />
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	签约公司：
+              </label>
+              <div class="col-xs-2 col-sm-5">
+                <select id="company_id" name="company_id" class="form-control bs-select" title="请选择签约公司" >
+                  <volist name="contract_company_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['company_id']">selected</if> > {$vo.name}</option>
+                  </volist>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-group row">
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	签约部门：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="sign_department" type="text" value="{$vinfo.sign_department}"  minlength="2" maxlength="100" class="form-control" />
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	签约人：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="sign_user_id" name="sign_user_id" class="form-control bs-select" title="请选择签约人" >
+                  <volist name="sign_user_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['sign_user_id']">selected</if> > {$vo.uname}</option>
+                  </volist>
+                </select>
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	合同类型：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select name="ctype" class="form-control bs-select" title="请选择合同类型" >
+                  <volist name="contract_ctype_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['ctype']">selected</if> > {$vo.name}</option>
+				  </volist>
+                </select>
+                
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	签约城市：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="area_id" name="area_id" class="form-control bs-select" title="请选择签约城市" >
+                  <volist name="city_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['area_id']">selected</if> > {$vo.region_name}</option>
+                  </volist>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                签署日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-ymd="true" data-date="{$vinfo.sign_time}">
+                  <input name="sign_time" type="text" size="16" class="form-control date" placeholder="签署日期" value="{$vinfo.sign_time}" >
+                  <span class="input-group-btn">
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                归档日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-date="{$vinfo.archive_time}">
+                  <input name="archive_time" type="text" size="16" class="form-control date" placeholder="归档日期" value="{$vinfo.archive_time}" >
+                  <span class="input-group-btn">
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+               合同有效期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-date="{$vinfo.contract_stime}">
+                  <input name="contract_stime" type="text" size="16" class="form-control date" placeholder="合同开始日期" value="{$vinfo.contract_stime}" >
+                  <span class="input-group-btn">
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-date="{$vinfo.contract_etime}">
+                  <input name="contract_etime" type="text" size="16" class="form-control date" placeholder="合同结束日期" value="{$vinfo.contract_etime}" >
+                  <span class="input-group-btn">
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	金额：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="contract_money" type="text" value="{$vinfo.contract_money}"  minlength="2" maxlength="100" class="form-control" />
+              </div>
+            </div>
+
+			<div class="form-group row">
+			  <label class="col-xs-2 col-sm-1 control-label">
+			   上传文件：
+			  </label>
+			  <div class="col-xs-2 col-sm-2">
+			   <div class="fileinput fileinput-new" data-fileinput>
+				<div class="fileinput-preview thumbnail" data-trigger="fileinput">
+				 <a data-target="#modal-file" href=" " data-browse-file>
+				  <if condition="($vinfo.oss_addr eq 'NULL') OR $vinfo.oss_addr eq ''">
+				   <img id="media_idimg"  src="/Public/admin/assets/img/noimage.png" border="0"/>
+				   <else />
+				   <img id="media_idimg" src="{$vinfo.oss_addr}" border="0" />
+				  </if>
+				  <span id="media_idimgname">{$vinfo.oss_name}</span>
+				 </a>
+				</div>
+				<div>
+				 <a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=media_id&rtype=6" data-browse-file>
+				  选择文件
+				 </a>
+				 <input type="hidden" name="media_id" id="media_id" value="{$vinfo.media_id}">
+				 <a id="bntt" href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
+				</div>
+			   </div>
+			  </div>
+			 </div>
+
+              <div class="form-group row">
+                  <label class="col-xs-2 col-sm-1 control-label">
+                      发票类型：
+                  </label>
+                  <div class="col-xs-2 col-sm-2">
+                      <select id="invoice_type" name="invoice_type" class="form-control bs-select" title="请选择发票类型">
+                          <volist name="invoice_type_arr" id="vo">
+                              <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['invoice_type']">selected</if>> {$vo.name}</option>
+                          </volist>
+                      </select>
+                  </div>
+                  <label class="col-xs-2 col-sm-1 control-label">
+                      税率(%)：
+                  </label>
+                  <div class="col-xs-2 col-sm-2">
+                      <input name="rate" type="text" value="{$vinfo.rate}"  minlength="1" maxlength="5" class="form-control" />
+                  </div>
+                  <label class="col-xs-2 col-sm-1 control-label">
+                      发票编号：
+                  </label>
+                  <div class="col-xs-2 col-sm-2">
+                      <input name="invoice_no" type="text" value="{$vinfo.invoice_no}"  class="form-control" />
+                  </div>
+              </div>
+
+          <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                  变更内容：
+              </label>
+              <div class="col-xs-2 col-sm-6">
+                  <input type="text" class="form-control" name="change_content" minlength="1" maxlength="100" value="{$vinfo.change_content}">
+              </div>
+          </div>
+
+          <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                  备注：
+              </label>
+              <div class="col-xs-2 col-sm-8">
+                  <textarea name="desc" value="{$vinfo.desc}" type="textInput" class="form-control" maxlength="255">{$vinfo.desc}</textarea>
+              </div>
+          </div>
+
+
+          </div>
+
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default close-m" type="button">取消</button>
+	  <button class="btn btn-primary" type="submit" name="is_draft" value="1">保存草稿</button>   
+      <button class="btn btn-primary" type="submit">保存</button>
+      
+    </div>
+    
+  </form>
+</div>
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+  $(function(){
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+</script>
