@@ -183,7 +183,13 @@ $config['FINACE_CONTRACT'] = array(
 									array('id'=>45,'name'=>'网络设备'),
 									array('id'=>46,'name'=>'其它'),
 								),
-	
+                                'administration'=>array(
+                                    '51'=>array('id'=>51,'name'=>'房租'),
+                                    '52'=>array('id'=>52,'name'=>'车位'),
+                                    '53'=>array('id'=>53,'name'=>'宽带'),
+                                    '54'=>array('id'=>54,'name'=>'招聘'),
+                                    '55'=>array('id'=>55,'name'=>'其它'),
+                                ),
 									
 	),
     'contract_status'=> array(
