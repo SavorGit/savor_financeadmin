@@ -1,0 +1,82 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/hotelcontract/history" method="post">
+        <input type="hidden" name="id" value="{$id}"/>
+        <input type="hidden" name="pageNum" value="{$pageNum}"/>
+        <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+        <div class="searchBar">
+            <div class="clearfix">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">合同-{$name}-记录</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+          <tr id="post">
+            <th>ID</th>
+            <th>合同编号</th>
+			<th>添加时间</th>
+			<th>操作人</th>
+			<th>变更内容</th>
+			<th>备注</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <volist name="datalist" id="dinfo">
+            <tr target="sid_user">
+              <td data-title="ID">{$dinfo.id}</td>
+              <td data-title="合同编号">{$dinfo.serial_number}</td>
+              <td data-title="添加时间">{$dinfo.add_time}</td>
+              <td data-title="操作人">{$dinfo.username}</td>
+              <td data-title="变更内容">{$dinfo.change_content}</td>
+			  <td data-title="备注">{$dinfo.desc}</td>
+              <td data-title="操作">
+                  <a data-tip="查看详情" title="合同历史详情" target="navTab" mask="true" href="{$host_name}/hotelcontract/detail?id={$dinfo.id}" rel="hotelcontract/detail" class="btn btn-success btn-icon">
+                      <i class="fa fa-info"></i>
+                  </a>
+
+                  <if condition="$dinfo.oss_addr neq ''">
+                      <a title="合同文件" data-tip="合同文件" target="_blank" href="{$dinfo.oss_addr}" class="btn btn-danger btn-icon">
+                          <i class="fa fa-file-pdf-o"></i>
+                      </a>
+                      <else />
+                      <a onclick="alertMsg.error('无合同文件')" href="#" class="btn btn-danger btn-icon" style="opacity:0.6"><span><i class="fa fa-file-pdf-o"></i></span></a>
+                  </if>
+			  </td>
+            </tr>
+          </volist>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
+
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+  $(function(){
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+</script>
