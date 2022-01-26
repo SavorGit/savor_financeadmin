@@ -189,6 +189,19 @@ class AdministrationController extends BaseController {
                         $vinfo['invoice_no'] = $info_invoice['invoice_no'];
                     }
                 }
+                if($vinfo['sign_time']=='0000-00-00'){
+                    $vinfo['sign_time'] = '';
+                }
+                if($vinfo['archive_time']=='0000-00-00'){
+                    $vinfo['archive_time'] = '';
+                }
+                if($vinfo['contract_stime']=='0000-00-00'){
+                    $vinfo['contract_stime'] = '';
+                }
+                if($vinfo['contract_etime']=='0000-00-00'){
+                    $vinfo['contract_etime'] = '';
+                }
+
                 $media_id = 0;
                 if(!empty($vinfo['oss_addr'])){
                     $m_media = new \Admin\Model\MediaModel();
@@ -219,7 +232,9 @@ class AdministrationController extends BaseController {
         $m_history = new \Admin\Model\ContracthistoryModel();
         $vinfo = $m_history->getInfo(array('id'=>$id));
         if(!empty($vinfo['oss_addr'])){
-            $vinfo['oss_name'] = $vinfo['name'];
+            $m_media = new \Admin\Model\MediaModel();
+            $res_media = $m_media->getRow('id,name',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
+            $vinfo['oss_name'] = $res_media['name'];
         }
         if(!empty($vinfo['info_invoice'])){
             $info_invoice = json_decode($vinfo['info_invoice'],true);
