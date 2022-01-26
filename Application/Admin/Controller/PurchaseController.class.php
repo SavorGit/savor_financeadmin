@@ -25,7 +25,7 @@ class PurchaseController extends BaseController{
 								  'address'=>'请填写公司注册地址','account_name'=>'请填写公司开户名称','company_property'=>'请选择公司企业性质',
 								  'bank_name'=>'请填写公司开户行名称','bank_account'=>'请填写公司开户账号','contact1'=>'请填写联系人1',
 								  'contact_phone1'=>'请填写联系人电话1','contact2'=>'请填写联系人2','contact_phone2'=>'请填写联系人电话2',
-								  'info_invoice_type'=>'请选择发票类型','info_invoice_rate'=>'请填写发票税率','info_invoice_code'=>'请填写发票编号');
+								  );
     public function __construct(){
         parent::__construct();
 		$config_proxy_sale_contract = C('FINACE_CONTRACT');
