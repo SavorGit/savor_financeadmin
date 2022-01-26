@@ -18,7 +18,7 @@ class SignuserController extends BaseController {
             $where['status'] = $status;
         }
         if(!empty($keyword)){
-            $where['name'] = array('like',"%$keyword%");
+            $where['uname'] = array('like',"%$keyword%");
         }
 
         $start  = ($page-1) * $size;
@@ -49,9 +49,9 @@ class SignuserController extends BaseController {
         	$this->assign('dinfo',$dinfo);
         	$this->display('adduser');
         }else{
-        	$name = I('post.name','','trim');
+        	$name = I('post.uname','','trim');
         	$status = I('post.status',1,'intval');
-        	$where = array('name'=>$name);
+        	$where = array('uname'=>$name);
         	if($id){
                 $where['id']= array('neq',$id);
         		$res_user = $m_signuser->getInfo($where);
@@ -62,7 +62,7 @@ class SignuserController extends BaseController {
         		$this->output('名称不能重复', 'signuser/adduser', 2, 0);
         	}
 
-        	$data = array('name'=>$name,'status'=>$status);
+        	$data = array('uname'=>$name,'status'=>$status);
         	if($id){
                 $result = $m_signuser->updateData(array('id'=>$id),$data);
         	}else{
@@ -76,12 +76,12 @@ class SignuserController extends BaseController {
         }
     }
 
-    public function userdel(){
+    public function deluser(){
     	$id = I('get.id', 0, 'intval');
         $m_signuser  = new \Admin\Model\SignuserModel();
-    	$condition = array('id'=>$id);
-    	$result = $m_signuser->delData($condition);
-    	if($result){
+        $condition = array('id'=>$id);
+        $result = $m_signuser->delData($condition);
+        if($result){
     		$this->output('删除成功', '',2);
     	}else{
     		$this->output('删除失败', '',2);
