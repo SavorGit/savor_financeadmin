@@ -75,13 +75,18 @@ class PurchaseController extends BaseController{
 		}
 		
 		
-		if($start_date){
-			$where['a.sign_time']= array('EGT',$start_date);
+		if($start_date && $end_date){
+			$where['a.sign_time']= array(array('EGT',$start_date),array('ELT',$end_date));
 			$this->assign('start_date',$start_date);
-		}
-		if($end_date){
+			$this->assign('end_date',$end_date);
+		}else if(empty($start_date) && !empty($end_date)){
 			$where['a.sign_time']= array('ELT',$end_date);
 			$this->assign('end_date',$end_date);
+		}
+	
+		if(!empty($start_date)&& empty($end_date)){
+			$where['a.sign_time']= array('EGT',$start_date);
+			$this->assign('start_date',$start_date);
 		}
 		if($area_id){
 			$where['a.area_id'] = $area_id;
@@ -235,7 +240,11 @@ class PurchaseController extends BaseController{
 			$goods_tax_money             = I('post.goods_tax_money');                         //税额
 			$goods_total_money           = I('post.goods_total_money');                       //总额
 			
-			
+			if(!empty($data['contract_stime']) && !empty($data['contract_etime'])){
+				if($data['contract_etime']<$data['contract_stime']){
+					$this->error('合同结束日期不能小于合同开始日期');
+				}
+			}
 			
 			
 			
@@ -364,6 +373,17 @@ class PurchaseController extends BaseController{
 		$info_money   = json_decode($vinfo['info_money'],true);
 		$info_invoice = json_decode($vinfo['info_invoice'],true);
 		
+		
+		$media_id = 0;
+		if(!empty($vinfo['oss_addr'])){
+			$m_media = new \Admin\Model\MediaModel();
+			$res_media = $m_media->getRow('id,name',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
+			$media_id = $res_media['id'];
+			$vinfo['oss_name'] = $res_media['name'];
+		}
+		$vinfo['media_id'] = $media_id;
+		
+		
 		$this->assign('vinfo',$vinfo);
 		//print_r($info_goods);exit;
 		$this->assign('info_goods',$info_goods);
@@ -455,7 +475,11 @@ class PurchaseController extends BaseController{
 			$goods_tax_money             = I('post.goods_tax_money');                         //税额
 			$goods_total_money           = I('post.goods_total_money');                       //总额
 			
-			
+			if(!empty($data['contract_stime']) && !empty($data['contract_etime'])){
+				if($data['contract_etime']<$data['contract_stime']){
+					$this->error('合同结束日期不能小于合同开始日期');
+				}
+			}
 			
 			
 			

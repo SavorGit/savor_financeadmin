@@ -146,7 +146,7 @@
             
             <div class="form-group row">
               <label class="col-xs-2 col-sm-1 control-label">
-               合同有效期：
+               合同开始日期:
               </label>
               <div class="col-xs-2 col-sm-2">
                 <div class="input-group date form_date" data-date="{$vinfo.contract_stime}">
@@ -158,7 +158,7 @@
                 </div> 
               </div>
               <label class="col-xs-2 col-sm-1 control-label">
-               
+               合同结束日期:
               </label>
               <div class="col-xs-2 col-sm-2">
                 <div class="input-group date form_date" data-date="{$vinfo.contract_etime}">
@@ -213,9 +213,7 @@
 				   <img id="media_idimg" src="/Public/admin/assets/img/file_logo.jpg" border="0" />
 				   </a>
 				  </if>
-				  <a  target="_blank" href='http://{$oss_host}/{$vinfo.oss_addr}'>
-				  <span id="media_idimgname">{$vinfo.name}</span>
-				  </a>
+				  <span id="media_idimgname">{$vinfo.oss_name}</span>
 				</div>
 				<div>
 				 <a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=media_id&rtype=6" data-browse-file>
