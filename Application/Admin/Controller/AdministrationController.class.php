@@ -189,6 +189,19 @@ class AdministrationController extends BaseController {
                         $vinfo['invoice_no'] = $info_invoice['invoice_no'];
                     }
                 }
+                if($vinfo['sign_time']=='0000-00-00'){
+                    $vinfo['sign_time'] = '';
+                }
+                if($vinfo['archive_time']=='0000-00-00'){
+                    $vinfo['archive_time'] = '';
+                }
+                if($vinfo['contract_stime']=='0000-00-00'){
+                    $vinfo['contract_stime'] = '';
+                }
+                if($vinfo['contract_etime']=='0000-00-00'){
+                    $vinfo['contract_etime'] = '';
+                }
+
                 $media_id = 0;
                 if(!empty($vinfo['oss_addr'])){
                     $m_media = new \Admin\Model\MediaModel();
