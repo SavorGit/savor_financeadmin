@@ -80,7 +80,7 @@ class PurchaseController extends BaseController{
 			$this->assign('start_date',$start_date);
 			$this->assign('end_date',$end_date);
 		}else if(empty($start_date) && !empty($end_date)){
-			$where['a.sign_time']= array('ELT',$end_date);
+			$where['a.sign_time']= array( array('NEQ','0000-00-00'),array('ELT',$end_date));
 			$this->assign('end_date',$end_date);
 		}
 	
