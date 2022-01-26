@@ -83,12 +83,12 @@ class SysuserController extends BaseController {
 
                 $result = $user->addData($data, $acttype);
                 if($result) {
-                    $this->output('操作成功!', 'user/userList');
+                    $this->output('操作成功!', 'sysuser/userList');
                 } else {
-                    $this->output('操作失败!', 'user/userAdd');
+                    $this->output('操作失败!', 'sysuser/userAdd');
                 }
             } else {
-                $this->output('缺少必要参数!', 'user/userAdd');
+                $this->output('缺少必要参数!', 'sysuser/userAdd');
             }
         }
         
@@ -96,7 +96,7 @@ class SysuserController extends BaseController {
         if(1 === $acttype) {
             $uid = I('id', 0, 'int');
             if(!$uid) {
-                $this->output('当前用户不存在!', 'user/userList');
+                $this->output('当前用户不存在!', 'sysuser/userList');
             }
             $user = new \Admin\Model\SysuserModel();
             $result = $user->getUserInfo($uid);
@@ -105,7 +105,7 @@ class SysuserController extends BaseController {
         } else {
             $this->assign('acttype', 0);
         }
-        $this->display('User/useradd');
+        $this->display('useradd');
     }
     
     //用户修改密码
@@ -143,12 +143,12 @@ class SysuserController extends BaseController {
                 $user = new \Admin\Model\SysuserModel();
                 $result = $user->addData($data, $acttype);
                 if($result) {
-                    $this->output('操作成功!', 'user/userList');
+                    $this->output('操作成功!', 'sysuser/userList');
                 } else {
                     $this->error('操作失败!');
                 }
             } else {
-                $this->output('缺少必要参数!', 'user/userEdit');
+                $this->output('缺少必要参数!', 'sysuser/userEdit');
             }
             
         }
@@ -178,19 +178,19 @@ class SysuserController extends BaseController {
                 $user = new \Admin\Model\SysuserModel();
                 $result = $user->getUserInfo($uid);
                 if( $olderpwd != $result['password']){
-                    $this->output('当前密码不正确!', 'user/chagePwd', 2, 0);
+                    $this->output('当前密码不正确!', 'sysuser/chagePwd', 2, 0);
                 }
                 $data['id']   = $uid;
                 $data['password'] = md5($newuserpwd);
                 $data['remark'] =$remark;
                 $result = $user->addData($data, $acttype);
                 if($result) {
-                    $this->output('操作成功!', 'user/userList');
+                    $this->output('操作成功!', 'sysuser/userList');
                 } else {
-                    $this->output('操作失败!', 'user/chagePwd');
+                    $this->output('操作失败!', 'sysuser/chagePwd');
                 }
             } else {
-                $this->output('缺少必要参数!', 'user/chagePwd');
+                $this->output('缺少必要参数!', 'sysuser/chagePwd');
             }
     
         }
@@ -220,7 +220,7 @@ class SysuserController extends BaseController {
             $user = new \Admin\Model\SysuserModel();
             $addRankInfo = $user->addData($data, $acttype);
             if($addRankInfo){
-                $this->output('操作成功!', 'user/userList');
+                $this->output('操作成功!', 'sysuser/userList');
             }else{
                 $this->error('操作失败!');
             }
@@ -279,9 +279,9 @@ class SysuserController extends BaseController {
                 $m_staffauth = new \Admin\Model\StaffauthModel();
                 $staffauth_info = $m_staffauth->getInfo($gid);
                 if($staffauth_info)$m_staffauth->delData($staffauth_info['id']);
-                $this->output('删除成功', 'user/userList',2);
+                $this->output('删除成功', 'sysuser/userList',2);
             } else {
-                $this->output('删除失败', 'user/userList',2);
+                $this->output('删除失败', 'sysuser/userList',2);
             }
         } else {
             $this->error('删除失败,缺少参数!');
