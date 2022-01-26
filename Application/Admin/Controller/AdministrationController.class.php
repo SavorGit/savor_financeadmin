@@ -192,8 +192,9 @@ class AdministrationController extends BaseController {
                 $media_id = 0;
                 if(!empty($vinfo['oss_addr'])){
                     $m_media = new \Admin\Model\MediaModel();
-                    $res_media = $m_media->getRow('id',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
+                    $res_media = $m_media->getRow('id,name',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
                     $media_id = $res_media['id'];
+                    $vinfo['oss_name'] = $res_media['name'];
                 }
                 $vinfo['media_id'] = $media_id;
             }
