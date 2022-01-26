@@ -219,7 +219,9 @@ class AdministrationController extends BaseController {
         $m_history = new \Admin\Model\ContracthistoryModel();
         $vinfo = $m_history->getInfo(array('id'=>$id));
         if(!empty($vinfo['oss_addr'])){
-            $vinfo['oss_name'] = $vinfo['name'];
+            $m_media = new \Admin\Model\MediaModel();
+            $res_media = $m_media->getRow('id,name',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
+            $vinfo['oss_name'] = $res_media['name'];
         }
         if(!empty($vinfo['info_invoice'])){
             $info_invoice = json_decode($vinfo['info_invoice'],true);
