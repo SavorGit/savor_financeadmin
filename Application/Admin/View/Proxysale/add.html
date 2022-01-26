@@ -206,14 +206,14 @@
 			  <div class="col-xs-12 col-sm-10">
 			   <div class="fileinput fileinput-new" data-fileinput>
 				<div class="fileinput-preview thumbnail" data-trigger="fileinput">
-				 <a data-target="#modal-file" href=" " data-browse-file>
+				 
 				  <if condition="($vinfo.oss_addr eq 'NULL') OR $vinfo.oss_addr eq ''">
 				   <img id="media_idimg"  src="/Public/admin/assets/img/noimage.png" border="0"/>
 				   <else />
 				   <img id="media_idimg" src="{$vinfo.oss_addr}" border="0" />
 				  </if>
 				  <span id="media_idimgname">{$vinfo.name}</span>
-				 </ a>
+				 
 				</div>
 				<div>
 				 <a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=media_id&rtype=6" data-browse-file>
@@ -328,11 +328,11 @@
                 </select>
               </div>
 			  <label class="col-xs-2 col-sm-1 control-label">
-                	税率：
+                	税率(%)：
               </label>
               <div class="col-xs-2 col-sm-2">
                 <input  name="rate"  type="text" value="{$vinfo.rate}"  minlength="1" maxlength="5" class="form-control" />
-				<span>%</span>
+				
               </div>
 			<div class="form-group row">
               <label class="col-xs-2 col-sm-1 control-label">
