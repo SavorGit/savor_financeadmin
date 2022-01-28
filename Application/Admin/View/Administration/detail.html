@@ -149,7 +149,7 @@
 											<if condition="($vinfo.oss_addr eq 'NULL') OR $vinfo.oss_addr eq ''">
 												<img id="media_idimg"  src="/Public/admin/assets/img/noimage.png" border="0"/>
 												<else />
-												<img id="media_idimg" src="{$vinfo.oss_addr}" border="0" />
+												<img id="media_idimg" src="/Public/admin/assets/img/file_logo.jpg" border="0" />
 											</if>
 											<span id="media_idimgname">{$vinfo.oss_name}</span>
 										</a>
@@ -159,7 +159,6 @@
 											选择文件
 										</a>
 										<input type="hidden" name="media_id" id="media_id" value="{$vinfo.media_id}">
-										<a id="bntt" href="javascript:void(0)" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
 									</div>
 								</div>
 							</div>

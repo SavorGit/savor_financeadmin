@@ -65,10 +65,19 @@ class AdministrationController extends BaseController {
         if(!empty($result['list'])){
             $datalist = $result['list'];
             foreach ($datalist as $k=>$v){
+                $sign_time = '';
+                if($v['sign_time']!='0000-00-00'){
+                    $sign_time = $v['sign_time'];
+                }
+                $expire_time = '';
+                if($v['contract_stime']!='0000-00-00' && $v['contract_etime']!='0000-00-00'){
+                    $expire_time = $v['contract_stime'].'~'.$v['contract_etime'];
+                }
                 $datalist[$k]['sign_user'] = $sign_users[$v['sign_user_id']]['name'];
                 $datalist[$k]['ctype_str'] = $this->contract_ctype_arr[$v['ctype']]['name'];
                 $datalist[$k]['status_str'] = $this->status_arr[$v['status']]['name'];
-                $datalist[$k]['expire_time'] = $v['contract_stime'].'~'.$v['contract_etime'];
+                $datalist[$k]['expire_time'] = $expire_time;
+                $datalist[$k]['sign_time'] = $sign_time;
                 if(!empty($v['oss_addr'])){
                     $datalist[$k]['oss_addr'] = $this->oss_host.$v['oss_addr'];
                 }
@@ -154,15 +163,17 @@ class AdministrationController extends BaseController {
             }
             unset($add_data['media_id'],$add_data['invoice_type'],$add_data['rate'],$add_data['invoice_no']);
 
+            $is_update = 0;
             if($contract_id){
                 $userInfo = session('sysUserInfo');
                 $add_data['sysuser_id'] = $userInfo['id'];
                 $add_data['update_time'] = date('Y-m-d H:i:s');
                 $m_contract->updateData(array('id'=>$contract_id),$add_data);
+                $is_update = 1;
             }else{
                 $contract_id = $m_contract->add($add_data);
             }
-            if($is_draft==0){
+            if($is_draft==0 && $is_update){
                 $m_history = new \Admin\Model\ContracthistoryModel();
                 $add_data['contract_id'] = $contract_id;
                 $m_history->add($add_data);
