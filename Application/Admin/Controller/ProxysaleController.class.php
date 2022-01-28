@@ -222,7 +222,11 @@ class ProxysaleController extends BaseController{
 			$goods_commission 	   = I('post.goods_commission');                        //佣金
 			$balance_unit 		   = I('post.balance_unit');                            //结算单位
 			
-			
+			if(!empty($data['contract_stime']) && !empty($data['contract_etime'])){
+				if($data['contract_etime']<$data['contract_stime']){
+					$this->error('合同结束日期不能小于合同开始日期');
+				}
+			}
 			
 			
 			$info_goods = [];
@@ -306,7 +310,14 @@ class ProxysaleController extends BaseController{
 		if($vinfo['statement_time']=='0000-00-00')  $vinfo['statement_time'] = '';
 		if($vinfo['settlement_time']=='0000-00-00') $vinfo['settlement_time'] = '';
 		
-		
+		$media_id = 0;
+		if(!empty($vinfo['oss_addr'])){
+			$m_media = new \Admin\Model\MediaModel();
+			$res_media = $m_media->getRow('id,name',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
+			$media_id = $res_media['id'];
+			$vinfo['oss_name'] = $res_media['name'];
+		}
+		$vinfo['media_id'] = $media_id;
 		
 		$info_goods = json_decode($vinfo['info_goods'],true);
 		$this->assign('vinfo',$vinfo);
@@ -397,6 +408,13 @@ class ProxysaleController extends BaseController{
 			$goods_discount_mount  = I('post.goods_discount_mount');                    //折扣额
 			$goods_commission 	   = I('post.goods_commission');                        //佣金
 			$balance_unit 		   = I('post.balance_unit');                            //结算单位
+			
+			if(!empty($data['contract_stime']) && !empty($data['contract_etime'])){
+				if($data['contract_etime']<$data['contract_stime']){
+					$this->error('合同结束日期不能小于合同开始日期');
+				}
+			}
+			
 			$info_goods = [];
 			for($i=0;$i<$this->goods_nums;$i++){
 				$info_goods[$i]['goods_name']          = $goods_name[$i];
