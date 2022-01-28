@@ -82,10 +82,20 @@ class HotelcontractController extends BaseController {
                 if(!empty($res_hotel_num)){
                     $hotel_num = $res_hotel_num['num'];
                 }
+                $sign_time = '';
+                if($v['sign_time']!='0000-00-00'){
+                    $sign_time = $v['sign_time'];
+                }
+                $expire_time = '';
+                if($v['contract_stime']!='0000-00-00' && $v['contract_etime']!='0000-00-00'){
+                    $expire_time = $v['contract_stime'].'~'.$v['contract_etime'];
+                }
+
                 $datalist[$k]['self_type_str'] = $self_type_str;
                 $datalist[$k]['status_str'] = $this->status_arr[$v['status']]['name'];
                 $datalist[$k]['hotel_num'] = $hotel_num;
-                $datalist[$k]['expire_time'] = $v['contract_stime'].'~'.$v['contract_etime'];
+                $datalist[$k]['expire_time'] = $expire_time;
+                $datalist[$k]['sign_time'] = $sign_time;
                 if(!empty($v['oss_addr'])){
                     $datalist[$k]['oss_addr'] = $this->oss_host.$v['oss_addr'];
                 }
@@ -228,6 +238,18 @@ class HotelcontractController extends BaseController {
                     $pay_templateids = explode(',',trim($vinfo['pay_templateids'],','));
                     $vinfo['default_pay_templateid'] = $pay_templateids[0];
                     unset($pay_templateids[0]);
+                }
+                if($vinfo['sign_time']=='0000-00-00'){
+                    $vinfo['sign_time'] = '';
+                }
+                if($vinfo['archive_time']=='0000-00-00'){
+                    $vinfo['archive_time'] = '';
+                }
+                if($vinfo['contract_stime']=='0000-00-00'){
+                    $vinfo['contract_stime'] = '';
+                }
+                if($vinfo['contract_etime']=='0000-00-00'){
+                    $vinfo['contract_etime'] = '';
                 }
                 $media_id = 0;
                 if(!empty($vinfo['oss_addr'])){
