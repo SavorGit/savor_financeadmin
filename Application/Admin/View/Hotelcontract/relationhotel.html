@@ -46,7 +46,7 @@
           <tbody data-check="list" data-parent=".table">
           <foreach name="datalist" item="dinfo">
             <tr target="sid_user">
-              <td data-title="关联酒楼ID"><a class="click-able-title">{$dinfo.id}</a></td>
+              <td data-title="关联酒楼ID"><a class="click-able-title">{$dinfo.hotel_id}</a></td>
               <td data-title="酒楼名称"><a class="click-able-title">{$dinfo.name}</a></td>
               <td data-title="包间数量">{$dinfo.room_num}</td>
               <td data-title="小平台数量">{$dinfo.small_num}</td>
@@ -55,7 +55,7 @@
               <td data-title="生效时间">{$dinfo.add_time}</td>
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
-                  <a warn="警告" data-tip="删除" title="你确定要删除吗？" target="ajaxTodo" href="{$host_name}/hotelcontract/relationhoteldel?id={$dinfo.id}" calback="navTabAjaxDone" class="btn btn-danger btn-icon"><span><i class="fa fa-trash"></i></span></a>
+                  <a warn="警告" data-tip="删除" title="你确定要删除吗？" target="ajaxTodo" href="{$host_name}/hotelcontract/relationhoteldel?id={$dinfo.id}&hotel_id={$dinfo.hotel_id}" calback="navTabAjaxDone" class="btn btn-danger btn-icon"><span><i class="fa fa-trash"></i></span></a>
                 </div>
               </td>
             </tr>
@@ -71,7 +71,7 @@
                   <td></td>
                   <td class="table-tool" data-title="操作">
                     <div class="tools-edit">
-                      <a title="设置计费模板" data-tip="设置计费模板" target="dialog" mask="true" href="{$host_name}/hotelcontract/setboxcost?contract_id={$contract_id}&hotel_id={$dinfo.hotel_id}&room_id={$boxinfo.room_id}&box_id={$boxinfo.box_id}&box_mac={$boxinfo.box_mac}" class="btn btn-success btn-icon">
+                      <a title="设置计费模板" data-tip="设置计费模板" target="dialog" mask="true" href="{$host_name}/hotelcontract/setboxcost?contract_id={$contract_id}&hotel_id={$dinfo.hotel_id}&room_id={$boxinfo.room_id}&box_id={$boxinfo.box_id}&box_mac={$boxinfo.box_mac}&cost_id={$boxinfo.cost_id}" class="btn btn-success btn-icon">
                         <i class="fa fa-pencil"></i>
                       </a>
                     </div>
