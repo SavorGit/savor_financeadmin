@@ -22,5 +22,14 @@ class ContractModel extends BaseModel{
 		$data = array('list'=>$list,'page'=>$show);
 		return $data;
 	}
+	public function getAllList($fields,$where, $order='a.id desc'){
+	    $list = $this->alias('a')
+            	     ->join('savor_finance_signuser b on a.sign_user_id= b.id','left')
+            	     ->field($fields)
+            	     ->where($where)
+            	     ->order($order)
+            	     ->select();
+	    return $list;
+	}
 
 }
