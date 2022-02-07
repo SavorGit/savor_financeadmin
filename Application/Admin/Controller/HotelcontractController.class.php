@@ -184,7 +184,6 @@ class HotelcontractController extends BaseController {
             if(!empty($all_pay_templateids) && $add_data['default_pay_templateid']){
                 array_unshift($all_pay_templateids,$add_data['default_pay_templateid']);
             }
-            unset($add_data['default_pay_templateid']);
             if(!empty($all_pay_templateids)){
                 $pay_templateids = join(',',$all_pay_templateids);
                 $add_data['pay_templateids'] = ",{$pay_templateids},";
@@ -206,17 +205,19 @@ class HotelcontractController extends BaseController {
                 $m_media = new \Admin\Model\MediaModel();
                 $res_media = $m_media->getMediaInfoById($add_data['media_id']);
                 $add_data['oss_addr'] = $res_media['oss_path'];
-                unset($add_data['media_id']);
             }
+            unset($add_data['default_pay_templateid'],$add_data['media_id']);
+            $is_update = 0;
             if($contract_id){
                 $userInfo = session('sysUserInfo');
                 $add_data['sysuser_id'] = $userInfo['id'];
                 $add_data['update_time'] = date('Y-m-d H:i:s');
                 $m_contract->updateData(array('id'=>$contract_id),$add_data);
+                $is_update = 1;
             }else{
                 $contract_id = $m_contract->add($add_data);
             }
-            if($is_draft==0){
+            if($is_draft==0 && $is_update){
                 $m_history = new \Admin\Model\ContracthistoryModel();
                 $add_data['contract_id'] = $contract_id;
                 $m_history->add($add_data);
@@ -254,8 +255,9 @@ class HotelcontractController extends BaseController {
                 $media_id = 0;
                 if(!empty($vinfo['oss_addr'])){
                     $m_media = new \Admin\Model\MediaModel();
-                    $res_media = $m_media->getRow('id',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
+                    $res_media = $m_media->getRow('id,name',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
                     $media_id = $res_media['id'];
+                    $vinfo['oss_name'] = $res_media['name'];
                 }
                 $vinfo['media_id'] = $media_id;
             }
