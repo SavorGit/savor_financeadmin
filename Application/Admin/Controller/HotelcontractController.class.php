@@ -410,17 +410,20 @@ class HotelcontractController extends BaseController {
             }
             $boxs = array();
             if($self_type==1){
-                $bfields = 'box.id as box_id,room.id as room_id,room.name as room_name,box.name as box_name';
+                $bfields = 'box.id as box_id,box.mac as box_mac,room.id as room_id,room.name as room_name,box.name as box_name';
                 $bwhere = array('hotel.id'=>$v['hotel_id'],'box.state'=>1,'box.flag'=>0);
                 $boxs = $m_box->getBoxByCondition($bfields,$bwhere);
                 foreach ($boxs as $bk=>$bv){
                     $res_tv = $m_tv->getDataList('count(id) as num',array('box_id'=>$bv['box_id'],'state'=>1,'flag'=>0),'id desc');
                     $boxs[$bk]['tv_num'] = $res_tv[0]['num'];
                     $template_name = '';
-                    $res_cost = $m_boxcost->getList('template.name',array('a.hotel_id'=>$v['hotel_id'],'a.box_id'=>$bv['box_id']),'a.id desc');
+                    $cost_id = 0;
+                    $res_cost = $m_boxcost->getList('a.id as cost_id,template.name',array('a.hotel_id'=>$v['hotel_id'],'a.box_id'=>$bv['box_id']),'a.id desc');
                     if(!empty($res_cost)){
                         $template_name = $res_cost[0]['name'];
+                        $cost_id = $res_cost[0]['cost_id'];
                     }
+                    $boxs[$bk]['cost_id'] = $cost_id;
                     $boxs[$bk]['template_name'] = $template_name;
                 }
             }
@@ -462,15 +465,50 @@ class HotelcontractController extends BaseController {
                 $this->output('酒楼已关联,请重新选择', 'hotelcontract/addrelationhotel',2,0);
             }
             $m_contract_hotel->add($data);
+            $m_contract  = new \Admin\Model\ContractModel();
+            $res_contract = $m_contract->getRow('self_type,pay_templateids',array('id'=>$contract_id));
+            $m_costtemplate  = new \Admin\Model\CosttemplateModel();
+            $result_template = $m_costtemplate->getDataList('id',array('type'=>1,'is_standard'=>1),'id asc');
+            $pay_template_standard_id = 0;
+            if(!empty($result_template)){
+                $pay_template_standard_id=$result_template[0]['id'];
+            }
+            $pay_template_fid = -1;
+            if(!empty($res_contract['pay_templateids'])){
+                $pay_templateids = explode(',',trim($res_contract['pay_templateids'],','));
+                $pay_template_fid = $pay_templateids[0];
+            }
+
+            if($res_contract['self_type']==1 && $pay_template_standard_id && $pay_template_fid==$pay_template_standard_id){
+                $bfields = 'box.id as box_id,box.mac as box_mac,room.id as room_id,room.name as room_name,box.name as box_name';
+                $bwhere = array('hotel.id'=>$hotel_id,'box.state'=>1,'box.flag'=>0);
+                $m_box = new \Admin\Model\BoxModel();
+                $boxs = $m_box->getBoxByCondition($bfields,$bwhere);
+                foreach ($boxs as $bk=>$bv){
+                    $add_data = array('hotel_id'=>$hotel_id,'room_id'=>$bv['room_id'],'box_id'=>$bv['box_id'],
+                        'box_mac'=>$bv['box_mac'],'template_id'=>$pay_template_fid);
+                    $m_boxcost = new \Admin\Model\BoxcostModel();
+                    $res_cost = $m_boxcost->getInfo(array('hotel_id'=>$hotel_id,'box_id'=>$bv['box_id']));
+                    if(!empty($res_cost)){
+                        $m_boxcost->updateData(array('id'=>$res_cost['id']),$add_data);
+                    }else{
+                        $m_boxcost->add($add_data);
+                    }
+                }
+            }
+
             $this->output('操作成功', 'hotelcontract/relationhotel');
         }
     }
 
     public function relationhoteldel(){
         $id = I('get.id',0,'intval');
+        $hotel_id = I('get.hotel_id',0,'intval');
         $m_contract_hotel = new \Admin\Model\ContracthotelModel();
         $result = $m_contract_hotel->delData(array('id'=>$id));
         if($result){
+            $m_boxcost = new \Admin\Model\BoxcostModel();
+            $m_boxcost->delData(array('hotel_id'=>$hotel_id));
             $this->output('操作成功!', 'hotelcontract/relationhotel',2);
         }else{
             $this->output('操作失败', 'hotelcontract/relationhotel',2,0);
@@ -482,31 +520,46 @@ class HotelcontractController extends BaseController {
         $hotel_id = I('hotel_id',0,'intval');
         $room_id = I('room_id',0,'intval');
         $box_id = I('box_id',0,'intval');
+        $cost_id = I('cost_id',0,'intval');
         $box_mac = I('box_mac','');
+        $m_boxcost = new \Admin\Model\BoxcostModel();
         if(IS_GET){
             $m_contract  = new \Admin\Model\ContractModel();
             $result = $m_contract->getInfo(array('id'=>$contract_id));
             $templates = array();
             if(!empty($result['pay_templateids'])){
+                $template_id = 0;
+                if($cost_id){
+                    $res_costinfo = $m_boxcost->getInfo(array('id'=>$cost_id));
+                    $template_id = $res_costinfo['template_id'];
+                }
+
                 $pay_templateids = explode(',',trim($result['pay_templateids'],','));
                 $m_costtemplate  = new \Admin\Model\CosttemplateModel();
                 $templates = $m_costtemplate->getDataList('id,name',array('id'=>array('in',$pay_templateids)),'id asc');
+                foreach ($templates as $k=>$v){
+                    $is_select = '';
+                    if($template_id==$v['id']){
+                        $is_select = 'selected';
+                    }
+                    $templates[$k]['select'] = $is_select;
+                }
             }
             $this->assign('contract_id',$contract_id);
             $this->assign('hotel_id',$hotel_id);
             $this->assign('room_id',$room_id);
             $this->assign('box_id',$box_id);
             $this->assign('box_mac',$box_mac);
+            $this->assign('cost_id',$cost_id);
             $this->assign('templates',$templates);
             $this->display();
         }else{
+            $cost_id = I('post.cost_id',0,'intval');
             $template_id = I('post.template_id',0,'intval');
             $add_data = array('hotel_id'=>$hotel_id,'room_id'=>$room_id,'box_id'=>$box_id,
                 'box_mac'=>$box_mac,'template_id'=>$template_id);
-            $m_boxcost = new \Admin\Model\BoxcostModel();
-            $res_cost = $m_boxcost->getInfo(array('hotel_id'=>$hotel_id,'box_id'=>$box_id));
-            if(!empty($res_cost)){
-                $result = $m_boxcost->updateData(array('id'=>$res_cost['id']),$add_data);
+            if($cost_id){
+                $result = $m_boxcost->updateData(array('id'=>$cost_id),$add_data);
             }else{
                 $result = $m_boxcost->add($add_data);
             }

@@ -6,6 +6,7 @@
         <input type="hidden" name="room_id" value="{$room_id}">
         <input type="hidden" name="box_id" value="{$box_id}">
         <input type="hidden" name="box_mac" value="{$box_mac}">
+        <input type="hidden" name="cost_id" value="{$cost_id}">
         <div class="pageFormContent modal-body">
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">选择模板：</label>
@@ -13,7 +14,7 @@
                     <select name="template_id" class="form-control bs-select class-filter" data-live-search="true">
                         <option value=0>请选择付费模板</option>
                         <volist name="templates" id="info">
-                            <option value="{$info.id}">{$info.name}</option>
+                            <option value="{$info.id}" {$info.select}>{$info.name}</option>
                         </volist>
                     </select>
 

@@ -5,7 +5,7 @@ class HotelModel extends BaseModel{
 	protected $tableName='hotel';
 
     public function getStatisticalNumByHotelId($hotel_id,$type=''){
-        $sql = "select id as room_id,hotel_id from savor_room where hotel_id='$hotel_id'";
+        $sql = "select id as room_id,hotel_id from savor_room where hotel_id='$hotel_id' and state=1 and flag=0";
         $res = $this->query($sql);
         $room_num = $box_num = $tv_num = 0;
         $all_rooms = array();
@@ -19,7 +19,7 @@ class HotelModel extends BaseModel{
         }
         if($room_num){
             $rooms_str = join(',', $all_rooms);
-            $sql = "select id as box_id,room_id from savor_box where room_id in ($rooms_str) and state!=3 and flag=0";
+            $sql = "select id as box_id,room_id from savor_box where room_id in ($rooms_str) and state=1 and flag=0";
             $res = $this->query($sql);
             $all_box = array();
             foreach ($res as $k=>$v){
@@ -32,7 +32,7 @@ class HotelModel extends BaseModel{
             }
             if($box_num){
                 $box_str = join(',', $all_box);
-                $sql = "select count(id) as tv_num from savor_tv where box_id in ($box_str)";
+                $sql = "select count(id) as tv_num from savor_tv where box_id in ($box_str) and state=1 and flag=0";
                 $res = $this->query($sql);
                 $tv_num = $res[0]['tv_num'];
                 if($type == 'tv'){
