@@ -420,6 +420,10 @@ class PurchaseController extends BaseController{
 						break;
 					}
 				}
+				$change_content = I('post.change_content','','trim');
+				if(empty($change_content)){
+				    $this->error('请输入变更内容');
+				}
 			}
 			$data['serial_number']   	 = I('post.serial_number','','trim');     		//合同编号
 			$data['name']   	         = I('post.name','','trim');     		        //合同名称
