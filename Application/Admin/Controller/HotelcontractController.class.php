@@ -30,7 +30,7 @@ class HotelcontractController extends BaseController {
     	$pay_templateid = I('pay_templateid',0,'intval');
     	$sign_user_id = I('sign_user_id',0,'intval');
     	$is_expire60day = I('is_expire60day',0,'intval');
-    	$hotelname = I('hotelname','');
+    	$contractname = I('contractname','');
         $page = I('pageNum',1);
         $size   = I('numPerPage',50);//显示每页记录数
         $where = array('type'=>10);
@@ -55,6 +55,9 @@ class HotelcontractController extends BaseController {
         if($is_expire60day){
             $expire_etime = date('Y-m-d',strtotime("+60 day"));
             $where['contract_etime'] = array('elt',$expire_etime);
+        }
+        if($contractname){
+            $where['name'] = array('like',"%$contractname%");
         }
         $m_signuser = new \Admin\Model\SignuserModel();
         $result_signuser = $m_signuser->getDataList('id,uname as name',array('status'=>1),'id asc');
@@ -126,6 +129,7 @@ class HotelcontractController extends BaseController {
         $this->assign('sign_user_id', $sign_user_id);
         $this->assign('is_expire60day', $is_expire60day);
         $this->assign('contract_status', $this->status_arr);
+        $this->assign('contractname', $contractname);
         $this->assign('status', $status);
         $this->assign('datalist', $datalist);
         $this->assign('page',  $result['page']);
@@ -144,7 +148,7 @@ class HotelcontractController extends BaseController {
                 'company_id'=>array('is_verify'=>1,'tips'=>'请选择签约公司'),'sign_department'=>array('is_verify'=>1,'tips'=>'请输入签约部门'),
                 'sign_user_id'=>array('is_verify'=>1,'tips'=>'请选择签约人'),'self_type'=>array('is_verify'=>1,'tips'=>'请选择合同类型'),
                 'area_id'=>array('is_verify'=>1,'tips'=>'请选择签约城市'),'sign_time'=>array('is_verify'=>1,'tips'=>'请输入签约日期'),
-                'archive_time'=>array('is_verify'=>1,'tips'=>'请选择归档日期'),'is_inputdevice'=>array('is_verify'=>1,'tips'=>'请选择投入设备'),
+                'archive_time'=>array('is_verify'=>1,'tips'=>'请选择归档日期'),'is_inputdevice'=>array('is_verify'=>0,'tips'=>'请选择投入设备'),
                 'contract_stime'=>array('is_verify'=>1,'tips'=>'请输入合同有效期'),'contract_etime'=>array('is_verify'=>1,'tips'=>'请输入合同有效期'),
                 'hotel_signer'=>array('is_verify'=>1,'tips'=>'请输入合同签约人'),'hotel_signer_phone1'=>array('is_verify'=>1,'tips'=>'请输入电话1'),
                 'hotel_signer_phone2'=>array('is_verify'=>0,''),'company_name'=>array('is_verify'=>1,'tips'=>'请输入公司名称'),
@@ -152,9 +156,9 @@ class HotelcontractController extends BaseController {
                 'address'=>array('is_verify'=>1,'tips'=>'请输入注册地址'),'company_property'=>array('is_verify'=>1,'tips'=>'请选择企业性质'),
                 'invoice_type'=>array('is_verify'=>0,'tips'=>''),'rate'=>array('is_verify'=>0,'tips'=>''),
                 'account_name'=>array('is_verify'=>1,'tips'=>'请输入开户名称'),'bank_name'=>array('is_verify'=>1,'tips'=>'请输入开户行名称'),
-                'contact1'=>array('is_verify'=>1,'tips'=>'请输入联系人1'),'contact_phone1'=>array('is_verify'=>1,'tips'=>'请输入电话1'),
+                'contact1'=>array('is_verify'=>2,'tips'=>'请输入联系人1'),'contact_phone1'=>array('is_verify'=>2,'tips'=>'请输入电话1'),
                 'contact_phone12'=>array('is_verify'=>0,'tips'=>''),'contact_qq1'=>array('is_verify'=>0,'tips'=>''),'contact_wechat1'=>array('is_verify'=>0,'tips'=>''),
-                'contact2'=>array('is_verify'=>1,'tips'=>'请输入联系人2'),'contact_phone2'=>array('is_verify'=>1,'tips'=>'请输入电话2'),
+                'contact2'=>array('is_verify'=>2,'tips'=>'请输入联系人2'),'contact_phone2'=>array('is_verify'=>2,'tips'=>'请输入电话2'),
                 'contact_phone22'=>array('is_verify'=>0,'tips'=>''),'contact_qq2'=>array('is_verify'=>0,'tips'=>''),'contact_wechat2'=>array('is_verify'=>0,'tips'=>''),
                 'renew_templateid'=>array('is_verify'=>1,'tips'=>'请选择续约条款'),'default_pay_templateid'=>array('is_verify'=>1,'tips'=>'请选择默认付费条款'),
                 'pay_templateids'=>array('is_verify'=>0,'tips'=>''),'status'=>array('is_verify'=>0,'tips'=>''),
@@ -163,16 +167,47 @@ class HotelcontractController extends BaseController {
             );
             $is_draft = I('post.is_draft',0,'intval');
             $add_data = array('type'=>10,'is_draft'=>$is_draft);
+            $contract_params = array();
             foreach ($all_params as $k=>$v){
                 if(isset($_POST["$k"])){
                     $$k=$_POST["$k"];
                     $add_data["$k"] = $_POST["$k"];
                 }
-                if($is_draft==0 && $v['is_verify']==1 && empty($_POST["$k"])){
-                    $this->output($v['tips'], 'hotelcontract/addcontract', 2, 0);
+                if($is_draft==0){
+                    if($v['is_verify']==1 && empty($_POST["$k"])){
+                        $this->output($v['tips'], 'hotelcontract/addcontract', 2, 0);
+                    }
+                    if($v['is_verify']==2 && !empty($_POST["$k"])){
+                        $contract_params["$k"] = $_POST["$k"];
+                    }
                 }
-
             }
+            if($is_draft==0){
+                if(empty($contract_params)){
+                    $this->output('请输入联系人1', 'hotelcontract/addcontract', 2, 0);
+                }
+                $tmp_params = array();
+                $info = array();
+                if(!empty($contract_params['contact1'])){
+                    $info['contact1'] = $contract_params['contact1'];
+                }
+                if(!empty($contract_params['contact_phone1'])){
+                    $info['contact_phone1'] = $contract_params['contact_phone1'];
+                }
+                $tmp_params['contact1'] = $info;
+                $info = array();
+                if(!empty($contract_params['contact2'])){
+                    $info['contact2'] = $contract_params['contact2'];
+                }
+                if(!empty($contract_params['contact_phone2'])){
+                    $info['contact_phone2'] = $contract_params['contact_phone2'];
+                }
+                $tmp_params['contact2'] = $info;
+                if(count($tmp_params['contact1'])<=1 && count($tmp_params['contact2'])<=1){
+                    $this->output('请输入联系人和电话信息', 'hotelcontract/addcontract', 2, 0);
+                }
+            }
+
             $all_pay_templateids = $add_data['pay_templateids'];
             if(!empty($all_pay_templateids)){
                 foreach ($all_pay_templateids as $k=>$v){
@@ -187,6 +222,10 @@ class HotelcontractController extends BaseController {
             if(!empty($all_pay_templateids)){
                 $pay_templateids = join(',',$all_pay_templateids);
                 $add_data['pay_templateids'] = ",{$pay_templateids},";
+            }else{
+                if($add_data['default_pay_templateid']){
+                    $add_data['pay_templateids'] = ",{$add_data['default_pay_templateid']},";
+                }
             }
             if($add_data['contract_stime'] && $add_data['contract_etime']){
                 if($add_data['contract_stime']>$add_data['contract_etime']){
@@ -252,6 +291,9 @@ class HotelcontractController extends BaseController {
                 if($vinfo['contract_etime']=='0000-00-00'){
                     $vinfo['contract_etime'] = '';
                 }
+                $vinfo['change_content'] = '';
+                $vinfo['desc'] = '';
+
                 $media_id = 0;
                 if(!empty($vinfo['oss_addr'])){
                     $m_media = new \Admin\Model\MediaModel();
@@ -567,6 +609,21 @@ class HotelcontractController extends BaseController {
                 $this->output('操作成功', 'hotelcontract/relationhotel');
             }else{
                 $this->output('操作失败', 'hotelcontract/relationhotel',2,0);
+            }
+        }
+
+    }
+
+    public function relationcontract(){
+        $id = I('id',0,'intval');
+        if(IS_GET){
+
+            $this->display('relationcontract');
+        }else{
+            if($id){
+                $this->output('操作成功', 'hotelcontract/datalist');
+            }else{
+                $this->output('操作失败', 'hotelcontract/addcontract',2,0);
             }
         }
 
