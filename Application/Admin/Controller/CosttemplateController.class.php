@@ -107,6 +107,9 @@ class CosttemplateController extends BaseController {
                 $this->output('缺少必要参数!', 'costtemplate/addtemplate', 2, 0);
             }
         	$data = array('name'=>$name,'content'=>$content,'is_standard'=>$is_standard,'type'=>$type);
+            if($is_standard==1){
+                $m_costtemplate->updateData(array('is_standard'=>1,'type'=>$type),array('is_standard'=>0));
+            }
             if($id){
                 $result = $m_costtemplate->updateData(array('id'=>$id), $data);
             }else{
