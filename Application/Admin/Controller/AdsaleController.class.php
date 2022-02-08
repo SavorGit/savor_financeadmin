@@ -24,8 +24,8 @@ class AdsaleController extends BaseController{
 								  
 								  'company_name'=>'请填写公司名称','company_short_name'=>'请填写公司简介','company_area_id'=>'请选择公司所属城市',
 								  'address'=>'请填写公司注册地址','account_name'=>'请填写公司开户名称','company_property'=>'请选择公司企业性质',
-								  'bank_name'=>'请填写公司开户行名称','bank_account'=>'请填写公司开户账号','contact1'=>'请填写联系人1',
-								  'contact_phone1'=>'请填写联系人电话1','contact2'=>'请填写联系人2','contact_phone2'=>'请填写联系人电话2',
+								  'bank_name'=>'请填写公司开户行名称','bank_account'=>'请填写公司开户账号',
+	                              //'contact1'=>'请填写联系人1','contact_phone1'=>'请填写联系人电话1','contact2'=>'请填写联系人2','contact_phone2'=>'请填写联系人电话2',
 								  
 								  'putin_area_ids'=>'请选择投放城市','putin_hotelnum'=>'请填写投放酒楼数量',
 								  'putin_boxnum'=>'请填写投放版位数量','putin_advtime'=>'请填写广告时长','putin_play_frequency'=>'请填写播放频次',
@@ -183,6 +183,35 @@ class AdsaleController extends BaseController{
 					}
 					
 				}
+				//联系人1  联系人2
+				$contact1       = I('post.contact1','','trim');
+				$contact_phone1 = I('post.contact_phone1','','trim'); 
+				$contact2       = I('post.contact2','','trim');
+				$contact_phone2 = I('post.contact_phone2','','trim');
+				$contact_err = 0;
+				if(empty($contact1) && empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(!empty($contact1) && empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) &&  !empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) && empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) && empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(!empty($contact1) && empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(!empty($contact1) && empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) && !empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) && !empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
+				    $contact_err = 1;
+				}
+				if($contact_err ==1){
+				    $this->error('至少填写一组联系人和电话信息');
+				}
+				
 			}
 			
 			
@@ -487,6 +516,35 @@ class AdsaleController extends BaseController{
 				$change_content = I('post.change_content','','trim');
 				if(empty($change_content)){
 				    $this->error('请输入变更内容');
+				}
+				
+				//联系人1  联系人2
+				$contact1       = I('post.contact1','','trim');
+				$contact_phone1 = I('post.contact_phone1','','trim');
+				$contact2       = I('post.contact2','','trim');
+				$contact_phone2 = I('post.contact_phone2','','trim');
+				$contact_err = 0;
+				if(empty($contact1) && empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(!empty($contact1) && empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) &&  !empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) && empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) && empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(!empty($contact1) && empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(!empty($contact1) && empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) && !empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
+				    $contact_err = 1;
+				}else if(empty($contact1) && !empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
+				    $contact_err = 1;
+				}
+				if($contact_err ==1){
+				    $this->error('至少填写一组联系人和电话信息');
 				}
 				
 			}
