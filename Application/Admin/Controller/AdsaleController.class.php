@@ -184,32 +184,32 @@ class AdsaleController extends BaseController{
 					
 				}
 				//联系人1  联系人2
-				$contact1       = I('post.contact1','','trim');
-				$contact_phone1 = I('post.contact_phone1','','trim'); 
-				$contact2       = I('post.contact2','','trim');
-				$contact_phone2 = I('post.contact_phone2','','trim');
-				$contact_err = 0;
-				if(empty($contact1) && empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(!empty($contact1) && empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) &&  !empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) && empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) && empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(!empty($contact1) && empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(!empty($contact1) && empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) && !empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) && !empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
-				    $contact_err = 1;
+				$contract_params["contact1"] = I('post.contact1','','trim');
+				$contract_params["contact_phone1"] = I('post.contact_phone1','','trim');
+				$contract_params["contact2"] = I('post.contact2','','trim');
+				$contract_params["contact_phone2"] = I('post.contact_phone2','','trim');
+				if(empty($contract_params)){
+				    $this->error('请输入联系人1');
 				}
-				if($contact_err ==1){
-				    $this->error('至少填写一组联系人和电话信息');
+				$tmp_params = array();
+				$info = array();
+				if(!empty($contract_params['contact1'])){
+				    $info['contact1'] = $contract_params['contact1'];
+				}
+				if(!empty($contract_params['contact_phone1'])){
+				    $info['contact_phone1'] = $contract_params['contact_phone1'];
+				}
+				$tmp_params['contact1'] = $info;
+				$info = array();
+				if(!empty($contract_params['contact2'])){
+				    $info['contact2'] = $contract_params['contact2'];
+				}
+				if(!empty($contract_params['contact_phone2'])){
+				    $info['contact_phone2'] = $contract_params['contact_phone2'];
+				}
+				$tmp_params['contact2'] = $info;
+				if(count($tmp_params['contact1'])<=1 && count($tmp_params['contact2'])<=1){
+				    $this->error('请输入联系人和电话信息');
 				}
 				
 			}
@@ -519,34 +519,33 @@ class AdsaleController extends BaseController{
 				}
 				
 				//联系人1  联系人2
-				$contact1       = I('post.contact1','','trim');
-				$contact_phone1 = I('post.contact_phone1','','trim');
-				$contact2       = I('post.contact2','','trim');
-				$contact_phone2 = I('post.contact_phone2','','trim');
-				$contact_err = 0;
-				if(empty($contact1) && empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(!empty($contact1) && empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) &&  !empty($contact_phone1) && empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) && empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) && empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(!empty($contact1) && empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(!empty($contact1) && empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) && !empty($contact_phone1) && !empty($contact2) && empty($contact_phone2)){
-				    $contact_err = 1;
-				}else if(empty($contact1) && !empty($contact_phone1) && empty($contact2) && !empty($contact_phone2)){
-				    $contact_err = 1;
+				$contract_params["contact1"] = I('post.contact1','','trim');
+				$contract_params["contact_phone1"] = I('post.contact_phone1','','trim');
+				$contract_params["contact2"] = I('post.contact2','','trim');
+				$contract_params["contact_phone2"] = I('post.contact_phone2','','trim');
+				if(empty($contract_params)){
+				    $this->error('请输入联系人1');
 				}
-				if($contact_err ==1){
-				    $this->error('至少填写一组联系人和电话信息');
+				$tmp_params = array();
+				$info = array();
+				if(!empty($contract_params['contact1'])){
+				    $info['contact1'] = $contract_params['contact1'];
 				}
-				
+				if(!empty($contract_params['contact_phone1'])){
+				    $info['contact_phone1'] = $contract_params['contact_phone1'];
+				}
+				$tmp_params['contact1'] = $info;
+				$info = array();
+				if(!empty($contract_params['contact2'])){
+				    $info['contact2'] = $contract_params['contact2'];
+				}
+				if(!empty($contract_params['contact_phone2'])){
+				    $info['contact_phone2'] = $contract_params['contact_phone2'];
+				}
+				$tmp_params['contact2'] = $info;
+				if(count($tmp_params['contact1'])<=1 && count($tmp_params['contact2'])<=1){
+				    $this->error('请输入联系人和电话信息');
+				}
 			}
 			$data['serial_number']   	 = I('post.serial_number','','trim');     		//合同编号
 			$data['name']   	         = I('post.name','','trim');     		        //合同名称
