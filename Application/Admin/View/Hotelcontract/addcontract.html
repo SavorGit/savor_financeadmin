@@ -1,8 +1,8 @@
 <include file="Public/script"/>
 <div class="pageContent" style="height:100%;overflow: auto;background-color: #EEEEEE;">
   <form method="post" action="{$host_name}/hotelcontract/addcontract" class="pageForm -validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
-    
     <input type="hidden" name="id" value="{$vinfo.id}">
+    <input type="hidden" name="oldis_draft" value="{$vinfo.is_draft}">
     <div class="pageFormContent modal-body">
       <div class="tabsContent">
         <ul class="nav nav-tabs">
@@ -196,23 +196,25 @@
                   </div>
              </div>
             </if>
-          <div class="form-group row">
-              <label class="col-xs-2 col-sm-1 control-label">
-                  变更内容：
-              </label>
-              <div class="col-xs-2 col-sm-6">
-                  <input type="text" class="form-control" name="change_content" minlength="1" maxlength="100" value="{$vinfo.change_content}">
+          <if condition="$vinfo.is_draft eq 0">
+              <div class="form-group row">
+                  <label class="col-xs-2 col-sm-1 control-label">
+                      变更内容：
+                  </label>
+                  <div class="col-xs-2 col-sm-6">
+                      <input type="text" class="form-control" name="change_content" minlength="1" maxlength="100" value="{$vinfo.change_content}">
+                  </div>
               </div>
-          </div>
 
-          <div class="form-group row">
-              <label class="col-xs-2 col-sm-1 control-label">
-                  备注：
-              </label>
-              <div class="col-xs-2 col-sm-8">
-                  <textarea name="desc" value="{$vinfo.desc}" type="textInput" class="form-control" maxlength="255">{$vinfo.desc}</textarea>
+              <div class="form-group row">
+                  <label class="col-xs-2 col-sm-1 control-label">
+                      备注：
+                  </label>
+                  <div class="col-xs-2 col-sm-8">
+                      <textarea name="desc" value="{$vinfo.desc}" type="textInput" class="form-control" maxlength="255">{$vinfo.desc}</textarea>
+                  </div>
               </div>
-          </div>
+          </if>
 
           </div>
           <div id="tab2" class="tab-pane fade">
