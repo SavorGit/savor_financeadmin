@@ -77,7 +77,7 @@ class HotelcontractController extends BaseController {
             foreach ($datalist as $k=>$v){
                 $datalist[$k]['sign_user'] = $sign_users[$v['sign_user_id']]['name'];
                 $self_type_str = '主合同';
-                if($v['self_type']==0){
+                if($v['self_type']==2){
                     $self_type_str='副合同';
                 }
                 $res_hotel_num = $m_contracthotel->getRow('count(id) as num',array('contract_id'=>$v['id']));
@@ -163,8 +163,12 @@ class HotelcontractController extends BaseController {
                 'renew_templateid'=>array('is_verify'=>1,'tips'=>'请选择续约条款'),'default_pay_templateid'=>array('is_verify'=>1,'tips'=>'请选择默认付费条款'),
                 'pay_templateids'=>array('is_verify'=>0,'tips'=>''),'status'=>array('is_verify'=>0,'tips'=>''),
                 'media_id'=>array('is_verify'=>0,'tips'=>'请选择上传文件'),
-                'change_content'=>array('is_verify'=>1,'tips'=>'请输入变更内容'),'desc'=>array('is_verify'=>1,'tips'=>'请输入备注'),
+                'change_content'=>array('is_verify'=>1,'tips'=>'请输入变更内容'),'desc'=>array('is_verify'=>0,'tips'=>'请输入备注'),
             );
+            $oldis_draft = I('post.oldis_draft',0,'intval');
+            if($oldis_draft==1){
+                $all_params['change_content']['is_verify']=0;
+            }
             $is_draft = I('post.is_draft',0,'intval');
             $add_data = array('type'=>10,'is_draft'=>$is_draft);
             $contract_params = array();
@@ -256,7 +260,7 @@ class HotelcontractController extends BaseController {
             }else{
                 $contract_id = $m_contract->add($add_data);
             }
-            if($is_draft==0 && $is_update){
+            if($oldis_draft==0 && $is_draft==0 && $is_update){
                 $m_history = new \Admin\Model\ContracthistoryModel();
                 $add_data['contract_id'] = $contract_id;
                 $m_history->add($add_data);
@@ -267,7 +271,7 @@ class HotelcontractController extends BaseController {
                 $this->output('操作失败', 'hotelcontract/addcontract',2,0);
             }
         }else{
-            $vinfo = array('self_type'=>1,'status'=>0);
+            $vinfo = array('self_type'=>1,'status'=>0,'is_draft'=>1);
             $pay_templateids = array();
             if($contract_id){
                 $vinfo = $m_contract->getInfo(array('id'=>$contract_id));
@@ -616,11 +620,24 @@ class HotelcontractController extends BaseController {
 
     public function relationcontract(){
         $id = I('id',0,'intval');
+        $m_contract  = new \Admin\Model\ContractModel();
         if(IS_GET){
-
+            $res = $m_contract->getRow('parent_id',array('id'=>$id));
+            $datalist = $m_contract->getDataList('id,serial_number',array('type'=>10,'self_type'=>1),'id desc');
+            foreach ($datalist as $k=>$v){
+                $is_select = '';
+                if($v['id']==$res['parent_id']){
+                    $is_select = 'selected';
+                }
+                $datalist[$k]['is_select'] = $is_select;
+            }
+            $this->assign('datalist',$datalist);
+            $this->assign('id',$id);
             $this->display('relationcontract');
         }else{
-            if($id){
+            $parent_id = I('post.parent_id',0,'intval');
+            $res_data = $m_contract->updateData(array('id'=>$id),array('parent_id'=>$parent_id));
+            if($res_data){
                 $this->output('操作成功', 'hotelcontract/datalist');
             }else{
                 $this->output('操作失败', 'hotelcontract/addcontract',2,0);

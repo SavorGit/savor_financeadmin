@@ -51,7 +51,7 @@ class HotelController extends BaseController {
             foreach ($datalist as $k=>$v){
                 $datalist[$k]['sign_user'] = $sign_users[$v['sign_user_id']]['name'];
                 $self_type_str = '主合同';
-                if($v['self_type']==0){
+                if($v['self_type']==2){
                     $self_type_str='副合同';
                 }
                 $res_hotel_num = $m_contracthotel->getRow('count(id) as num',array('contract_id'=>$v['id']));

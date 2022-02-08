@@ -1,0 +1,26 @@
+<!--修改样式2 p元素自适应宽度 start-->
+<div class="pageContent">
+  <form method="post" action="{$host_name}/hotelcontract/relationcontract" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+    <input type="hidden" name="id" value="{$id}">
+    <div class="pageFormContent modal-body">
+
+		<div class="form-group row">
+			<label class="col-xs-12 col-sm-2 control-label">
+				主合同编号：
+			</label>
+			<div class="col-xs-12 col-sm-10">
+				<select name="parent_id" class="form-control bs-select class-filter" data-live-search="true" title="请选择主合同编号" required>
+					<volist name="datalist" id="cinfo">
+						<option value="{$cinfo.id}" {$cinfo.is_select}> {$cinfo.serial_number}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-default close-m" type="button">取消</button>
+      <button class="btn btn-primary" type="submit">保存</button>     
+    </div>
+  </form>
+</div>

@@ -115,10 +115,14 @@ class AdministrationController extends BaseController {
                 'contract_money'=>array('is_verify'=>1,'tips'=>'请输入金额'),
                 'invoice_type'=>array('is_verify'=>1,'tips'=>'请选择发票类型'),'rate'=>array('is_verify'=>1,'tips'=>'请输入税率'),
                 'invoice_no'=>array('is_verify'=>1,'tips'=>'请输入发票编号'),
-                'change_content'=>array('is_verify'=>1,'tips'=>'请输入变更内容'),'desc'=>array('is_verify'=>1,'tips'=>'请输入备注'),
+                'change_content'=>array('is_verify'=>1,'tips'=>'请输入变更内容'),'desc'=>array('is_verify'=>0,'tips'=>'请输入备注'),
                 'media_id'=>array('is_verify'=>0,'tips'=>'请选择上传文件'),
             );
             $is_draft = I('post.is_draft',0,'intval');
+            $oldis_draft = I('post.oldis_draft',0,'intval');
+            if($oldis_draft==1){
+                $all_params['change_content']['is_verify']=0;
+            }
             $add_data = array('type'=>50,'is_draft'=>$is_draft);
             foreach ($all_params as $k=>$v){
                 if(isset($_POST["$k"])){
@@ -173,7 +177,7 @@ class AdministrationController extends BaseController {
             }else{
                 $contract_id = $m_contract->add($add_data);
             }
-            if($is_draft==0 && $is_update){
+            if($oldis_draft==0 && $is_draft==0 && $is_update){
                 $m_history = new \Admin\Model\ContracthistoryModel();
                 $add_data['contract_id'] = $contract_id;
                 $m_history->add($add_data);
