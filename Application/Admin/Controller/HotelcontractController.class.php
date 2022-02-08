@@ -620,11 +620,24 @@ class HotelcontractController extends BaseController {
 
     public function relationcontract(){
         $id = I('id',0,'intval');
+        $m_contract  = new \Admin\Model\ContractModel();
         if(IS_GET){
-
+            $res = $m_contract->getRow('parent_id',array('id'=>$id));
+            $datalist = $m_contract->getDataList('id,serial_number',array('type'=>10,'self_type'=>1),'id desc');
+            foreach ($datalist as $k=>$v){
+                $is_select = '';
+                if($v['id']==$res['parent_id']){
+                    $is_select = 'selected';
+                }
+                $datalist[$k]['is_select'] = $is_select;
+            }
+            $this->assign('datalist',$datalist);
+            $this->assign('id',$id);
             $this->display('relationcontract');
         }else{
-            if($id){
+            $parent_id = I('post.parent_id',0,'intval');
+            $res_data = $m_contract->updateData(array('id'=>$id),array('parent_id'=>$parent_id));
+            if($res_data){
                 $this->output('操作成功', 'hotelcontract/datalist');
             }else{
                 $this->output('操作失败', 'hotelcontract/addcontract',2,0);
