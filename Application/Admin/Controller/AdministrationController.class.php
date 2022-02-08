@@ -216,7 +216,8 @@ class AdministrationController extends BaseController {
                 if($vinfo['contract_etime']=='0000-00-00'){
                     $vinfo['contract_etime'] = '';
                 }
-
+                $vinfo['change_content'] = '';
+                $vinfo['desc'] = '';
                 $media_id = 0;
                 if(!empty($vinfo['oss_addr'])){
                     $m_media = new \Admin\Model\MediaModel();
