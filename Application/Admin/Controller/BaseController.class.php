@@ -27,7 +27,6 @@ class BaseController extends Controller {
         $this->assign('imgup_path',$this->imgup_path());
         $this->assign('imgup_show',$this->imgup_show());
         $this->checkPriv();  //检查权限
-        $this->sysLog($actionName='', $oppreate='', $program='');
         $this->recordLog();
     }
     
@@ -204,82 +203,6 @@ class BaseController extends Controller {
         }
         echo "{'err':'".preg_replace("/([\\\\\/'])/",'\\\$1',$err)."','msg':".$msg."}";
     }
-    
-    /*
-     * @param actionName 当前栏目名称
-     * @param oppreate  当前操作方式
-     * @param program  当前栏目中某一条的信息
-     * @param type  判断是否是登录、退出
-     */
-    public function sysLog($actionName, $oppreate, $program,$type=''){
-        $userInfo = session('sysUserInfo');
-        $loginId = $userInfo['id'];
-        if(!$actionName){
-            $sysMenu = new \Admin\Model\SysmenuModel();
-            $result = $sysMenu->getList("where menulevel='1' ",'id desc',0,500);
-            $menuList = $result['list'];
-            $menuName = ACTION_NAME;
-            if(IS_POST){
-                if(('add' == strtolower(substr($menuName, -3))) or ('del' == strtolower(substr($menuName, -3)))) $menuName = substr($menuName, 0, -3).'List';
-            }
-            foreach ($menuList as $k => $v){
-                if(stripos($v['code'] ,$menuName)){
-                    $actionId =  $v['id'];
-                    break;
-                }
-            }
-        }else{
-            $actionId = $actionName;
-        }
-        if($loginId && $actionId){
-            $data['loginid']   = $loginId;
-            $data['actionid'] = $actionId;
-            $data['clientip'] = getClientIP();
-            $data['areaname'] = $this->getNameByIp($data['clientip']);
-            $data['logtime'] = date("Y-m-d H:i:s");
-            if($type){
-                if($type=='login'){
-                    $data['opprate'] = '登录';
-                }elseif($type=='logout'){
-                    $data['opprate'] = '退出';
-                }
-                $data['program'] = '当前栏目';
-                $syslog = new \Admin\Model\SyslogModel();
-                $syslog->addData($data, 0);
-            }else{
-                if(IS_POST){
-                    if('del' == strtolower(substr(ACTION_NAME, -3))){
-                        $data['opprate'] =  '删除';
-                        $data['program'] =   $this->getProName($_REQUEST['id'], ACTION_NAME);
-                    }else{
-                        $oppreate = ($_REQUEST['acttype'] == 1)? '修改' : '新增';
-                        if($_REQUEST['shwtitle']){
-                            $data['program'] = $_REQUEST['shwtitle'];
-                        }elseif($_REQUEST['key']){
-                            $data['program'] = $_REQUEST['key'];
-                        }elseif($_REQUEST['modulename']){
-                            $data['program'] = $_REQUEST['modulename'];
-                        }elseif($_REQUEST['name']){
-                            $data['program'] = $_REQUEST['name'];
-                        }elseif($_REQUEST['remark']){
-                            $data['program'] = $_REQUEST['remark'];
-                        }
-                        $data['opprate'] = $oppreate;
-                    }
-                    if($data['program'] && $data['opprate']){
-                        $syslog = new \Admin\Model\SyslogModel();
-                        $syslog->addData($data, 0);
-                    }
-                }else{
-                    $data['opprate'] = '查看';
-                    $data['program'] = '当前栏目';
-                    $syslog = new \Admin\Model\SyslogModel();
-                    $syslog->addData($data, 0);
-                }
-            }
-        }
-    }
-    
     
     public function getNameByIp($ip){
         $arearName = '暂无地区名称';
