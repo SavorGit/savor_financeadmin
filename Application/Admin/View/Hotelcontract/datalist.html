@@ -161,14 +161,14 @@
                             </td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
+                                    <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/hotelcontract/addcontract?id={$dinfo.id}" class="btn btn-success btn-icon">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
                                     <if condition="$dinfo.self_type eq 2">
                                     <a title="关联主合同" data-tip="关联主合同" target="dialog" mask="true" href="{$host_name}/hotelcontract/relationcontract?id={$dinfo.id}" class="btn btn-success btn-icon">
                                         <i class="fa fa-rebel"></i>
                                     </a>
                                     </if>
-                                    <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/hotelcontract/addcontract?id={$dinfo.id}" class="btn btn-success btn-icon">
-                                        <i class="fa fa-pencil"></i>
-                                    </a>
                                     <a title="合同记录" data-tip="合同{$dinfo.name}记录" target="navTab" mask="true" rel="hotelcontract/history" href="{$host_name}/hotelcontract/history?id={$dinfo.id}" class="btn btn-default btn-icon">
                                         <i class="fa fa-history"></i>
                                     </a>
