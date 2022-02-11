@@ -155,7 +155,7 @@ class HotelcontractController extends BaseController {
                 'company_short_name'=>array('is_verify'=>1,'tips'=>'请输入公司简称'),'company_area_id'=>array('is_verify'=>1,'tips'=>'请选择所属城市'),
                 'address'=>array('is_verify'=>1,'tips'=>'请输入注册地址'),'company_property'=>array('is_verify'=>1,'tips'=>'请选择企业性质'),
                 'invoice_type'=>array('is_verify'=>0,'tips'=>''),'rate'=>array('is_verify'=>0,'tips'=>''),
-                'account_name'=>array('is_verify'=>1,'tips'=>'请输入开户名称'),'bank_name'=>array('is_verify'=>1,'tips'=>'请输入开户行名称'),
+                'account_name'=>array('is_verify'=>1,'tips'=>'请输入开户名称'),'bank_name'=>array('is_verify'=>1,'tips'=>'请输入开户行名称'),'bank_account'=>array('is_verify'=>1,'tips'=>'请输入账号'),
                 'contact1'=>array('is_verify'=>2,'tips'=>'请输入联系人1'),'contact_phone1'=>array('is_verify'=>2,'tips'=>'请输入电话1'),
                 'contact_phone12'=>array('is_verify'=>0,'tips'=>''),'contact_qq1'=>array('is_verify'=>0,'tips'=>''),'contact_wechat1'=>array('is_verify'=>0,'tips'=>''),
                 'contact2'=>array('is_verify'=>2,'tips'=>'请输入联系人2'),'contact_phone2'=>array('is_verify'=>2,'tips'=>'请输入电话2'),
@@ -163,7 +163,7 @@ class HotelcontractController extends BaseController {
                 'renew_templateid'=>array('is_verify'=>1,'tips'=>'请选择续约条款'),'default_pay_templateid'=>array('is_verify'=>1,'tips'=>'请选择默认付费条款'),
                 'pay_templateids'=>array('is_verify'=>0,'tips'=>''),'status'=>array('is_verify'=>0,'tips'=>''),
                 'media_id'=>array('is_verify'=>0,'tips'=>'请选择上传文件'),
-                'change_content'=>array('is_verify'=>1,'tips'=>'请输入变更内容'),'desc'=>array('is_verify'=>0,'tips'=>'请输入备注'),
+                'change_content'=>array('is_verify'=>1,'tips'=>'请输入变更内容'),'desc'=>array('is_verify'=>0,'tips'=>'请输入备注'),'remark'=>array('is_verify'=>0,'tips'=>'请输入合同备注')
             );
             $oldis_draft = I('post.oldis_draft',0,'intval');
             if($oldis_draft==1){
