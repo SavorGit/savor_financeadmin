@@ -188,7 +188,14 @@
 								<input name="invoice_no" type="text" value="{$vinfo.invoice_no}"  class="form-control" disabled/>
 							</div>
 						</div>
-
+						<div class="form-group row">
+							<label class="col-xs-2 col-sm-1 control-label">
+								合同备注：
+							</label>
+							<div class="col-xs-2 col-sm-8">
+								<textarea name="remark" value="{$vinfo.remark}" type="textInput" class="form-control" maxlength="255" disabled>{$vinfo.remark}</textarea>
+							</div>
+						</div>
 						<div class="form-group row">
 							<label class="col-xs-2 col-sm-1 control-label">
 								变更内容：
@@ -200,7 +207,7 @@
 
 						<div class="form-group row">
 							<label class="col-xs-2 col-sm-1 control-label">
-								备注：
+								变更备注：
 							</label>
 							<div class="col-xs-2 col-sm-8">
 								<textarea name="desc" value="{$vinfo.desc}" type="textInput" class="form-control" maxlength="255" disabled>{$vinfo.desc}</textarea>
