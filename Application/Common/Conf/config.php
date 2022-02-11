@@ -215,7 +215,19 @@ $config['FINACE_CONTRACT'] = array(
 									),
 									
 	
-	)
+	),
+    'check_cycle'=>array(
+        'proxysale'=>array(
+            array('id'=>1,'name'=>'批'),
+            array('id'=>2,'name'=>'月'),
+        ),
+    ),
+    'closed_circle'=>array(
+        'proxysale'=>array(
+            array('id'=>1,'name'=>'月'),
+            array('id'=>2,'name'=>'季'),
+        )
+    ),
 );
 $config['CONTRACT_COMPANY']= array(
 	array('id'=>1,'name'=>'拉萨经济技术开发区热点信息技术有限公司'),

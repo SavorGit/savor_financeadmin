@@ -14,6 +14,8 @@ class ProxysaleController extends BaseController{
 	private $contract_ctype_arr  = [];
 	private $goods_nums = 5;
 	private $status_arr = [];
+	private $check_cycle_arr = [];
+	private $closed_circle_arr   = [];
 	private $required_arr = array('serial_number'=>'请填写合同编号','name'=>'请填写合同名称','company_id'=>'请选择签约公司',
 								  'sign_department'=>'请选择签约部门','sign_user_id'=>'请填写签约人','ctype'=>'请选择合同类型',
 								  'area_id'=>'请选择签约城市','sign_time'=>'请选择签署日期','archive_time'=>'请选择归档日期',
@@ -23,6 +25,7 @@ class ProxysaleController extends BaseController{
 								  'company_name'=>'请填写公司名称','company_short_name'=>'请填写公司简介','company_area_id'=>'请选择公司所属城市',
 								  'address'=>'请填写公司注册地址','account_name'=>'请填写公司开户名称','company_property'=>'请选择公司企业性质',
 								  'bank_name'=>'请填写公司开户行名称','bank_account'=>'请填写公司开户账号',
+	                              'check_cycle'=>'请选择对账周期', 'closed_circle'=>'请选择结算周期',
 	                              //'contact1'=>'请填写联系人1','contact_phone1'=>'请填写联系人电话1','contact2'=>'请填写联系人2','contact_phone2'=>'请填写联系人电话2'
 	    
 	);
@@ -33,6 +36,8 @@ class ProxysaleController extends BaseController{
 		$this->invoice_type_arr     = $config_proxy_sale_contract['invoice_type'];
 		$this->contract_ctype_arr   = $config_proxy_sale_contract['contract_ctype']['proxysale'];
 		$this->status_arr           = $config_proxy_sale_contract['contract_status'];
+		$this->check_cycle_arr      = $config_proxy_sale_contract['check_cycle']['proxysale'];
+		$this->closed_circle_arr    = $config_proxy_sale_contract['closed_circle']['proxysale'];
 		$this->contract_company_arr = C('CONTRACT_COMPANY');
         $this->oss_host = get_oss_host();
 		
@@ -150,6 +155,8 @@ class ProxysaleController extends BaseController{
 		$this->assign('invoice_type_arr',$this->invoice_type_arr);
 		$this->assign('contract_company_arr',$this->contract_company_arr);
 		$this->assign('contract_ctype_arr',$this->contract_ctype_arr);
+		$this->assign('check_cycle_arr',$this->check_cycle_arr);
+		$this->assign('closed_circle_arr',$this->closed_circle_arr);
         $this->display('add');
     }
     public function doadd(){
@@ -207,13 +214,16 @@ class ProxysaleController extends BaseController{
 			$data['area_id']         	 = I('post.area_id',0,'intval');            	//签约城市
 			$data['sign_time']       	 = I('post.sign_time','','trim');               //签署日期
 			$data['archive_time']    	 = I('post.archive_time','','trim');            //归档日期
-			$data['statement_time']  	 = I('post.statement_time','','trim');          //对账日期
-			$data['settlement_time'] 	 = I('post.settlement_time','','trim');         //结算日期
+			//$data['statement_time']  	 = I('post.statement_time','','trim');          //对账日期
+			//$data['settlement_time'] 	 = I('post.settlement_time','','trim');         //结算日期
+			$data['check_cycle']         = I('post.check_cycle',0,'intval');            //对账周期
+			$data['closed_circle']       = I('post.closed_circle',0,'intval');          //结算周期
 			$data['contract_stime']  	 = I('post.contract_stime','','trim');          //合同开始日期
 			$data['contract_etime']      = I('post.contract_etime','','trim');          //合同结束日期
 			$data['hotel_signer']        = I('post.hotel_signer','','trim');            //合同签约人
 			$data['hotel_signer_phone1'] = I('post.hotel_signer_phone1','','trim');     //合同签约人电话1
 			$data['hotel_signer_phone2'] = I('post.hotel_signer_phone2','','trim');     //合同签约人电话2
+			$data['remark']              = I('post.remark','','trim');                  //合同备注
 			
 			
 			
@@ -307,7 +317,7 @@ class ProxysaleController extends BaseController{
 				}else{
 					$this->error('添加失败');
 				}
-			}else{
+			}else{$
 				$ret  = $m_contract->addData($data);
 				if($ret){
 					$m_contract_history = new \Admin\Model\ContracthistoryModel();
@@ -359,6 +369,8 @@ class ProxysaleController extends BaseController{
 		$this->assign('invoice_type_arr',$this->invoice_type_arr);
 		$this->assign('contract_company_arr',$this->contract_company_arr);
 		$this->assign('contract_ctype_arr',$this->contract_ctype_arr);
+		$this->assign('check_cycle_arr',$this->check_cycle_arr);
+		$this->assign('closed_circle_arr',$this->closed_circle_arr);
         $this->display('edit');
 	}
 	public function doedit(){
@@ -424,8 +436,10 @@ class ProxysaleController extends BaseController{
 			$data['area_id']         	 = I('post.area_id',0,'intval');            	//签约城市
 			$data['sign_time']       	 = I('post.sign_time','','trim');               //签署日期
 			$data['archive_time']    	 = I('post.archive_time','','trim');            //归档日期
-			$data['statement_time']  	 = I('post.statement_time','','trim');          //对账日期
-			$data['settlement_time'] 	 = I('post.settlement_time','','trim');         //结算日期
+			//$data['statement_time']  	 = I('post.statement_time','','trim');          //对账日期
+			//$data['settlement_time'] 	 = I('post.settlement_time','','trim');         //结算日期
+			$data['check_cycle']         = I('post.check_cycle',0,'intval');            //对账周期
+			$data['closed_circle']       = I('post.closed_circle',0,'intval');          //结算周期
 			$data['contract_stime']  	 = I('post.contract_stime','','trim');          //合同开始日期
 			$data['contract_etime']      = I('post.contract_etime','','trim');          //合同结束日期
 			$data['hotel_signer']        = I('post.hotel_signer','','trim');            //合同签约人
@@ -433,6 +447,7 @@ class ProxysaleController extends BaseController{
 			$data['hotel_signer_phone2'] = I('post.hotel_signer_phone2','','trim');     //合同签约人电话2
 			$data['change_content']      = I('post.change_content','','trim');          //变更内容
 			$data['desc']                = I('post.desc','','trim');                    //变更备注
+			$data['remark']              = I('post.remark','','trim');                  //合同备注
 			
 			
 			

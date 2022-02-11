@@ -114,29 +114,25 @@
               
               
               <label class="col-xs-2 col-sm-1 control-label">
-                对账日期：
+                对账周期：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <div class="input-group date form_date" data-date="{$vinfo.statement_time}">
-                  <input name="statement_time" type="text" size="16" class="form-control date" placeholder="对账日期" value="{$vinfo.statement_time}" >
-                  <span class="input-group-btn">
-                    
-                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
-                  </span>
-                </div> 
+                <select  name="check_cycle" class="form-control bs-select" title="请选选择对账周期" >
+                  <volist name="check_cycle_arr" id="vo">
+					<option value="{$vo.id}" <if condition="$vo.id eq $vinfo['check_cycle']">selected</if>> {$vo.name}</option>
+				  </volist>
+                </select>
               </div>
               
               <label class="col-xs-2 col-sm-1 control-label">
-               结算日期：
+               结算周期：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <div class="input-group date form_date" data-date="{$vinfo.settlement_time}">
-                  <input name="settlement_time" type="text" size="16" class="form-control date" placeholder="结算日期" value="{$vinfo.settlement_time}" >
-                  <span class="input-group-btn">
-                    
-                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
-                  </span>
-                </div> 
+                <select id="closed_circle_arr" name="closed_circle" class="form-control bs-select" title="请选选择结算周期" >
+                  <volist name="closed_circle_arr" id="vo">
+					<option value="{$vo.id}" <if condition="$vo.id eq $vinfo['closed_circle']">selected</if>> {$vo.name}</option>
+				  </volist>
+                </select>
               </div>
               
             </div>
@@ -232,6 +228,15 @@
 				$now_date  = time();
 				if($s_time<$now_date && $e_time>now_date){
 			</php>
+			
+			<div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	合同备注：
+              </label>
+              <div class="col-xs-12 col-sm-10">
+                <textarea name="remark" type="textInput" class="form-control">{$vinfo.remark}</textarea>
+              </div>
+            </div>
 			<div class="form-group row">
               <label class="col-xs-2 col-sm-1 control-label">
                 	变更内容：
