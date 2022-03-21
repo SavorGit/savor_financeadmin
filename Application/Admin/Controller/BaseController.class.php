@@ -335,6 +335,7 @@ class BaseController extends Controller {
         }else{
             $type = 3;
         }
+        /*
         $fileinfo = '';
         $accessKeyId = C('OSS_ACCESS_ID');
         $accessKeySecret = C('OSS_ACCESS_KEY');
@@ -361,6 +362,8 @@ class BaseController extends Controller {
         if($fileinfo){
             $add_mediadata['md5'] = md5($fileinfo);
         }
+        */
+        $add_mediadata['md5'] = '';
         $user = session('sysUserInfo');
         $add_mediadata['surfix'] = $surfix;
         $add_mediadata['create_time'] = date('Y-m-d H:i:s');

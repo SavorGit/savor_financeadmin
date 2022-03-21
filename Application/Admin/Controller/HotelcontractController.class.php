@@ -495,7 +495,7 @@ class HotelcontractController extends BaseController {
         $contract_id = I('contract_id',0,'intval');
         if(IS_GET){
             $m_hotel = new \Admin\Model\HotelModel();
-            $hotel_list = $m_hotel->getDataList('id,name',array('state'=>1,'flag'=>0,'type'=>1),'id desc');
+            $hotel_list = $m_hotel->getDataList('id,name',array('type'=>1),'id desc');
             $this->assign('contract_id',$contract_id);
             $this->assign('hotel_list',$hotel_list);
             $this->display('addrelationhotel');
