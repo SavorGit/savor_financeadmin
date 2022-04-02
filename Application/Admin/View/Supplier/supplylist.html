@@ -1,0 +1,62 @@
+<include file="Public/script"/>
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/supplier/supplylist" method="post">
+    <input type="hidden" name="pageNum" value="{$pageNum}"/>
+    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <input type="hidden" name="supplier_id" value="{$supplier_id}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="col-xs-12 col-sm-6 col-md-10">
+          <div class="tools-group s2">
+
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2 pull-right">
+          <div class="input-group input-group-sm">
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+
+          <tr id="post">
+            <th>ID</th>
+            <th>采购合同编号</th>
+            <th>合同名称</th>
+            <th>采购组织</th>
+            <th>总数</th>
+            <th>实收总数</th>
+            <th>采购金额</th>
+            <th>采购日期</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <volist name="data" id="dinfo">
+            <tr target="sid_user">
+              <td data-title="ID">{$dinfo.id}</td>
+              <td data-title="采购合同编号">{$dinfo.serial_number}</td>
+              <td data-title="合同名称">{$dinfo.name}</td>
+              <td data-title="采购组织">{$dinfo.department}</td>
+              <td data-title="总数">{$dinfo.amount}</td>
+              <td data-title="实收总数">{$dinfo.amount}</td>
+              <td data-title="采购金额">{$dinfo.total_fee}</td>
+              <td data-title="采购日期">{$dinfo.purchase_date}</td>
+
+            </tr>
+          </volist>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
