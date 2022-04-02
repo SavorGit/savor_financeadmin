@@ -85,7 +85,16 @@ $config['MANGER_LEVEL'] = array(
     '1'=>'二级栏目',
     '2'=>'三级栏目'
 );
-
+$config['UNIT_TYPE'] = array(
+    '1'=>'基本单位',
+    '2'=>'其他'
+);
+$config['UNIT_CONVERT_TYPE'] = array(
+    '1'=>'1基本单位',
+    '2'=>'2基本单位',
+    '4'=>'4基本单位',
+    '6'=>'6基本单位'
+);
 $config['MANGER_STATE'] = array(
     '0'=>'未审核',
     '2'=>'审核通过',
@@ -93,6 +102,7 @@ $config['MANGER_STATE'] = array(
 );
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
+    'baseset'=>'基础设置',
     'hotelcontract'=>'酒楼合同管理',
     'proxysale'=>'商品代销合同管理',
     'advcontract'=>'广告销售合同管理',

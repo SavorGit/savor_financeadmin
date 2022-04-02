@@ -1,0 +1,61 @@
+<div class="pageContent">
+    <form method="post" action="{$host_name}/basicset/unitadd" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <input name="id" type="hidden" value="{$vinfo.id}"/>
+        <input name="category_id" type="hidden" value="{$vinfo.category_id}"/>
+        <div class="pageFormContent modal-body">
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">名称：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input name="name" type="text" value="{$vinfo.name}" class="form-control" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    单位类别:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="type" class="form-control bs-select" title="请选择..." data-size="20" required>
+                        <volist name=":C('UNIT_TYPE')" id="ut">
+                            <option value="{$key}" <if condition="$vinfo['type'] eq $key"> selected </if> > {$ut}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    换算关系:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="convert_type" id="tag_category" class="form-control bs-select" title="请选择..." data-size="20" required>
+                        <volist name=":C('UNIT_CONVERT_TYPE')" id="uct">
+                            <option value="{$key}" <if condition="$vinfo['convert_type'] eq $key"> selected </if> > {$uct}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">显示顺序：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input name="sort" type="number" value="{$vinfo.sort}" class="form-control" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    状态：
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <input type="hidden" name="status" value="2">
+                    <input type="checkbox" value="1" class="make-switch status" name="status" data-size="small" data-on-text="开启" data-off-text="关闭" <if condition="$vinfo.status eq 1" >checked</if>>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default close-m" type="button">取消</button>
+            <button class="btn btn-primary" type="submit">保存</button>
+        </div>
+    </form>
+</div>
