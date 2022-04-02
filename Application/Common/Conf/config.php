@@ -104,6 +104,7 @@ $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
     'baseset'=>'基础设置',
     'supplier'=>'供应商',
+    'goods'=>'商品',
     'hotelcontract'=>'酒楼合同管理',
     'proxysale'=>'商品代销合同管理',
     'advcontract'=>'广告销售合同管理',
