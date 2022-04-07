@@ -15,13 +15,16 @@ class PurchaseDetailModel extends BaseModel{
 	    ->order($order)
 	    ->limit($start,$size)
 	    ->select();
-	    
-	    $count = $this->alias('a')
-	    ->where($where)
-	    ->count();
-	    $objPage = new Page($count,$size);
-	    $show = $objPage->admin_page();
-	    $data = array('list'=>$list,'page'=>$show);
+	    if($start>=0 && $size>0){
+            $count = $this->alias('a')
+                ->where($where)
+                ->count();
+            $objPage = new Page($count,$size);
+            $show = $objPage->admin_page();
+            $data = array('list'=>$list,'page'=>$show);
+        }else{
+            $data = $list;
+        }
 	    return $data;
 	}
 
