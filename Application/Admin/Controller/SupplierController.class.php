@@ -82,6 +82,7 @@ class SupplierController extends BaseController {
             foreach ($res_list['list'] as $v){
                 $res_dinfo = $m_department->getInfo(array('id'=>$v['department_id']));
                 $v['department'] = $res_dinfo['name'];
+                $v['now_amount'] = 0;//小程序联调开发
                 $data_list[] = $v;
             }
         }
