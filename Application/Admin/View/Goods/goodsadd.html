@@ -9,12 +9,12 @@
                 </div>
             </div>
 
-            <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">价格：</label>
-                <div class="col-xs-12 col-sm-10">
-                    <input name="price" type="number" value="{$vinfo.price}" class="form-control" required/>
-                </div>
-            </div>
+<!--            <div class="form-group row">-->
+<!--                <label class="col-xs-12 col-sm-2 control-label">价格：</label>-->
+<!--                <div class="col-xs-12 col-sm-10">-->
+<!--                    <input name="price" type="number" value="{$vinfo.price}" class="form-control" required/>-->
+<!--                </div>-->
+<!--            </div>-->
 
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">条码：</label>
@@ -47,15 +47,15 @@
                 </div>
             </div>
 
-            <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">
-                    单位:
-                </label>
-                <div class="col-xs-12 col-sm-10">
-                    <select name="unit_id" id="unit_id" class="form-control" data-size="20" required>
-                    </select>
-                </div>
-            </div>
+<!--            <div class="form-group row">-->
+<!--                <label class="col-xs-12 col-sm-2 control-label">-->
+<!--                    单位:-->
+<!--                </label>-->
+<!--                <div class="col-xs-12 col-sm-10">-->
+<!--                    <select name="unit_id" id="unit_id" class="form-control" data-size="20" >-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--            </div>-->
 
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">
@@ -166,14 +166,14 @@
                     $("#specification_id").empty()
                     $("#specification_id").append(specification_option_str);
                 }
-                if (all_unit!=null) {
-                    var unit_option_str = '';
-                    for (var i=0; i < all_unit.length; i++) {
-                        unit_option_str+='<option value="'+all_unit[i].id+'"'+all_unit[i].is_select+'>'+all_unit[i].name+'</option>';
-                    }
-                    $("#unit_id").empty()
-                    $("#unit_id").append(unit_option_str);
-                }
+                // if (all_unit!=null) {
+                //     var unit_option_str = '';
+                //     for (var i=0; i < all_unit.length; i++) {
+                //         unit_option_str+='<option value="'+all_unit[i].id+'"'+all_unit[i].is_select+'>'+all_unit[i].name+'</option>';
+                //     }
+                //     $("#unit_id").empty()
+                //     $("#unit_id").append(unit_option_str);
+                // }
             }
         })
     })

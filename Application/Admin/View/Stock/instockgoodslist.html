@@ -1,0 +1,64 @@
+<include file="Public/script"/>
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stock/instockgoodslist" method="post">
+    <input type="hidden" name="pageNum" value="{$pageNum}"/>
+    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <input type="hidden" name="stock_id" value="{$stock_id}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="col-xs-12 col-sm-6 col-md-10">
+          <div class="tools-group s2">
+            <a class="btn btn-success btn-sm add" href="{$host_name}/stock/instockgoodsadd?stock_id={$stock_id}" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i><span>新增</span></a>
+
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2 pull-right">
+          <div class="input-group input-group-sm">
+            <input type="text" class="form-control" name="keyword" value="{$keyword}" placeholder="请输入名称">
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+
+          <tr id="post">
+            <th>ID</th>
+            <th>唯一识别码</th>
+            <th>商品条形码</th>
+            <th>商品名称</th>
+            <th>商品类型</th>
+            <th>单位</th>
+            <th>单价</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <volist name="data" id="dinfo">
+            <tr target="sid_user">
+              <td data-title="ID">{$dinfo.id}</td>
+              <td data-title="唯一识别码">{$dinfo.idcode}</td>
+              <td data-title="商品条形码">{$dinfo.barcode}</td>
+              <td data-title="商品名称">{$dinfo.name}</td>
+              <td data-title="商品类型">{$dinfo.category}</td>
+              <td data-title="单位">{$dinfo.unit}</td>
+              <td data-title="单价">{$dinfo.price}</td>
+
+            </tr>
+          </volist>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
