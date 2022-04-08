@@ -1,5 +1,6 @@
 <?php
 namespace Admin\Model;
+use Common\Lib\Page;
 
 class StockModel extends BaseModel{
 	protected $tableName='finance_stock';

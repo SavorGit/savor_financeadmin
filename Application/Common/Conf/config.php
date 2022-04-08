@@ -100,14 +100,15 @@ $config['MANGER_STATE'] = array(
     '2'=>'审核通过',
     '3'=>'审核不通过',
 );
-$config['STOCK_IN_TYPES'] = array('11'=>'采购','12'=>'调拨','13'=>'酒楼结余');
-$config['STOCK_OUT_TYPES'] = array('21'=>'调拨','22'=>'团购售卖','23'=>'酒楼备货');
+$config['STOCK_IN_TYPES'] = array('11'=>'采购入库','12'=>'调拨入库','13'=>'餐厅退回','14'=>'其他');
+$config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23'=>'赠送餐厅','24'=>'销售','25'=>'其他消耗');
 
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
     'baseset'=>'基础设置',
     'supplier'=>'供应商',
     'goods'=>'商品',
+    'stock'=>'库存',
     'hotelcontract'=>'酒楼合同管理',
     'proxysale'=>'商品代销合同管理',
     'advcontract'=>'广告销售合同管理',
