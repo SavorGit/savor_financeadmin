@@ -359,6 +359,14 @@ class InventorypurchaseController extends BaseController {
             $unit_id  = I('post.unit_id',0,'intval');
             $amount   = I('post.amount',0,'intval');
             $status   = 1;
+            
+            $m_unit = new \Admin\Model\UnitModel();
+            $where = [];
+            $where['id'] = $unit_id;
+            $unit_info = $m_unit->field('convert_type')->where($where)->find();
+            $total_amount = intval($unit_info['convert_type'] * $amount);  //总瓶数
+            
+            
             $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
             $data['purchase_id'] = $purchase_id;
             $data['goods_id']    = $goods_id;
@@ -366,6 +374,7 @@ class InventorypurchaseController extends BaseController {
             $data['unit_id']     = $unit_id;
             $data['amount']      = $amount;
             $data['status']      = $status;
+            $data['total_amount']= $total_amount;
             $ret = $m_purchase_detail->addData($data);
             if($ret){
                 $this->output('添加成功!', 'inventorypurchase/detaillist');
@@ -431,11 +440,20 @@ class InventorypurchaseController extends BaseController {
             $price    = I('post.price','','trim');
             $unit_id  = I('post.unit_id',0,'intval');
             $amount   = I('post.amount',0,'intval');
+            
+            $m_unit = new \Admin\Model\UnitModel();
+            $where = [];
+            $where['id'] = $unit_id;
+            $unit_info = $m_unit->field('convert_type')->where($where)->find();
+            $total_amount = intval($unit_info['convert_type'] * $amount);  //总瓶数
+            
             $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
             $data['goods_id']    = $goods_id;
             $data['price']       = $price;
             $data['unit_id']     = $unit_id;
             $data['amount']      = $amount;
+            $data['total_amount']= $total_amount;
+            $data['update_time'] = date('Y-m-d H:i:s');
             $where = [];
             $where['id'] = $id;
             $where['purchase_id'] = $purchase_id;
