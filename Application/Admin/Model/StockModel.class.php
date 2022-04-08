@@ -15,6 +15,7 @@ class StockModel extends BaseModel{
             ->select();
 
         $count = $this->alias('a')
+            ->join('savor_finance_purchase p on a.purchase_id=p.id','left')
             ->where($where)
             ->count();
         $objPage = new Page($count,$size);
