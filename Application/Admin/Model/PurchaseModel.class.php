@@ -7,6 +7,7 @@ class PurchaseModel extends BaseModel{
 
 	public function getList($fields,$where, $order='a.id desc', $start=0,$size=5){
 	    $list = $this->alias('a')
+	    ->join('savor_finance_contract c on a.contract_id=c.id','left')
 	    ->join('savor_finance_department d on a.department_id = d.id','left')
 	    ->join('savor_finance_supplier   s on a.supplier_id   = s.id','left')
 	    ->field($fields)

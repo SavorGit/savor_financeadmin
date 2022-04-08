@@ -1,0 +1,130 @@
+<include file="Public/script"/>
+<div class="pageContent" style="height:100%;overflow: auto;background-color: #EEEEEE;">
+  <form method="post" action="{$host_name}/inventorypurchase/doAddDetail" class="pageForm -validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+    
+    <input type="hidden" name="purchase_id" value="{$purchase_id}">
+    <div class="pageFormContent modal-body">
+      <div class="tabsContent">
+        
+        <div class="tab-content">
+          <div  class="tab-pane active fade in">
+            <div class="form-group row">
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                	采购商品：
+              </label>
+              <div class="col-xs-2 col-sm-5">
+                <select id="goods_id"  name="goods_id" class="form-control bs-select" title="请选择采购商品" >
+                  <volist name="goods_arr" id="vo">
+                    <option value="{$vo.id}" > {$vo.name}</option>
+                  </volist>
+                </select>
+              </div>
+              
+              
+            </div>
+            
+            <div class="form-group row">
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	条形码：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input id="barcode" name="barcode" type="text" value="{$vinfo.barcode}"  minlength="1" maxlength="50" class="form-control" disabled />
+              </div>
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                	商品名称：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input id="name" name="name" type="text" value="{$vinfo.name}"  minlength="1" maxlength="50" class="form-control" disabled />
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	单位：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="unit_id"  name="unit_id" class="form-control" title="请选择单位" >
+                  <option value="0">请选择商品单位<optin>
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	单价：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="price" type="text" value="{$vinfo.price}"  minlength="1" maxlength="50" class="form-control" />
+              </div>
+              
+              
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                	采购数量：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="amount" type="text" value="{$vinfo.amount}"  minlength="1" maxlength="50" class="form-control" />
+              </div>
+              
+              
+            </div>
+            
+          </div>
+		</div>
+		
+		  
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:400px;">
+      <button class="btn btn-default close-m" type="button">取消</button>  
+      <button class="btn btn-primary" type="submit">保存</button>
+      
+    </div>
+    
+  </form>
+</div>
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+  
+  $(function(){
+    
+
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+  
+  
+  $("#goods_id").change(function(){
+    var goods_id = $(this).val();
+    $.ajax({
+        type: "POST",
+        url: "/Inventorypurchase/getgoodsinfo",
+        data: "goods_id="+goods_id,
+        dataType: "json",
+        success: function(data){
+        	var barcode   = data.barcode;
+        	var name      = data.name;
+        	var unit_arr  = data.unit_arr
+        	$("#barcode").val(barcode);
+        	$("#name").val(name);
+        	
+         	var li = '';
+       	 	$('#unit_id').html('<option value="0">请选择商品单位<optin>');
+       	 	if(unit_arr.length>0){
+       		 	for(var i=0;i<unit_arr.length;i++) {
+           		 	li += '<option value="'+unit_arr[i]['id']+'">'+unit_arr[i]['name']+'</option>';
+           	 	}
+             	$('#unit_id').append(li);
+       	 	}
+        }
+     });
+  })
+  
+  
+</script>
