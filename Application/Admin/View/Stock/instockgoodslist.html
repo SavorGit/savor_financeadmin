@@ -36,6 +36,7 @@
             <th>商品条形码</th>
             <th>商品名称</th>
             <th>商品类型</th>
+            <th>操作</th>
           </tr>
           </thead>
           <tbody data-check="list" data-parent=".table">
@@ -45,6 +46,14 @@
               <td data-title="商品条形码">{$dinfo.barcode}</td>
               <td data-title="商品名称">{$dinfo.name}</td>
               <td data-title="商品类型">{$dinfo.category}</td>
+              <td class="table-tool" data-title="操作">
+                <div class="tools-edit">
+                  <a title="入库明细列表" data-tip="{$dinfo.name}-入库明细列表" target="navTab" mask="true" rel="stock/stockgoodsrecordlist" href="{$host_name}/stock/stockgoodsrecordlist?stock_detail_id={$dinfo.id}" class="btn btn-default btn-icon">
+                    <i class="fa fa-list"></i>
+                  </a>
+
+                </div>
+              </td>
             </tr>
           </volist>
           </tbody>

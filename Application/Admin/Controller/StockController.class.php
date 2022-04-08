@@ -31,7 +31,7 @@ class StockController extends BaseController {
         if($supplier_id){
             $where['p.supplier_id'] = $supplier_id;
         }
-        $area_arr = $department_arr = $supplier_arr = array();
+        $area_arr = $department_arr = $supplier_arr = $departmentuser_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
         foreach ($res_area as $v){
@@ -47,7 +47,11 @@ class StockController extends BaseController {
         foreach ($res_supplier as $v){
             $supplier_arr[$v['id']]=$v;
         }
-
+        $m_department_user = new \Admin\Model\DepartmentUserModel();
+        $res_department_users = $m_department_user->getAll('id,name',array('status'=>1),0,10000,'id asc');
+        foreach ($res_department_users as $v){
+            $departmentuser_arr[$v['id']]=$v;
+        }
         $start = ($pageNum-1)*$size;
         $fields = 'a.*,p.purchase_date,p.amount as purchase_amount,p.status as purchase_status,
         p.department_user_id as purchase_department_user_id,p.supplier_id';
@@ -59,6 +63,9 @@ class StockController extends BaseController {
                 $v['supplier'] = $supplier_arr[$v['supplier_id']]['name'];
                 $v['area'] = $area_arr[$v['area_id']]['region_name'];
                 $v['department'] = $department_arr[$v['department_id']]['name'];
+                $v['purchase_department_username'] = $departmentuser_arr[$v['purchase_department_user_id']]['name'];
+                $v['department_username'] = $departmentuser_arr[$v['department_user_id']]['name'];
+                $v['now_amount'] = 0;//小程序联调开发
                 $data_list[] = $v;
             }
         }
@@ -181,6 +188,39 @@ class StockController extends BaseController {
         $this->display();
     }
 
+    public function stockgoodsrecordlist(){
+        $stock_detail_id = I('stock_detail_id',0,'intval');
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+
+        $start = ($pageNum-1)*$size;
+        $m_stock_reord = new \Admin\Model\StockRecordModel();
+        $fields = 'a.id,a.idcode,a.price,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category';
+        $where = array('a.stock_detail_id'=>$stock_detail_id);
+
+        $res_list = $m_stock_reord->getList($fields,$where, 'a.id desc', $start,$size);
+        $data_list = array();
+        if(!empty($res_list)){
+            $m_unit = new \Admin\Model\UnitModel();
+            $res_unit = $m_unit->getDataList('id,name',array('status'=>1),'id desc');
+            $all_unit = array();
+            foreach ($res_unit as $v){
+                $all_unit[$v['id']]=$v;
+            }
+            foreach ($res_list['list'] as $v){
+                $v['unit']=$all_unit[$v['unit_id']]['name'];
+                $data_list[]=$v;
+            }
+        }
+
+        $this->assign('stock_detail_id',$stock_detail_id);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
     public function instockgoodsadd(){
         $stock_id = I('stock_id',0,'intval');
         $id = I('id',0,'intval');
@@ -190,7 +230,7 @@ class StockController extends BaseController {
             $purchase_detail_id = I('post.purchase_detail_id',0,'intval');
             $res_info = $m_pdetail->getInfo(array('id'=>$purchase_detail_id));
 
-            $data = array('stock_id'=>$stock_id,'goods_id'=>$res_info['goods_id'],'price'=>$res_info['price'],
+            $data = array('stock_id'=>$stock_id,'goods_id'=>$res_info['goods_id'],
                 'unit_id'=>$res_info['unit_id'],'status'=>1);
             $m_stock_detail = new \Admin\Model\StockDetailModel();
             if($id){
