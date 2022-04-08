@@ -1,0 +1,177 @@
+<include file="Public/script"/>
+<div class="pageContent" style="height:100%;overflow: auto;background-color: #EEEEEE;">
+  <form method="post" action="{$host_name}/inventorypurchase/doedit" class="pageForm -validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+    
+    <input type="hidden" name="id" value="{$vinfo.id}">
+    <div class="pageFormContent modal-body">
+      <div class="tabsContent">
+        
+        <div class="tab-content">
+          <div  class="tab-pane active fade in">
+            <div class="form-group row">
+              <!-- <label class="col-xs-2 col-sm-1 control-label">
+                	采购合同编号：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                
+                <input name="serial_number" type="text" value="{$vinfo.serial_number}"  minlength="1" maxlength="50" class="form-control" />
+              </div> -->
+              <label class="col-xs-2 col-sm-1 control-label">采购合同编号：</label>
+              <div class="col-xs-12 col-sm-4  form-inline">
+                  <select name="contract_id" class="form-control bs-select class-filter" data-live-search="true" data-container="body" multiple="multiple" >
+                      <volist name="pcontract_arr" id="ptinfo">
+                          <option value="{$ptinfo.id}" <if condition="$ptinfo.id eq $vinfo['contract_id']">selected</if>>{$ptinfo.serial_number}</option>
+                      </volist>
+                  </select>
+
+               </div>
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	采购单标题：
+              </label>
+              <div class="col-xs-2 col-sm-3">
+                
+                <input name="name" type="text" value="{$vinfo.name}"  minlength="1" maxlength="50" class="form-control" />
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	采购组织：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="department_id"  name="department_id" class="form-control bs-select" title="请选择采购组织" >
+                  <volist name="department_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['department_id']">selected</if>> {$vo.name}</option>
+                  </volist>
+                </select>
+              </div>
+              
+              
+            </div>
+            
+            <div class="form-group row">
+			  <label class="col-xs-2 col-sm-1 control-label">
+                	采购人：
+              </label>
+              <div class="col-xs-2 col-sm-4">
+                <!-- <input name="sign_department" type="text" value="{$vinfo.sign_department}"  minlength="1" maxlength="50" class="form-control" /> -->
+              	<select id="de_user_id" name="department_user_id" class="form-control" title="请选择采购人" >
+                  
+                  <option value="0">请选择采购人</option>
+                  <volist name="department_user_arr" id="vo">
+                  	<option value="{$vo.id}" <if condition="$vo.id eq $vinfo['department_user_id']">selected</if>> {$vo.name}</option>
+                  </volist>
+                  
+                </select>
+              </div>
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                	采购金额：
+              </label>
+              <div class="col-xs-2 col-sm-3">
+                <input name="total_fee" type="text" value="{$vinfo.total_fee}"  minlength="1" maxlength="50" class="form-control" />
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	采购总数：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input name="amount" type="text" value="{$vinfo.amount}"  minlength="1" maxlength="50" class="form-control" />
+              </div>
+            </div>
+            <div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                	供应商：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <select id="supplier_id" name="supplier_id" class="form-control bs-select" title="请选择供应商" >
+                  <volist name="supplier_arr" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['supplier_id']">selected</if>> {$vo.name}</option>
+                  </volist>
+                </select>
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	采购日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-ymd="true" data-date="{$vinfo.purchase_date}">
+                  <input name="purchase_date" type="text" size="16" class="form-control date" placeholder="采购日期" value="{$vinfo.purchase_date}" >
+                  <span class="input-group-btn">
+                    
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              <label class="col-xs-2 col-sm-1 control-label">
+                	采购状态：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+              	<select  name="status" class="form-control bs-select" title="请选择采购状态" >
+                  <option value="1" <if condition="$vinfo['status'] eq 1">selected</if>>进行中</option>
+                  <option value="2" <if condition="$vinfo['status'] eq 2">selected</if>>已完成</option>
+                </select>
+              </div>
+              
+            </div>
+            <div class="form-group row">
+                  <label class="col-xs-2 col-sm-1 control-label">
+                      	合同备注：
+                  </label>
+                  <div class="col-xs-2 col-sm-8">
+                      <textarea name="des" value="{$vinfo.des}" type="textInput" class="form-control" maxlength="500">{$vinfo.des}</textarea>
+                  </div>
+            </div>
+             
+          </div>
+		</div>
+		
+		  
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:400px;">
+      <button class="btn btn-default close-m" type="button">取消</button>  
+      <button class="btn btn-primary" type="submit">保存</button>
+      
+    </div>
+    
+  </form>
+</div>
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+  
+  $(function(){
+    
+
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+  
+  
+  $("#department_id").change(function(){
+    var department_id = $(this).val();
+    $.ajax({
+        type: "POST",
+        url: "/Inventorypurchase/getUsers",
+        data: "department_id="+department_id,
+        dataType: "json",
+        success: function(data){
+       	 var li = '';
+       	 $('#de_user_id').html('<option value="0">请选择采购人<optin>');
+       	 if(data.length>0){
+       		 for(var i=0;i<data.length;i++) {
+           		 li += '<option value="'+data[i]['id']+'">'+data[i]['name']+'</option>';
+           	 }
+       		 console.log(li)
+                $('#de_user_id').append(li);
+       	 }
+       	 
+        }
+     });
+  })
+  
+  
+</script>
