@@ -9,22 +9,14 @@
         <div class="tab-content">
           <div  class="tab-pane active fade in">
             <div class="form-group row">
-              <!-- <label class="col-xs-2 col-sm-1 control-label">
-                	采购合同编号：
+              <label class="col-xs-2 col-sm-1 control-label">
+                	采购单号：
               </label>
               <div class="col-xs-2 col-sm-2">
                 
                 <input name="serial_number" type="text" value="{$vinfo.serial_number}"  minlength="1" maxlength="50" class="form-control" />
-              </div> -->
-              <label class="col-xs-2 col-sm-1 control-label">采购合同编号：</label>
-              <div class="col-xs-12 col-sm-4  form-inline">
-                  <select name="contract_id" class="form-control bs-select class-filter" data-live-search="true" data-container="body" multiple="multiple" >
-                      <volist name="pcontract_arr" id="ptinfo">
-                          <option value="{$ptinfo.id}" <if condition="$ptinfo.id eq $vinfo['contract_id']">selected</if>>{$ptinfo.serial_number}</option>
-                      </volist>
-                  </select>
-
-               </div>
+              </div>
+              
 			  <label class="col-xs-2 col-sm-1 control-label">
                 	采购单标题：
               </label>
@@ -110,6 +102,17 @@
               
             </div>
             <div class="form-group row">
+            	<label class="col-xs-2 col-sm-1 control-label">采购合同编号：</label>
+                  <div class="col-xs-12 col-sm-4  form-inline">
+                      <select name="contract_id" class="form-control bs-select class-filter" data-live-search="true" data-container="body"  >
+                          <volist name="pcontract_arr" id="ptinfo">
+                              <option value="{$ptinfo.id}" >{$ptinfo.serial_number}</option>
+                          </volist>
+                      </select>
+
+                  </div>
+            </div>
+            <div class="form-group row">
                   <label class="col-xs-2 col-sm-1 control-label">
                       	合同备注：
                   </label>
@@ -117,6 +120,7 @@
                       <textarea name="des" value="{$vinfo.des}" type="textInput" class="form-control" maxlength="500">{$vinfo.des}</textarea>
                   </div>
             </div>
+            
              
           </div>
 		</div>

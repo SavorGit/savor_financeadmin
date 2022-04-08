@@ -49,7 +49,7 @@ class InventorypurchaseController extends BaseController {
         }
         
         $m_puchase = new \Admin\Model\PurchaseModel();
-        $fileds = "a.id,c.serial_number,a.name,d.name department_name,a.purchase_date,a.amount,s.name supplier_name,
+        $fileds = "a.id,a.serial_number,a.name,d.name department_name,a.purchase_date,a.amount,s.name supplier_name,
                    case a.status
 				   when 1 then '进行中'
 				   when 2 then '已完成' END AS status";
@@ -132,6 +132,7 @@ class InventorypurchaseController extends BaseController {
                 
             }
             $userinfo              = session('sysUserInfo');
+            $serial_number         = I('serial_number','','trim');            //采购单号
             $contract_id           = I('contract_id',0,'intval');             //合同id
             $name                  = I('name','','trim');                     //合同标题
             $department_id         = I('department_id',0,'intval');           //采购组织
@@ -146,6 +147,7 @@ class InventorypurchaseController extends BaseController {
             
             $data = [];
             $data['contract_id']        = $contract_id;
+            $data['serial_number ']     = $serial_number;
             $data['name']               = $name;
             $data['department_id']      = $department_id;
             $data['department_user_id'] = $department_user_id;
@@ -191,7 +193,7 @@ class InventorypurchaseController extends BaseController {
         $where['status'] = 1;
         $supplier_arr = $m_supplier->where($where)->select();
         $m_purchase = new \Admin\Model\PurchaseModel();
-        $fields = "a.id,a.name,c.id contract_id,d.id department_id,a.purchase_date,a.amount,
+        $fields = "a.id,a.name,a.serial_number,c.id contract_id,d.id department_id,a.purchase_date,a.amount,
                    s.id supplier_id,u.id department_user_id,a.total_fee,a.status,a.des";
         
         $where = [];
@@ -234,6 +236,7 @@ class InventorypurchaseController extends BaseController {
                 
             }
             $userinfo              = session('sysUserInfo');
+            $serial_number         = I('serial_number','','trim');            //采购单号
             $contract_id           = I('contract_id',0,'intval');             //合同id
             $name                  = I('name','','trim');                     //合同标题
             $department_id         = I('department_id',0,'intval');           //采购组织
@@ -248,6 +251,7 @@ class InventorypurchaseController extends BaseController {
             
             $data = [];
             $data['serial_number']      = $serial_number;
+            $data['contract_id ']       = $contract_id ;
             $data['name']               = $name;
             $data['department_id']      = $department_id;
             $data['department_user_id'] = $department_user_id;
