@@ -33,25 +33,18 @@
 
           <tr id="post">
             <th>ID</th>
-            <th>唯一识别码</th>
             <th>商品条形码</th>
             <th>商品名称</th>
             <th>商品类型</th>
-            <th>单位</th>
-            <th>单价</th>
           </tr>
           </thead>
           <tbody data-check="list" data-parent=".table">
           <volist name="datalist" id="dinfo">
             <tr target="sid_user">
               <td data-title="ID">{$dinfo.id}</td>
-              <td data-title="唯一识别码">{$dinfo.idcode}</td>
               <td data-title="商品条形码">{$dinfo.barcode}</td>
               <td data-title="商品名称">{$dinfo.name}</td>
               <td data-title="商品类型">{$dinfo.category}</td>
-              <td data-title="单位">{$dinfo.unit}</td>
-              <td data-title="单价">{$dinfo.price}</td>
-
             </tr>
           </volist>
           </tbody>

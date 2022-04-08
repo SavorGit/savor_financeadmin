@@ -152,7 +152,7 @@ class StockController extends BaseController {
 
         $start = ($pageNum-1)*$size;
         $m_stock_detail = new \Admin\Model\StockDetailModel();
-        $fields = 'a.id,a.idcode,goods.barcode,a.goods_id,a.price,a.unit_id,goods.name,cate.name as category';
+        $fields = 'a.id,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category';
         $where = array('a.stock_id'=>$stock_id,'a.status'=>1);
         if(!empty($keyword)){
             $where['goods.name'] = array('like',"%$keyword%");
