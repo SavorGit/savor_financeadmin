@@ -1,6 +1,6 @@
 <include file="Public/script"/>
 <div class="pageHeader">
-  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stock/instockgoodslist" method="post">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stock/outstockgoodslist" method="post">
     <input type="hidden" name="pageNum" value="{$pageNum}"/>
     <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
     <input type="hidden" name="stock_id" value="{$stock_id}"/>
@@ -8,7 +8,7 @@
       <div class="clearfix">
         <div class="col-xs-12 col-sm-6 col-md-10">
           <div class="tools-group s2">
-            <a class="btn btn-success btn-sm add" href="{$host_name}/stock/instockgoodsadd?stock_id={$stock_id}" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i><span>新增</span></a>
+            <a class="btn btn-success btn-sm add" href="{$host_name}/stock/outstockgoodsadd?stock_id={$stock_id}" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i><span>新增</span></a>
 
           </div>
         </div>
@@ -36,6 +36,7 @@
             <th>商品条形码</th>
             <th>商品名称</th>
             <th>商品类型</th>
+            <th>单位</th>
           </tr>
           </thead>
           <tbody data-check="list" data-parent=".table">
@@ -45,6 +46,8 @@
               <td data-title="商品条形码">{$dinfo.barcode}</td>
               <td data-title="商品名称">{$dinfo.name}</td>
               <td data-title="商品类型">{$dinfo.category}</td>
+              <td data-title="单位">{$dinfo.unit}</td>
+
             </tr>
           </volist>
           </tbody>

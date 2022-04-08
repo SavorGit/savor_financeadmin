@@ -1,7 +1,7 @@
 <include file="Public/script"/>
 <!--显示列表样式1 start-->
 <div class="pageHeader">
-    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/hotelcontract/datalist" method="post">
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stock/outlist" method="post">
         <input type="hidden" name="pageNum" value="{$pageNum}"/>
         <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
         <div class="searchBar">
@@ -10,18 +10,7 @@
                 <div class="form-inline">
 
                     <div class="form-group">
-                        <div class="input-group input-group-sm">库房城市：</div>
-                        <div class="input-group">
-                            <select name="area_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
-                                <option value=0>全部</option>
-                                <volist name="area" id="vo">
-                                    <option value="{$vo.id}" <if condition="$vo.id eq $area_id">selected</if>>{$vo.region_name}</option>
-                                </volist>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group input-group-sm">入库类型：</div>
+                        <div class="input-group input-group-sm">出库类型：</div>
                         <div class="input-group">
                             <select name="io_type" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
                                 <option value=0>全部</option>
@@ -45,17 +34,6 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <div class="input-group input-group-sm">供应商：</div>
-                        <div class="input-group">
-                            <select name="supplier_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
-                                <option value=0>全部</option>
-                                <volist name="supplier_arr" id="spinfo">
-                                    <option value="{$spinfo.id}" <if condition="$spinfo.id eq $supplier_id">selected</if> >{$spinfo.name}</option>
-                                </volist>
-                            </select>
-                        </div>
-                    </div>
 
                     <div class="form-group">
                         <div class="input-group input-group-sm">名称：</div>
@@ -73,7 +51,7 @@
                     </div>
 
                     <div class="input-group input-group-sm pull-right">
-                        <a class="btn btn-success btn-sm add" href="{$host_name}/stock/addcontract" title="新增入库" target="dialog" mask="true"><i class="fa fa-plus"></i>新增入库</a>
+                        <a class="btn btn-success btn-sm add" href="{$host_name}/stock/addoutstock" title="新增入库" target="dialog" mask="true"><i class="fa fa-plus"></i>新增入库</a>
                         &nbsp;&nbsp;
                     </div>
 
@@ -91,14 +69,14 @@
                     <thead>
                     <tr id="post">
                         <th>ID</th>
-                        <th>合同编号</th>
-                        <th>合同名称</th>
-                        <th>签约人</th>
-                        <th>合同类型</th>
-                        <th>签约时间</th>
-                        <th>合同有效期</th>
-                        <th>合作状态</th>
-                        <th>关联酒楼</th>
+                        <th>出库单号</th>
+                        <th>名称</th>
+                        <th>所属组织</th>
+                        <th>出库类型</th>
+                        <th>出库人</th>
+                        <th>出库日期</th>
+                        <th>出库总数</th>
+                        <th>总金额</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -106,39 +84,22 @@
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
                             <td data-title="ID"><a class="click-able-title">{$dinfo.id}</a></td>
-                            <td data-title="合同编号"><a class="click-able-title">{$dinfo.serial_number}</a></td>
-                            <td data-title="合同名称">{$dinfo.name}</td>
-                            <td data-title="签约人">{$dinfo.sign_user}</td>
-                            <td data-title="合同类型">{$dinfo.self_type_str}</td>
-                            <td data-title="签约时间">{$dinfo.sign_time}</td>
-                            <td data-title="合同有效期">{$dinfo.expire_time}</td>
-                            <td data-title="合作状态">{$dinfo.status_str}</td>
-                            <td data-title="关联酒楼">
-                                <a data-tip="关联酒楼" title="关联酒楼-合同编号{$dinfo.serial_number}" target="navTab" mask="true" rel="hotelcontract/relationhotel" href="{$host_name}/hotelcontract/relationhotel?id={$dinfo.id}&self_type={$dinfo.self_type}" class="btn btn-success btn-icon">
-                                {$dinfo.hotel_num}
-                                </a>
-                            </td>
+                            <td data-title="出库单号"><a class="click-able-title">{$dinfo.serial_number}</a></td>
+                            <td data-title="名称">{$dinfo.name}</td>
+                            <td data-title="所属组织">{$dinfo.department}</td>
+                            <td data-title="出库类型">{$dinfo.io_type_str}</td>
+                            <td data-title="出库人">{$dinfo.department_user}</td>
+                            <td data-title="出库日期">{$dinfo.io_date}</td>
+                            <td data-title="出库总数">{$dinfo.amount}</td>
+                            <td data-title="总金额">{$dinfo.total_fee}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
-                                    <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/hotelcontract/addcontract?id={$dinfo.id}" class="btn btn-success btn-icon">
+                                    <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/stock/addoutstock?id={$dinfo.id}" class="btn btn-success btn-icon">
                                         <i class="fa fa-pencil"></i>
                                     </a>
-                                    <if condition="$dinfo.self_type eq 2">
-                                    <a title="关联主合同" data-tip="关联主合同" target="dialog" mask="true" href="{$host_name}/hotelcontract/relationcontract?id={$dinfo.id}" class="btn btn-success btn-icon">
-                                        <i class="fa fa-rebel"></i>
+                                    <a title="出库商品列表" data-tip="{$dinfo.name}-出库商品列表" target="navTab" mask="true" rel="stock/outstockgoodslist" href="{$host_name}/stock/outstockgoodslist?stock_id={$dinfo.id}" class="btn btn-default btn-icon">
+                                        <i class="fa fa-list"></i>
                                     </a>
-                                    </if>
-                                    <a title="合同记录" data-tip="合同{$dinfo.name}记录" target="navTab" mask="true" rel="hotelcontract/history" href="{$host_name}/hotelcontract/history?id={$dinfo.id}" class="btn btn-default btn-icon">
-                                        <i class="fa fa-history"></i>
-                                    </a>
-
-                                    <if condition="$dinfo.oss_addr neq ''">
-                                        <a title="合同文件" data-tip="合同文件" target="_blank" href="{$dinfo.oss_addr}" class="btn btn-danger btn-icon">
-                                            <i class="fa fa-file-pdf-o"></i>
-                                        </a>
-                                    <else />
-                                        <a onclick="alertMsg.error('无合同文件')" href="#" class="btn btn-danger btn-icon" style="opacity:0.6"><span><i class="fa fa-file-pdf-o"></i></span></a>
-                                    </if>
 
                                 </div>
                             </td>
