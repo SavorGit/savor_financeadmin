@@ -329,23 +329,18 @@ class InventorypurchaseController extends BaseController {
     public function getgoodsinfo(){
         $goods_id = I('goods_id',0,'intval');
         $m_goods = new \Admin\Model\GoodsModel();
-        $where = [];
-        $where['id'] = $goods_id;
+        $where = array('id'=>$goods_id);
         $fields = 'barcode,name,category_id';
-        $goods_info  = $m_goods->field($fields)
+        $goods_info = $m_goods->field($fields)
                                ->where($where)
                                ->find();
-        
         $m_unit = new \Admin\Model\UnitModel();
         $fields = "name,id";
-        $where['category_id'] = $goods_info['category_id'];
-        $where['status']      = 1;
+        $where = array('category_id'=>$goods_info['category_id'],'status'=>1);
         $unit_info = $m_unit->field($fields)->where($where)->select();
-        $data = [];
         $data = $goods_info;
         $data['unit_arr'] = $unit_info;
-        echo json_encode($data);
-        exit;
+        die(json_encode($data));
     }
     public function doAddDetail(){
         $purchase_id = I('post.purchase_id',0,'intval');
