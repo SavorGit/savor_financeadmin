@@ -438,7 +438,7 @@ class StockController extends BaseController {
         $area_id = I('area_id',0,'intval');
         $category_id = I('category_id',0,'intval');
 
-        $where = array('a.status'=>1);
+        $where = array();
         if(!empty($keyword)){
             $where['goods.name'] = array('like',"%$keyword%");
         }
@@ -452,12 +452,13 @@ class StockController extends BaseController {
             foreach ($all_goods as $v){
                 $goods_ids[]=$v['goods_id'];
             }
-            $where['a.goods_id']=array('in',$goods_ids);
+            $where['goods.id']=array('in',$goods_ids);
         }
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.goods_id,goods.barcode,goods.name,cate.name as category';
-        $res_list = $m_stock_detail->getList($fields,$where, 'a.id desc', $start,$size);
+        $fields = 'goods.id as goods_id,goods.barcode,goods.name,cate.name as category';
+        $m_goods = new \Admin\Model\GoodsModel();
+        $res_list = $m_goods->getList($fields,$where, 'goods.id desc', $start,$size);
         $data_list = array();
 
         $area_arr = $category_arr = array();
@@ -553,9 +554,10 @@ class StockController extends BaseController {
                 $v['specification']=$specifications[$v['specification_id']]['name'];
                 $v['unit']=$units[$v['unit_id']]['name'];
                 $v['type_str'] = $all_types[$v['type']];
-                $v['amount'] = '+'.$v['amount'];
                 if($v['type']==20){
                     $v['amount'] = '-'.$v['amount'];
+                }else{
+                    $v['amount'] = '+'.$v['amount'];
                 }
                 $data_list[] = $v;
             }
