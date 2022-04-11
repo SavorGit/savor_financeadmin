@@ -18,19 +18,6 @@
 
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">
-                    出库人:
-                </label>
-                <div class="col-xs-12 col-sm-10">
-                    <select name="department_user_id" class="form-control bs-select" title="请选择..." data-size="20" required>
-                        <volist name="departmentuser_arr" id="dpuinfo">
-                            <option value="{$dpuinfo.id}" <if condition="$dpuinfo.id eq $vinfo['department_user_id']"> selected </if> > {$dpuinfo.name}</option>
-                        </volist>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">
                     所属组织:
                 </label>
                 <div class="col-xs-12 col-sm-10">
@@ -43,10 +30,23 @@
             </div>
 
             <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    出库人:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="department_user_id" class="form-control bs-select class-filter" data-live-search="true">
+                        <volist name="departmentuser_arr" id="dpuinfo">
+                            <option value="{$dpuinfo.id}" <if condition="$dpuinfo.id eq $vinfo['department_user_id']"> selected </if> > {$dpuinfo.name}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">出库日期：</label>
                 <div class="col-xs-12 col-sm-10">
                     <div class="input-group date form_datetime" data-date="{$vinfo.io_date}" data-ymd="true">
-                        <input name="io_date" type="text" size="16" class="form-control date" placeholder="入库日期" value="{$vinfo.io_date}">
+                        <input name="io_date" type="text" size="16" class="form-control date" placeholder="出库日期" value="{$vinfo.io_date}">
                         <span class="input-group-btn">
 								<button class="btn default date-reset" type="button"><i class="fa fa-times"></i></button>
 								<button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>

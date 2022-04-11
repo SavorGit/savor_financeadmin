@@ -74,7 +74,7 @@
                     入库人:
                 </label>
                 <div class="col-xs-12 col-sm-10">
-                    <select name="department_user_id" class="form-control bs-select" title="请选择..." data-size="20" required>
+                    <select name="department_user_id" class="form-control bs-select class-filter" data-live-search="true" required>
                         <volist name="departmentuser_arr" id="dpuinfo">
                             <option value="{$dpuinfo.id}" <if condition="$dpuinfo.id eq $vinfo['department_user_id']"> selected </if> > {$dpuinfo.name}</option>
                         </volist>

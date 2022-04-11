@@ -128,12 +128,13 @@ class StockController extends BaseController {
                 $department_arr[$v['id']]=$v;
             }
             $m_department_user = new \Admin\Model\DepartmentUserModel();
-            $res_department_users = $m_department_user->getAll('id,name',array('status'=>1),0,10000,'id asc');
+            $res_department_users = $m_department_user->getAll('id,name,department_id',array('status'=>1),0,10000,'id asc');
             foreach ($res_department_users as $v){
+                $v['name'] = $department_arr[$v['department_id']]['name'].'-'.$v['name'];
                 $departmentuser_arr[$v['id']]=$v;
             }
             $m_purchase = new \Admin\Model\PurchaseModel();
-            $res_purchase  = $m_purchase->getAll('id,name,serial_number',array('status'=>1),0,1000000,'id asc');
+            $res_purchase  = $m_purchase->getAll('id,name,serial_number',array(),0,1000000,'id asc');
             foreach ($res_purchase as $v){
                 $purchase_arr[$v['id']]=$v;
             }
@@ -349,8 +350,9 @@ class StockController extends BaseController {
                 $department_arr[$v['id']]=$v;
             }
             $m_department_user = new \Admin\Model\DepartmentUserModel();
-            $res_department_users = $m_department_user->getAll('id,name',array('status'=>1),0,10000,'id asc');
+            $res_department_users = $m_department_user->getAll('id,name,department_id',array('status'=>1),0,10000,'id asc');
             foreach ($res_department_users as $v){
+                $v['name'] = $department_arr[$v['department_id']]['name'].'-'.$v['name'];
                 $departmentuser_arr[$v['id']]=$v;
             }
             $vinfo = array('status'=>1);
