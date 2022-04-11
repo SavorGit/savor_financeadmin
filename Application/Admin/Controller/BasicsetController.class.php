@@ -41,6 +41,17 @@ class BasicsetController extends BaseController {
             $sort = I('post.sort',0,'intval');
             $status = I('post.status',0,'intval');
 
+            $where = array('name'=>$name);
+            if($id){
+                $where['id']= array('neq',$id);
+                $res_cate = $m_category->getInfo($where);
+            }else{
+                $res_cate = $m_category->getInfo($where);
+            }
+            if(!empty($res_cate)){
+                $this->output('名称不能重复', "basicset/categoryadd", 2, 0);
+            }
+
             $data = array('name'=>$name,'media_id'=>$media_id,'sort'=>$sort,'status'=>$status);
             if($id){
                 $result = $m_category->updateData(array('id'=>$id),$data);
@@ -462,6 +473,18 @@ class BasicsetController extends BaseController {
         }else{
             $this->output('操作失败', 'basicset/serieslist',2,0);
         }
+    }
+
+    public function getUserByDepartmentId(){
+        $department_id = I('department_id',0,'intval');
+        $m_department_user = new \Admin\Model\DepartmentUserModel();
+        $where = array('status'=>1);
+        if($department_id){
+            $where['department_id'] = $department_id;
+        }
+        $res_department_users = $m_department_user->getAll('id,name',$where,0,10000,'id asc');
+        $data = array('users'=>$res_department_users);
+        die(json_encode($data));
     }
 
 }
