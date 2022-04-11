@@ -429,6 +429,239 @@ class StockController extends BaseController {
         }
     }
 
+    public function stocklist(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $keyword = I('keyword','','trim');
+        $area_id = I('area_id',0,'intval');
+        $category_id = I('category_id',0,'intval');
+
+        $where = array('a.status'=>1);
+        if(!empty($keyword)){
+            $where['goods.name'] = array('like',"%$keyword%");
+        }
+        if($category_id){
+            $where['goods.category_id'] = $category_id;
+        }
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $all_goods = $m_stock_detail->getAll('goods_id','',0,10000,'','goods_id');
+        if(!empty($all_goods)){
+            $goods_ids = array();
+            foreach ($all_goods as $v){
+                $goods_ids[]=$v['goods_id'];
+            }
+            $where['a.goods_id']=array('in',$goods_ids);
+        }
+
+        $start = ($pageNum-1)*$size;
+        $fields = 'a.goods_id,goods.barcode,goods.name,cate.name as category';
+        $res_list = $m_stock_detail->getList($fields,$where, 'a.id desc', $start,$size);
+        $data_list = array();
+
+        $area_arr = $category_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
+        $m_category = new \Admin\Model\CategoryModel();
+        $res_category = $m_category->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        foreach ($res_category as $v){
+            $category_arr[$v['id']]=$v;
+        }
+        if(!empty($res_list['list'])){
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            foreach ($res_list['list'] as $v){
+                $goods_id = $v['goods_id'];
+                $fields = 'sum(price) as total_fee,sum(total_amount) as total_amount';
+                $res_goods_inrecord = $m_stock_record->getAll($fields,array('goods_id'=>$goods_id,'type'=>1),0,1,'id desc');
+                $price = $total_fee = $stock_num = 0;
+                if(!empty($res_goods_inrecord[0]['total_fee']) && !empty($res_goods_inrecord[0]['total_amount'])){
+                    $total_fee = intval($res_goods_inrecord[0]['total_fee']);
+                    $stock_in_num = intval($res_goods_inrecord[0]['total_amount']);
+                    $price = intval($total_fee/$stock_in_num);
+                    $res_goods_outrecord = $m_stock_record->getAll($fields,array('goods_id'=>$goods_id,'type'=>2),0,1,'id desc');
+                    if(!empty($res_goods_outrecord[0]['total_amount'])){
+                        $stock_out_num = $res_goods_outrecord[0]['total_amount'];
+                        $stock_num = $stock_in_num - $stock_out_num;
+                    }
+                }
+                $v['price'] = $price;
+                $v['stock_num'] = $stock_num;
+                $v['total_fee'] = $total_fee;
+                $v['area'] = $area_arr[$v['area_id']]['region_name'];
+                $data_list[] = $v;
+            }
+        }
+
+        $this->assign('area_id', $area_id);
+        $this->assign('category_id', $category_id);
+        $this->assign('area', $area_arr);
+        $this->assign('category', $category_arr);
+        $this->assign('keyword',$keyword);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function stockchangelist(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $goods_id = I('goods_id',0,'intval');
+        $type = I('type',0,'intval');
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
+
+        $where = array('a.goods_id'=>$goods_id,'a.status'=>1);
+        if($type){
+            $where['stock.type'] = $type;
+        }
+        if(!empty($start_time) && !empty($end_time)){
+            $where['stock.io_date'] = array(array('egt',$start_time),array('elt',$end_time));
+        }
+        $departments = $specifications = $units = array();
+        $m_department = new \Admin\Model\DepartmentModel();
+        $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        foreach ($res_departments as $v){
+            $departments[$v['id']]=$v;
+        }
+
+        $m_spec = new \Admin\Model\SpecificationModel();
+        $res_spec = $m_spec->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_spec as $v){
+            $specifications[$v['id']]=$v;
+        }
+        $m_unit = new \Admin\Model\UnitModel();
+        $res_unit = $m_unit->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_unit as $v){
+            $units[$v['id']]=$v;
+        }
+        $all_types = array('10'=>'入库','20'=>'出库');
+
+        $start = ($pageNum-1)*$size;
+        $fields = 'a.id,goods.name,goods.specification_id,a.unit_id,stock.department_id,stock.type,stock.serial_number,a.amount,stock.io_date';
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $res_list = $m_stock_detail->getChangeList($fields,$where, 'a.id desc', $start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            foreach ($res_list['list'] as $v){
+                $v['department']=$departments[$v['department_id']]['name'];
+                $v['specification']=$specifications[$v['specification_id']]['name'];
+                $v['unit']=$units[$v['unit_id']]['name'];
+                $v['type_str'] = $all_types[$v['type']];
+                $v['amount'] = '+'.$v['amount'];
+                if($v['type']==20){
+                    $v['amount'] = '-'.$v['amount'];
+                }
+                $data_list[] = $v;
+            }
+        }
+
+        $this->assign('start_time', $start_time);
+        $this->assign('end_time', $end_time);
+        $this->assign('all_types', $all_types);
+        $this->assign('type', $type);
+        $this->assign('goods_id', $goods_id);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function stockgoodsdetail(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $goods_id = I('goods_id',0,'intval');
+
+        $departments = $specifications = $units = array();
+        $m_department = new \Admin\Model\DepartmentModel();
+        $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        foreach ($res_departments as $v){
+            $departments[$v['id']]=$v;
+        }
+
+        $m_spec = new \Admin\Model\SpecificationModel();
+        $res_spec = $m_spec->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_spec as $v){
+            $specifications[$v['id']]=$v;
+        }
+        $m_unit = new \Admin\Model\UnitModel();
+        $res_unit = $m_unit->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_unit as $v){
+            $units[$v['id']]=$v;
+        }
+
+        $where = array('a.goods_id'=>$goods_id,'a.status'=>1,'stock.type'=>10);
+        $start = ($pageNum-1)*$size;
+        $fields = 'a.id,goods.name,goods.barcode,goods.specification_id,a.unit_id,stock.department_id,stock.serial_number,a.amount,stock.io_date';
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $res_list = $m_stock_detail->getChangeList($fields,$where, 'a.id desc', $start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            foreach ($res_list['list'] as $v){
+                $v['department']=$departments[$v['department_id']]['name'];
+                $v['specification']=$specifications[$v['specification_id']]['name'];
+                $v['unit']=$units[$v['unit_id']]['name'];
+
+                $data_list[] = $v;
+            }
+        }
+        $this->assign('goods_id', $goods_id);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function stockgoodsrecord(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $stock_detail_id = I('stock_detail_id',0,'intval');
+
+        $areas = $departmentusers = $units = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $areas[$v['id']]=$v;
+        }
+        $m_department_user = new \Admin\Model\DepartmentUserModel();
+        $res_department_users = $m_department_user->getAll('id,name',array('status'=>1),0,10000,'id asc');
+        foreach ($res_department_users as $v){
+            $departmentusers[$v['id']]=$v;
+        }
+        $m_unit = new \Admin\Model\UnitModel();
+        $res_unit = $m_unit->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_unit as $v){
+            $units[$v['id']]=$v;
+        }
+
+        $where = array('a.stock_detail_id'=>$stock_detail_id,'a.type'=>1);
+        $start = ($pageNum-1)*$size;
+        $fields = 'a.*,goods.name,goods.specification_id,stock.serial_number,stock.area_id';
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            foreach ($res_list['list'] as $v){
+                $v['area']=$areas[$v['area_id']]['region_name'];
+                $v['unit']=$units[$v['unit_id']]['name'];
+                $v['department_user']=$departmentusers[$v['department_user_id']]['name'];
+
+                $data_list[] = $v;
+            }
+        }
+        $this->assign('stock_detail_id', $stock_detail_id);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
     public function getAjaxStockUnit(){
         $goods_id = I('goods_id',0,'intval');
         $unit_id = 0;

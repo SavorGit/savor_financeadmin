@@ -25,5 +25,25 @@ class StockRecordModel extends BaseModel{
         return $data;
     }
 
+    public function getRecordList($fields,$where, $order='a.id desc', $start=0,$size=5){
+        $list = $this->alias('a')
+            ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+            ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+            ->field($fields)
+            ->where($where)
+            ->order($order)
+            ->limit($start,$size)
+            ->select();
+        $count = $this->alias('a')
+            ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+            ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+            ->where($where)
+            ->count();
+        $objPage = new Page($count,$size);
+        $show = $objPage->admin_page();
+        $data = array('list'=>$list,'page'=>$show);
+        return $data;
+    }
+
 
 }
