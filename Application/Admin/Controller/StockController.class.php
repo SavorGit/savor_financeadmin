@@ -12,7 +12,7 @@ class StockController extends BaseController {
         $department_id = I('department_id',0,'intval');
         $supplier_id = I('supplier_id',0,'intval');
 
-        $where = array();
+        $where = array('type'=>10);
         if(!empty($keyword)){
             $where['a.name'] = array('like',"$keyword");
         }
@@ -59,13 +59,20 @@ class StockController extends BaseController {
         $res_list = $m_stock->getList($fields,$where,'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $m_stock_record = new \Admin\Model\StockRecordModel();
             foreach ($res_list['list'] as $v){
                 $v['supplier'] = $supplier_arr[$v['supplier_id']]['name'];
                 $v['area'] = $area_arr[$v['area_id']]['region_name'];
                 $v['department'] = $department_arr[$v['department_id']]['name'];
                 $v['purchase_department_username'] = $departmentuser_arr[$v['purchase_department_user_id']]['name'];
                 $v['department_username'] = $departmentuser_arr[$v['department_user_id']]['name'];
-                $v['now_amount'] = 0;//小程序联调开发
+                $now_amount = 0;
+                $field='sum(total_amount) as total_amount';
+                $res_stock_record = $m_stock_record->getRow($field,array('stock_id'=>$v['id']));
+                if(!empty($res_stock_record[0]['total_amount'])){
+                    $now_amount = intval($res_stock_record[0]['total_amount']);
+                }
+                $v['now_amount'] = $now_amount;
                 $data_list[] = $v;
             }
         }
