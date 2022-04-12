@@ -68,7 +68,7 @@ class StockController extends BaseController {
                 $v['department_username'] = $departmentuser_arr[$v['department_user_id']]['name'];
                 $now_amount = 0;
                 $field='sum(total_amount) as total_amount';
-                $res_stock_record = $m_stock_record->getRow($field,array('stock_id'=>$v['id']));
+                $res_stock_record = $m_stock_record->getRow($field,array('stock_id'=>$v['id'],'type'=>1));
                 if(!empty($res_stock_record[0]['total_amount'])){
                     $now_amount = intval($res_stock_record[0]['total_amount']);
                 }

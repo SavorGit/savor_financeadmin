@@ -78,11 +78,27 @@ class SupplierController extends BaseController {
         $res_list = $m_purchase->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            $m_stock = new \Admin\Model\StockModel();
             $m_department = new \Admin\Model\DepartmentModel();
             foreach ($res_list['list'] as $v){
                 $res_dinfo = $m_department->getInfo(array('id'=>$v['department_id']));
                 $v['department'] = $res_dinfo['name'];
-                $v['now_amount'] = 0;//小程序联调开发
+
+                $res_stock = $m_stock->getDataList('id',array('purchase_id'=>$v['id']),'id desc');
+                $now_amount = 0;
+                if(!empty($res_stock)){
+                    $stock_ids = array();
+                    foreach ($res_stock as $sv){
+                        $stock_ids[]=$sv['id'];
+                    }
+                    $field='sum(total_amount) as total_amount';
+                    $res_stock_record = $m_stock_record->getRow($field,array('stock_id'=>array('in',$stock_ids),'type'=>1));
+                    if(!empty($res_stock_record[0]['total_amount'])){
+                        $now_amount = intval($res_stock_record[0]['total_amount']);
+                    }
+                }
+                $v['now_amount'] = $now_amount;
                 $data_list[] = $v;
             }
         }
