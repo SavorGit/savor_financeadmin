@@ -468,7 +468,7 @@ class StockController extends BaseController {
             $where['goods.category_id'] = $category_id;
         }
         $m_stock_detail = new \Admin\Model\StockDetailModel();
-        $all_goods = $m_stock_detail->getAll('goods_id','',0,10000,'','goods_id');
+        $all_goods = $m_stock_detail->getAllData('goods_id','','','goods_id');
         if(!empty($all_goods)){
             $goods_ids = array();
             foreach ($all_goods as $v){

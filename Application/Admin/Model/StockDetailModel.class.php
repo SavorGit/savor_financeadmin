@@ -47,7 +47,7 @@ class StockDetailModel extends BaseModel{
 
     public function getStockGoods(){
         $sql_goods = "select id,name from savor_finance_goods where id in(
-        select goods_stock.goods_id from (select goods_id,sum(amount) as amount from savor_finance_stock_detail group by goods_id) as goods_stock
+        select goods_stock.goods_id from (select goods_id,sum(total_amount) as amount from savor_finance_stock_detail group by goods_id) as goods_stock
         where goods_stock.amount>0) and status=1";
         $res = $this->query($sql_goods);
         return $res;
