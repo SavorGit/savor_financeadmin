@@ -106,15 +106,15 @@ $config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
     'baseset'=>'基础设置',
-    'supplier'=>'供应商',
-    'goods'=>'商品',
-    'stock'=>'库存',
+    'supplier'=>'供应商管理',
+    'goods'=>'商品管理',
+    'stock'=>'库存管理',
     'hotelcontract'=>'酒楼合同管理',
     'proxysale'=>'商品代销合同管理',
     'advcontract'=>'广告销售合同管理',
     'purchasecontract'=>'采购合同管理',
     'administrationcontract'=>'行政合同管理',
-    'inventorypurchase'=>'采购'
+    'inventorypurchase'=>'采购管理'
 );
 $config['MOBILE_TYPE'] = array(
     '1' => array('id'=>1, 't'=>'Iphone 4', 'w'=>'320', 'h'=>'480'),

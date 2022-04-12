@@ -201,7 +201,7 @@ class SysnodeController extends BaseController {
         $sysNode = new \Admin\Model\SysnodeModel();
         $nodekey = I('post.nokey','','trim');
         $field = "id,name";
-        $where = "1=1 AND nodekey = '{$nodekey}'";
+        $where = "nodekey = '{$nodekey}'";
         $wherea = $where;
         $where .= " AND parentid = 0 and isenable=1";
         $result = $sysNode->getWhere($where, $field);
