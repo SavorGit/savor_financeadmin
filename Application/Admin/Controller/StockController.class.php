@@ -324,11 +324,13 @@ class StockController extends BaseController {
             $amount = I('post.amount',0,'intval');
             $total_fee = I('post.total_fee',0,'intval');
             $io_type = I('post.io_type',0,'intval');
+            $area_id = I('post.area_id',0,'intval');
+            $hotel_id = I('post.hotel_id',0,'intval');
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
             $data = array('serial_number'=>$serial_number,'name'=>$name,'io_type'=>$io_type,'io_date'=>$io_date,
                 'department_id'=>$department_id,'department_user_id'=>$department_user_id,'amount'=>$amount,'total_fee'=>$total_fee,
-                'type'=>20,'sysuser_id'=>$sysuser_id
+                'area_id'=>$area_id,'hotel_id'=>$hotel_id,'type'=>20,'sysuser_id'=>$sysuser_id
             );
             if($id){
                 $result = $m_stock->updateData(array('id'=>$id),$data);
@@ -342,8 +344,13 @@ class StockController extends BaseController {
                 $this->output('操作失败', 'stock/addoutstock',2,0);
             }
         }else{
-            $department_arr = $departmentuser_arr = array();
+            $department_arr = $departmentuser_arr = $area_arr = array();
 
+            $m_area  = new \Admin\Model\AreaModel();
+            $res_area = $m_area->getHotelAreaList();
+            foreach ($res_area as $v){
+                $area_arr[$v['id']]=$v;
+            }
             $m_department = new \Admin\Model\DepartmentModel();
             $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
             foreach ($res_departments as $v){
@@ -355,12 +362,20 @@ class StockController extends BaseController {
                 $v['name'] = $department_arr[$v['department_id']]['name'].'-'.$v['name'];
                 $departmentuser_arr[$v['id']]=$v;
             }
+            $m_hotel = new \Admin\Model\HotelModel();
+            $hotel_list = $m_hotel->getDataList('id,name,area_id',array('type'=>1),'area_id asc');
+            foreach ($hotel_list as $k=>$v){
+                $hotel_list[$k]['name'] = "{$area_arr[$v['area_id']]['region_name']}--".$v['name'];
+            }
+
             $vinfo = array('status'=>1);
             if($id){
                 $vinfo = $m_stock->getInfo(array('id'=>$id));
             }
             $this->assign('departmentuser_arr',$departmentuser_arr);
             $this->assign('department_arr',$department_arr);
+            $this->assign('area_arr',$area_arr);
+            $this->assign('hotel_list',$hotel_list);
             $this->assign('vinfo',$vinfo);
             $this->display();
         }

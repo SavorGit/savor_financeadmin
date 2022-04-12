@@ -74,7 +74,7 @@
                     出库类型:
                 </label>
                 <div class="col-xs-12 col-sm-10">
-                    <select name="io_type" class="form-control bs-select" title="请选择..." data-size="20" required>
+                    <select name="io_type" id="stock_iotype" class="form-control bs-select" title="请选择..." data-size="20" required>
                         <volist name=":C('STOCK_OUT_TYPES')" id="sit">
                             <option value="{$key}" <if condition="$vinfo['io_type'] eq $key"> selected </if> > {$sit}</option>
                         </volist>
@@ -82,6 +82,31 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    库房:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="area_id" class="form-control bs-select" title="请选择..." data-size="20" required>
+                        <volist name="area_arr" id="areainfo">
+                            <option value="{$areainfo.id}" <if condition="$areainfo.id eq $vinfo['area_id']"> selected </if> > {$areainfo.region_name}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row" id="stock_hotel_id">
+                <label class="col-xs-12 col-sm-2 control-label">选择酒楼：</label>
+                <div class="col-xs-12 col-sm-10  form-inline">
+                    <select name="hotel_id" class="form-control bs-select class-filter" data-live-search="true">
+                        <option value=0>请选择酒楼</option>
+                        <volist name="hotel_list" id="hinfo">
+                            <option value="{$hinfo.id}" <if condition="$hinfo.id eq $vinfo['hotel_id']"> selected </if> >{$hinfo.name}</option>
+                        </volist>
+                    </select>
+
+                </div>
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-default close-m" type="button">取消</button>
@@ -89,3 +114,15 @@
         </div>
     </form>
 </div>
+<script>
+    $('#stock_iotype').change(function() {
+        if($(this).val()==22 || $(this).val()==23){
+            $('#stock_hotel_id').show();
+        }else{
+            $('#stock_hotel_id').hide();
+        }
+    })
+    $('#stock_iotype').trigger('change');
+
+
+</script>
