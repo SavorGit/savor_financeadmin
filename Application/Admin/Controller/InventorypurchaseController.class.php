@@ -213,7 +213,7 @@ class InventorypurchaseController extends BaseController {
         $m_department_user = new \Admin\Model\DepartmentUserModel();
         $fields = "id ,name";
         $where = [];
-        $where['id'] = $result['department_id'];
+        $where['department_id'] = $result['department_id'];
         $department_user_arr = $m_department_user->field($fields)->where($where)->select();
         
         
