@@ -238,8 +238,9 @@ class StockController extends BaseController {
             $purchase_detail_id = I('post.purchase_detail_id',0,'intval');
             $res_info = $m_pdetail->getInfo(array('id'=>$purchase_detail_id));
 
-            $data = array('stock_id'=>$stock_id,'goods_id'=>$res_info['goods_id'],
-                'unit_id'=>$res_info['unit_id'],'status'=>1);
+            $data = array('stock_id'=>$stock_id,'purchase_detail_id'=>$purchase_detail_id,
+                'goods_id'=>$res_info['goods_id'],'unit_id'=>$res_info['unit_id'],
+                'stock_amount'=>$res_info['amount'],'stock_total_amount'=>$res_info['total_amount'],'status'=>1);
             $m_stock_detail = new \Admin\Model\StockDetailModel();
             if($id){
                 $m_stock_detail->updateData(array('id'=>$id),$data);
@@ -432,7 +433,13 @@ class StockController extends BaseController {
         if(IS_POST){
             $goods_id = I('goods_id',0,'intval');
             $unit_id = I('unit_id',0,'intval');
-            $data = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id,'status'=>1);
+            $stock_amount = I('stock_amount',0,'intval');
+
+            $m_unit = new \Admin\Model\UnitModel();
+            $res_unit = $m_unit->getInfo(array('id'=>$unit_id));
+            $stock_total_amount = $res_unit['convert_type']*$stock_amount;
+            $data = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id,
+                'stock_amount'=>$stock_amount,'stock_total_amount'=>$stock_total_amount,'status'=>1);
             if($id){
                 $m_stock_detail->updateData(array('id'=>$id),$data);
             }else{
