@@ -55,9 +55,7 @@
               <td data-title="单位">{$vlist.unit_name}</td>
               <td data-title="单价">{$vlist.price}</td>
 			  <td data-title="采购数量">{$vlist.amount}</td>
-              <td data-title="采购总价"><php> echo $vlist['amount']* $vlist['price'];</php></td>
-              
-             
+              <td data-title="采购总价">{$vlist.total_fee}</td>
 
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">

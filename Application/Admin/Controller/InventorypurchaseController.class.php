@@ -276,8 +276,6 @@ class InventorypurchaseController extends BaseController {
         }
     }
     public function detaillist(){
-        
-        
         $purchase_id = I('purchase_id',0,'intval');
         if(!empty($purchase_id)){
             session($this->session_key,$purchase_id);
@@ -299,7 +297,7 @@ class InventorypurchaseController extends BaseController {
         $start  = ( $start-1 ) * $size;
     
         
-        $fields = 'a.id,g.barcode,g.name goods_name,u.name unit_name,c.name category_name,a.price,a.amount';
+        $fields = 'a.id,g.barcode,g.name goods_name,u.name unit_name,c.name category_name,a.price,a.amount,a.total_fee';
         $where  = [];
         $where['a.purchase_id'] = $purchase_id;
         $where['a.status'] = 1;
@@ -312,15 +310,13 @@ class InventorypurchaseController extends BaseController {
         $this->display();
     }
     public function adddetail(){
-        
         $purchase_id = I('purchase_id',0,'intval');
         //采购商品
         $m_goods = new \Admin\Model\GoodsModel();
         $where = [];
         $where['status'] = 1;
         $goods_list  = $m_goods->field('id,name')->where($where)->select();
-        
-        
+
         $this->assign('purchase_id',$purchase_id);
         $this->assign('goods_arr',$goods_list);
         
@@ -426,7 +422,6 @@ class InventorypurchaseController extends BaseController {
     public function doeditdetail(){
         $purchase_id = I('purchase_id',0,'intval');
         $id          = I('id',0,'intval');
-        
         if(IS_POST){
             foreach($this->detail_required_arr as $key=>$v){
                 $tmp = I('post.'.$key);
@@ -451,6 +446,7 @@ class InventorypurchaseController extends BaseController {
             $data['price']       = $price;
             $data['unit_id']     = $unit_id;
             $data['amount']      = $amount;
+            $data['total_fee']      = $amount*$price;
             $data['total_amount']= $total_amount;
             $data['update_time'] = date('Y-m-d H:i:s');
             $where = [];
@@ -458,10 +454,7 @@ class InventorypurchaseController extends BaseController {
             $where['purchase_id'] = $purchase_id;
             
             $ret = $m_purchase_detail->updateData($where,$data);
-            
             if($ret){
-                
-                //echo "<scrip>location.reload();<script>";
                 $this->outputNew('编辑成功!', 'inventorypurchase/detaillist');
                 
             }else {
