@@ -54,10 +54,10 @@
                             <td data-title="商品规格">{$dinfo.specification}</td>
                             <td data-title="单位">{$dinfo.unit}</td>
                             <td data-title="所属组织">{$dinfo.department}</td>
-                            <td data-title="当前库存">0</td>
+                            <td data-title="当前库存">{$dinfo.now_amount}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
-                                    <a title="{$dinfo.name}-查看明细" data-tip="查看明细" target="navTab" mask="true" rel="stock/stockgoodsrecord" href="{$host_name}/stock/stockgoodsrecord?stock_detail_id={$dinfo.id}" class="btn btn-success btn-icon">
+                                    <a title="{$dinfo.name}-查看明细" data-tip="查看明细" target="navTab" mask="true" rel="stock/stockgoodsrecord" href="{$host_name}/stock/stockgoodsrecord?goods_id={$dinfo.goods_id}&unit_id={$dinfo.unit_id}" class="btn btn-success btn-icon">
                                         <i class="fa fa-list"></i>
                                     </a>
 

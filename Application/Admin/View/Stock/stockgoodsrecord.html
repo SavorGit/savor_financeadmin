@@ -4,7 +4,8 @@
     <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stock/stockgoodsrecord" method="post">
         <input type="hidden" name="pageNum" value="{$pageNum}"/>
         <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
-        <input type="hidden" name="stock_detail_id" value="{$stock_detail_id}"/>
+        <input type="hidden" name="goods_id" value="{$goods_id}"/>
+        <input type="hidden" name="unit_id" value="{$unit_id}"/>
         <div class="searchBar">
             <div class="clearfix">
 
@@ -52,6 +53,7 @@
                             <td data-title="唯一识别码">{$dinfo.idcode}</td>
                             <td data-title="商品名称">{$dinfo.name}</td>
                             <td data-title="单位">{$dinfo.unit}</td>
+                            <td data-title="库房">{$dinfo.area}</td>
                             <td data-title="入库单号">{$dinfo.serial_number}</td>
                             <td data-title="入库单价">{$dinfo.price}</td>
                             <td data-title="入库人">{$dinfo.department_user}</td>
