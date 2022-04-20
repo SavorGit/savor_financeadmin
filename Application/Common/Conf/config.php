@@ -246,6 +246,13 @@ $config['FINACE_CONTRACT'] = array(
         )
     ),
 );
+$config['STOCK_MANAGER']=array(
+    'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
+    'o9GS-4oZfWgjT0lySkJskdlflNrw'=>'黄勇',
+    'o9GS-4g6xM3jhCWUUPnvK5a4sysI'=>'张英涛',
+    'o9GS-4t61F_qSPmwEaAtd9v6f6DY'=>'刘斌',
+    'o9GS-4icfJEZSX8_qDs6pB_nD30o'=>'李昭',
+);
 $config['CONTRACT_COMPANY']= array(
 	array('id'=>1,'name'=>'拉萨经济技术开发区热点信息技术有限公司'),
 	array('id'=>2,'name'=>'拉萨经济技术开发区热点信息技术有限公司北京分公司'),

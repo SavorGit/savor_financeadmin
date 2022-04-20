@@ -693,10 +693,12 @@ class StockController extends BaseController {
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $all_op_user = C('STOCK_MANAGER');
             foreach ($res_list['list'] as $v){
                 $v['area']=$areas[$v['area_id']]['region_name'];
                 $v['unit']=$units[$v['unit_id']]['name'];
                 $v['department_user']=$departmentusers[$v['department_user_id']]['name'];
+                $v['op_user'] = $all_op_user[$v['op_openid']];
                 $data_list[] = $v;
             }
         }
