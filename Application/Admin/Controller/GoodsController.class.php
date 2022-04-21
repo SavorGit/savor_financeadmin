@@ -56,6 +56,71 @@ class GoodsController extends BaseController {
         $this->display();
     }
 
+    public function goodsconfiglist(){
+        $goods_id = I('goods_id',0,'intval');
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+
+        $m_goods_config = new \Admin\Model\GoodsConfigModel();
+        $where = array('goods_id'=>$goods_id);
+        $start = ($pageNum-1)*$size;
+        $orderby = 'id desc';
+        $res_list = $m_goods_config->getDataList('*',$where,$orderby,$start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            foreach ($res_list['list'] as $v){
+                $is_required_str = '否';
+                if($v['is_required']){
+                    $is_required_str = '是';
+                }
+                $v['is_required_str'] = $is_required_str;
+                $status_str = '禁用';
+                if($v['status']==1){
+                    $status_str = '正常';
+                }
+                $v['status_str'] = $status_str;
+                $data_list[] = $v;
+            }
+        }
+        $this->assign('goods_id',$goods_id);
+        $this->assign('data',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+
+    public function goodsconfigadd(){
+        $id = I('id',0,'intval');
+        $goods_id = I('goods_id',0,'intval');
+        $m_goods_config = new \Admin\Model\GoodsConfigModel();
+        if(IS_POST){
+            $name = I('post.name','','trim');
+            $is_required = I('post.is_required',0,'intval');
+            $status = I('post.status',0,'intval');
+
+            $data = array('name'=>$name,'goods_id'=>$goods_id,'is_required'=>$is_required,'status'=>$status,'type'=>1);
+            if($id){
+                $result = $m_goods_config->updateData(array('id'=>$id),$data);
+            }else{
+                $result = $m_goods_config->addData($data);
+            }
+            if($result){
+                $this->output('操作成功!', 'goods/goodsconfiglist');
+            }else{
+                $this->output('操作失败', 'goods/goodsconfigadd',2,0);
+            }
+        }else{
+            $vinfo = array('status'=>1,'is_required'=>1,'goods_id'=>$goods_id);
+            if($id){
+                $vinfo = $m_goods_config->getInfo(array('id'=>$id));
+            }
+            $this->assign('vinfo',$vinfo);
+            $this->display();
+        }
+    }
+
     public function goodsadd(){
         $id = I('id',0,'intval');
         $m_goods = new \Admin\Model\GoodsModel();
