@@ -369,6 +369,7 @@ class InventorypurchaseController extends BaseController {
             $data['unit_id']     = $unit_id;
             $data['amount']      = $amount;
             $data['status']      = $status;
+            $data['total_fee']      = $amount*$price;
             $data['total_amount']= $total_amount;
             $ret = $m_purchase_detail->addData($data);
             if($ret){
