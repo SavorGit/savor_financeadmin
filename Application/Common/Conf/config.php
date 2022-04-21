@@ -102,6 +102,7 @@ $config['MANGER_STATE'] = array(
 );
 $config['STOCK_IN_TYPES'] = array('11'=>'采购入库','12'=>'调拨入库','13'=>'餐厅退回','14'=>'其他');
 $config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23'=>'赠送餐厅','24'=>'销售','25'=>'其他消耗');
+$config['STOCK_USE_TYPE'] = array('1'=>'餐厅售卖','2'=>'品鉴酒','3'=>'活动');
 
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
@@ -246,6 +247,7 @@ $config['FINACE_CONTRACT'] = array(
         )
     ),
 );
+
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
     'o9GS-4oZfWgjT0lySkJskdlflNrw'=>'黄勇',

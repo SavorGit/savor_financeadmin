@@ -335,11 +335,12 @@ class StockController extends BaseController {
             $amount = I('post.amount',0,'intval');
             $total_fee = I('post.total_fee',0,'intval');
             $io_type = I('post.io_type',0,'intval');
+            $use_type = I('post.use_type',0,'intval');
             $area_id = I('post.area_id',0,'intval');
             $hotel_id = I('post.hotel_id',0,'intval');
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
-            $data = array('serial_number'=>$serial_number,'name'=>$name,'io_type'=>$io_type,'io_date'=>$io_date,
+            $data = array('serial_number'=>$serial_number,'name'=>$name,'io_type'=>$io_type,'use_type'=>$use_type,'io_date'=>$io_date,
                 'department_id'=>$department_id,'department_user_id'=>$department_user_id,'amount'=>$amount,'total_fee'=>$total_fee,
                 'area_id'=>$area_id,'hotel_id'=>$hotel_id,'type'=>20,'sysuser_id'=>$sysuser_id
             );

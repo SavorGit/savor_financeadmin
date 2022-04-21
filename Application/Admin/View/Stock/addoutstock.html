@@ -82,6 +82,19 @@
                 </div>
             </div>
 
+            <div class="form-group row" id="stock_use_type">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    商品用途:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="use_type" class="form-control bs-select" title="请选择..." data-size="20" required>
+                        <volist name=":C('STOCK_USE_TYPE')" id="sut">
+                            <option value="{$key}" <if condition="$vinfo['use_type'] eq $key"> selected </if> > {$sut}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">
                     库房:
@@ -118,8 +131,10 @@
     $('#stock_iotype').change(function() {
         if($(this).val()==22 || $(this).val()==23){
             $('#stock_hotel_id').show();
+            $('#stock_use_type').show();
         }else{
             $('#stock_hotel_id').hide();
+            $('#stock_use_type').hide();
         }
     })
     $('#stock_iotype').trigger('change');
