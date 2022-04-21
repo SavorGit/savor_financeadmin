@@ -407,7 +407,7 @@ class InventorypurchaseController extends BaseController {
             $where['category_id'] = $detail_info['category_id'];
             $where['status']      = 1;
             
-            $unit_arr = $m_unit->field($fields)->where()->select();
+            $unit_arr = $m_unit->field($fields)->where($where)->select();
             
             //采购商品
             $m_goods = new \Admin\Model\GoodsModel();
