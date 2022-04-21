@@ -69,8 +69,8 @@ class StockController extends BaseController {
                 $now_amount = 0;
                 $field='sum(total_amount) as total_amount';
                 $res_stock_record = $m_stock_record->getRow($field,array('stock_id'=>$v['id'],'type'=>1));
-                if(!empty($res_stock_record[0]['total_amount'])){
-                    $now_amount = intval($res_stock_record[0]['total_amount']);
+                if(!empty($res_stock_record['total_amount'])){
+                    $now_amount = intval($res_stock_record['total_amount']);
                 }
                 $v['now_amount'] = $now_amount;
                 $data_list[] = $v;
@@ -238,8 +238,9 @@ class StockController extends BaseController {
             $purchase_detail_id = I('post.purchase_detail_id',0,'intval');
             $res_info = $m_pdetail->getInfo(array('id'=>$purchase_detail_id));
 
-            $data = array('stock_id'=>$stock_id,'goods_id'=>$res_info['goods_id'],
-                'unit_id'=>$res_info['unit_id'],'status'=>1);
+            $data = array('stock_id'=>$stock_id,'purchase_detail_id'=>$purchase_detail_id,
+                'goods_id'=>$res_info['goods_id'],'unit_id'=>$res_info['unit_id'],
+                'stock_amount'=>$res_info['amount'],'stock_total_amount'=>$res_info['total_amount'],'status'=>1);
             $m_stock_detail = new \Admin\Model\StockDetailModel();
             if($id){
                 $m_stock_detail->updateData(array('id'=>$id),$data);
@@ -254,8 +255,11 @@ class StockController extends BaseController {
             $all_purchase_detail = array();
             if($res_stock['purchase_id']){
                 $where = array('a.purchase_id'=>$res_stock['purchase_id']);
-                $fields = 'a.id,a.goods_id,g.name';
+                $fields = 'a.id,a.unit_id,a.goods_id,g.name,u.name as unit_name';
                 $all_purchase_detail = $m_pdetail->getList($fields,$where,'a.id desc');
+                foreach ($all_purchase_detail as $k=>$v){
+                    $all_purchase_detail[$k]['name'] = $v['name'].'-'.$v['unit_name'];
+                }
             }
             $this->assign('stock_id',$stock_id);
             $this->assign('id',$id);
@@ -432,7 +436,13 @@ class StockController extends BaseController {
         if(IS_POST){
             $goods_id = I('goods_id',0,'intval');
             $unit_id = I('unit_id',0,'intval');
-            $data = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id,'status'=>1);
+            $stock_amount = I('stock_amount',0,'intval');
+
+            $m_unit = new \Admin\Model\UnitModel();
+            $res_unit = $m_unit->getInfo(array('id'=>$unit_id));
+            $stock_total_amount = $res_unit['convert_type']*$stock_amount;
+            $data = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id,
+                'stock_amount'=>$stock_amount,'stock_total_amount'=>$stock_total_amount,'status'=>1);
             if($id){
                 $m_stock_detail->updateData(array('id'=>$id),$data);
             }else{
@@ -506,10 +516,11 @@ class StockController extends BaseController {
                     $stock_in_num = intval($res_goods_inrecord[0]['total_amount']);
                     $price = intval($total_fee/$stock_in_num);
                     $res_goods_outrecord = $m_stock_record->getAll($fields,array('goods_id'=>$goods_id,'type'=>2),0,1,'id desc');
+                    $stock_out_num = 0;
                     if(!empty($res_goods_outrecord[0]['total_amount'])){
-                        $stock_out_num = $res_goods_outrecord[0]['total_amount'];
-                        $stock_num = $stock_in_num - $stock_out_num;
+                        $stock_out_num = abs($res_goods_outrecord[0]['total_amount']);
                     }
+                    $stock_num = $stock_in_num - $stock_out_num;
                 }
                 $v['price'] = $price;
                 $v['stock_num'] = $stock_num;
@@ -539,12 +550,14 @@ class StockController extends BaseController {
         $start_time = I('start_time','');
         $end_time = I('end_time','');
 
-        $where = array('a.goods_id'=>$goods_id,'a.status'=>1);
+        $where = array('a.goods_id'=>$goods_id);
         if($type){
-            $where['stock.type'] = $type;
+            $where['a.type'] = $type;
         }
         if(!empty($start_time) && !empty($end_time)){
-            $where['stock.io_date'] = array(array('egt',$start_time),array('elt',$end_time));
+            $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
+            $now_end_time = date('Y-m-d 23:59:59',strtotime($end_time));
+            $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
         }
         $departments = $specifications = $units = array();
         $m_department = new \Admin\Model\DepartmentModel();
@@ -563,12 +576,12 @@ class StockController extends BaseController {
         foreach ($res_unit as $v){
             $units[$v['id']]=$v;
         }
-        $all_types = array('10'=>'入库','20'=>'出库');
+        $all_types = array('1'=>'入库','2'=>'出库','3'=>'拆箱');
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.id,goods.name,goods.specification_id,a.unit_id,stock.department_id,stock.type,stock.serial_number,a.amount,stock.io_date';
-        $m_stock_detail = new \Admin\Model\StockDetailModel();
-        $res_list = $m_stock_detail->getChangeList($fields,$where, 'a.id desc', $start,$size);
+        $fields = 'a.id,goods.name,goods.specification_id,a.unit_id,stock.department_id,a.type,stock.serial_number,sum(a.amount) as amount,a.add_time';
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_list = $m_stock_record->getChangeList($fields,$where, 'a.id desc', 'a.batch_no',$start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
@@ -576,9 +589,7 @@ class StockController extends BaseController {
                 $v['specification']=$specifications[$v['specification_id']]['name'];
                 $v['unit']=$units[$v['unit_id']]['name'];
                 $v['type_str'] = $all_types[$v['type']];
-                if($v['type']==20){
-                    $v['amount'] = '-'.$v['amount'];
-                }else{
+                if($v['amount']>0){
                     $v['amount'] = '+'.$v['amount'];
                 }
                 $data_list[] = $v;
@@ -622,7 +633,7 @@ class StockController extends BaseController {
 
         $where = array('a.goods_id'=>$goods_id,'a.status'=>1,'stock.type'=>10);
         $start = ($pageNum-1)*$size;
-        $fields = 'a.id,goods.name,goods.barcode,goods.specification_id,a.unit_id,stock.department_id,stock.serial_number,a.amount,stock.io_date';
+        $fields = 'a.id,goods.id as goods_id,goods.name,goods.barcode,goods.specification_id,a.unit_id,stock.department_id,stock.serial_number,a.amount,stock.io_date';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
         $res_list = $m_stock_detail->getChangeList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
@@ -632,6 +643,15 @@ class StockController extends BaseController {
                 $v['specification']=$specifications[$v['specification_id']]['name'];
                 $v['unit']=$units[$v['unit_id']]['name'];
 
+                $m_stock_record = new \Admin\Model\StockRecordModel();
+                $fields = 'sum(total_amount) as total_amount';
+                $rwhere = array('goods_id'=>$goods_id,'unit_id'=>$v['unit_id'],'type'=>array('in',array(1,2)));
+                $res_goods_inrecord = $m_stock_record->getAll($fields,$rwhere,0,1);
+                $now_amount = 0;
+                if(!empty($res_goods_inrecord)){
+                    $now_amount = $res_goods_inrecord[0]['total_amount'];
+                }
+                $v['now_amount'] = $now_amount;
                 $data_list[] = $v;
             }
         }
@@ -646,7 +666,8 @@ class StockController extends BaseController {
     public function stockgoodsrecord(){
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
-        $stock_detail_id = I('stock_detail_id',0,'intval');
+        $goods_id = I('goods_id',0,'intval');
+        $unit_id = I('unit_id',0,'intval');
 
         $areas = $departmentusers = $units = array();
         $m_area  = new \Admin\Model\AreaModel();
@@ -665,22 +686,24 @@ class StockController extends BaseController {
             $units[$v['id']]=$v;
         }
 
-        $where = array('a.stock_detail_id'=>$stock_detail_id,'a.type'=>1);
+        $where = array('a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.type'=>1,'a.status'=>0);
         $start = ($pageNum-1)*$size;
         $fields = 'a.*,goods.name,goods.specification_id,stock.serial_number,stock.area_id';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $all_op_user = C('STOCK_MANAGER');
             foreach ($res_list['list'] as $v){
                 $v['area']=$areas[$v['area_id']]['region_name'];
                 $v['unit']=$units[$v['unit_id']]['name'];
                 $v['department_user']=$departmentusers[$v['department_user_id']]['name'];
-
+                $v['op_user'] = $all_op_user[$v['op_openid']];
                 $data_list[] = $v;
             }
         }
-        $this->assign('stock_detail_id', $stock_detail_id);
+        $this->assign('goods_id',$goods_id);
+        $this->assign('unit_id',$unit_id);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
