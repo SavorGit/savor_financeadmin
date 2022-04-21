@@ -84,7 +84,7 @@ class InventorypurchaseController extends BaseController {
         $where = [];
         $where['type'] = 40;
         $where['status'] = array('in',array(1,2));
-        $pcontract_arr  = $m_contract->field('id,serial_number')->where()->select();
+        $pcontract_arr  = $m_contract->field('id,serial_number')->where($where)->select();
         //获取采购组织
         $m_department = new \Admin\Model\DepartmentModel();
         $where = [];
@@ -179,7 +179,7 @@ class InventorypurchaseController extends BaseController {
         $where = [];
         $where['type'] = 40;
         $where['status'] = array('in',array(1,2));
-        $pcontract_arr  = $m_contract->field('id,serial_number')->where()->select();
+        $pcontract_arr  = $m_contract->field('id,serial_number')->where($where)->select();
         
         //获取采购组织
         $m_department = new \Admin\Model\DepartmentModel();
