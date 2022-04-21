@@ -106,7 +106,7 @@
                   <div class="col-xs-12 col-sm-4  form-inline">
                       <select name="contract_id" class="form-control bs-select class-filter" data-live-search="true" data-container="body"  >
                           <volist name="pcontract_arr" id="ptinfo">
-                              <option value="{$ptinfo.id}" >{$ptinfo.serial_number}</option>
+                              <option value="{$ptinfo.id}" <if condition="$ptinfo.id eq $vinfo['contract_id']">selected</if>>{$ptinfo.serial_number}</option>
                           </volist>
                       </select>
 
