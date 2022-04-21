@@ -60,6 +60,11 @@ class SupplierController extends BaseController {
             $vinfo = array('status'=>1);
             if($id){
                 $vinfo = $m_supplier->getInfo(array('id'=>$id));
+                if($vinfo['media_id']){
+                    $m_media = new \Admin\Model\MediaModel();
+                    $res_media = $m_media->getMediaInfoById($vinfo['media_id']);
+                    $vinfo['oss_addr'] = $res_media['oss_addr'];
+                }
             }
             $this->assign('vinfo',$vinfo);
             $this->display();
@@ -94,8 +99,8 @@ class SupplierController extends BaseController {
                     }
                     $field='sum(total_amount) as total_amount';
                     $res_stock_record = $m_stock_record->getRow($field,array('stock_id'=>array('in',$stock_ids),'type'=>1));
-                    if(!empty($res_stock_record[0]['total_amount'])){
-                        $now_amount = intval($res_stock_record[0]['total_amount']);
+                    if(!empty($res_stock_record['total_amount'])){
+                        $now_amount = intval($res_stock_record['total_amount']);
                     }
                 }
                 $v['now_amount'] = $now_amount;
