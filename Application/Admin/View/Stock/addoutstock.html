@@ -87,7 +87,7 @@
                     商品用途:
                 </label>
                 <div class="col-xs-12 col-sm-10">
-                    <select name="use_type" class="form-control bs-select" title="请选择..." data-size="20" required>
+                    <select name="use_type" class="form-control bs-select" title="请选择..." data-size="20" >
                         <volist name=":C('STOCK_USE_TYPE')" id="sut">
                             <option value="{$key}" <if condition="$vinfo['use_type'] eq $key"> selected </if> > {$sut}</option>
                         </volist>

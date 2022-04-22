@@ -509,7 +509,7 @@ class StockController extends BaseController {
             $m_stock_record = new \Admin\Model\StockRecordModel();
             foreach ($res_list['list'] as $v){
                 $goods_id = $v['goods_id'];
-                $fields = 'sum(price) as total_fee,sum(total_amount) as total_amount';
+                $fields = 'sum(total_fee) as total_fee,sum(total_amount) as total_amount';
                 $res_goods_inrecord = $m_stock_record->getAll($fields,array('goods_id'=>$goods_id,'type'=>1),0,1,'id desc');
                 $price = $total_fee = $stock_num = 0;
                 if(!empty($res_goods_inrecord[0]['total_fee']) && !empty($res_goods_inrecord[0]['total_amount'])){
@@ -522,6 +522,9 @@ class StockController extends BaseController {
                         $stock_out_num = abs($res_goods_outrecord[0]['total_amount']);
                     }
                     $stock_num = $stock_in_num - $stock_out_num;
+                    if($stock_out_num>0){
+                        $total_fee = $price*$stock_num;
+                    }
                 }
                 $v['price'] = $price;
                 $v['stock_num'] = $stock_num;
