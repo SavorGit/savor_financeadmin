@@ -241,12 +241,21 @@ class StockController extends BaseController {
         $m_pdetail = new \Admin\Model\PurchaseDetailModel();
         if(IS_POST){
             $purchase_detail_id = I('post.purchase_detail_id',0,'intval');
-            $res_info = $m_pdetail->getInfo(array('id'=>$purchase_detail_id));
 
+            $hwhere = array('purchase_detail_id'=>$purchase_detail_id);
+            if($id){
+                $hwhere['id']= array('neq',$id);
+            }
+            $m_stock_detail = new \Admin\Model\StockDetailModel();
+            $res_has = $m_stock_detail->getInfo($hwhere);
+            if(!empty($res_has)){
+                $this->output('商品不能重复', "stock/instockgoodsadd", 2, 0);
+            }
+
+            $res_info = $m_pdetail->getInfo(array('id'=>$purchase_detail_id));
             $data = array('stock_id'=>$stock_id,'purchase_detail_id'=>$purchase_detail_id,
                 'goods_id'=>$res_info['goods_id'],'unit_id'=>$res_info['unit_id'],
                 'stock_amount'=>$res_info['amount'],'stock_total_amount'=>$res_info['total_amount'],'status'=>1);
-            $m_stock_detail = new \Admin\Model\StockDetailModel();
             if($id){
                 $m_stock_detail->updateData(array('id'=>$id),$data);
             }else{
@@ -273,6 +282,21 @@ class StockController extends BaseController {
         }
     }
 
+    public function instockgoodsdel(){
+        $id = I('get.id',0,'intval');
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_stock_record = $m_stock_record->getInfo(array('stock_detail_id'=>$id));
+        if(!empty($res_stock_record)){
+            $this->output('已有入/出库记录,无法删除', 'stock/instockgoodslist',2,0);
+        }
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $result = $m_stock_detail->delData(array('id'=>$id));
+        if($result){
+            $this->output('操作成功!', 'stock/instockgoodslist',2);
+        }else{
+            $this->output('操作失败', 'stock/instockgoodslist',2,0);
+        }
+    }
 
     public function outlist(){
         $size = I('numPerPage',50,'intval');//显示每页记录数
@@ -406,7 +430,7 @@ class StockController extends BaseController {
 
         $start = ($pageNum-1)*$size;
         $m_stock_detail = new \Admin\Model\StockDetailModel();
-        $fields = 'a.id,goods.barcode,a.goods_id,a.amount,a.unit_id,goods.name,cate.name as category';
+        $fields = 'a.id,goods.barcode,a.goods_id,a.amount,a.unit_id,a.stock_amount,goods.name,cate.name as category';
         $where = array('a.stock_id'=>$stock_id,'a.status'=>1);
         if(!empty($keyword)){
             $where['goods.name'] = array('like',"%$keyword%");
@@ -444,6 +468,15 @@ class StockController extends BaseController {
             $unit_id = I('unit_id',0,'intval');
             $stock_amount = I('stock_amount',0,'intval');
 
+            $hwhere = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id);
+            if($id){
+                $hwhere['id']= array('neq',$id);
+            }
+            $res_has = $m_stock_detail->getInfo($hwhere);
+            if(!empty($res_has)){
+                $this->output('商品不能重复', "stock/outstockgoodsadd", 2, 0);
+            }
+
             $m_unit = new \Admin\Model\UnitModel();
             $res_unit = $m_unit->getInfo(array('id'=>$unit_id));
             $stock_total_amount = $res_unit['convert_type']*$stock_amount;
@@ -466,6 +499,22 @@ class StockController extends BaseController {
             $this->assign('all_goods',$all_goods);
             $this->assign('vinfo',$vinfo);
             $this->display();
+        }
+    }
+
+    public function outstockgoodsdel(){
+        $id = I('get.id',0,'intval');
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_stock_record = $m_stock_record->getInfo(array('stock_detail_id'=>$id));
+        if(!empty($res_stock_record)){
+            $this->output('已有入/出库记录,无法删除', 'stock/outstockgoodslist',2,0);
+        }
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $result = $m_stock_detail->delData(array('id'=>$id));
+        if($result){
+            $this->output('操作成功!', 'stock/outstockgoodslist',2);
+        }else{
+            $this->output('操作失败', 'stock/outstockgoodslist',2,0);
         }
     }
 
@@ -549,10 +598,13 @@ class StockController extends BaseController {
         $type = I('type',0,'intval');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
+        $all_types = array('1'=>'入库','2'=>'出库','3'=>'拆箱');
 
         $where = array('a.goods_id'=>$goods_id);
         if($type){
             $where['a.type'] = $type;
+        }else{
+            $where['a.type'] = array('in',array_keys($all_types));
         }
         if(!empty($start_time) && !empty($end_time)){
             $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
@@ -576,7 +628,6 @@ class StockController extends BaseController {
         foreach ($res_unit as $v){
             $units[$v['id']]=$v;
         }
-        $all_types = array('1'=>'入库','2'=>'出库','3'=>'拆箱');
 
         $start = ($pageNum-1)*$size;
         $fields = 'a.id,goods.name,goods.specification_id,a.unit_id,stock.department_id,a.type,stock.serial_number,sum(a.amount) as amount,sum(a.total_amount) as total_amount,a.add_time';
@@ -635,7 +686,9 @@ class StockController extends BaseController {
         $start = ($pageNum-1)*$size;
         $fields = 'a.id,goods.id as goods_id,goods.name,goods.barcode,goods.specification_id,a.unit_id,stock.department_id,stock.serial_number,a.amount,stock.io_date';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
-        $res_list = $m_stock_detail->getChangeList($fields,$where, 'a.id desc', $start,$size);
+        $group = 'a.unit_id';
+        $res_list = $m_stock_detail->getChangeList($fields,$where, 'a.id desc', $group,$start,$size);
+
         $data_list = array();
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){

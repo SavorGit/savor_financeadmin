@@ -1,6 +1,7 @@
 <div class="pageContent">
     <form method="post" action="{$host_name}/stock/addoutstock" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
         <input name="id" type="hidden" value="{$vinfo.id}"/>
+        <input type="hidden" id="now_department_user_id" value="{$vinfo.department_user_id}"/>
         <div class="pageFormContent modal-body">
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">出库单号：</label>
@@ -21,7 +22,7 @@
                     所属组织:
                 </label>
                 <div class="col-xs-12 col-sm-10">
-                    <select name="department_id" class="form-control bs-select" title="请选择..." data-size="20" required>
+                    <select name="department_id" id="department_id" class="form-control bs-select" title="请选择..." data-size="20" required>
                         <volist name="department_arr" id="dpinfo">
                             <option value="{$dpinfo.id}" <if condition="$dpinfo.id eq $vinfo['department_id']"> selected </if> > {$dpinfo.name}</option>
                         </volist>
@@ -34,10 +35,7 @@
                     出库人:
                 </label>
                 <div class="col-xs-12 col-sm-10">
-                    <select name="department_user_id" class="form-control bs-select class-filter" data-live-search="true">
-                        <volist name="departmentuser_arr" id="dpuinfo">
-                            <option value="{$dpuinfo.id}" <if condition="$dpuinfo.id eq $vinfo['department_user_id']"> selected </if> > {$dpuinfo.name}</option>
-                        </volist>
+                    <select name="department_user_id" id="department_user_id" class="form-control" data-size="20" required>
                     </select>
                 </div>
             </div>
@@ -139,5 +137,27 @@
     })
     $('#stock_iotype').trigger('change');
 
+    $('#department_id').change(function() {
+        var now_department_id = $(this).val()
+        var now_department_user_id = $("#now_department_user_id").val()
 
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '{$host_name}/basicset/getUserByDepartmentId',
+            data: 'department_id='+now_department_id+'&department_user_id='+now_department_user_id,
+            success: function(msg) {
+                var all_users = msg.users
+                if (all_users!=null) {
+                    var user_option_str = ''
+                    for (var i=0; i < all_users.length; i++) {
+                        user_option_str+='<option value="'+all_users[i].id+'"'+all_users[i].is_select+'>'+all_users[i].name+'</option>';
+                    }
+                    $("#department_user_id").empty()
+                    $("#department_user_id").append(user_option_str);
+                }
+            }
+        })
+    })
+    $("#department_id").trigger('change');
 </script>

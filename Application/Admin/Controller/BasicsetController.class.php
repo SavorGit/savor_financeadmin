@@ -477,13 +477,24 @@ class BasicsetController extends BaseController {
 
     public function getUserByDepartmentId(){
         $department_id = I('department_id',0,'intval');
+        $department_user_id = I('department_user_id',0,'intval');
+
         $m_department_user = new \Admin\Model\DepartmentUserModel();
         $where = array('status'=>1);
         if($department_id){
             $where['department_id'] = $department_id;
         }
         $res_department_users = $m_department_user->getAll('id,name',$where,0,10000,'id asc');
-        $data = array('users'=>$res_department_users);
+        $users = array();
+        foreach ($res_department_users as $v){
+            $is_select = '';
+            if($v['id']==$department_user_id){
+                $is_select = 'selected';
+            }
+            $v['is_select'] = $is_select;
+            $users[]=$v;
+        }
+        $data = array('users'=>$users);
         die(json_encode($data));
     }
 
