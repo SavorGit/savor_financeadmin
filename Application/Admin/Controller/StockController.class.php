@@ -569,7 +569,7 @@ class StockController extends BaseController {
                 if(!empty($res_goods_record[0]['total_fee']) && !empty($res_goods_record[0]['total_amount'])){
                     $total_fee = intval($res_goods_record[0]['total_fee']);
                     $stock_num = intval($res_goods_record[0]['total_amount']);
-                    $price = intval($total_fee/$stock_num);
+                    $price = sprintf("%.2f",$total_fee/$stock_num);
                 }
                 $v['price'] = $price;
                 $v['stock_num'] = $stock_num;
@@ -762,6 +762,225 @@ class StockController extends BaseController {
         $this->assign('numPerPage',$size);
         $this->assign('pageNum',$pageNum);
         $this->display();
+    }
+
+    public function hotelstocklist(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $hotel_name = I('hotel_name','','trim');
+
+        $where = array('stock.hotel_id'=>array('gt',0),'stock.type'=>20);
+        if(!empty($hotel_name)){
+            $where['hotel.name'] = array('like',"%$hotel_name%");
+        }
+
+        $start = ($pageNum-1)*$size;
+        $fileds = 'a.goods_id,goods.name,goods.barcode,cate.name as cate_name,spec.name as sepc_name,a.unit_id,unit.name as unit_name,hotel.id as hotel_id,hotel.name as hotel_name';
+        $group = 'a.goods_id,a.unit_id';
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $res_list = $m_stock_detail->getHotelStockGoods($fileds,$where,$group,$start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            foreach ($res_list['list'] as $v){
+                $out_num = $unpack_num = $wo_num = 0;
+                $price = 0;
+                $goods_id = $v['goods_id'];
+                $unit_id = $v['unit_id'];
+                $rfileds = 'sum(a.total_amount) as total_amount,sum(a.total_fee) as total_fee,a.type';
+                $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id);
+                $rwhere['a.type'] = array('in',array(2,3,7));
+                $rgroup = 'a.type';
+                $res_record = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','',$rgroup);
+                foreach ($res_record as $rv){
+                    switch ($rv['type']){
+                        case 2:
+                            $out_num = abs($rv['total_amount']);
+                            $total_fee = abs($rv['total_fee']);
+                            $price = intval($total_fee/$out_num);
+                            break;
+                        case 3:
+                            $unpack_num = $rv['total_amount'];
+                            break;
+                        case 7:
+                            $wo_num = $rv['total_amount'];
+                            break;
+                    }
+                }
+                $writeoff_num = 0;
+                $wo_where = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.wo_status'=>1);
+                $res_wo_record = $m_stock_record->getStockRecordList('count(a.id) as num',$wo_where,'a.id desc','','');
+                if(!empty($res_wo_record)){
+                    $writeoff_num = intval($res_wo_record[0]['num']);
+                }
+                $stock_num = $out_num+$unpack_num+$wo_num;
+                $v['price'] = $price;
+                $v['stock_num'] = $stock_num;
+                $v['total_fee'] = $price*$stock_num;
+                $v['writeoff_num'] = $writeoff_num;
+                $data_list[] = $v;
+            }
+        }
+
+        $this->assign('hotel_name',$hotel_name);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function hotelstockchangelist(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $type = I('type',0,'intval');
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
+        $goods_id = I('goods_id',0,'intval');
+        $unit_id = I('unit_id',0,'intval');
+        $hotel_id = I('hotel_id',0,'intval');
+
+        $all_types = array('2'=>'出库','3'=>'拆箱','7'=>'核销');
+
+        $where = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id);
+        if($type){
+            $where['a.type'] = $type;
+        }else{
+            $where['a.type'] = array('in',array_keys($all_types));
+        }
+        if(!empty($start_time) && !empty($end_time)){
+            $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
+            $now_end_time = date('Y-m-d 23:59:59',strtotime($end_time));
+            $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+        }
+        $departments = $specifications = $units = array();
+        $m_department = new \Admin\Model\DepartmentModel();
+        $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        foreach ($res_departments as $v){
+            $departments[$v['id']]=$v;
+        }
+
+        $m_spec = new \Admin\Model\SpecificationModel();
+        $res_spec = $m_spec->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_spec as $v){
+            $specifications[$v['id']]=$v;
+        }
+        $m_unit = new \Admin\Model\UnitModel();
+        $res_unit = $m_unit->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_unit as $v){
+            $units[$v['id']]=$v;
+        }
+
+        $start = ($pageNum-1)*$size;
+        $fields = 'a.id,a.type,goods.name,goods.specification_id,a.unit_id,stock.department_id,a.type,stock.serial_number,sum(a.amount) as amount,sum(a.total_amount) as total_amount,a.add_time';
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_list = $m_stock_record->getChangeList($fields,$where, 'a.id desc', 'a.batch_no',$start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            foreach ($res_list['list'] as $v){
+                $v['department']=$departments[$v['department_id']]['name'];
+                $v['specification']=$specifications[$v['specification_id']]['name'];
+                $v['unit']=$units[$v['unit_id']]['name'];
+                $v['type_str'] = $all_types[$v['type']];
+                if($v['type']==2){
+                    $v['total_amount'] = abs($v['total_amount']);
+                }
+                if($v['total_amount']>0){
+                    $v['total_amount'] = '+'.$v['total_amount'];
+                }
+                $data_list[] = $v;
+            }
+        }
+
+        $this->assign('start_time', $start_time);
+        $this->assign('end_time', $end_time);
+        $this->assign('all_types', $all_types);
+        $this->assign('type', $type);
+        $this->assign('goods_id', $goods_id);
+        $this->assign('unit_id', $unit_id);
+        $this->assign('hotel_id', $hotel_id);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function writeofflist(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $goods_id = I('goods_id',0,'intval');
+        $unit_id = I('unit_id',0,'intval');
+        $hotel_id = I('hotel_id',0,'intval');
+
+        $departmentusers = array();
+        $m_department_user = new \Admin\Model\DepartmentUserModel();
+        $res_department_users = $m_department_user->getAll('id,name',array('status'=>1),0,10000,'id asc');
+        foreach ($res_department_users as $v){
+            $departmentusers[$v['id']]=$v;
+        }
+
+        $where = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.type'=>7);
+        $start = ($pageNum-1)*$size;
+        $fields = 'a.*,goods.name,goods.specification_id,stock.serial_number,stock.area_id';
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            $all_op_user = C('STOCK_MANAGER');
+            $all_reason = C('STOCK_USE_TYPE');
+            $oss_host = get_oss_host();
+            $m_user = new \Admin\Model\SmallappUserModel();
+            foreach ($res_list['list'] as $v){
+                $imgs = array();
+                $v['department_user']=$departmentusers[$v['department_user_id']]['name'];
+                $v['op_user'] = $all_op_user[$v['op_openid']];
+                $v['wo_reason_type_str'] = $all_reason[$v['wo_reason_type']];
+                if(!empty($v['wo_data_imgs'])){
+                    $tmp_imgs = explode(',',$v['wo_data_imgs']);
+                    foreach ($tmp_imgs as $iv){
+                        if(!empty($iv)){
+                            $imgs[]=$oss_host.$iv;
+                        }
+                    }
+                }
+                $wo_status_str = '待审核';
+                if($v['wo_status']==2){
+                    $wo_status_str = '审核通过';
+                }
+                $v['wo_status_str']=$wo_status_str;
+                $v['imgs']=$imgs;
+                $res_user = $m_user->getInfo(array('openid'=>$v['op_openid']));
+                $v['username'] = $res_user['nickname'];
+                $data_list[] = $v;
+            }
+        }
+        $this->assign('goods_id',$goods_id);
+        $this->assign('unit_id',$unit_id);
+        $this->assign('hotel_id',$hotel_id);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function auditwriteoff(){
+        $id = I('get.id',0,'intval');
+        $status = I('get.status',0,'intval');
+
+        $userinfo = session('sysUserInfo');
+        $sysuser_id = $userinfo['id'];
+
+        $condition = array('id'=>$id);
+        $data = array('audit_user_id'=>$sysuser_id,'wo_status'=>$status,'update_time'=>date('Y-m-d H:i:s'));
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $m_stock_record->updateData($condition, $data);
+        $message = '待审核';
+        if($status==2){
+            $message = '审核通过';
+        }
+        $this->output($message, 'stock/writeofflist',2);
     }
 
     public function getAjaxStockUnit(){

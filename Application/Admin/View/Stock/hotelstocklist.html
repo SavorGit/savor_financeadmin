@@ -1,0 +1,92 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stock/hotelstocklist" method="post">
+        <input type="hidden" name="pageNum" value="{$pageNum}"/>
+        <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+        <div class="searchBar">
+            <div class="clearfix">
+
+                <div class="form-inline">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">酒楼名称：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="hotel_name" value="{$hotel_name}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-btn">
+                             <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-group-sm pull-right">
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+<div class="pageContent" id="pagecontent" style="margin-top:25px;">
+    <div id="w_list_print">
+        <div class="no-more-tables">
+            <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+                <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+                    <thead>
+                    <tr id="post">
+                        <th>ID</th>
+                        <th>酒楼ID</th>
+                        <th>酒楼名称</th>
+                        <th>商品名称</th>
+                        <th>商品条码</th>
+                        <th>商品类型</th>
+                        <th>商品规格</th>
+                        <th>单位</th>
+                        <th>当前库存(瓶)</th>
+                        <th>待核销数量</th>
+<!--                        <th>单价</th>-->
+<!--                        <th>总金额</th>-->
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody data-check="list" data-parent=".table">
+                    <foreach name="datalist" item="dinfo">
+                        <tr target="sid_user">
+                            <td data-title="ID">{$dinfo.goods_id}</td>
+                            <td data-title="酒楼ID">{$dinfo.hotel_id}</td>
+                            <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
+                            <td data-title="商品名称">{$dinfo.name}</td>
+                            <td data-title="商品条码">{$dinfo.barcode}</td>
+                            <td data-title="商品类型">{$dinfo.cate_name}</td>
+                            <td data-title="商品规格">{$dinfo.sepc_name}</td>
+                            <td data-title="单位">{$dinfo.unit_name}</td>
+                            <td data-title="当前库存">{$dinfo.stock_num}</td>
+                            <td data-title="待核销数量">{$dinfo.writeoff_num}</td>
+<!--                            <td data-title="单价">{$dinfo.price}</td>-->
+<!--                            <td data-title="总金额">{$dinfo.total_fee}</td>-->
+                            <td class="table-tool" data-title="操作">
+                                <div class="tools-edit">
+                                    <a title="{$dinfo.name}-明细" data-tip="明细" target="navTab" mask="true" rel="stock/hotelstockchangelist" href="{$host_name}/stock/hotelstockchangelist?goods_id={$dinfo.goods_id}&unit_id={$dinfo.unit_id}&hotel_id={$dinfo.hotel_id}" class="btn btn-success btn-icon">
+                                        <i class="fa fa-list"></i>
+                                    </a>
+                                    <a title="{$dinfo.name}-核销列表" data-tip="核销列表" target="navTab" mask="true" rel="stock/writeofflist" href="{$host_name}/stock/writeofflist?goods_id={$dinfo.goods_id}&unit_id={$dinfo.unit_id}&hotel_id={$dinfo.hotel_id}" class="btn btn-success btn-icon">
+                                        <i class="fa fa-check-square"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    </foreach>
+                    </tbody>
+                </table>
+            </form>
+
+        </div>
+    </div>
+    {$page}
+</div>
