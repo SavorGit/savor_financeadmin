@@ -783,7 +783,7 @@ class StockController extends BaseController {
         if(!empty($res_list['list'])){
             $m_stock_record = new \Admin\Model\StockRecordModel();
             foreach ($res_list['list'] as $v){
-                $out_num = $unpack_num = $wo_num = 0;
+                $out_num = $unpack_num = $wo_num = $report_num = 0;
                 $price = 0;
                 $goods_id = $v['goods_id'];
                 $unit_id = $v['unit_id'];
@@ -809,13 +809,18 @@ class StockController extends BaseController {
                 $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
                 $wo_num = $res_worecord[0]['total_amount'];
 
+                $rwhere['a.type']=6;
+                $rwhere['a.status']= array('in',array(1,2));
+                $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
+                $report_num = $res_worecord[0]['total_amount'];
+
                 $writeoff_num = 0;
                 $wo_where = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.wo_status'=>1);
                 $res_wo_record = $m_stock_record->getStockRecordList('count(a.id) as num',$wo_where,'a.id desc','','');
                 if(!empty($res_wo_record)){
                     $writeoff_num = intval($res_wo_record[0]['num']);
                 }
-                $stock_num = $out_num+$unpack_num+$wo_num;
+                $stock_num = $out_num+$unpack_num+$wo_num+$report_num;
                 $v['price'] = $price;
                 $v['stock_num'] = $stock_num;
                 $v['total_fee'] = $price*$stock_num;
@@ -842,7 +847,7 @@ class StockController extends BaseController {
         $unit_id = I('unit_id',0,'intval');
         $hotel_id = I('hotel_id',0,'intval');
 
-        $all_types = array('2'=>'出库','3'=>'拆箱','7'=>'核销');
+        $all_types = array('2'=>'出库','3'=>'拆箱','6'=>'报损','7'=>'核销');
 
         $where = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id);
         if($type){
@@ -1019,7 +1024,91 @@ class StockController extends BaseController {
             $this->assign('vinfo',$res_info);
             $this->display();
         }
+    }
 
+    public function reportedlosslist(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $status = I('status',0,'intval');
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
+
+
+        $all_status = C('STOCK_WRITEOFF_STATUS');
+        $where = array('a.type'=>6);
+        if($status){
+            $where['a.status'] = $status;
+        }
+        if(!empty($start_time) && !empty($end_time)){
+            $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
+            $now_end_time = date('Y-m-d 23:59:59',strtotime($end_time));
+            $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+        }
+        $departments = $specifications = $units = array();
+        $m_department = new \Admin\Model\DepartmentModel();
+        $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        foreach ($res_departments as $v){
+            $departments[$v['id']]=$v;
+        }
+
+        $m_spec = new \Admin\Model\SpecificationModel();
+        $res_spec = $m_spec->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_spec as $v){
+            $specifications[$v['id']]=$v;
+        }
+        $m_unit = new \Admin\Model\UnitModel();
+        $res_unit = $m_unit->getDataList('id,name',array('status'=>1),'id desc');
+        foreach ($res_unit as $v){
+            $units[$v['id']]=$v;
+        }
+
+        $start = ($pageNum-1)*$size;
+        $fields = 'a.id,a.type,a.idcode,a.reason,a.status,goods.name,goods.specification_id,a.unit_id,stock.department_id,a.type,stock.serial_number,a.add_time';
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_list = $m_stock_record->getChangeList($fields,$where, 'a.id desc', '',$start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            foreach ($res_list['list'] as $v){
+                $v['department']=$departments[$v['department_id']]['name'];
+                $v['specification']=$specifications[$v['specification_id']]['name'];
+                $v['unit']=$units[$v['unit_id']]['name'];
+                $v['status_str'] = $all_status[$v['status']];
+                $data_list[] = $v;
+            }
+        }
+
+        $this->assign('start_time', $start_time);
+        $this->assign('end_time', $end_time);
+        $this->assign('status', $status);
+        $this->assign('all_status',$all_status);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function auditreportedloss(){
+        $id = I('id',0,'intval');
+
+        if(IS_POST){
+            $status = I('post.status',0,'intval');
+
+            $userinfo = session('sysUserInfo');
+            $sysuser_id = $userinfo['id'];
+
+            $condition = array('id'=>$id);
+            $data = array('audit_user_id'=>$sysuser_id,'status'=>$status,'update_time'=>date('Y-m-d H:i:s'));
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            $m_stock_record->updateData($condition, $data);
+            $this->output('操作完成', 'stock/writeofflist');
+        }else{
+            $condition = array('id'=>$id);
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            $res_info = $m_stock_record->getInfo($condition);
+            $this->assign('vinfo',$res_info);
+            $this->display();
+        }
     }
 
     public function getAjaxStockUnit(){
