@@ -789,7 +789,7 @@ class StockController extends BaseController {
                 $unit_id = $v['unit_id'];
                 $rfileds = 'sum(a.total_amount) as total_amount,sum(a.total_fee) as total_fee,a.type';
                 $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id);
-                $rwhere['a.type'] = array('in',array(2,3,7));
+                $rwhere['a.type'] = array('in',array(2,3));
                 $rgroup = 'a.type';
                 $res_record = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','',$rgroup);
                 foreach ($res_record as $rv){
@@ -802,11 +802,13 @@ class StockController extends BaseController {
                         case 3:
                             $unpack_num = $rv['total_amount'];
                             break;
-                        case 7:
-                            $wo_num = $rv['total_amount'];
-                            break;
                     }
                 }
+                $rwhere['a.type']=7;
+                $rwhere['a.wo_status']= array('in',array(1,2));
+                $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
+                $wo_num = $res_worecord[0]['total_amount'];
+
                 $writeoff_num = 0;
                 $wo_where = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.wo_status'=>1);
                 $res_wo_record = $m_stock_record->getStockRecordList('count(a.id) as num',$wo_where,'a.id desc','','');
@@ -927,6 +929,7 @@ class StockController extends BaseController {
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $all_wo_status = array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过');
             $all_op_user = C('STOCK_MANAGER');
             $all_reason = C('STOCK_USE_TYPE');
             $oss_host = get_oss_host();
@@ -944,11 +947,7 @@ class StockController extends BaseController {
                         }
                     }
                 }
-                $wo_status_str = '待审核';
-                if($v['wo_status']==2){
-                    $wo_status_str = '审核通过';
-                }
-                $v['wo_status_str']=$wo_status_str;
+                $v['wo_status_str']=$all_wo_status[$v['wo_status']];
                 $v['imgs']=$imgs;
                 $res_user = $m_user->getInfo(array('openid'=>$v['op_openid']));
                 $v['username'] = $res_user['nickname'];
@@ -976,7 +975,7 @@ class StockController extends BaseController {
         $data = array('audit_user_id'=>$sysuser_id,'wo_status'=>$status,'update_time'=>date('Y-m-d H:i:s'));
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $m_stock_record->updateData($condition, $data);
-        $message = '待审核';
+        $message = '审核不通过';
         if($status==2){
             $message = '审核通过';
         }
