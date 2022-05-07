@@ -76,7 +76,7 @@
                         <th>单号</th>
                         <th>数量(瓶)</th>
                         <th>日期</th>
-<!--                        <th>当前库存</th>-->
+                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody data-check="list" data-parent=".table">
@@ -91,7 +91,13 @@
                             <td data-title="单号">{$dinfo.serial_number}</td>
                             <td data-title="数量">{$dinfo.total_amount}</td>
                             <td data-title="日期">{$dinfo.add_time}</td>
-<!--                            <td data-title="当前库存">0</td>-->
+                            <td class="table-tool" data-title="操作">
+                                <div class="tools-edit">
+                                    <a title="识别码明细列表" data-tip="识别码明细列表" target="navTab" mask="true" rel="stock/stockhotelrecordlist" href="{$host_name}/stock/stockhotelrecordlist?batch_no={$dinfo.batch_no}" class="btn btn-default btn-icon">
+                                        <i class="fa fa-list"></i>
+                                    </a>
+                                </div>
+                            </td>
                         </tr>
                     </foreach>
                     </tbody>

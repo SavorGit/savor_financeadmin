@@ -103,7 +103,7 @@ $config['MANGER_STATE'] = array(
 $config['STOCK_IN_TYPES'] = array('11'=>'采购入库','12'=>'调拨入库','13'=>'餐厅退回','14'=>'其他');
 $config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23'=>'赠送餐厅','24'=>'销售','25'=>'其他消耗');
 $config['STOCK_USE_TYPE'] = array('1'=>'餐厅售卖','2'=>'品鉴酒','3'=>'活动');
-
+$config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过');
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
     'baseset'=>'基础设置',
@@ -251,9 +251,15 @@ $config['FINACE_CONTRACT'] = array(
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
     'o9GS-4oZfWgjT0lySkJskdlflNrw'=>'黄勇',
+    'o9GS-4iGZE9olTzXTMjon8xDyRpo'=>'黄勇',
+    'o9GS-4oGSdRGYiNZZ4oKQ9PBm_TI'=>'李丛',
     'o9GS-4g6xM3jhCWUUPnvK5a4sysI'=>'张英涛',
     'o9GS-4t61F_qSPmwEaAtd9v6f6DY'=>'刘斌',
     'o9GS-4icfJEZSX8_qDs6pB_nD30o'=>'李昭',
+    'o9GS-4iinyutBsN73FJFjdZC3rWg'=>'赵翠燕',
+    'o9GS-4kpg8khL72nVZKDsgn0ioDM'=>'陈灵玉',
+    'o9GS-4mouXnk_WhBAL-Zhsg0YbOE'=>'余穗筠',
+    'o9GS-4mTCZvkRCDRnkg77QqohMI4'=>'胡子凤',
 );
 $config['CONTRACT_COMPANY']= array(
 	array('id'=>1,'name'=>'拉萨经济技术开发区热点信息技术有限公司'),

@@ -65,16 +65,12 @@
                             <td data-title="核销时间">{$dinfo.add_time}</td>
                             <td class="table-tool" data-title="操作">
                                 <if condition="$dinfo['wo_status'] eq 1">
-                                    <if condition="$dinfo['wo_status'] eq 2">
-                                        <a data-tip="审核通过" target="ajaxTodo" href="{$host_name}/stock/auditwriteoff?id={$dinfo.id}&status=3" calback="navTabAjaxDone" class="btn btn-default btn-icon"><span>
-                        <i class="fa fa-toggle-on"></i></span></a>
-                                        <else/>
-                                        <a data-tip="审核不通过" target="ajaxTodo" href="{$host_name}/stock/auditwriteoff?id={$dinfo.id}&status=2" calback="navTabAjaxDone" class="btn btn-default btn-icon"><span>
-                        <i class="fa fa-toggle-off"></i></span></a>
-                                    </if>
+                                    <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/stock/auditwriteoff?id={$dinfo.id}" class="btn btn-success btn-icon">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
                                 <else/>
                                     <a onclick="alertMsg.error('请勿重复进行审核')" href="#" class="btn btn-default btn-icon">
-                                        <i class="fa fa-toggle-off"></i>
+                                        <i class="fa fa-pencil"></i>
                                     </a>
                                 </if>
 

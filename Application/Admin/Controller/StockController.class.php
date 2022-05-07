@@ -874,7 +874,7 @@ class StockController extends BaseController {
         }
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.id,a.type,goods.name,goods.specification_id,a.unit_id,stock.department_id,a.type,stock.serial_number,sum(a.amount) as amount,sum(a.total_amount) as total_amount,a.add_time';
+        $fields = 'a.id,a.type,a.batch_no,goods.name,goods.specification_id,a.unit_id,stock.department_id,a.type,stock.serial_number,sum(a.amount) as amount,sum(a.total_amount) as total_amount,a.add_time';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getChangeList($fields,$where, 'a.id desc', 'a.batch_no',$start,$size);
         $data_list = array();
@@ -901,6 +901,40 @@ class StockController extends BaseController {
         $this->assign('goods_id', $goods_id);
         $this->assign('unit_id', $unit_id);
         $this->assign('hotel_id', $hotel_id);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function stockhotelrecordlist(){
+        $batch_no = I('batch_no',0,'intval');
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+
+        $start = ($pageNum-1)*$size;
+        $m_stock_reord = new \Admin\Model\StockRecordModel();
+        $fields = 'a.id,a.idcode,a.price,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category';
+        $where = array('a.batch_no'=>$batch_no);
+
+        $res_list = $m_stock_reord->getList($fields,$where, 'a.id desc', $start,$size);
+        $data_list = array();
+        if(!empty($res_list)){
+            $m_unit = new \Admin\Model\UnitModel();
+            $res_unit = $m_unit->getDataList('id,name',array('status'=>1),'id desc');
+            $all_unit = array();
+            foreach ($res_unit as $v){
+                $all_unit[$v['id']]=$v;
+            }
+            foreach ($res_list['list'] as $v){
+                $v['unit']=$all_unit[$v['unit_id']]['name'];
+                $v['price']=abs($v['price']);
+                $data_list[]=$v;
+            }
+        }
+
+        $this->assign('batch_no',$batch_no);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -965,21 +999,27 @@ class StockController extends BaseController {
     }
 
     public function auditwriteoff(){
-        $id = I('get.id',0,'intval');
-        $status = I('get.status',0,'intval');
+        $id = I('id',0,'intval');
 
-        $userinfo = session('sysUserInfo');
-        $sysuser_id = $userinfo['id'];
+        if(IS_POST){
+            $wo_status = I('post.wo_status',0,'intval');
 
-        $condition = array('id'=>$id);
-        $data = array('audit_user_id'=>$sysuser_id,'wo_status'=>$status,'update_time'=>date('Y-m-d H:i:s'));
-        $m_stock_record = new \Admin\Model\StockRecordModel();
-        $m_stock_record->updateData($condition, $data);
-        $message = '审核不通过';
-        if($status==2){
-            $message = '审核通过';
+            $userinfo = session('sysUserInfo');
+            $sysuser_id = $userinfo['id'];
+
+            $condition = array('id'=>$id);
+            $data = array('audit_user_id'=>$sysuser_id,'wo_status'=>$wo_status,'update_time'=>date('Y-m-d H:i:s'));
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            $m_stock_record->updateData($condition, $data);
+            $this->output('操作完成', 'stock/writeofflist');
+        }else{
+            $condition = array('id'=>$id);
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            $res_info = $m_stock_record->getInfo($condition);
+            $this->assign('vinfo',$res_info);
+            $this->display();
         }
-        $this->output($message, 'stock/writeofflist',2);
+
     }
 
     public function getAjaxStockUnit(){
