@@ -476,10 +476,22 @@ class StockController extends BaseController {
             if(!empty($res_has)){
                 $this->output('商品不能重复', "stock/outstockgoodsadd", 2, 0);
             }
-
             $m_unit = new \Admin\Model\UnitModel();
             $res_unit = $m_unit->getInfo(array('id'=>$unit_id));
+            if($res_unit['convert_type']==1){//查询单瓶和整箱的总数是否够用
+                $fields='sum(total_amount) as amount';
+                $res_udetail = $m_stock_detail->getDataList($fields,array('goods_id'=>$goods_id),'');
+                $now_stock_num = intval($res_udetail[0]['amount']);
+            }else{
+                $fields='sum(total_amount) as amount';
+                $res_udetail = $m_stock_detail->getDataList($fields,array('goods_id'=>$goods_id,'unit_id'=>$unit_id),'');
+                $now_stock_num = intval($res_udetail[0]['amount']);
+            }
             $stock_total_amount = $res_unit['convert_type']*$stock_amount;
+            if($stock_total_amount>$now_stock_num){
+                $this->output('当前库存不能满足出库数量', "stock/outstockgoodsadd", 2, 0);
+            }
+
             $data = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id,
                 'stock_amount'=>$stock_amount,'stock_total_amount'=>$stock_total_amount,'status'=>1);
             if($id){
