@@ -14,7 +14,7 @@ class StockController extends BaseController {
 
         $where = array('type'=>10);
         if(!empty($keyword)){
-            $where['a.name'] = array('like',"$keyword");
+            $where['a.name'] = array('like',"%$keyword%");
         }
         if($area_id){
             $where['a.area_id'] = $area_id;
@@ -308,7 +308,7 @@ class StockController extends BaseController {
         $io_types = C('STOCK_OUT_TYPES');
         $where = array('type'=>20);
         if(!empty($keyword)){
-            $where['name'] = array('like',"$keyword");
+            $where['name'] = array('like',"%$keyword%");
         }
         if($department_id){
             $where['department_id'] = $department_id;
