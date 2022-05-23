@@ -467,6 +467,16 @@ class InventorypurchaseController extends BaseController {
     public function deldetail(){
         $purchase_id = I('get.purchase_id',0,'intval');
         $id          = I('get.id',0,'intval');
+		$m_stock_detail =    new \Admin\Model\StockDetailModel();
+		$where = [];
+		$where['purchase_detail_id'] = $id;
+		$where['status'] = 1;
+		$ret = $m_stock_detail->filed('id')->where($where)->select();
+		//echo $m_stock_detail->getLastSql();exit;
+		if(!empty($ret)){
+			$this->error('已有入库信息不可删除');
+		}
+		
         $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
         $where= [];
         $where['id'] = $id;
