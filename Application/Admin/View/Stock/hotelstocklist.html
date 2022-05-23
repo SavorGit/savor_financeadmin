@@ -40,7 +40,7 @@
                 <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
                     <thead>
                     <tr id="post">
-                        <th>ID</th>
+                        <th>商品ID</th>
                         <th>酒楼ID</th>
                         <th>酒楼名称</th>
                         <th>商品名称</th>
@@ -58,7 +58,7 @@
                     <tbody data-check="list" data-parent=".table">
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
-                            <td data-title="ID">{$dinfo.goods_id}</td>
+                            <td data-title="商品ID">{$dinfo.goods_id}</td>
                             <td data-title="酒楼ID">{$dinfo.hotel_id}</td>
                             <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
                             <td data-title="商品名称">{$dinfo.name}</td>

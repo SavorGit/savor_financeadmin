@@ -788,7 +788,7 @@ class StockController extends BaseController {
 
         $start = ($pageNum-1)*$size;
         $fileds = 'a.goods_id,goods.name,goods.barcode,cate.name as cate_name,spec.name as sepc_name,a.unit_id,unit.name as unit_name,hotel.id as hotel_id,hotel.name as hotel_name';
-        $group = 'a.goods_id,a.unit_id';
+        $group = 'stock.hotel_id,a.goods_id,a.unit_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
         $res_list = $m_stock_detail->getHotelStockGoods($fileds,$where,$group,$start,$size);
         $data_list = array();
@@ -832,7 +832,8 @@ class StockController extends BaseController {
                 if(!empty($res_wo_record)){
                     $writeoff_num = intval($res_wo_record[0]['num']);
                 }
-                $stock_num = $out_num+$unpack_num+$wo_num+$report_num;
+//                $stock_num = $out_num+$unpack_num+$wo_num+$report_num;
+                $stock_num = $out_num+$wo_num+$report_num;
                 $v['price'] = $price;
                 $v['stock_num'] = $stock_num;
                 $v['total_fee'] = $price*$stock_num;
@@ -859,7 +860,8 @@ class StockController extends BaseController {
         $unit_id = I('unit_id',0,'intval');
         $hotel_id = I('hotel_id',0,'intval');
 
-        $all_types = array('2'=>'出库','3'=>'拆箱','6'=>'报损','7'=>'核销');
+//        $all_types = array('2'=>'出库','3'=>'拆箱','6'=>'报损','7'=>'核销');
+        $all_types = array('2'=>'出库','6'=>'报损','7'=>'核销');
 
         $where = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id);
         if($type){

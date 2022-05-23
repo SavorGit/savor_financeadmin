@@ -29,7 +29,8 @@ class StockDetailModel extends BaseModel{
             ->join('savor_finance_specification spec on goods.specification_id=spec.id','left')
             ->where($where)
             ->group($group)
-            ->count();
+            ->select();
+        $count = count($count);
         $objPage = new Page($count,$size);
         $show = $objPage->admin_page();
         $data = array('list'=>$list,'page'=>$show);
