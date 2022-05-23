@@ -471,8 +471,7 @@ class InventorypurchaseController extends BaseController {
 		$where = [];
 		$where['purchase_detail_id'] = $id;
 		$where['status'] = 1;
-		$ret = $m_stock_detail->filed('id')->where($where)->select();
-		//echo $m_stock_detail->getLastSql();exit;
+		$ret = $m_stock_detail->field('id')->where($where)->select();
 		if(!empty($ret)){
 			$this->error('已有入库信息不可删除');
 		}
