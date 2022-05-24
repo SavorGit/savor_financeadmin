@@ -12,7 +12,7 @@ class GoodsController extends BaseController {
         $m_goods = new \Admin\Model\GoodsModel();
         $where = array();
         if(!empty($keyword)){
-            $where['name'] = array('like',"$keyword");
+            $where['name'] = array('like',"%$keyword%");
         }
         if($category_id){
             $where['category_id']=$category_id;
