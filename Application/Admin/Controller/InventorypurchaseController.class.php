@@ -444,7 +444,10 @@ class InventorypurchaseController extends BaseController {
             
             $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
 			
-			$detail_info = $m_pushase_detail->field('unit_id,price')->where(array('id'=>id))->find();
+			$map = [];
+			$map['id'] = $id;
+			$detail_info = $m_purchase_detail->field('unit_id,price')->where($map)->find();
+			
 			if($unit_id != $detail_info['unit_id'] || $price!=$detail_info['price']){
 				$where = [];
 				$where['purchase_detail_id'] = $id;
@@ -454,7 +457,7 @@ class InventorypurchaseController extends BaseController {
 				if(!empty($ret)){
 					$this->error('已有入库信息不可修改');
 				}
-				
+		
 			}
 			
 			
