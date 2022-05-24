@@ -443,6 +443,21 @@ class InventorypurchaseController extends BaseController {
             $total_amount = intval($unit_info['convert_type'] * $amount);  //总瓶数
             
             $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
+			
+			$detail_info = $m_pushase_detail->field('unit_id,price')->where(array('id'=>id))->find();
+			if($unit_id != $detail_info['unit_id'] || $price!=$detail_info['price']){
+				$where = [];
+				$where['purchase_detail_id'] = $id;
+				$where['status'] = 1;
+				$m_stock_detail =    new \Admin\Model\StockDetailModel();
+				$ret = $m_stock_detail->field('id')->where($where)->select();
+				if(!empty($ret)){
+					$this->error('已有入库信息不可修改');
+				}
+				
+			}
+			
+			
             $data['goods_id']    = $goods_id;
             $data['price']       = $price;
             $data['unit_id']     = $unit_id;
@@ -453,6 +468,7 @@ class InventorypurchaseController extends BaseController {
             $where = [];
             $where['id'] = $id;
             $where['purchase_id'] = $purchase_id;
+
             
             $ret = $m_purchase_detail->updateData($where,$data);
             if($ret){
