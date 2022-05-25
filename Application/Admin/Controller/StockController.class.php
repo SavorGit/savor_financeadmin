@@ -819,12 +819,17 @@ class StockController extends BaseController {
                 $rwhere['a.type']=7;
                 $rwhere['a.wo_status']= array('in',array(1,2));
                 $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
-                $wo_num = $res_worecord[0]['total_amount'];
+                if(!empty($res_worecord[0]['total_amount'])){
+                    $wo_num = $res_worecord[0]['total_amount'];
+                }
 
                 $rwhere['a.type']=6;
+                unset($rwhere['a.wo_status']);
                 $rwhere['a.status']= array('in',array(1,2));
                 $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
-                $report_num = $res_worecord[0]['total_amount'];
+                if(!empty($res_worecord[0]['total_amount'])){
+                    $report_num = $res_worecord[0]['total_amount'];
+                }
 
                 $writeoff_num = 0;
                 $wo_where = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.wo_status'=>1);
