@@ -10,7 +10,6 @@
                 </div>
             </div>
 
-
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">
                     是否必填：
@@ -18,6 +17,19 @@
                 <div class="col-xs-12 col-sm-10">
                     <input type="hidden" name="is_required" value="0">
                     <input type="checkbox" value="1" class="make-switch status" name="is_required" data-size="small" data-on-text="开启" data-off-text="关闭" <if condition="$vinfo.is_required eq 1" >checked</if>>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    类型:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="type" class="form-control bs-select" title="请选择..." data-size="20" required>
+                        <volist name=":C('STOCK_REASON')" id="rinfo">
+                            <option value="{$rinfo.id}" <if condition="$rinfo.id eq $vinfo['type']"> selected </if> > {$rinfo.name}</option>
+                        </volist>
+                    </select>
                 </div>
             </div>
 

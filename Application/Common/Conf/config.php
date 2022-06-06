@@ -103,6 +103,11 @@ $config['MANGER_STATE'] = array(
 $config['STOCK_IN_TYPES'] = array('11'=>'采购入库','12'=>'调拨入库','13'=>'餐厅退回','14'=>'其他');
 $config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23'=>'赠送餐厅','24'=>'销售','25'=>'其他消耗');
 $config['STOCK_USE_TYPE'] = array('1'=>'餐厅售卖','2'=>'品鉴酒','3'=>'活动');
+$config['STOCK_REASON'] = array(
+    '1'=>array('id'=>1,'name'=>'售卖'),
+    '2'=>array('id'=>2,'name'=>'品鉴酒'),
+    '3'=>array('id'=>3,'name'=>'活动')
+);
 $config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过');
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',

@@ -58,11 +58,16 @@ class GoodsController extends BaseController {
 
     public function goodsconfiglist(){
         $goods_id = I('goods_id',0,'intval');
+        $type = I('type',0,'intval');
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
 
         $m_goods_config = new \Admin\Model\GoodsConfigModel();
         $where = array('goods_id'=>$goods_id);
+        if($type){
+            $where['type'] = $type;
+        }
+        $all_types = C('STOCK_REASON');
         $start = ($pageNum-1)*$size;
         $orderby = 'id desc';
         $res_list = $m_goods_config->getDataList('*',$where,$orderby,$start,$size);
@@ -79,10 +84,12 @@ class GoodsController extends BaseController {
                     $status_str = '正常';
                 }
                 $v['status_str'] = $status_str;
+                $v['type_str'] = $all_types[$v['type']]['name'];
                 $data_list[] = $v;
             }
         }
         $this->assign('goods_id',$goods_id);
+        $this->assign('type',$type);
         $this->assign('data',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -99,8 +106,9 @@ class GoodsController extends BaseController {
             $name = I('post.name','','trim');
             $is_required = I('post.is_required',0,'intval');
             $status = I('post.status',0,'intval');
+            $type = I('post.type',1,'intval');
 
-            $data = array('name'=>$name,'goods_id'=>$goods_id,'is_required'=>$is_required,'status'=>$status,'type'=>1);
+            $data = array('name'=>$name,'goods_id'=>$goods_id,'is_required'=>$is_required,'status'=>$status,'type'=>$type);
             if($id){
                 $result = $m_goods_config->updateData(array('id'=>$id),$data);
             }else{
@@ -112,7 +120,7 @@ class GoodsController extends BaseController {
                 $this->output('操作失败', 'goods/goodsconfigadd',2,0);
             }
         }else{
-            $vinfo = array('status'=>1,'is_required'=>1,'goods_id'=>$goods_id);
+            $vinfo = array('status'=>1,'is_required'=>1,'goods_id'=>$goods_id,'type'=>1);
             if($id){
                 $vinfo = $m_goods_config->getInfo(array('id'=>$id));
             }
