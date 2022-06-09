@@ -35,13 +35,19 @@ class GoodsController extends BaseController {
         foreach ($all_brand as $v){
             $brands[$v['id']]=$v;
         }
-
+        $m_goods_config = new \Admin\Model\GoodsConfigModel();
         $all_status = C('MANGER_STATUS');
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
                 $v['status_str'] = $all_status[$v['status']];
                 $v['brand'] = $brands[$v['brand_id']]['name'];
                 $v['category'] = $categorys[$v['category_id']]['name'];
+                $integral = 0;
+                $res_integral = $m_goods_config->getInfo(array('goods_id'=>$v['id'],'type'=>10));
+                if(!empty($res_integral)){
+                    $integral = intval($res_integral['integral']);
+                }
+                $v['integral'] = $integral;
                 $data_list[] = $v;
             }
         }
@@ -179,6 +185,35 @@ class GoodsController extends BaseController {
             $this->assign('all_brand',$all_brand);
             $this->assign('all_supplier',$all_supplier);
             $this->assign('vinfo',$vinfo);
+            $this->display();
+        }
+    }
+
+    public function goodsintegral(){
+        $goods_id = I('goods_id',0,'intval');
+        $m_goods_config = new \Admin\Model\GoodsConfigModel();
+        $res_integral = $m_goods_config->getInfo(array('goods_id'=>$goods_id,'type'=>10));
+        if(IS_POST){
+            $integral = I('post.integral',0,'intval');
+
+            $data = array('goods_id'=>$goods_id,'integral'=>$integral,'type'=>10);
+            if(!empty($res_integral)){
+                $result = $m_goods_config->updateData(array('id'=>$res_integral['id']),$data);
+            }else{
+                $result = $m_goods_config->addData($data);
+            }
+            if($result){
+                $this->output('操作成功!', 'goods/datalist');
+            }else{
+                $this->output('操作失败', 'goods/goodsadd',2,0);
+            }
+        }else{
+            $integral = '';
+            if(!empty($res_integral)){
+                $integral = $res_integral['integral'];
+            }
+            $this->assign('integral',$integral);
+            $this->assign('goods_id',$goods_id);
             $this->display();
         }
     }
