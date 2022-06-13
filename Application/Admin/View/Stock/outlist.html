@@ -14,7 +14,7 @@
                         <div class="input-group">
                             <select name="io_type" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
                                 <option value=0>全部</option>
-                                <volist name=":C('STOCK_IN_TYPES')" id="citinfo">
+                                <volist name=":C('STOCK_OUT_TYPES')" id="citinfo">
                                     <option value="{$key}" <if condition="$key eq $io_type">selected</if> >{$citinfo}</option>
                                 </volist>
                             </select>
