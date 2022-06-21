@@ -13,6 +13,54 @@
                 <div class="form-inline">
 
                     <div class="form-group">
+                        <div class="input-group input-group-sm">城市：</div>
+                        <div class="input-group">
+                            <select name="area_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0>全部</option>
+                                <volist name="area" id="vo">
+                                    <option value="{$vo.id}" <if condition="$vo.id eq $area_id">selected</if>>{$vo.region_name}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">状态：</div>
+                        <div class="input-group">
+                            <select name="wo_status" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0>全部</option>
+                                <volist name="all_wo_status" id="atinfo">
+                                    <option value="{$key}" <if condition="$key eq $wo_status">selected</if> >{$atinfo}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">时间：</div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$start_time}" data-ymd="true">
+                            <input name="start_time" type="text" size="16" class="form-control date" placeholder="开始日期" value="{$start_time}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$end_time}" data-ymd="true">
+                            <input name="end_time" type="text" size="16" class="form-control date" placeholder="结束日期" value="{$end_time}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">酒楼名称：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="hotel_name" value="{$hotel_name}">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <div class="input-group input-group-sm">
                             <span class="input-group-btn">
                              <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
@@ -38,8 +86,10 @@
                     <thead>
                     <tr id="post">
                         <th>ID</th>
+                        <th>酒楼名称</th>
                         <th>唯一识别码</th>
                         <th>商品名称</th>
+                        <th>单位</th>
                         <th>核销原因</th>
                         <th>核销资料</th>
                         <th>状态</th>
@@ -52,8 +102,10 @@
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
                             <td data-title="ID">{$dinfo.id}</td>
+                            <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
                             <td data-title="唯一识别码">{$dinfo.idcode}</td>
                             <td data-title="商品名称">{$dinfo.name}</td>
+                            <td data-title="单位">{$dinfo.unit_name}</td>
                             <td data-title="核销原因">{$dinfo.wo_reason_type_str}</td>
                             <td data-title="核销资料">
                                 <volist name="dinfo.imgs" id="img">

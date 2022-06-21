@@ -85,7 +85,8 @@
                     关联采购单:
                 </label>
                 <div class="col-xs-12 col-sm-10">
-                    <select name="purchase_id" class="form-control bs-select class-filter" data-live-search="true" required>
+                    <select name="purchase_id" class="form-control bs-select class-filter" data-live-search="true">
+                        <option value="0">请选择</option>
                         <volist name="purchase_arr" id="puinfo">
                             <option value="{$puinfo.id}" <if condition="$puinfo.id eq $vinfo['purchase_id']"> selected </if> > {$puinfo.serial_number}</option>
                         </volist>

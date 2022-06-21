@@ -3,6 +3,7 @@
         <input name="id" id="id" type="hidden" value="{$vinfo.id}"/>
         <input name="stock_id" id="stock_id" type="hidden" value="{$stock_id}"/>
         <div class="pageFormContent modal-body">
+            <if condition="$is_purchase eq 1">
 
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">
@@ -11,15 +12,38 @@
                 <div class="col-xs-12 col-sm-10">
                     <select name="purchase_detail_id" class="form-control bs-select class-filter" data-live-search="true">
                         <volist name="all_purchase_detail" id="adinfo">
-                            <option value="{$adinfo.id}" <if condition="$adinfo.goods_id eq $goods_id"> selected </if> > {$adinfo.name}</option>
+                            <option value="{$adinfo.id}"> {$adinfo.name}</option>
                         </volist>
                     </select>
                 </div>
             </div>
 
+            <else/>
 
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    入库商品:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="goods_id" id="goods_id" class="form-control bs-select class-filter" data-live-search="true">
+                        <volist name="all_goods" id="aginfo">
+                            <option value="{$aginfo.id}"> {$aginfo.name}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
 
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    单位:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="unit_id" id="unit_id" class="form-control" data-size="20" >
+                    </select>
+                </div>
+            </div>
 
+            </if>
 
         </div>
         <div class="modal-footer">
@@ -28,3 +52,31 @@
         </div>
     </form>
 </div>
+
+<script>
+    $('#goods_id').change(function() {
+        var goods_id = $(this).val()
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '{$host_name}/stock/getAjaxStockUnit',
+            data: 'goods_id='+goods_id,
+            success: function(msg) {
+                var all_unit = msg.units;
+
+                if (all_unit!=null) {
+                    var unit_option_str = '';
+                    for (var i=0; i < all_unit.length; i++) {
+                        unit_option_str+='<option value="'+all_unit[i].id+'"'+all_unit[i].is_select+'>'+all_unit[i].name+'</option>';
+                    }
+                    $("#unit_id").empty()
+                    $("#unit_id").append(unit_option_str);
+                }
+            }
+        })
+    })
+    $('#goods_id').trigger('change');
+
+
+
+</script>
