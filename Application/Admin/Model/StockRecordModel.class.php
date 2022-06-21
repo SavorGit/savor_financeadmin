@@ -23,6 +23,7 @@ class StockRecordModel extends BaseModel{
 
     public function getList($fields,$where, $order='a.id desc', $start=0,$size=5){
         $list = $this->alias('a')
+            ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
             ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
             ->join('savor_finance_category cate on goods.category_id=cate.id','left')
             ->field($fields)
@@ -31,6 +32,7 @@ class StockRecordModel extends BaseModel{
             ->limit($start,$size)
             ->select();
         $count = $this->alias('a')
+            ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
             ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
             ->join('savor_finance_category cate on goods.category_id=cate.id','left')
             ->where($where)
@@ -67,6 +69,8 @@ class StockRecordModel extends BaseModel{
         $list = $this->alias('a')
             ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
             ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+            ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+            ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
             ->field($fields)
             ->where($where)
             ->order($order)
@@ -75,6 +79,8 @@ class StockRecordModel extends BaseModel{
         $count = $this->alias('a')
             ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
             ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+            ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+            ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
             ->where($where)
             ->count();
         $objPage = new Page($count,$size);

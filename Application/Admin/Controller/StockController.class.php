@@ -98,13 +98,18 @@ class StockController extends BaseController {
         if(IS_POST){
             $serial_number = I('post.serial_number','','trim');
             $name = I('post.name','','trim');
-            $io_type = I('post.io_type',0,'intval');
+            $io_type = I('post.io_type',0,'intval');//11采购入库,12调拨入库,13餐厅退回
             $io_date = I('post.io_date','');
             $department_id = I('post.department_id',0,'intval');
             $department_user_id = I('post.department_user_id',0,'intval');
             $purchase_id = I('post.purchase_id',0,'intval');
             $area_id = I('post.area_id',0,'intval');
 
+            if($io_type==11){
+                if($purchase_id==0){
+                    $this->output('请关联采购单', 'stock/addinstock',2,0);
+                }
+            }
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
             $data = array('serial_number'=>$serial_number,'name'=>$name,'io_type'=>$io_type,'io_date'=>$io_date,'area_id'=>$area_id,
@@ -241,8 +246,20 @@ class StockController extends BaseController {
         $m_pdetail = new \Admin\Model\PurchaseDetailModel();
         if(IS_POST){
             $purchase_detail_id = I('post.purchase_detail_id',0,'intval');
+            $goods_id = I('post.goods_id',0,'intval');
+            $unit_id = I('post.unit_id',0,'intval');
 
-            $hwhere = array('purchase_detail_id'=>$purchase_detail_id);
+            $stock_amount = $stock_total_amount = 0;
+            if($purchase_detail_id>0){
+                $hwhere = array('stock_id'=>$stock_id,'purchase_detail_id'=>$purchase_detail_id);
+                $res_info = $m_pdetail->getInfo(array('id'=>$purchase_detail_id));
+                $goods_id = $res_info['goods_id'];
+                $unit_id = $res_info['unit_id'];
+                $stock_amount = $res_info['amount'];
+                $stock_total_amount = $res_info['total_amount'];
+            }else{
+                $hwhere = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id);
+            }
             if($id){
                 $hwhere['id']= array('neq',$id);
             }
@@ -252,10 +269,9 @@ class StockController extends BaseController {
                 $this->output('商品不能重复', "stock/instockgoodsadd", 2, 0);
             }
 
-            $res_info = $m_pdetail->getInfo(array('id'=>$purchase_detail_id));
             $data = array('stock_id'=>$stock_id,'purchase_detail_id'=>$purchase_detail_id,
-                'goods_id'=>$res_info['goods_id'],'unit_id'=>$res_info['unit_id'],
-                'stock_amount'=>$res_info['amount'],'stock_total_amount'=>$res_info['total_amount'],'status'=>1);
+                'goods_id'=>$goods_id,'unit_id'=>$unit_id,'stock_amount'=>$stock_amount,
+                'stock_total_amount'=>$stock_total_amount,'status'=>1);
             if($id){
                 $m_stock_detail->updateData(array('id'=>$id),$data);
             }else{
@@ -265,9 +281,16 @@ class StockController extends BaseController {
         }else{
             $m_stock = new \Admin\Model\StockModel();
             $res_stock = $m_stock->getInfo(array('id'=>$stock_id));
+            $is_purchase = 0;
+            $all_goods = array();
+            if(in_array($res_stock['io_type'],array(12,13)) && $res_stock['purchase_id']==0){
+                $m_goods = new \Admin\Model\GoodsModel();
+                $all_goods = $m_goods->getDataList('id,name',array('status'=>1),'id desc');
+            }
 
             $all_purchase_detail = array();
             if($res_stock['purchase_id']){
+                $is_purchase = 1;
                 $where = array('a.purchase_id'=>$res_stock['purchase_id']);
                 $fields = 'a.id,a.unit_id,a.goods_id,g.name,u.name as unit_name';
                 $all_purchase_detail = $m_pdetail->getList($fields,$where,'a.id desc');
@@ -275,9 +298,11 @@ class StockController extends BaseController {
                     $all_purchase_detail[$k]['name'] = $v['name'].'-'.$v['unit_name'];
                 }
             }
+            $this->assign('is_purchase',$is_purchase);
             $this->assign('stock_id',$stock_id);
             $this->assign('id',$id);
             $this->assign('all_purchase_detail',$all_purchase_detail);
+            $this->assign('all_goods',$all_goods);
             $this->display();
         }
     }
@@ -831,18 +856,11 @@ class StockController extends BaseController {
                     $report_num = $res_worecord[0]['total_amount'];
                 }
 
-                $writeoff_num = 0;
-                $wo_where = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.wo_status'=>1);
-                $res_wo_record = $m_stock_record->getStockRecordList('count(a.id) as num',$wo_where,'a.id desc','','');
-                if(!empty($res_wo_record)){
-                    $writeoff_num = intval($res_wo_record[0]['num']);
-                }
 //                $stock_num = $out_num+$unpack_num+$wo_num+$report_num;
                 $stock_num = $out_num+$wo_num+$report_num;
                 $v['price'] = $price;
                 $v['stock_num'] = $stock_num;
                 $v['total_fee'] = $price*$stock_num;
-                $v['writeoff_num'] = $writeoff_num;
                 $data_list[] = $v;
             }
         }
@@ -934,13 +952,16 @@ class StockController extends BaseController {
 
     public function stockhotelrecordlist(){
         $batch_no = I('batch_no',0,'intval');
+        $goods_id = I('goods_id',0,'intval');
+        $unit_id = I('unit_id',0,'intval');
+        $hotel_id = I('hotel_id',0,'intval');
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
 
         $start = ($pageNum-1)*$size;
         $m_stock_reord = new \Admin\Model\StockRecordModel();
         $fields = 'a.id,a.idcode,a.price,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category';
-        $where = array('a.batch_no'=>$batch_no);
+        $where = array('a.batch_no'=>$batch_no,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'stock.hotel_id'=>$hotel_id);
 
         $res_list = $m_stock_reord->getList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
@@ -959,6 +980,9 @@ class StockController extends BaseController {
         }
 
         $this->assign('batch_no',$batch_no);
+        $this->assign('goods_id',$goods_id);
+        $this->assign('unit_id',$unit_id);
+        $this->assign('hotel_id',$hotel_id);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -969,32 +993,55 @@ class StockController extends BaseController {
     public function writeofflist(){
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
-        $goods_id = I('goods_id',0,'intval');
-        $unit_id = I('unit_id',0,'intval');
-        $hotel_id = I('hotel_id',0,'intval');
+        $wo_status = I('wo_status',0,'intval');
+        $area_id = I('area_id',0,'intval');
+        $hotel_name = I('hotel_name','','trim');
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
 
-        $departmentusers = array();
+        $all_wo_status = array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过');
+        $area_arr = $departmentuser_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
         $res_department_users = $m_department_user->getAll('id,name',array('status'=>1),0,10000,'id asc');
         foreach ($res_department_users as $v){
-            $departmentusers[$v['id']]=$v;
+            $departmentuser_arr[$v['id']]=$v;
         }
 
-        $where = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.type'=>7);
+        $where = array('a.type'=>7);
+        if($wo_status){
+            $where['a.wo_status'] = $wo_status;
+        }
+        if($area_id){
+            $where['hotel.area_id'] = $area_id;
+        }
+        if(!empty($hotel_name)){
+            $where['hotel.name'] = array('like',"%$hotel_name%");
+        }
+        if(!empty($start_time) && !empty($end_time)){
+            $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
+            $now_end_time = date('Y-m-d 23:59:59',strtotime($end_time));
+            $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+        }
+
         $start = ($pageNum-1)*$size;
-        $fields = 'a.*,goods.name,goods.specification_id,stock.serial_number,stock.area_id';
+        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,stock.area_id,hotel.name as hotel_name';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
-            $all_wo_status = array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过');
             $all_op_user = C('STOCK_MANAGER');
             $all_reason = C('STOCK_USE_TYPE');
             $oss_host = get_oss_host();
             $m_user = new \Admin\Model\SmallappUserModel();
             foreach ($res_list['list'] as $v){
                 $imgs = array();
-                $v['department_user']=$departmentusers[$v['department_user_id']]['name'];
+                $v['department_user']=$departmentuser_arr[$v['department_user_id']]['name'];
                 $v['op_user'] = $all_op_user[$v['op_openid']];
                 $v['wo_reason_type_str'] = $all_reason[$v['wo_reason_type']];
                 if(!empty($v['wo_data_imgs'])){
@@ -1012,9 +1059,13 @@ class StockController extends BaseController {
                 $data_list[] = $v;
             }
         }
-        $this->assign('goods_id',$goods_id);
-        $this->assign('unit_id',$unit_id);
-        $this->assign('hotel_id',$hotel_id);
+        $this->assign('area_id', $area_id);
+        $this->assign('area', $area_arr);
+        $this->assign('start_time',$start_time);
+        $this->assign('end_time',$end_time);
+        $this->assign('hotel_name',$hotel_name);
+        $this->assign('wo_status',$wo_status);
+        $this->assign('all_wo_status',$all_wo_status);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -1030,11 +1081,48 @@ class StockController extends BaseController {
 
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
-
             $condition = array('id'=>$id);
             $data = array('audit_user_id'=>$sysuser_id,'wo_status'=>$wo_status,'update_time'=>date('Y-m-d H:i:s'));
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $m_stock_record->updateData($condition, $data);
+            if($wo_status==2){
+                $res_record = $m_stock_record->getInfo(array('id'=>$id));
+                $goods_id = $res_record['goods_id'];
+                $m_goodsconfig = new \Admin\Model\GoodsConfigModel();
+                $res_goodsintegral = $m_goodsconfig->getInfo(array('goods_id'=>$goods_id,'type'=>10));
+                if(!empty($res_goodsintegral) && $res_goodsintegral['integral']>0){
+                    $now_integral = $res_goodsintegral['integral'];
+                    $m_unit = new \Admin\Model\UnitModel();
+                    $res_unit = $m_unit->getInfo(array('id'=>$res_record['unit_id']));
+                    $unit_num = intval($res_unit['convert_type']);
+                    $now_integral = $now_integral*$unit_num;
+
+                    $m_stock = new \Admin\Model\StockModel();
+                    $res_stock = $m_stock->getInfo(array('id'=>$res_record['stock_id']));
+                    if($res_stock['hotel_id']>0){
+                        $m_userintegral = new \Admin\Model\UserIntegralModel();
+                        $res_integral = $m_userintegral->getInfo(array('openid'=>$res_record['op_openid']));
+
+                        if(!empty($res_integral)){
+                            $userintegral = $res_integral['integral']+$now_integral;
+                            $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
+                        }else{
+                            $m_userintegral->add(array('openid'=>$res_record['op_openid'],'integral'=>$now_integral));
+                        }
+                        $m_hotel = new \Admin\Model\HotelModel();
+                        $field = 'hotel.id as hotel_id,hotel.name as hotel_name,hotel.hotel_box_type,area.id as area_id,area.region_name as area_name';
+                        $where = array('hotel.id'=>$res_stock['hotel_id']);
+                        $res_hotel = $m_hotel->getHotelById($field,$where);
+                        $integralrecord_data = array('openid'=>$res_record['op_openid'],'area_id'=>$res_hotel['area_id'],'area_name'=>$res_hotel['area_name'],
+                            'hotel_id'=>$res_hotel['hotel_id'],'hotel_name'=>$res_hotel['hotel_name'],'hotel_box_type'=>$res_hotel['hotel_box_type'],
+                            'integral'=>$now_integral,'jdorder_id'=>$id,'content'=>1,'type'=>17,
+                            'integral_time'=>date('Y-m-d H:i:s'));
+                        $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
+                        $m_integralrecord->add($integralrecord_data);
+                    }
+                }
+
+            }
             $this->output('操作完成', 'stock/writeofflist');
         }else{
             $condition = array('id'=>$id);

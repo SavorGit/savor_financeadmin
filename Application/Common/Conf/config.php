@@ -100,7 +100,7 @@ $config['MANGER_STATE'] = array(
     '2'=>'审核通过',
     '3'=>'审核不通过',
 );
-$config['STOCK_IN_TYPES'] = array('11'=>'采购入库','12'=>'调拨入库','13'=>'餐厅退回','14'=>'其他');
+$config['STOCK_IN_TYPES'] = array('11'=>'采购入库','12'=>'调拨入库','13'=>'餐厅退回');
 $config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23'=>'赠送餐厅','24'=>'销售','25'=>'其他消耗');
 $config['STOCK_USE_TYPE'] = array('1'=>'餐厅售卖','2'=>'品鉴酒','3'=>'活动');
 $config['STOCK_REASON'] = array(
@@ -262,6 +262,7 @@ $config['STOCK_MANAGER']=array(
     'o9GS-4t61F_qSPmwEaAtd9v6f6DY'=>'刘斌',
     'o9GS-4icfJEZSX8_qDs6pB_nD30o'=>'李昭',
     'o9GS-4iinyutBsN73FJFjdZC3rWg'=>'赵翠燕',
+    'o9GS-4ix2RgA41QyHjMqAljsvbvY'=>'黎晓欣',
     'o9GS-4kpg8khL72nVZKDsgn0ioDM'=>'陈灵玉',
     'o9GS-4mouXnk_WhBAL-Zhsg0YbOE'=>'余穗筠',
     'o9GS-4mTCZvkRCDRnkg77QqohMI4'=>'胡子凤',
