@@ -21,6 +21,17 @@ class StockRecordModel extends BaseModel{
         return $res;
     }
 
+    public function getAllStock($fileds,$where,$order,$group=''){
+        $res = $this->alias('a')
+            ->field($fileds)
+            ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+            ->where($where)
+            ->order($order)
+            ->group($group)
+            ->select();
+        return $res;
+    }
+
     public function getList($fields,$where, $order='a.id desc', $start=0,$size=5){
         $list = $this->alias('a')
             ->join('savor_finance_stock stock on a.stock_id=stock.id','left')

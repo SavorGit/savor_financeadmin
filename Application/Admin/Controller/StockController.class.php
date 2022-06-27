@@ -329,6 +329,7 @@ class StockController extends BaseController {
         $keyword = I('keyword','','trim');
         $io_type = I('io_type',0,'intval');
         $department_id = I('department_id',0,'intval');
+        $area_id = I('area_id',0,'intval');
 
         $io_types = C('STOCK_OUT_TYPES');
         $where = array('type'=>20);
@@ -341,7 +342,15 @@ class StockController extends BaseController {
         if($io_type){
             $where['io_type'] = $io_type;
         }
-        $department_arr = $departmentuser_arr = array();
+        if($area_id){
+            $where['area_id'] = $area_id;
+        }
+        $department_arr = $departmentuser_arr = $area_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
 
         $m_department = new \Admin\Model\DepartmentModel();
         $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
@@ -366,6 +375,8 @@ class StockController extends BaseController {
                 $data_list[] = $v;
             }
         }
+        $this->assign('area', $area_arr);
+        $this->assign('area_id', $area_id);
         $this->assign('department_id', $department_id);
         $this->assign('io_type', $io_type);
         $this->assign('departments', $res_departments);
@@ -600,8 +611,12 @@ class StockController extends BaseController {
             $m_stock_record = new \Admin\Model\StockRecordModel();
             foreach ($res_list['list'] as $v){
                 $goods_id = $v['goods_id'];
-                $fields = 'sum(total_fee) as total_fee,sum(total_amount) as total_amount';
-                $res_goods_record = $m_stock_record->getAll($fields,array('goods_id'=>$goods_id,'type'=>array('in',array(1,2,3))),0,1,'id desc');
+                $fields = 'sum(a.total_fee) as total_fee,sum(a.total_amount) as total_amount';
+                $swhere = array('a.goods_id'=>$goods_id,'a.type'=>array('in',array(1,2,3)),'a.dstatus'=>1);
+                if($area_id){
+                    $swhere['stock.area_id'] = $area_id;
+                }
+                $res_goods_record = $m_stock_record->getAllStock($fields,$swhere,'a.id desc','');
                 $price = $total_fee = $stock_num = 0;
                 if(!empty($res_goods_record[0]['total_fee']) && !empty($res_goods_record[0]['total_amount'])){
                     $total_fee = intval($res_goods_record[0]['total_fee']);
@@ -804,11 +819,22 @@ class StockController extends BaseController {
     public function hotelstocklist(){
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
+        $area_id = I('area_id',0,'intval');
         $hotel_name = I('hotel_name','','trim');
+
+        $area_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
 
         $where = array('stock.hotel_id'=>array('gt',0),'stock.type'=>20);
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
+        }
+        if($area_id){
+            $where['stock.area_id'] = $area_id;
         }
 
         $start = ($pageNum-1)*$size;
@@ -825,7 +851,7 @@ class StockController extends BaseController {
                 $goods_id = $v['goods_id'];
                 $unit_id = $v['unit_id'];
                 $rfileds = 'sum(a.total_amount) as total_amount,sum(a.total_fee) as total_fee,a.type';
-                $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id);
+                $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1);
                 $rwhere['a.type'] = array('in',array(2,3));
                 $rgroup = 'a.type';
                 $res_record = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','',$rgroup);
@@ -865,6 +891,8 @@ class StockController extends BaseController {
             }
         }
 
+        $this->assign('area',$area_arr);
+        $this->assign('area_id',$area_id);
         $this->assign('hotel_name',$hotel_name);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
@@ -886,7 +914,7 @@ class StockController extends BaseController {
 //        $all_types = array('2'=>'出库','3'=>'拆箱','6'=>'报损','7'=>'核销');
         $all_types = array('2'=>'出库','6'=>'报损','7'=>'核销');
 
-        $where = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id);
+        $where = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1);
         if($type){
             $where['a.type'] = $type;
         }else{
@@ -928,7 +956,18 @@ class StockController extends BaseController {
                 $v['type_str'] = $all_types[$v['type']];
                 if($v['type']==2){
                     $v['total_amount'] = abs($v['total_amount']);
+                }else{
+                    if($v['type']==7){
+                        $wowhere = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,
+                            'a.type'=>7,'a.batch_no'=>$v['batch_no'],'a.dstatus'=>1);
+                        $wowhere['a.wo_status']= array('in',array(1,2));
+                        $res_wonum = $m_stock_record->getAllStock('sum(a.total_amount) as total_amount',$wowhere,'a.id desc');
+                        if(!empty($res_wonum[0]['total_amount'])){
+                            $v['total_amount'] = $res_wonum[0]['total_amount'];
+                        }
+                    }
                 }
+
                 if($v['total_amount']>0){
                     $v['total_amount'] = '+'.$v['total_amount'];
                 }
@@ -955,14 +994,17 @@ class StockController extends BaseController {
         $goods_id = I('goods_id',0,'intval');
         $unit_id = I('unit_id',0,'intval');
         $hotel_id = I('hotel_id',0,'intval');
+        $type = I('type',0,'intval');
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
 
         $start = ($pageNum-1)*$size;
         $m_stock_reord = new \Admin\Model\StockRecordModel();
         $fields = 'a.id,a.idcode,a.price,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category';
-        $where = array('a.batch_no'=>$batch_no,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'stock.hotel_id'=>$hotel_id);
-
+        $where = array('a.batch_no'=>$batch_no,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1,'stock.hotel_id'=>$hotel_id);
+        if($type==7){
+            $where['a.wo_status'] = array('in',array(1,2));
+        }
         $res_list = $m_stock_reord->getList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list)){
@@ -983,6 +1025,7 @@ class StockController extends BaseController {
         $this->assign('goods_id',$goods_id);
         $this->assign('unit_id',$unit_id);
         $this->assign('hotel_id',$hotel_id);
+        $this->assign('type',$type);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -1002,7 +1045,6 @@ class StockController extends BaseController {
         $all_wo_status = array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过');
         $area_arr = $departmentuser_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
-
         $res_area = $m_area->getHotelAreaList();
         foreach ($res_area as $v){
             $area_arr[$v['id']]=$v;
@@ -1078,6 +1120,12 @@ class StockController extends BaseController {
 
         if(IS_POST){
             $wo_status = I('post.wo_status',0,'intval');
+            $is_manual = I('post.is_manual',0,'intval');
+            $integral = I('post.integral',0,'intval');
+            $wo_reason_type = I('post.wo_reason_type',0,'intval');//'1'=>'餐厅售卖','2'=>'品鉴酒','3'=>'活动'
+            if($is_manual==1 && $integral==0){
+                $this->output('请输入积分', "stock/writeofflist", 2, 0);
+            }
 
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
@@ -1087,19 +1135,26 @@ class StockController extends BaseController {
             $m_stock_record->updateData($condition, $data);
             if($wo_status==2){
                 $res_record = $m_stock_record->getInfo(array('id'=>$id));
-                $goods_id = $res_record['goods_id'];
-                $m_goodsconfig = new \Admin\Model\GoodsConfigModel();
-                $res_goodsintegral = $m_goodsconfig->getInfo(array('goods_id'=>$goods_id,'type'=>10));
+                if($is_manual==1){
+                    $res_goodsintegral = array('integral'=>$integral);
+                }else{
+                    $goods_id = $res_record['goods_id'];
+                    $m_goodsconfig = new \Admin\Model\GoodsConfigModel();
+                    $res_goodsintegral = $m_goodsconfig->getInfo(array('goods_id'=>$goods_id,'type'=>10));
+                }
+
                 if(!empty($res_goodsintegral) && $res_goodsintegral['integral']>0){
                     $now_integral = $res_goodsintegral['integral'];
-                    $m_unit = new \Admin\Model\UnitModel();
-                    $res_unit = $m_unit->getInfo(array('id'=>$res_record['unit_id']));
-                    $unit_num = intval($res_unit['convert_type']);
-                    $now_integral = $now_integral*$unit_num;
+                    if($is_manual==0){
+                        $m_unit = new \Admin\Model\UnitModel();
+                        $res_unit = $m_unit->getInfo(array('id'=>$res_record['unit_id']));
+                        $unit_num = intval($res_unit['convert_type']);
+                        $now_integral = $now_integral*$unit_num;
+                    }
 
                     $m_stock = new \Admin\Model\StockModel();
                     $res_stock = $m_stock->getInfo(array('id'=>$res_record['stock_id']));
-                    if($res_stock['hotel_id']>0){
+                    if($res_stock['hotel_id']>0 && $wo_reason_type==1){
                         $m_userintegral = new \Admin\Model\UserIntegralModel();
                         $res_integral = $m_userintegral->getInfo(array('openid'=>$res_record['op_openid']));
 
@@ -1197,13 +1252,10 @@ class StockController extends BaseController {
 
     public function auditreportedloss(){
         $id = I('id',0,'intval');
-
         if(IS_POST){
             $status = I('post.status',0,'intval');
-
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
-
             $condition = array('id'=>$id);
             $data = array('audit_user_id'=>$sysuser_id,'status'=>$status,'update_time'=>date('Y-m-d H:i:s'));
             $m_stock_record = new \Admin\Model\StockRecordModel();
@@ -1216,6 +1268,56 @@ class StockController extends BaseController {
             $this->assign('vinfo',$res_info);
             $this->display();
         }
+    }
+
+    public function idcodesearch(){
+        $idcode = I('idcode','','trim');
+
+        $data_list = array();
+        if(!empty($idcode)){
+            $qrcontent = decrypt_data($idcode);
+            $qr_id = intval($qrcontent);
+            $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
+            $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
+            if(!empty($res_qrcontent)){
+                $all_type = C('STOCK_RECORD_TYPE');
+                $wo_status = C('STOCK_WRITEOFF_STATUS');
+                $m_stock_record = new \Admin\Model\StockRecordModel();
+                $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,unit.name as unit_name,a.wo_status,a.add_time';
+                if($res_qrcontent['type']==1){
+                    $parent_id = $qr_id;
+                    $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode),'a.id desc','0,1','');
+                    if(!empty($res_list)){
+                        $type_str = $all_type[$res_list[0]['type']];
+                        if($res_list[0]['type']==7){
+                            $type_str.="（{$wo_status[$res_list[0]['wo_status']]}）";
+                        }
+                        $res_list[0]['type_str']= $type_str;
+                        $data_list = $res_list;
+                    }
+                }else{
+                    $parent_id = $res_qrcontent['parent_id'];
+                }
+                $res_allqrcode = $m_qrcode_content->getDataList('id',array('parent_id'=>$parent_id),'id asc');
+                foreach ($res_allqrcode as $v){
+                    $qrcontent = encrypt_data($v['id']);
+                    $res_record = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$qrcontent),'a.id desc','0,1','');
+                    if(!empty($res_record)){
+                        $info = $res_record[0];
+                        $type_str = $all_type[$info['type']];
+                        if($info['type']==7){
+                            $type_str.="（{$wo_status[$info['wo_status']]}）";
+                        }
+
+                        $info['type_str']= $type_str;
+                        $data_list[] = $info;
+                    }
+                }
+            }
+        }
+        $this->assign('idcode',$idcode);
+        $this->assign('datalist',$data_list);
+        $this->display();
     }
 
     public function getAjaxStockUnit(){
