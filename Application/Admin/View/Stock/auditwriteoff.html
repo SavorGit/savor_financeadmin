@@ -23,9 +23,37 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    核销原因:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="wo_reason_type" class="form-control bs-select" data-size="20" >
+                        <volist name=":C('STOCK_USE_TYPE')" id="wrtinfo">
+                            <option value="{$key}" <if condition="$vinfo['wo_reason_type'] eq $key"> selected </if> > {$wrtinfo}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
 
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    是否手动发放积分:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="is_manual" id="integral_is_manual" class="form-control bs-select" data-size="20" >
+                        <option value="0" >否</option>
+                        <option value="1" >是</option>
+                    </select>
+                </div>
+            </div>
 
-
+            <div class="form-group row" id="goods_integral">
+                <label class="col-xs-12 col-sm-2 control-label">积分：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input name="integral" type="number" class="form-control" min="0" max="200000"/>
+                </div>
+            </div>
 
         </div>
         <div class="modal-footer">
@@ -34,3 +62,15 @@
         </div>
     </form>
 </div>
+
+<script>
+    $('#integral_is_manual').change(function() {
+        if($(this).val()==1){
+            $('#goods_integral').show();
+        }else{
+            $('#goods_integral').hide();
+        }
+    })
+    $('#integral_is_manual').trigger('change');
+
+</script>
