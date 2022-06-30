@@ -1283,7 +1283,7 @@ class StockController extends BaseController {
                 $all_type = C('STOCK_RECORD_TYPE');
                 $wo_status = C('STOCK_WRITEOFF_STATUS');
                 $m_stock_record = new \Admin\Model\StockRecordModel();
-                $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,unit.name as unit_name,a.wo_status,a.add_time';
+                $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,unit.name as unit_name,a.wo_status,a.dstatus,a.add_time';
                 if($res_qrcontent['type']==1){
                     $parent_id = $qr_id;
                     $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode),'a.id desc','0,1','');
@@ -1293,6 +1293,12 @@ class StockController extends BaseController {
                             $type_str.="（{$wo_status[$res_list[0]['wo_status']]}）";
                         }
                         $res_list[0]['type_str']= $type_str;
+                        if($res_list[0]['dstatus']==2){
+                            $dstatus_str = '删除';
+                        }else{
+                            $dstatus_str = '正常';
+                        }
+                        $res_list[0]['dstatus_str']= $dstatus_str;
                         $data_list = $res_list;
                     }
                 }else{
@@ -1308,7 +1314,12 @@ class StockController extends BaseController {
                         if($info['type']==7){
                             $type_str.="（{$wo_status[$info['wo_status']]}）";
                         }
-
+                        if($info['dstatus']==2){
+                            $dstatus_str = '删除';
+                        }else{
+                            $dstatus_str = '正常';
+                        }
+                        $info['dstatus_str']= $dstatus_str;
                         $info['type_str']= $type_str;
                         $data_list[] = $info;
                     }
