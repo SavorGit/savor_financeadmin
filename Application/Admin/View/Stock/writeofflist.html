@@ -86,6 +86,7 @@
                     <thead>
                     <tr id="post">
                         <th>ID</th>
+                        <th>酒楼ID</th>
                         <th>酒楼名称</th>
                         <th>唯一识别码</th>
                         <th>商品名称</th>
@@ -102,6 +103,7 @@
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
                             <td data-title="ID">{$dinfo.id}</td>
+                            <td data-title="酒楼ID">{$dinfo.hotel_id}</td>
                             <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
                             <td data-title="唯一识别码">{$dinfo.idcode}</td>
                             <td data-title="商品名称">{$dinfo.name}</td>
