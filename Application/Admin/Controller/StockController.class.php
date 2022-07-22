@@ -868,7 +868,7 @@ class StockController extends BaseController {
                     }
                 }
                 $rwhere['a.type']=7;
-                $rwhere['a.wo_status']= array('in',array(1,2));
+                $rwhere['a.wo_status']= array('in',array(1,2,4));
                 $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
                 if(!empty($res_worecord[0]['total_amount'])){
                     $wo_num = $res_worecord[0]['total_amount'];
@@ -960,7 +960,7 @@ class StockController extends BaseController {
                     if($v['type']==7){
                         $wowhere = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,
                             'a.type'=>7,'a.batch_no'=>$v['batch_no'],'a.dstatus'=>1);
-                        $wowhere['a.wo_status']= array('in',array(1,2));
+                        $wowhere['a.wo_status']= array('in',array(1,2,4));
                         $res_wonum = $m_stock_record->getAllStock('sum(a.total_amount) as total_amount',$wowhere,'a.id desc');
                         if(!empty($res_wonum[0]['total_amount'])){
                             $v['total_amount'] = $res_wonum[0]['total_amount'];
@@ -1003,7 +1003,7 @@ class StockController extends BaseController {
         $fields = 'a.id,a.idcode,a.price,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category';
         $where = array('a.batch_no'=>$batch_no,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1,'stock.hotel_id'=>$hotel_id);
         if($type==7){
-            $where['a.wo_status'] = array('in',array(1,2));
+            $where['a.wo_status'] = array('in',array(1,2,4));
         }
         $res_list = $m_stock_reord->getList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
@@ -1042,7 +1042,7 @@ class StockController extends BaseController {
         $start_time = I('start_time','');
         $end_time = I('end_time','');
 
-        $all_wo_status = array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过');
+        $all_wo_status = C('STOCK_WRITEOFF_STATUS');
         $area_arr = $departmentuser_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
