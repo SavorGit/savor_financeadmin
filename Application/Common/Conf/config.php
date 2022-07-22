@@ -109,7 +109,7 @@ $config['STOCK_REASON'] = array(
     '3'=>array('id'=>3,'name'=>'活动')
 );
 $config['STOCK_RECORD_TYPE']=array('1'=>'入库','2'=>'出库','3'=>'拆箱','4'=>'领取','5'=>'验收','6'=>'报损','7'=>'核销');
-$config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过');
+$config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过','4'=>'待补充资料');
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
     'baseset'=>'基础设置',
