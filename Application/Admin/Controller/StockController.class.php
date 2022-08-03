@@ -1130,7 +1130,7 @@ class StockController extends BaseController {
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
             $condition = array('id'=>$id);
-            $data = array('audit_user_id'=>$sysuser_id,'wo_status'=>$wo_status,'update_time'=>date('Y-m-d H:i:s'));
+            $data = array('audit_user_id'=>$sysuser_id,'wo_reason_type'=>$wo_reason_type,'wo_status'=>$wo_status,'update_time'=>date('Y-m-d H:i:s'));
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $m_stock_record->updateData($condition, $data);
             if($wo_status==2){
