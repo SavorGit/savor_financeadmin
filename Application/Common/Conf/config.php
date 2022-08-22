@@ -253,7 +253,10 @@ $config['FINACE_CONTRACT'] = array(
         )
     ),
 );
-
+$config['MEMBER_INTEGRAL']=array(
+    'invite_vip_reward_saler'=>200,
+    'buy_reward_saler'=>100,
+);
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
     'o9GS-4oZfWgjT0lySkJskdlflNrw'=>'黄勇',
