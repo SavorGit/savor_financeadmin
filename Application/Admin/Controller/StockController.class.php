@@ -1098,6 +1098,7 @@ class StockController extends BaseController {
                 $v['imgs']=$imgs;
                 $res_user = $m_user->getInfo(array('openid'=>$v['op_openid']));
                 $v['username'] = $res_user['nickname'];
+                $v['usermobile'] = $res_user['mobile'];
                 $data_list[] = $v;
             }
         }
