@@ -254,8 +254,8 @@ $config['FINACE_CONTRACT'] = array(
     ),
 );
 $config['MEMBER_INTEGRAL']=array(
-    'invite_vip_reward_saler'=>200,
-    'buy_reward_saler'=>100,
+    'invite_vip_reward_saler'=>10,
+    'buy_reward_saler'=>10,
 );
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
