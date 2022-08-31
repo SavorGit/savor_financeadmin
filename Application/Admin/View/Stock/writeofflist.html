@@ -132,6 +132,21 @@
                                     </a>
                                 </if>
 
+                                <if condition="($dinfo['wo_status'] eq 2) AND ($dinfo['recycle_status'] eq 1)">
+
+                                    <if condition="$dinfo['recycle_status'] eq 1">
+                                        <a title="审核回收状态" data-tip="审核回收状态" target="dialog" mask="true" href="{$host_name}/stock/auditrecycle?id={$dinfo.id}" class="btn btn-success btn-icon">
+                                            <i class="fa fa-recycle"></i>
+                                        </a>
+                                        <else/>
+                                        <a onclick="alertMsg.error('请勿重复进行回收')" href="#" class="btn btn-default btn-icon">
+                                            <i class="fa fa-recycle"></i>
+                                        </a>
+                                    </if>
+
+
+                                </if>
+
                             </td>
                         </tr>
                     </foreach>

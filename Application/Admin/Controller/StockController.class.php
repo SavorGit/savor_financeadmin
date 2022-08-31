@@ -1136,14 +1136,14 @@ class StockController extends BaseController {
             $m_stock_record->updateData($condition, $data);
             if($wo_status==2){
                 $res_record = $m_stock_record->getInfo(array('id'=>$id));
+                $goods_id = $res_record['goods_id'];
+                $m_goodsconfig = new \Admin\Model\GoodsConfigModel();
+
                 if($is_manual==1){
                     $res_goodsintegral = array('integral'=>$integral);
                 }else{
-                    $goods_id = $res_record['goods_id'];
-                    $m_goodsconfig = new \Admin\Model\GoodsConfigModel();
                     $res_goodsintegral = $m_goodsconfig->getInfo(array('goods_id'=>$goods_id,'type'=>10));
                 }
-
                 if(!empty($res_goodsintegral) && $res_goodsintegral['integral']>0){
                     $now_integral = $res_goodsintegral['integral'];
                     if($is_manual==0){
@@ -1152,7 +1152,14 @@ class StockController extends BaseController {
                         $unit_num = intval($res_unit['convert_type']);
                         $now_integral = $now_integral*$unit_num;
                     }
-
+                    $integral_status = 1;
+                    $is_recycle = 0;
+                    $res_goodsrecycle = $m_goodsconfig->getInfo(array('goods_id'=>$goods_id,'type'=>20,'status'=>1));
+                    if(!empty($res_goodsrecycle)){
+                        $is_recycle = 1;
+                        $integral_status = 2;
+                        $m_stock_record->updateData($condition, array('recycle_status'=>1));
+                    }
                     $m_stock = new \Admin\Model\StockModel();
                     $res_stock = $m_stock->getInfo(array('id'=>$res_record['stock_id']));
                     if($res_stock['hotel_id']>0 && $wo_reason_type==1){
@@ -1162,19 +1169,23 @@ class StockController extends BaseController {
                         $res_staff = $m_staff->getMerchantStaff($field_staff,$where);
                         if($res_staff[0]['is_integral']==1){
                             $integralrecord_openid = $res_record['op_openid'];
-                            $m_userintegral = new \Admin\Model\UserIntegralModel();
-                            $res_integral = $m_userintegral->getInfo(array('openid'=>$res_record['op_openid']));
-                            if(!empty($res_integral)){
-                                $userintegral = $res_integral['integral']+$now_integral;
-                                $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
-                            }else{
-                                $m_userintegral->add(array('openid'=>$res_record['op_openid'],'integral'=>$now_integral));
+                            if($is_recycle==0){
+                                $m_userintegral = new \Admin\Model\UserIntegralModel();
+                                $res_integral = $m_userintegral->getInfo(array('openid'=>$res_record['op_openid']));
+                                if(!empty($res_integral)){
+                                    $userintegral = $res_integral['integral']+$now_integral;
+                                    $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
+                                }else{
+                                    $m_userintegral->add(array('openid'=>$res_record['op_openid'],'integral'=>$now_integral));
+                                }
                             }
                         }else{
                             $integralrecord_openid = $res_stock['hotel_id'];
-                            $m_merchant = new \Admin\Model\MerchantModel();
-                            $where = array('id'=>$res_staff[0]['merchant_id']);
-                            $m_merchant->where($where)->setInc('integral',$now_integral);
+                            if($is_recycle==0){
+                                $m_merchant = new \Admin\Model\MerchantModel();
+                                $where = array('id'=>$res_staff[0]['merchant_id']);
+                                $m_merchant->where($where)->setInc('integral',$now_integral);
+                            }
                         }
 
                         $m_hotel = new \Admin\Model\HotelModel();
@@ -1183,7 +1194,7 @@ class StockController extends BaseController {
                         $res_hotel = $m_hotel->getHotelById($field,$where);
                         $integralrecord_data = array('openid'=>$integralrecord_openid,'area_id'=>$res_hotel['area_id'],'area_name'=>$res_hotel['area_name'],
                             'hotel_id'=>$res_hotel['hotel_id'],'hotel_name'=>$res_hotel['hotel_name'],'hotel_box_type'=>$res_hotel['hotel_box_type'],
-                            'integral'=>$now_integral,'jdorder_id'=>$id,'content'=>1,'type'=>17,
+                            'integral'=>$now_integral,'jdorder_id'=>$id,'content'=>1,'status'=>$integral_status,'type'=>17,
                             'integral_time'=>date('Y-m-d H:i:s'));
                         $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
                         $m_integralrecord->add($integralrecord_data);
@@ -1226,7 +1237,7 @@ class StockController extends BaseController {
                                     $res_hotel = $m_hotel->getHotelById($field,$where);
                                     $integralrecord_data = array('openid'=>$integralrecord_openid,'area_id'=>$res_hotel['area_id'],'area_name'=>$res_hotel['area_name'],
                                         'hotel_id'=>$res_hotel['hotel_id'],'hotel_name'=>$res_hotel['hotel_name'],'hotel_box_type'=>$res_hotel['hotel_box_type'],
-                                        'integral'=>$now_integral,'content'=>1,'type'=>19,
+                                        'integral'=>$now_integral,'jdorder_id'=>$id,'content'=>1,'type'=>19,
                                         'integral_time'=>date('Y-m-d H:i:s'));
                                     $m_integralrecord->add($integralrecord_data);
                                 }
@@ -1234,13 +1245,67 @@ class StockController extends BaseController {
                         }
                     }
                 }
-
             }
             $this->output('操作完成', 'stock/writeofflist');
         }else{
             $condition = array('id'=>$id);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $res_info = $m_stock_record->getInfo($condition);
+            $this->assign('vinfo',$res_info);
+            $this->display();
+        }
+    }
+
+    public function auditrecycle(){
+        $id = I('id',0,'intval');
+        $condition = array('id'=>$id);
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_info = $m_stock_record->getInfo($condition);
+        if(IS_POST){
+            if($res_info['wo_status']!=2){
+                $this->output('请先完成审核核销状态', "stock/writeofflist", 2, 0);
+            }
+            if($res_info['recycle_status']==2){
+                $this->output('请勿重复进行审核回收', "stock/writeofflist", 2, 0);
+            }
+            $status = I('post.recycle_status',0,'intval');
+            $userinfo = session('sysUserInfo');
+            $sysuser_id = $userinfo['id'];
+            $condition = array('id'=>$id);
+            $data = array('recycle_audit_user_id'=>$sysuser_id,'recycle_status'=>$status);
+            if($status==2){
+                $data['recycle_time'] = date('Y-m-d H:i:s');
+                $m_stock_record = new \Admin\Model\StockRecordModel();
+                $m_stock_record->updateData($condition, $data);
+
+                $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
+                $res_recordinfo = $m_integralrecord->getInfo(array('jdorder_id'=>$id,'type'=>17,'status'=>2));
+                if(!empty($res_recordinfo)){
+                    $m_integralrecord->updateData(array('id'=>$res_recordinfo['id']),array('status'=>1,'integral_time'=>date('Y-m-d H:i:s')));
+
+                    $now_integral = $res_recordinfo['integral'];
+                    $where = array('merchant.hotel_id'=>$res_recordinfo['hotel_id'],'a.status'=>1,'merchant.status'=>1);
+                    $field_staff = 'a.openid,a.level,merchant.type,merchant.id as merchant_id,merchant.is_integral';
+                    $m_staff = new \Admin\Model\StaffModel();
+                    $res_staff = $m_staff->getMerchantStaff($field_staff,$where);
+                    if($res_staff[0]['is_integral']==1){
+                        $m_userintegral = new \Admin\Model\UserIntegralModel();
+                        $res_integral = $m_userintegral->getInfo(array('openid'=>$res_recordinfo['openid']));
+                        if(!empty($res_integral)){
+                            $userintegral = $res_integral['integral']+$now_integral;
+                            $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
+                        }else{
+                            $m_userintegral->add(array('openid'=>$res_recordinfo['openid'],'integral'=>$now_integral));
+                        }
+                    }else{
+                        $m_merchant = new \Admin\Model\MerchantModel();
+                        $where = array('id'=>$res_staff[0]['merchant_id']);
+                        $m_merchant->where($where)->setInc('integral',$now_integral);
+                    }
+                }
+            }
+            $this->output('操作完成', 'stock/writeofflist');
+        }else{
             $this->assign('vinfo',$res_info);
             $this->display();
         }
