@@ -12,24 +12,51 @@
 
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">
+                    类型:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="type" id="config_type" class="form-control bs-select" title="请选择..." data-size="20" required>
+                        <volist name=":C('STOCK_REASON')" id="rinfo">
+                            <option value="{$rinfo.id}" <if condition="$rinfo.id eq $vinfo['type']"> selected </if> > {$rinfo.name}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row" id="defaultpic">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    实物图片：
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <div class="fileinput fileinput-new" data-fileinput>
+                        <div class="fileinput-preview thumbnail" data-trigger="fileinput">
+                            <a data-target="#modal-file" href="javascript:void(0)">
+                                <if condition="($vinfo['oss_addr'] eq 'NULL') OR $vinfo['oss_addr'] eq ''">
+                                    <img id="media_idimg" src="/Public/admin/assets/img/noimage.png" border="0" />
+                                    <else />
+                                    <img id="media_idimg" src="{$vinfo.oss_addr}" border="0" />
+                                </if>
+                                <span id="media_idimgname"></span>
+                            </a>
+                        </div>
+                        <div>
+                            <a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=media_id&rtype=2" data-browse-file>
+                                选择图片
+                            </a>
+                            <input type="hidden" name="media_id" id="media_id" value="{$vinfo.media_id}" >
+                            <a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row" id="ng-required">
+                <label class="col-xs-12 col-sm-2 control-label">
                     是否必填：
                 </label>
                 <div class="col-xs-12 col-sm-10">
                     <input type="hidden" name="is_required" value="0">
                     <input type="checkbox" value="1" class="make-switch status" name="is_required" data-size="small" data-on-text="开启" data-off-text="关闭" <if condition="$vinfo.is_required eq 1" >checked</if>>
-                </div>
-            </div>
-
-            <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">
-                    类型:
-                </label>
-                <div class="col-xs-12 col-sm-10">
-                    <select name="type" class="form-control bs-select" title="请选择..." data-size="20" required>
-                        <volist name=":C('STOCK_REASON')" id="rinfo">
-                            <option value="{$rinfo.id}" <if condition="$rinfo.id eq $vinfo['type']"> selected </if> > {$rinfo.name}</option>
-                        </volist>
-                    </select>
                 </div>
             </div>
 
@@ -50,3 +77,16 @@
         </div>
     </form>
 </div>
+<script>
+    $('#config_type').change(function() {
+        if($(this).val()==20){
+            $('#defaultpic').show();
+            $('#ng-required').hide();
+        }else{
+            $('#ng-required').show();
+            $('#defaultpic').hide();
+        }
+    })
+    $('#config_type').trigger('change');
+
+</script>

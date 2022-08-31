@@ -104,12 +104,14 @@ $config['STOCK_IN_TYPES'] = array('11'=>'采购入库','12'=>'调拨入库','13'
 $config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23'=>'赠送餐厅','24'=>'销售','25'=>'其他消耗');
 $config['STOCK_USE_TYPE'] = array('1'=>'餐厅售卖','2'=>'品鉴酒','3'=>'活动');
 $config['STOCK_REASON'] = array(
-    '1'=>array('id'=>1,'name'=>'售卖'),
-    '2'=>array('id'=>2,'name'=>'品鉴酒'),
-    '3'=>array('id'=>3,'name'=>'活动')
+    '1'=>array('id'=>1,'name'=>'售卖(照片)'),
+    '2'=>array('id'=>2,'name'=>'品鉴酒(照片)'),
+    '3'=>array('id'=>3,'name'=>'活动(照片)'),
+    '20'=>array('id'=>20,'name'=>'物料(实物)')
 );
 $config['STOCK_RECORD_TYPE']=array('1'=>'入库','2'=>'出库','3'=>'拆箱','4'=>'领取','5'=>'验收','6'=>'报损','7'=>'核销');
 $config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过','4'=>'待补充资料');
+$config['STOCK_RECYLE_STATUS']=array('1'=>'待收回物料','2'=>'已收回物料');
 $config['MANGER_KEY'] = array(
     'system'=>'系统管理',
     'baseset'=>'基础设置',
@@ -254,8 +256,8 @@ $config['FINACE_CONTRACT'] = array(
     ),
 );
 $config['MEMBER_INTEGRAL']=array(
-    'invite_vip_reward_saler'=>10,
-    'buy_reward_saler'=>10,
+    'invite_vip_reward_saler'=>0,
+    'buy_reward_saler'=>400,
 );
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',

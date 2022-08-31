@@ -110,11 +110,16 @@ class GoodsController extends BaseController {
         $m_goods_config = new \Admin\Model\GoodsConfigModel();
         if(IS_POST){
             $name = I('post.name','','trim');
+            $media_id = I('post.media_id',0,'intval');
             $is_required = I('post.is_required',0,'intval');
             $status = I('post.status',0,'intval');
             $type = I('post.type',1,'intval');
-
-            $data = array('name'=>$name,'goods_id'=>$goods_id,'is_required'=>$is_required,'status'=>$status,'type'=>$type);
+            if($type==20){
+                if($media_id==0){
+                    $this->output('请上传实物图片', 'goods/goodsconfigadd',2,0);
+                }
+            }
+            $data = array('name'=>$name,'goods_id'=>$goods_id,'media_id'=>$media_id,'is_required'=>$is_required,'status'=>$status,'type'=>$type);
             if($id){
                 $result = $m_goods_config->updateData(array('id'=>$id),$data);
             }else{
@@ -129,6 +134,11 @@ class GoodsController extends BaseController {
             $vinfo = array('status'=>1,'is_required'=>1,'goods_id'=>$goods_id,'type'=>1);
             if($id){
                 $vinfo = $m_goods_config->getInfo(array('id'=>$id));
+                if($vinfo['media_id']){
+                    $m_media = new \Admin\Model\MediaModel();
+                    $res_media = $m_media->getMediaInfoById($vinfo['media_id']);
+                    $vinfo['oss_addr'] = $res_media['oss_addr'];
+                }
             }
             $this->assign('vinfo',$vinfo);
             $this->display();
