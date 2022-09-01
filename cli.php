@@ -9,4 +9,4 @@ define('APP_MODE','cli');
 define('APP_DEBUG',true);
 define('APP_STATUS','config_online');
 
-require './framework/ThinkPHP/ThinkPHP.php';
+require '/application_data/web/php/savor_financeadmin/framework/ThinkPHP/ThinkPHP.php';
