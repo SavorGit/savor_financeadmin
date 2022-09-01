@@ -77,26 +77,38 @@ class StockRecordModel extends BaseModel{
     }
 
     public function getRecordList($fields,$where, $order='a.id desc', $start=0,$size=5){
-        $list = $this->alias('a')
-            ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
-            ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
-            ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
-            ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
-            ->field($fields)
-            ->where($where)
-            ->order($order)
-            ->limit($start,$size)
-            ->select();
-        $count = $this->alias('a')
-            ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
-            ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
-            ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
-            ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
-            ->where($where)
-            ->count();
-        $objPage = new Page($count,$size);
-        $show = $objPage->admin_page();
-        $data = array('list'=>$list,'page'=>$show);
+        if($start>=0 && $size>0){
+            $list = $this->alias('a')
+                ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+                ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                ->field($fields)
+                ->where($where)
+                ->order($order)
+                ->limit($start,$size)
+                ->select();
+            $count = $this->alias('a')
+                ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+                ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                ->where($where)
+                ->count();
+            $objPage = new Page($count,$size);
+            $show = $objPage->admin_page();
+            $data = array('list'=>$list,'page'=>$show);
+        }else{
+            $data = $this->alias('a')
+                ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+                ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                ->field($fields)
+                ->where($where)
+                ->order($order)
+                ->select();
+        }
         return $data;
     }
 
