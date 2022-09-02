@@ -121,6 +121,11 @@ class StockController extends BaseController {
                     continue;
                 }
                 if($iv['type']==2){
+                    $in_where = array('idcode'=>$idcode,'type'=>1,'dstatus'=>1);
+                    $res_inrecord = $m_stock_record->getAll('id',$in_where,0,1,'id asc');
+                    if(!empty($res_inrecord)){
+                        continue;
+                    }
                     $unpack_idcodes[]=$idcode;
                 }
 
