@@ -72,6 +72,8 @@ class GoodsController extends BaseController {
         $where = array('goods_id'=>$goods_id);
         if($type){
             $where['type'] = $type;
+        }else{
+            $where['type'] = array('in',array(1,2,3,20));
         }
         $all_types = C('STOCK_REASON');
         $start = ($pageNum-1)*$size;
