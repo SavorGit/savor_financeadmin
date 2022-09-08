@@ -1208,7 +1208,7 @@ class StockController extends BaseController {
                                 $buy_user_openid = $res_apply['openid'];
                                 $m_user = new \Admin\Model\SmallappUserModel();
                                 $res_user = $m_user->getRow('*',array('openid'=>$buy_user_openid),'id desc');
-                                if($res_user['is_vip']==1){
+                                if($res_user['vip_level']>=2){
                                     $member_integral = C('MEMBER_INTEGRAL');
                                     $now_integral = $member_integral['buy_reward_saler'];
 
