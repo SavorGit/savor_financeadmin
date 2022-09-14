@@ -1199,48 +1199,44 @@ class StockController extends BaseController {
                         $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
                         $m_integralrecord->add($integralrecord_data);
 
-                        $m_activity = new \Admin\Model\ActivityModel();
-                        $res_activity = $m_activity->getInfo(array('idcode'=>$res_record['idcode'],'type'=>14));
-                        if(!empty($res_activity)){
-                            $m_activity_apply = new \Admin\Model\ActivityapplyModel();
-                            $res_apply = $m_activity_apply->getRow('*',array('activity_id'=>$res_activity['id']),'id desc');
-                            if(!empty($res_apply)){
-                                $buy_user_openid = $res_apply['openid'];
-                                $m_user = new \Admin\Model\SmallappUserModel();
-                                $res_user = $m_user->getRow('*',array('openid'=>$buy_user_openid),'id desc');
-                                if($res_user['vip_level']>=2){
-                                    $member_integral = C('MEMBER_INTEGRAL');
-                                    $now_integral = $member_integral['buy_reward_saler'];
+                        $m_usercoupon = new \Admin\Model\UserCouponModel();
+                        $res_ucoupon = $m_usercoupon->getInfo(array('idcode'=>$res_record['idcode']));
+                        if(!empty($res_ucoupon)){
+                            $buy_user_openid = $res_ucoupon['openid'];
+                            $m_user = new \Admin\Model\SmallappUserModel();
+                            $res_user = $m_user->getRow('*',array('openid'=>$buy_user_openid),'id desc');
+                            if($res_user['vip_level']>=2){
+                                $member_integral = C('MEMBER_INTEGRAL');
+                                $now_integral = $member_integral['buy_reward_saler'];
 
-                                    $sale_openid = $res_user['invite_openid'];
-                                    $where = array('a.openid'=>$sale_openid,'a.status'=>1,'merchant.status'=>1);
-                                    $field_staff = 'a.openid,merchant.type,merchant.id as merchant_id,merchant.is_integral,merchant.hotel_id';
-                                    $res_staff = $m_staff->getMerchantStaff($field_staff,$where);
-                                    if($res_staff[0]['is_integral']==1){
-                                        $integralrecord_openid = $sale_openid;
-                                        $m_userintegral = new \Admin\Model\UserIntegralModel();
-                                        $res_integral = $m_userintegral->getInfo(array('openid'=>$sale_openid));
-                                        if(!empty($res_integral)){
-                                            $userintegral = $res_integral['integral']+$now_integral;
-                                            $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
-                                        }else{
-                                            $m_userintegral->add(array('openid'=>$sale_openid,'integral'=>$now_integral));
-                                        }
+                                $sale_openid = $res_user['invite_openid'];
+                                $where = array('a.openid'=>$sale_openid,'a.status'=>1,'merchant.status'=>1);
+                                $field_staff = 'a.openid,merchant.type,merchant.id as merchant_id,merchant.is_integral,merchant.hotel_id';
+                                $res_staff = $m_staff->getMerchantStaff($field_staff,$where);
+                                if($res_staff[0]['is_integral']==1){
+                                    $integralrecord_openid = $sale_openid;
+                                    $m_userintegral = new \Admin\Model\UserIntegralModel();
+                                    $res_integral = $m_userintegral->getInfo(array('openid'=>$sale_openid));
+                                    if(!empty($res_integral)){
+                                        $userintegral = $res_integral['integral']+$now_integral;
+                                        $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
                                     }else{
-                                        $integralrecord_openid = $res_staff[0]['hotel_id'];
-                                        $m_merchant = new \Admin\Model\MerchantModel();
-                                        $where = array('id'=>$res_staff[0]['merchant_id']);
-                                        $m_merchant->where($where)->setInc('integral',$now_integral);
+                                        $m_userintegral->add(array('openid'=>$sale_openid,'integral'=>$now_integral));
                                     }
-                                    $field = 'hotel.id as hotel_id,hotel.name as hotel_name,hotel.hotel_box_type,area.id as area_id,area.region_name as area_name';
-                                    $where = array('hotel.id'=>$res_staff[0]['hotel_id']);
-                                    $res_hotel = $m_hotel->getHotelById($field,$where);
-                                    $integralrecord_data = array('openid'=>$integralrecord_openid,'area_id'=>$res_hotel['area_id'],'area_name'=>$res_hotel['area_name'],
-                                        'hotel_id'=>$res_hotel['hotel_id'],'hotel_name'=>$res_hotel['hotel_name'],'hotel_box_type'=>$res_hotel['hotel_box_type'],
-                                        'integral'=>$now_integral,'jdorder_id'=>$id,'content'=>1,'type'=>19,
-                                        'integral_time'=>date('Y-m-d H:i:s'));
-                                    $m_integralrecord->add($integralrecord_data);
+                                }else{
+                                    $integralrecord_openid = $res_staff[0]['hotel_id'];
+                                    $m_merchant = new \Admin\Model\MerchantModel();
+                                    $where = array('id'=>$res_staff[0]['merchant_id']);
+                                    $m_merchant->where($where)->setInc('integral',$now_integral);
                                 }
+                                $field = 'hotel.id as hotel_id,hotel.name as hotel_name,hotel.hotel_box_type,area.id as area_id,area.region_name as area_name';
+                                $where = array('hotel.id'=>$res_staff[0]['hotel_id']);
+                                $res_hotel = $m_hotel->getHotelById($field,$where);
+                                $integralrecord_data = array('openid'=>$integralrecord_openid,'area_id'=>$res_hotel['area_id'],'area_name'=>$res_hotel['area_name'],
+                                    'hotel_id'=>$res_hotel['hotel_id'],'hotel_name'=>$res_hotel['hotel_name'],'hotel_box_type'=>$res_hotel['hotel_box_type'],
+                                    'integral'=>$now_integral,'jdorder_id'=>$id,'content'=>1,'type'=>19,
+                                    'integral_time'=>date('Y-m-d H:i:s'));
+                                $m_integralrecord->add($integralrecord_data);
                             }
                         }
                     }
