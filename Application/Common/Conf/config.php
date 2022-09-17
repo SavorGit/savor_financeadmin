@@ -256,7 +256,7 @@ $config['FINACE_CONTRACT'] = array(
     ),
 );
 $config['MEMBER_INTEGRAL']=array(
-    'invite_vip_reward_saler'=>0,
+    'invite_vip_reward_saler'=>5600,
     'buy_reward_saler'=>400,
 );
 $config['STOCK_MANAGER']=array(
