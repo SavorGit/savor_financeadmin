@@ -1,0 +1,87 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/sappuser/datalist" method="post">
+      <input type="hidden" name="pageNum" value="{$pageNum}"/>
+      <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="col-xs-12 col-sm-8 col-md-8 col-lg-98">
+          <div class="tools-group">
+            <a class="btn btn-success btn-sm add" href="{$host_name}/sappuser/adduser" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i>新增</a>
+          </div>
+        </div>
+        
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 pull-right">
+          <div class="input-group input-group-sm">
+            <input type="text" class="form-control" name="keyword" value="{$keyword}" placeholder="名称">
+
+            <span class="input-group-btn">
+              <select name="status" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                <option value='0' >状态</option>
+                <volist name="allstatus" id="ainfo">
+                  <option value="{$key}" <if condition="$status eq $key">selected</if> >{$ainfo}</option>
+                </volist>
+              </select>
+            </span>
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
+            </span>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+            <tr id="post">
+              <th>ID</th>
+              <th>昵称</th>
+              <th>头像</th>
+              <th>openid</th>
+              <th>权限</th>
+              <th>状态</th>
+              <th class="table-tool">操作</th>
+            </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+            <foreach name="datalist" item="dinfo">
+            <tr target="sid_user">
+              <td data-title="ID"><a class="click-able-title">{$dinfo.id}</a></td>
+              <td data-title="昵称"><a class="click-able-title">{$dinfo.nickname}</a></td>
+              <td data-title="头像"><img src="{$dinfo.avatarurl}"></td>
+              <td data-title="openid">{$dinfo.openid}</td>
+              <td data-title="权限">{$dinfo.permission_type_str}</td>
+              <td data-title="状态">{$dinfo.statusstr}</td>
+              <td class="table-tool" data-title="操作">
+                <div class="tools-edit">
+                  <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/sappuser/adduser?id={$dinfo.id}" class="btn btn-success btn-icon">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+                  <a warn="警告" data-tip="删除" title="你确定要删除吗？" target="ajaxTodo" href="{$host_name}/sappuser/deluser?id={$dinfo.id}" calback="navTabAjaxDone" class="btn btn-danger btn-icon"><span><i class="fa fa-trash"></i></span></a>
+
+                </div>
+              </td>
+            </tr>
+            </foreach>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
+<script>
+  $(function(){
+    $(".class-filter").change(function (){
+      $(this).closest("form").submit();
+    })
+  })
+</script>

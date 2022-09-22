@@ -182,6 +182,10 @@ $config['USER_GRP_CONFIG'] = array(
     '0'=>'无',
     '1'=>'运维组',
 );
+$config['SAPP_STOCK_PERMISSION'] = array(
+    '1'=>'全部',
+    '2'=>'一线员工',
+);
 $config['ROOM_TYPE'] = array(
     1=>'包间',
     2=>'大厅',

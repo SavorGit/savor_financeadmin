@@ -1,0 +1,51 @@
+<!--修改样式2 p元素自适应宽度 start-->
+<div class="pageContent">
+	<form method="post" action="{$host_name}/sappuser/adduser" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+		<input type="hidden" name="id" value="{$vinfo.id}">
+		<div class="pageFormContent modal-body">
+			<div class="form-group row">
+				<label class="col-xs-12 col-sm-2 control-label">选择用户：</label>
+				<div class="col-xs-12 col-sm-10  form-inline">
+					<select name="openid" class="form-control bs-select class-filter" data-live-search="true" required >
+						<option name="openid" selected='selected' value="">请选择</option>
+						<volist name="all_user" id="uinfo">
+							<option name="openid" value="{$uinfo.openid}" {$uinfo.is_select}> {$uinfo.name}</option>
+						</volist>
+					</select>
+					<span class="help-block">用户必须已经使用销售端，并且在九重天酒楼下。</span>
+				</div>
+
+			</div>
+
+			<div class="form-group row">
+				<label class="col-xs-12 col-sm-2 control-label">
+					权限:
+				</label>
+				<div class="col-xs-12 col-sm-10">
+					<div class="inline-radio-container">
+						<volist name=":C('SAPP_STOCK_PERMISSION')" id="permi">
+							<label class="radio-inline">
+								<input type="radio" name="permission_type" value='{$key}' <if condition="$key eq $vinfo['permission_type']">checked</if>>
+								<span>{$permi}</span>
+							</label>
+						</volist>
+					</div>
+					<span class="help-block">全部为库存管理所有权限。一线员工只在'个人信息'页显示库存管理入口，无出入库权限。</span>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="col-xs-12 col-sm-2 control-label">
+					状态
+				</label>
+				<div class="col-xs-12 col-sm-10">
+					<input type="hidden" name="status" value="2">
+					<input type="checkbox" value="1" class="make-switch status" name="status" data-size="small" data-on-text="启用" data-off-text="禁用" <if condition="$vinfo.status neq 0 or 2" >checked</if>>
+				</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-default close-m" type="button">取消</button>
+			<button class="btn btn-primary" type="submit">保存</button>
+		</div>
+	</form>
+</div>
