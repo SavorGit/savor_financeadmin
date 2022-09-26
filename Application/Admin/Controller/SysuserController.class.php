@@ -142,11 +142,7 @@ class SysuserController extends BaseController {
                 }
                 $user = new \Admin\Model\SysuserModel();
                 $result = $user->addData($data, $acttype);
-                if($result) {
-                    $this->output('操作成功!', 'sysuser/userList');
-                } else {
-                    $this->error('操作失败!');
-                }
+                $this->output('操作成功!', 'sysuser/userList');
             } else {
                 $this->output('缺少必要参数!', 'sysuser/userEdit');
             }
