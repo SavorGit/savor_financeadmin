@@ -31,7 +31,7 @@ class LoginController extends BaseController {
                 $this->display('Login/index');
                 exit;
             }
-            $lock_max = 5;
+            $lock_max = 10;
             $lock_time = 1200;
             $error_msg = '你的账户输入错误已达上限，请联系管理员。';
             $cache_key = 'login_'.getClientIP();
