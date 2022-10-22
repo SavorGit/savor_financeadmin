@@ -440,7 +440,7 @@ class StockController extends BaseController {
                 $departmentuser_arr[$v['id']]=$v;
             }
             $m_hotel = new \Admin\Model\HotelModel();
-            $hotel_list = $m_hotel->getDataList('id,name,area_id',array('type'=>1),'area_id asc');
+            $hotel_list = $m_hotel->getDataList('id,name,area_id',array('type'=>array('in',array(1,5))),'area_id asc');
             foreach ($hotel_list as $k=>$v){
                 $hotel_list[$k]['name'] = "{$area_arr[$v['area_id']]['region_name']}--".$v['name'];
             }
