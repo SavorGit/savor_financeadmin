@@ -133,6 +133,7 @@ class StockController extends BaseController {
                 $out_where = array('a.idcode'=>$idcode,'a.type'=>2,'a.dstatus'=>1);
                 $res_outrecord = $m_stock_record->getAllStock($out_fileds,$out_where,'a.id desc');
                 $out_type_str = $out_time = $out_num = $out_username = '';
+                $hotel_id = 0;
                 if(!empty($res_outrecord)){
                     $hotel_id = intval($res_outrecord[0]['hotel_id']);
                     if($hotel_id>0){
