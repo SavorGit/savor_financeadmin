@@ -1178,6 +1178,10 @@ class StockController extends BaseController {
                         $res_staff = $m_staff->getMerchantStaff($field_staff,$where);
                         $admin_integral = 0;
                         $admin_openid = '';
+						
+						$adminwhere = array('merchant_id'=>$res_staff[0]['merchant_id'],'level'=>1,'status'=>1);
+                        $res_admin_staff = $m_staff->getAll('id,openid',$adminwhere,0,1,'id desc');
+						$admin_openid = $res_admin_staff[0]['openid'];
                         if($res_staff[0]['is_integral']==1){
                             //开瓶费积分 增加分润
                             if($res_staff[0]['is_shareprofit']==1 && $res_staff[0]['level']==2){
@@ -1196,10 +1200,11 @@ class StockController extends BaseController {
                             $integralrecord_openid = $res_record['op_openid'];
                             if($is_recycle==0){
                                 if($admin_integral>0){
-                                    $adminwhere = array('merchant_id'=>$res_staff[0]['merchant_id'],'level'=>1,'status'=>1);
-                                    $res_admin_staff = $m_staff->getAll('id,openid',$adminwhere,0,1,'id desc');
+                                    //挪到外面来
+									//$adminwhere = array('merchant_id'=>$res_staff[0]['merchant_id'],'level'=>1,'status'=>1);
+                                    //$res_admin_staff = $m_staff->getAll('id,openid',$adminwhere,0,1,'id desc');
                                     if(!empty($res_admin_staff)){
-                                        $admin_openid = $res_admin_staff[0]['openid'];
+                                        
                                         $m_userintegral = new \Admin\Model\Smallapp\UserIntegralModel();
                                         $res_integral = $m_userintegral->getInfo(array('openid'=>$admin_openid));
                                         if(!empty($res_integral)){
