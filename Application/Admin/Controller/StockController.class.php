@@ -1274,7 +1274,7 @@ class StockController extends BaseController {
                         }
                         //end
 
-                        if($is_recycle==0){
+                        if($is_recycle==0 || $res_staff[0]['merchant_id']==89){
                             //会员复购奖励 增加分润
                             $res_recordinfo = $m_integralrecord->getAllData('*',array('jdorder_id'=>$idcode,'type'=>19,'status'=>2),'id desc');
                             if(!empty($res_recordinfo)){
