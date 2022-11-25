@@ -1246,7 +1246,7 @@ class StockController extends BaseController {
                         //end
 
                         //邀请新会员(优惠券任务) 审核通过后立即发放积分
-                        if($is_recycle==0 || $res_staff[0]['merchant_id']==89){//上线后判断条件去掉
+                        //if($is_recycle==0 || $res_staff[0]['merchant_id']==89){//上线后判断条件去掉
                             $res_recordinfo = $m_integralrecord->getAllData('*',array('jdorder_id'=>$idcode,'type'=>18,'status'=>2),'id desc');
                             if(!empty($res_recordinfo)){
                                 $where = array('hotel_id'=>$res_recordinfo[0]['hotel_id'],'status'=>1);
@@ -1271,10 +1271,10 @@ class StockController extends BaseController {
                                     }
                                 }
                             }
-                        }
+                        //}
                         //end
 
-                        if($is_recycle==0 || $res_staff[0]['merchant_id']==89){
+                        //if($is_recycle==0 || $res_staff[0]['merchant_id']==89){
                             //会员复购奖励 增加分润
                             $res_recordinfo = $m_integralrecord->getAllData('*',array('jdorder_id'=>$idcode,'type'=>19,'status'=>2),'id desc');
                             if(!empty($res_recordinfo)){
@@ -1301,7 +1301,7 @@ class StockController extends BaseController {
                                 }
                             }
                             //end
-                        }
+                        //}
                     }
                 }
             }
