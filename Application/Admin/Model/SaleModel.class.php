@@ -4,7 +4,7 @@ use Think\Model;
 use Common\Lib\Page;
 class SaleModel extends BaseModel{
     
-    protected $trueTableName='finance_sale';
+    protected $tableName='finance_sale';
     
     public function getList($fileds,$where, $orders, $start,$size){
         $list = $this->alias('a')
