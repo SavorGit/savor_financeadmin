@@ -4,15 +4,15 @@ use Think\Model;
 use Common\Lib\Page;
 class SaleModel extends Model{
     
-    protected $trueTableName='savor_finance_sale';
+    protected $trueTableName='finance_sale';
     
     public function getList($fileds,$where, $orders, $start,$size){
         $list = $this->alias('a')
         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
         ->join('savor_finance_goods goods on a.goods_id   = goods.id','left')
-        ->field($fields)
+        ->field($fileds)
         ->where($where)
-        ->order($order)
+        ->order($orders)
         ->limit($start,$size)
         ->select();
         
