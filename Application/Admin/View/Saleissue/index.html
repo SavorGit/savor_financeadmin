@@ -4,7 +4,7 @@
   
 </style>-->
 <div class="pageHeader">
-  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/inventorypurchase/index" method="post" >
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/saleissue/index" method="post" >
     <input type="hidden" name="pageNum" value="{$pageNum}"/>
     <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
     <input type="hidden" name="_order" value="{$_order}"/>
@@ -12,70 +12,24 @@
     <div class="searchBar">
       <div class="clearfix">
         <div class="form-inline" style="margin-top:3px;">
-        <!-- <div class="form-group">
-        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$start_date}">
-          		<input style="margin-left: 6px;" name="start_date" type="text" size="16" class="form-control date" placeholder="签约开始日期" value="{$start_date}" readonly>
-                <span class="input-group-btn">
-                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
-                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
-                </span>
-       	 	</div>
-
-        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$end_date}" >
-
-          		<input    name="end_date" type="text" size="16" class="form-control date" placeholder="签约结束日期" value="{$end_date}" readonly>
-                <span class="input-group-btn"  >
-                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
-                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
-                </span>
-        	</div>
-        </div> -->
         
-        <div class="form-group">
-          <div class="input-group input-group-sm">
-            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
-             	请选择采购组织：
-            </label>
-                <span class="input-group-btn">
-               <select name="department_id" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
-                 <option value=0 >全部</option>
-                 <volist name="department_arr" id="vo">
-					<option  value="{$vo.id}" <if condition="$vo.id eq $department_id">selected</if>>{$vo.name}</option>
-				 </volist>
-				 
-               </select>
-          </div>
-         </div>
+        
+        
           
 		 
-		 <div class="form-group">
-          <div class="input-group input-group-sm">
-            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
-              	请选择供应商：
-            </label>
-                <span class="input-group-btn">
-               <select name="supplier_id" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
-                 <option value=0 >全部</option>
-                 <volist name="supplier_arr" id="vo">
-					<option  value="{$vo.id}" <if condition="$vo.id eq $supplier_id">selected</if>>{$vo.name}</option>
-				 </volist>
-				 
-               </select>
-          </div>
-         </div>
+		 
 		  
-		  
-			<div class="form-group" style="margin-top:10px; margin-left:6px;">
+			<!-- <div class="form-group" style="margin-top:10px; margin-left:6px;">
 				<div class="input-group input-group-sm pull-right">
 				<input type="text" class="form-control" name="name" value="{$name}" placeholder="请输入标题">
 				<span class="input-group-btn">
 					<button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
 				</span>
 				</div>
-			</div>
+			</div> -->
             
             <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
-				<a class="btn btn-success btn-sm add" href="{$host_name}/inventorypurchase/add" title="新增采购" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增采购</a>
+				<a class="btn btn-success btn-sm add" href="{$host_name}/saleissue/add" title="新增出库单" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增出库单</a>
 				<!-- <a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/contract/proxysale?start_date={$start_date}&end_date={$end_date}&area_id={$area_id}&ctype={$ctype}&status={$status}&sign_user_id={$sign_user_id}&name={$name}" title="导出合同数据" target="_blank" mask="true"><i class="fa fa-plus"></i> 导出合同数据</a> -->
           
 			</div>

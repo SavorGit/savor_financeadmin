@@ -290,15 +290,21 @@ class PurchaseController extends BaseController{
 			
 			//结算信息
 			$data['settlement_type'] = I('post.settlement_type',0,'intval');         //结算方式  1一次性付款2分期付款
+			$data['settlement_remark'] = I('post.settlement_remark','','trim');      //结算备注
 			if($data['settlement_type']<=1){
 				$pay_type    			 = I('post.pay_type','','trim');            //付款方式  1 现付2 后付
 				$pay_time    			 = I('post.pay_time','','trim');             //付款日期 
 				$have_pay_monye			 = I('post.have_pay_monye','','trim');       //已付款金额
 				$no_pay_monye            = I('post.no_pay_monye','','trim');         //未付款金额
+				
+				$fkrq_media_id           = I('post.fkrq',0,'intval');                //一次性付款图片
+				
 				$info_money['pay_type']       = $pay_type;
 				$info_money['pay_time']       = $pay_time;
 				$info_money['have_pay_monye'] = $have_pay_monye;
 				$info_money['no_pay_monye']   = $no_pay_monye;
+				
+				$info_money['fkrq_media_id']  = $fkrq_media_id;
 			}else if($data['settlement_type']==2){
 				$prepayment              = I('post.prepayment','','trim');           //预付款金额
 				$prepayment_time         = I('post.prepayment_time','','trim');      //预付款日期 
@@ -308,6 +314,12 @@ class PurchaseController extends BaseController{
 				$tail_prepayment_time    = I('post.tail_prepayment_time','','trim'); //尾款结款日期
 				$f_have_pay_monye        = I('post.f_have_pay_monye','','trim');     //已付款金额
 				$f_no_pay_monye          = I('post.f_no_pay_monye','','trim');       //未付款金额
+				
+				$yfk_media_id            = I('post.yfk',0,'intval');                 //预付款图片 
+				$zqjk_media_id           = I('post.zqjk',0,'intval');                //中期结款图片 
+				$wk_media_id             = I('post.wk',0,'intval');                  //尾款图片 
+				
+				
 				$info_money['prepayment']           = $prepayment;
 				$info_money['prepayment_time']      = $prepayment_time;
 				$info_money['medium_payment']       = $medium_payment;
@@ -317,6 +329,9 @@ class PurchaseController extends BaseController{
 				$info_money['f_have_pay_monye']     = $f_have_pay_monye;
 				$info_money['f_no_pay_monye']       = $f_no_pay_monye;
 				
+				$info_money['yfk_media_id']         = $yfk_media_id;
+				$info_money['zqjk_media_id']        = $zqjk_media_id;
+				$info_money['wk_media_id']          = $wk_media_id;
 			}
 			$data['info_money'] = json_encode($info_money);
 			//发票信息
@@ -401,10 +416,37 @@ class PurchaseController extends BaseController{
 		$info_money   = json_decode($vinfo['info_money'],true);
 		$info_invoice = json_decode($vinfo['info_invoice'],true);
 		
+		$m_media = new \Admin\Model\MediaModel();
+		if(!empty($info_money['fkrq_media_id'])){//一次性付款 -付款图片信息
+		    $res_media = $m_media->getRow('oss_addr',array('id'=>$info_money['fkrq_media_id']));
+		    $vinfo['fkrqimg'] = $this->oss_host.$res_media['oss_addr'];
+		}else {
+		    $vinfo['fkrqimg'] = '';
+		}
+		if(!empty($info_money['yfk_media_id'])){//分期付款-预付款
+		    $res_media = $m_media->getRow('oss_addr',array('id'=>$info_money['yfk_media_id']));
+		    $vinfo['yfkimg'] = $this->oss_host.$res_media['oss_addr'];
+		}else {
+		    $vinfo['yfkimg'] = '';
+		}
+		if(!empty($info_money['zqjk_media_id'])){//分期付款-中期结款
+		    $res_media = $m_media->getRow('oss_addr',array('id'=>$info_money['zqjk_media_id']));
+		    $vinfo['zqjkimg'] = $this->oss_host.$res_media['oss_addr'];
+		}else {
+		    $vinfo['zqjkimg'] = '';
+		}
+		if(!empty($info_money['wk_media_id'])){//分期付款-尾款
+		    $res_media = $m_media->getRow('oss_addr',array('id'=>$info_money['wk_media_id']));
+		    $vinfo['wkimg'] = $this->oss_host.$res_media['oss_addr'];
+		}
+		$vinfo['fkrq_media_id']  = $info_money['fkrq_media_id'];
+		$vinfo['yfk_media_id']   = $info_money['yfk_media_id'];
+		$vinfo['zqjk_media_id']  = $info_money['zqjk_media_id'];
+		$vinfo['wk_media_id']    = $info_money['wk_media_id'];
 		
 		$media_id = 0;
 		if(!empty($vinfo['oss_addr'])){
-			$m_media = new \Admin\Model\MediaModel();
+			
 			$res_media = $m_media->getRow('id,name',array('oss_addr'=>$vinfo['oss_addr']),'id desc');
 			$media_id = $res_media['id'];
 			$vinfo['oss_name'] = $res_media['name'];
@@ -556,15 +598,19 @@ class PurchaseController extends BaseController{
 			$data['info_goods'] = json_encode($info_goods);
 			//结算信息
 			$data['settlement_type'] = I('post.settlement_type',0,'intval');         //结算方式  1一次性付款2分期付款
+			$data['settlement_remark'] = I('post.settlement_remark','','trim');      //结算备注
 			if($data['settlement_type']<=1){
 				$pay_type    			 = I('post.pay_type','','trim');            //付款方式  1 现付2 后付
 				$pay_time    			 = I('post.pay_time','','trim');             //付款日期 
 				$have_pay_monye			 = I('post.have_pay_monye','','trim');       //已付款金额
 				$no_pay_monye            = I('post.no_pay_monye','','trim');         //未付款金额
+				
+				$fkrq_media_id           = I('post.fkrq',0,'intval');                //一次性付款图片
 				$info_money['pay_type']       = $pay_type;
 				$info_money['pay_time']       = $pay_time;
 				$info_money['have_pay_monye'] = $have_pay_monye;
 				$info_money['no_pay_monye']   = $no_pay_monye;
+				$info_money['fkrq_media_id']  = $fkrq_media_id;
 			}else if($data['settlement_type']==2){
 				$prepayment              = I('post.prepayment','','trim');           //预付款金额
 				$prepayment_time         = I('post.prepayment_time','','trim');      //预付款日期 
@@ -574,6 +620,10 @@ class PurchaseController extends BaseController{
 				$tail_prepayment_time    = I('post.tail_prepayment_time','','trim'); //尾款结款日期
 				$f_have_pay_monye        = I('post.f_have_pay_monye','','trim');     //已付款金额
 				$f_no_pay_monye          = I('post.f_no_pay_monye','','trim');       //未付款金额
+				
+				$yfk_media_id            = I('post.yfk',0,'intval');                 //预付款图片
+				$zqjk_media_id           = I('post.zqjk',0,'intval');                //中期结款图片
+				$wk_media_id             = I('post.wk',0,'intval');                  //尾款图片 
 				$info_money['prepayment']           = $prepayment;
 				$info_money['prepayment_time']      = $prepayment_time;
 				$info_money['medium_payment']       = $medium_payment;
@@ -583,6 +633,9 @@ class PurchaseController extends BaseController{
 				$info_money['f_have_pay_monye']     = $f_have_pay_monye;
 				$info_money['f_no_pay_monye']       = $f_no_pay_monye;
 				
+				$info_money['yfk_media_id']         = $yfk_media_id;
+				$info_money['zqjk_media_id']        = $zqjk_media_id;
+				$info_money['wk_media_id']          = $wk_media_id;
 			}
 			$data['info_money'] = json_encode($info_money);
 			//发票信息

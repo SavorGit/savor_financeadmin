@@ -157,7 +157,7 @@
                 	金额：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <input name="contract_money" type="text" value="{$vinfo.contract_money}"  minlength="1" maxlength="50" class="form-control" />
+                <input id="contract_money" name="contract_money" type="text" value="{$vinfo.contract_money}"  minlength="1" maxlength="50" class="form-control" />
               </div>
               
               
@@ -479,7 +479,10 @@
                   </volist>
                 </select>
               </div>
-              
+              <div class="col-xs-1 col-sm-3 control-label" >
+              	<span style="color:#fd8024;font-size:20px" id="total_money">总金额:{$vinfo.contract_money}元</span>
+              	
+              </div>
             </div>
 			<div class="form-group row" id="settlement_type_1" <if condition="$vinfo['settlement_type'] elt '1'">style="display:block;"<else />style="display:none;"</if>>
 				<label class="col-xs-2 col-sm-2 control-label">
@@ -507,7 +510,29 @@
                   </span>
                 </div> 
 				</div>
-				 
+				
+				<div class="col-xs-2 col-sm-2">
+							<div class="fileinput fileinput-new" data-fileinput>
+								<div class="fileinput-preview thumbnail" data-trigger="fileinput">
+									<a data-target="#modal-file" href="javascript:void(0)">
+											<if condition="($vinfo.fkrqimg eq 'NULL') OR $vinfo.fkrqimg eq ''">
+										
+											<img id="fkrqimg" src="/Public/admin/assets/img/noimage.png" border="0" />
+											<else />
+											<img id="fkrqimg" src="{$vinfo.fkrqimg}" border="0" />
+										</if>
+										<span id="fkrqimgname"></span>
+									</a>
+								</div>
+								<div>
+									<a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=fkrq&rtype=2" data-browse-file>
+										选择图片
+									</a>
+									<input type="hidden" name="fkrq" id="fkrq" value="{$vinfo.fkrq_media_id}" >
+									<a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
+								</div>
+							</div>
+						</div> 
 			
 			</div>
 			<div class="form-group row" id="settlement_type_2" <if condition="$vinfo['settlement_type'] elt '1'">style="display:block;"<else />style="display:none;"</if>>
@@ -517,14 +542,14 @@
               </label>
               <div class="col-xs-2 col-sm-2">
                 
-                <input name="have_pay_monye" type="text" value="{$info_money.have_pay_monye}"  minlength="1" maxlength="50" class="form-control" />
+                <input id="have_pay_monye" name="have_pay_monye" type="text" value="{$info_money.have_pay_monye}"  minlength="1" maxlength="50" class="form-control" />
               </div>
-			  <label class="col-xs-2 col-sm-2 control-label">
+			  <label  class="col-xs-2 col-sm-2 control-label">
                 	未付金额：
               </label>
               <div class="col-xs-2 col-sm-2">
                 
-                <input name="no_pay_monye" type="text" value="{$info_money.no_pay_monye}"  minlength="1" maxlength="50" class="form-control" />
+                <input id="no_pay_monye" name="no_pay_monye" type="text" value="{$info_money.no_pay_monye}"  minlength="1" maxlength="50" class="form-control" />
               </div>
               
               
@@ -536,7 +561,7 @@
                 预付款金额：
                 </label>
 			    <div class="col-xs-2 col-sm-2">
-				 <input  name="prepayment"  type="text" value="{$info_money.prepayment}"  minlength="1" maxlength="50" class="form-control" />
+				 <input id="prepayment"  name="prepayment"  type="text" value="{$info_money.prepayment}"  minlength="1" maxlength="50" class="form-control" />
 			    </div> 
 				<label class="col-xs-2 col-sm-2 control-label">
                 预付款日期：
@@ -551,6 +576,28 @@
                 </div> 
 				</div>
 				
+				<div class="col-xs-2 col-sm-2">
+							<div class="fileinput fileinput-new" data-fileinput>
+								<div class="fileinput-preview thumbnail" data-trigger="fileinput">
+									<a data-target="#modal-file" href="javascript:void(0)">
+											<if condition="($vinfo.yfkimg eq 'NULL') OR $vinfo.yfkimg eq ''">
+										
+											<img id="yfkimg" src="/Public/admin/assets/img/noimage.png" border="0" />
+											<else />
+											<img id="yfkimg" src="{$vinfo.yfkimg}" border="0" />
+										</if>
+										<span id="yfkimgname"></span>
+									</a>
+								</div>
+								<div>
+									<a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=yfk&rtype=2" data-browse-file>
+										选择图片
+									</a>
+									<input type="hidden" name="yfk" id="yfk" value="{$vinfo.yfk_media_id}" >
+									<a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
+								</div>
+							</div>
+						</div> 
 				
 			</div>
 			<!--中期结款-->
@@ -559,7 +606,7 @@
                 中期结款金额：
                 </label>
 			    <div class="col-xs-2 col-sm-2">
-				 <input  name="medium_payment"  type="text" value="{$info_money.medium_payment}"  minlength="1" maxlength="50" class="form-control" />
+				 <input id="medium_payment"  name="medium_payment"  type="text" value="{$info_money.medium_payment}"  minlength="1" maxlength="50" class="form-control" />
 			    </div> 
 				<label class="col-xs-2 col-sm-2 control-label">
                 中期结款付款日期：
@@ -574,6 +621,28 @@
                 </div> 
 				</div>
 				
+				<div class="col-xs-2 col-sm-2">
+							<div class="fileinput fileinput-new" data-fileinput>
+								<div class="fileinput-preview thumbnail" data-trigger="fileinput">
+									<a data-target="#modal-file" href="javascript:void(0)">
+											<if condition="($vinfo.zqjkimg eq 'NULL') OR $vinfo.zqjkimg eq ''">
+										
+											<img id="zqjkimg" src="/Public/admin/assets/img/noimage.png" border="0" />
+											<else />
+											<img id="zqjkimg" src="{$vinfo.zqjkimg}" border="0" />
+										</if>
+										<span id="zqjkimgname"></span>
+									</a>
+								</div>
+								<div>
+									<a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=zqjk&rtype=2" data-browse-file>
+										选择图片
+									</a>
+									<input type="hidden" name="zqjk" id="zqjk" value="{$vinfo.zqjk_media_id}" >
+									<a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
+								</div>
+							</div>
+						</div>
 				
 			</div>
 			<!--尾款-->
@@ -582,7 +651,7 @@
                 尾款金额：
                 </label>
 			    <div class="col-xs-2 col-sm-2">
-				 <input  name="tail_prepayment"  type="text" value="{$info_money.tail_prepayment}"  minlength="1" maxlength="50" class="form-control" />
+				 <input id="tail_prepayment"  name="tail_prepayment"  type="text" value="{$info_money.tail_prepayment}"  minlength="1" maxlength="50" class="form-control" />
 			    </div> 
 				<label class="col-xs-2 col-sm-2 control-label">
                 尾款付款日期：
@@ -597,6 +666,28 @@
                 </div> 
 				</div>
 				
+				<div class="col-xs-2 col-sm-2">
+							<div class="fileinput fileinput-new" data-fileinput>
+								<div class="fileinput-preview thumbnail" data-trigger="fileinput">
+									<a data-target="#modal-file" href="javascript:void(0)">
+											<if condition="($vinfo.wkimg eq 'NULL') OR $vinfo.wkimg eq ''">
+										
+											<img id="wkimg" src="/Public/admin/assets/img/noimage.png" border="0" />
+											<else />
+											<img id="wkimg" src="{$vinfo.wkimg}" border="0" />
+										</if>
+										<span id="wkimgname"></span>
+									</a>
+								</div>
+								<div>
+									<a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=wk&rtype=2" data-browse-file>
+										选择图片
+									</a>
+									<input type="hidden" name="wk" id="wk" value="{$vinfo.wk_media_id}" >
+									<a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
+								</div>
+							</div>
+						</div>
 				
 			</div>
 			<div class="form-group row"  id="settlement_type_6" <if condition="$vinfo['settlement_type'] eq '2'">style="display:block;"<else />style="display:none;"</if>>
@@ -604,18 +695,26 @@
 					已付款金额：
                 </label>
 			    <div class="col-xs-2 col-sm-2">
-				 <input  name="f_have_pay_monye"  type="text" value="{$info_money.f_have_pay_monye}"  minlength="1" maxlength="50" class="form-control" />
+				 <input id="f_have_pay_monye"  name="f_have_pay_monye"  type="text" value="{$info_money.f_have_pay_monye}"  minlength="1" maxlength="50" class="form-control" />
 			    </div> 
 				<label class="col-xs-2 col-sm-2 control-label">
 					未付款金额：
 				</label>
-				<div class="col-xs-2 col-sm-2">
-				 <input  name="f_no_pay_monye"  type="text" value="{$info_money.f_no_pay_monye}"  minlength="1" maxlength="50" class="form-control" />
+				<div  class="col-xs-2 col-sm-2">
+				 <input id="f_no_pay_monye"  name="f_no_pay_monye"  type="text" value="{$info_money.f_no_pay_monye}"  minlength="1" maxlength="50" class="form-control" />
 			    </div> 
 				
 				
 			</div>
 			
+			<div class="form-group row">
+              <label class="col-xs-2 col-sm-1 control-label">
+                  备注：
+              </label>
+              <div class="col-xs-2 col-sm-8">
+                  <textarea name="settlement_remark" value="{$vinfo.settlement_remark}" type="textInput" class="form-control" maxlength="255">{$vinfo.settlement_remark}</textarea>
+              </div>
+          </div>
 		  
 		  </div>
 		  
@@ -694,4 +793,89 @@
       autoclose: 1,
     });
   })
+  $('#contract_money').bind('input propertychange', function() {
+	 var contract_money =  $('#contract_money').val();
+     if(contract_money>=0){
+    	 
+    	var  contract_str = '总金额:'+contract_money+'元';
+     }else{
+    	 var  contract_str = '总金额:0元';
+     }
+	 $('#total_money').html(contract_str)
+  });
+  
+  $('#have_pay_monye').bind('input propertychange', function() {
+	  var contract_money =  $('#contract_money').val();
+	  var have_pay_monye = $('#have_pay_monye').val();
+	  
+	  if(contract_money>=0){
+		  //if(contract_money >= have_pay_monye){
+		  	var no_pay_monye = contract_money - have_pay_monye
+		  	$('#no_pay_monye').val(no_pay_monye);
+		  //}
+	  }
+  });
+  $('#prepayment').bind('input propertychange', function() {
+	  var contract_money =  $('#contract_money').val();
+	  var prepayment     =  $('#prepayment').val();
+	  
+	  var medium_payment = $('#medium_payment').val();
+	  if(medium_payment==''){
+		  medium_payment = 0;
+	  }
+	  var tail_prepayment = $('#tail_prepayment').val();
+	  if(tail_prepayment ==''){
+		  tail_prepayment = 0;
+	  }
+	  var f_have_pay_monye = prepayment*1 + medium_payment*1 + tail_prepayment*1
+	  console.log(f_have_pay_monye)
+	  $('#f_have_pay_monye').val(f_have_pay_monye)
+	  var f_no_pay_monye = contract_money - f_have_pay_monye
+	  console.log(f_no_pay_monye)
+	  $('#f_no_pay_monye').val(f_no_pay_monye);
+	  
+	  
+  });
+  $('#medium_payment').bind('input propertychange', function() {
+	  var contract_money =  $('#contract_money').val();
+	  var prepayment     =  $('#prepayment').val();
+	  
+	  var medium_payment = $('#medium_payment').val();
+	  if(medium_payment==''){
+		  medium_payment = 0;
+	  }
+	  var tail_prepayment = $('#tail_prepayment').val();
+	  if(tail_prepayment ==''){
+		  tail_prepayment = 0;
+	  }
+	  var f_have_pay_monye = prepayment*1 + medium_payment*1 + tail_prepayment*1
+	  console.log(f_have_pay_monye)
+	  $('#f_have_pay_monye').val(f_have_pay_monye)
+	  var f_no_pay_monye = contract_money - f_have_pay_monye
+	  console.log(f_no_pay_monye)
+	  $('#f_no_pay_monye').val(f_no_pay_monye);
+	  
+	  
+  });
+  $('#tail_prepayment').bind('input propertychange', function() {
+	  var contract_money =  $('#contract_money').val();
+	  var prepayment     =  $('#prepayment').val();
+	  
+	  var medium_payment = $('#medium_payment').val();
+	  if(medium_payment==''){
+		  medium_payment = 0;
+	  }
+	  var tail_prepayment = $('#tail_prepayment').val();
+	  if(tail_prepayment ==''){
+		  tail_prepayment = 0;
+	  }
+	  var f_have_pay_monye = prepayment*1 + medium_payment*1 + tail_prepayment*1
+	  console.log(f_have_pay_monye)
+	  $('#f_have_pay_monye').val(f_have_pay_monye)
+	  var f_no_pay_monye = contract_money - f_have_pay_monye
+	  console.log(f_no_pay_monye)
+	  $('#f_no_pay_monye').val(f_no_pay_monye);
+	  
+	  
+  });
 </script>

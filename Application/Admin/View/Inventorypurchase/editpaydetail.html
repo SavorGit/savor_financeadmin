@@ -1,0 +1,96 @@
+<include file="Public/script"/>
+<div class="pageContent" style="height:100%;overflow: auto;background-color: #EEEEEE;">
+  <form method="post" action="{$host_name}/inventorypurchase/doEditPayDetail" class="pageForm -validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+    
+    <input type="hidden" name="purchase_id" value="{$purchase_id}">
+    <input type="hidden" name="id" value="{$id}">
+    <div class="pageFormContent modal-body">
+      <div class="tabsContent">
+        
+        <div class="tab-content">
+          <div  class="tab-pane active fade in">
+            <div class="form-group row">
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                	付款日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-ymd="true" data-date="{$vinfo.pay_date}">
+                  <input name=pay_date type="text" size="16" class="form-control date" placeholder="付款日期" value="{$vinfo.pay_date}" >
+                  <span class="input-group-btn">
+                    
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              
+              <label class="col-xs-2 col-sm-1 control-label">
+                	付款金额：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <input id="barcode" name="pay_fee" type="text" value="{$vinfo.pay_fee}"   class="form-control"  />
+              </div>
+              
+              <div class="col-xs-2 col-sm-2">
+							<div class="fileinput fileinput-new" data-fileinput>
+								<div class="fileinput-preview thumbnail" data-trigger="fileinput">
+									<a data-target="#modal-file" href="javascript:void(0)">
+											<if condition="($vinfo.oss_addr eq 'NULL') OR $vinfo.oss_addr eq ''">
+										
+											<img id="fkimg" src="/Public/admin/assets/img/noimage.png" border="0" />
+											<else />
+											<img id="fkimg" src="{$vinfo.oss_addr}" border="0" />
+										</if>
+										<span id="fkrqimgname"></span>
+									</a>
+								</div>
+								<div>
+									<a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=fk&rtype=2" data-browse-file>
+										选择图片
+									</a>
+									<input type="hidden" name="fk" id="fk" value="{$vinfo.media_id}" >
+									<a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
+								</div>
+							</div>
+						</div> 
+              
+            </div>
+            
+            
+            
+            
+          </div>
+		</div>
+		
+		  
+      </div>
+    </div>
+    <div class="modal-footer" style="margin-top:400px;">
+      <button class="btn btn-default close-m" type="button">取消</button>  
+      <button class="btn btn-primary" type="submit">保存</button>
+      
+    </div>
+    
+  </form>
+</div>
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+  
+  $(function(){
+    
+
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+  
+  
+  
+</script>

@@ -123,7 +123,8 @@ $config['MANGER_KEY'] = array(
     'advcontract'=>'广告销售合同管理',
     'purchasecontract'=>'采购合同管理',
     'administrationcontract'=>'行政合同管理',
-    'inventorypurchase'=>'采购管理'
+    'inventorypurchase'=>'采购管理',
+    'saleissue'=>'销售出库单管理'
 );
 $config['MOBILE_TYPE'] = array(
     '1' => array('id'=>1, 't'=>'Iphone 4', 'w'=>'320', 'h'=>'480'),

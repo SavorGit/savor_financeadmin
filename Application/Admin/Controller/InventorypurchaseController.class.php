@@ -3,16 +3,24 @@ namespace Admin\Controller;
 
 class InventorypurchaseController extends BaseController {
     
-    private $required_arr = array(
+    /*private $required_arr = array(
         'name'=>'请填写合同名称','department_id'=>'请选择采购组织',
         'department_user_id'=>'请选择采购人','total_fee'=>'请填写采购金额','amount'=>'请填写采购总数',
         'supplier_id'=>'请选择供应商','purchase_date'=>"请选择采购日期"
         
+    );*/
+    private $required_arr = array(
+        'name'=>'请填写合同名称','department_id'=>'请选择采购组织',
+        'department_user_id'=>'请选择采购人','supplier_id'=>'请选择供应商','purchase_date'=>"请选择采购日期"
     );
     private $detail_required_arr = array(
         'goods_id'=>'请选择采购商品','unit_id'=>'请选择单位','price'=>'请填写单价','amount'=>'请填写采购数量',
     );
+    private $paydetail_required_arr = array(
+        'pay_date'=>'请选择付款日期','pay_fee'=>'请选择付款金额'
+    );
     private $session_key = 'inventorypurchase_id_';
+    private $serial_number_prefix = 'TPCG';
     public function __construct() {
         parent::__construct();
         
@@ -49,7 +57,7 @@ class InventorypurchaseController extends BaseController {
         }
         
         $m_puchase = new \Admin\Model\PurchaseModel();
-        $fileds = "a.id,a.serial_number,a.name,d.name department_name,a.purchase_date,a.amount,s.name supplier_name,
+        $fileds = "a.id,a.serial_number,a.name,d.name department_name,a.purchase_date,a.amount,a.total_fee,s.name supplier_name,
                    case a.status
 				   when 1 then '进行中'
 				   when 2 then '已完成' END AS status";
@@ -132,12 +140,12 @@ class InventorypurchaseController extends BaseController {
                 
             }
             $userinfo              = session('sysUserInfo');
-            $serial_number         = I('serial_number','','trim');            //采购单号
+            //$serial_number         = I('serial_number','','trim');            //采购单号
             $contract_id           = I('contract_id',0,'intval');             //合同id
             $name                  = I('name','','trim');                     //合同标题
             $department_id         = I('department_id',0,'intval');           //采购组织
             $department_user_id    = I('department_user_id',0,'intval');      //采购人
-            $total_fee             = I('total_fee','','trim');                //采购总金额
+            $total_fee             = I('total_fee',0,'trim');                //采购总金额
             $amount                = I('amount',0,'intval');                  //采购总数
             $supplier_id           = I('supplier_id',0,'intval');             //供应商
             $purchase_date         = I('purchase_date','','trim');            //采购日期
@@ -147,7 +155,7 @@ class InventorypurchaseController extends BaseController {
             
             $data = [];
             $data['contract_id']        = $contract_id;
-            $data['serial_number ']     = $serial_number;
+            //$data['serial_number ']     = $serial_number;
             $data['name']               = $name;
             $data['department_id']      = $department_id;
             $data['department_user_id'] = $department_user_id;
@@ -161,6 +169,19 @@ class InventorypurchaseController extends BaseController {
             
             
             $m_purchase = new \Admin\Model\PurchaseModel();
+            
+            $serial_number_prefix = $this->serial_number_prefix.date('Ymd');
+            $map = [];
+            $map['serial_number'] = array('like',$serial_number_prefix."%");
+            $rts = $m_purchase->field('serial_number')->where($map)->order('id desc')->find();
+            if(empty($rts)){
+                $data['serial_number'] = $serial_number_prefix.'001';
+            }else {
+                $sub_str = substr($rts['serial_number'], 12,3);
+                $sub_str = intval($sub_str) +1;
+                $serial_number = str_pad($sub_str,3,"0",STR_PAD_LEFT);
+                $data['serial_number'] =$serial_number_prefix . $serial_number;
+            }
             $ret  = $m_purchase->addData($data);
             if($ret){
                 
@@ -236,13 +257,13 @@ class InventorypurchaseController extends BaseController {
                 
             }
             $userinfo              = session('sysUserInfo');
-            $serial_number         = I('serial_number','','trim');            //采购单号
+            //$serial_number         = I('serial_number','','trim');            //采购单号
             $contract_id           = I('contract_id',0,'intval');             //合同id
             $name                  = I('name','','trim');                     //合同标题
             $department_id         = I('department_id',0,'intval');           //采购组织
             $department_user_id    = I('department_user_id',0,'intval');      //采购人
-            $total_fee             = I('total_fee','','trim');                //采购总金额
-            $amount                = I('amount',0,'intval');                  //采购总数
+            //$total_fee             = I('total_fee',0,'trim');                //采购总金额
+            //$amount                = I('amount',0,'intval');                  //采购总数
             $supplier_id           = I('supplier_id',0,'intval');             //供应商
             $purchase_date         = I('purchase_date','','trim');            //采购日期
             $status                = I('status',1,'intval');                  //采购状态
@@ -250,13 +271,13 @@ class InventorypurchaseController extends BaseController {
             
             
             $data = [];
-            $data['serial_number']      = $serial_number;
+            //$data['serial_number']      = $serial_number;
             $data['contract_id ']       = $contract_id ;
             $data['name']               = $name;
             $data['department_id']      = $department_id;
             $data['department_user_id'] = $department_user_id;
-            $data['total_fee']          = $total_fee ;
-            $data['amount']             = $amount;
+            //$data['total_fee']          = $total_fee ;
+            //$data['amount']             = $amount;
             $data['supplier_id']        = $supplier_id;
             $data['purchase_date']      = $purchase_date;
             $data['status']             = $status;
@@ -373,6 +394,17 @@ class InventorypurchaseController extends BaseController {
             $data['total_amount']= $total_amount;
             $ret = $m_purchase_detail->addData($data);
             if($ret){
+                //更新采购合同总金额、总数量
+                $rts = $m_purchase_detail->field('sum(amount) as amount,sum(total_fee) as total_fee')->where(array('purchase_id'=>$purchase_id))->find();
+                //print_r($rts);exit;
+                $m_purchase = new \Admin\Model\PurchaseModel();
+                $map = [];
+                $map['amount'] = $rts['amount'];
+                $map['total_fee'] = $rts['total_fee'];
+                $m_purchase->updateData(array('id'=>$purchase_id), $map);
+                
+                
+                
                 $this->output('添加成功!', 'inventorypurchase/detaillist');
             }else {
                 $this->error('添加失败');
@@ -475,6 +507,16 @@ class InventorypurchaseController extends BaseController {
             
             $ret = $m_purchase_detail->updateData($where,$data);
             if($ret){
+                //更新采购合同总金额、总数量
+                $rts = $m_purchase_detail->field('sum(amount) as amount,sum(total_fee) as total_fee')->where(array('purchase_id'=>$purchase_id))->find();
+                //print_r($rts);exit;
+                $m_purchase = new \Admin\Model\PurchaseModel();
+                $map = [];
+                $map['amount'] = $rts['amount'];
+                $map['total_fee'] = $rts['total_fee'];
+                $m_purchase->updateData(array('id'=>$purchase_id), $map);
+                
+                
                 $this->outputNew('编辑成功!', 'inventorypurchase/detaillist');
                 
             }else {
@@ -504,6 +546,164 @@ class InventorypurchaseController extends BaseController {
         $ret = $m_purchase_detail->updateData($where, $data);
         if($ret){
             $this->output('删除成功!', 'inventorypurchase/detaillist','');
+        }else {
+            $this->error('删除失败');
+        }
+    }
+    public function paylist(){
+        $purchase_id = I('purchase_id',0,'intval');
+        if(!empty($purchase_id)){
+            session($this->session_key,$purchase_id);
+        }else {
+            $purchase_id = session($this->session_key);
+        }
+        
+        $ajaxversion   = I('ajaxversion',0,'intval');//1 版本升级酒店列表
+        $size   = I('numPerPage',50);//显示每页记录数
+        $this->assign('numPerPage',$size);
+        $start = I('pageNum',1);
+        $this->assign('pageNum',$start);
+        $order = I('_order','a.id');
+        
+        $this->assign('_order',$order);
+        $sort = I('_sort','desc');
+        $this->assign('_sort',$sort);
+        $orders = $order.' '.$sort;
+        $start  = ( $start-1 ) * $size;
+        
+        $m_purchase_paydetail = new \Admin\Model\PurchasePaydetailModel();
+        $fields = 'a.id,a.pay_date,a.pay_fee,m.oss_addr,a.add_time';
+        $where = [];
+        $where['purchase_id'] = $purchase_id;
+        $where['status'] = 1;
+        $result = $m_purchase_paydetail->getList($fields,$where, $orders, $start,$size);
+        $oss_host =  get_oss_host();
+        $this->assign('oss_host',$oss_host);
+        $this->assign('purchase_id',$purchase_id);
+        $this->assign('list',$result['list']);
+        $this->assign('page',$result['page']);
+        
+        
+        $this->display();
+    }
+    public function addpaydetail(){
+        
+        $purchase_id = I('purchase_id',0,'intval');
+        $this->assign('purchase_id',$purchase_id);
+        $this->display();
+    }
+    public function doaddpaydetail(){
+        $purchase_id = I('purchase_id',0,'intval');
+        if(IS_POST){
+            foreach($this->paydetail_required_arr as $key=>$v){
+                $tmp = I('post.'.$key);
+                if(empty($tmp)){
+                    $this->error($v);
+                    break;
+                }
+            }
+            $pay_date = I('post.pay_date','','trim');
+            $pay_fee    = I('post.pay_fee',0,'trim');
+            $fk         = I('post.fk',0,'intval');
+            $status   = 1;
+            
+            
+            $m_purchasePaydetail = new \Admin\Model\PurchasePaydetailModel();
+            $userinfo              = session('sysUserInfo');
+            $data['purchase_id'] = $purchase_id;
+            $data['pay_date']    = $pay_date;
+            $data['pay_fee']     = $pay_fee;
+            $data['media_id']    = $fk;
+            $data['status']      = 1;
+            $data['add_sysuser_id'] = $userinfo['id'];
+            
+            $ret = $m_purchasePaydetail->addData($data);
+            
+            if($ret){
+                
+                $this->output('添加成功!', 'inventorypurchase/paylist');
+            }else{
+                $this->error('添加失败');
+            }
+        }
+    }
+    public function editpaydetail(){
+        $purchase_id = I('purchase_id',0,'intval');
+        $id          = I('id',0,'intval');
+        $m_purchase_paydetail = new \Admin\Model\PurchasePaydetailModel();
+        
+        $where = [];
+        $where['a.id'] = $id;
+        $where['a.purchase_id'] = $purchase_id;
+        //print_r($where);exit;
+        $fields = 'a.*,m.oss_addr';
+        $result = $m_purchase_paydetail->alias('a')
+                             ->join('savor_media m on a.media_id=m.id','left')
+                             ->field($fields)
+                             ->where($where)
+                             ->find();
+        if(!empty($result['media_id'])){
+            $oss_host = get_oss_host();
+            $result['oss_addr'] = $oss_host.$result['oss_addr'];
+        }
+        $this->assign('vinfo',$result);
+            
+        $this->assign('purchase_id',$purchase_id);
+        $this->assign('id',$id);
+        $this->display();
+    }
+    public function doeditpaydetail(){
+        $purchase_id = I('purchase_id',0,'intval');
+        $id          = I('id',0,'intval');
+        if(IS_POST){
+            foreach($this->paydetail_required_arr as $key=>$v){
+                $tmp = I('post.'.$key);
+                if(empty($tmp)){
+                    $this->error($v);
+                    break;
+                }
+            }
+            $where = [];
+            $where['id'] = $id;
+            $where['purchase_id'] = $purchase_id;
+            
+            $userinfo              = session('sysUserInfo');
+            $pay_date = I('post.pay_date','','trim');
+            $pay_fee  = I('post.pay_fee',0,'trim');
+            $fk       = I('post.fk',0,'intval');
+            $data = [];
+            
+            $data['pay_date'] = $pay_date;
+            $data['pay_fee']  = $pay_fee;
+            $data['media_id'] = $fk;
+            $data['update_time'] = date('Y-m-d H:i:s');
+            $data['edit_sysuser_id'] = $userinfo['id'];
+            
+            $m_purchase_paydetail = new \Admin\Model\PurchasePaydetailModel();
+            $ret = $m_purchase_paydetail->updateData($where,$data);
+            
+            if($ret){
+                $this->outputNew('编辑成功!', 'inventorypurchase/paylist');
+                
+            }else {
+                $this->error('编辑失败');
+            }
+        }
+    }
+    public function delpaydetail(){
+        $purchase_id = I('get.purchase_id',0,'intval');
+        $id          = I('get.id',0,'intval');
+        
+        
+        $m_purchase_paydetail = new \Admin\Model\PurchasePaydetailModel();
+        $where= [];
+        $where['id'] = $id;
+        $where['purchase_id'] = $purchase_id;
+        $data = [];
+        $data['status'] = 2;
+        $ret = $m_purchase_paydetail->updateData($where, $data);
+        if($ret){
+            $this->output('删除成功!', 'inventorypurchase/paylist','');
         }else {
             $this->error('删除失败');
         }
