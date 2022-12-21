@@ -125,7 +125,7 @@ class SaleissueController extends BaseController {
             
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
-            $data['maintainer_id']     = $$maintainer_id;                       //合作维护人id
+            $data['maintainer_id']     = $maintainer_id;                       //合作维护人id
             
             $data['guest_openid']      = $guest_openid;                         //客人openid
             $data['guest_mobile']      = $guest_mobile;                         //客人手机号

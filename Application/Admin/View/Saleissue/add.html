@@ -271,7 +271,7 @@
                     var call = calls.data;
                     var sale_open_list = '';
                     console.log(call)
-                    $('#sale_openid_list').html('');
+                    $('#sale_openid_list').html('<option>请选择餐厅销售经理</option>');
                     for(var i=0;i<call.length;i++){
                     	sale_open_list +='<option value="'+call[i].openid+'">'+call[i].nickname+'</option>';
                     }
