@@ -2,7 +2,7 @@
 namespace Admin\Model;
 use Think\Model;
 use Common\Lib\Page;
-class SaleModel extends Model{
+class SaleModel extends BaseModel{
     
     protected $trueTableName='finance_sale';
     

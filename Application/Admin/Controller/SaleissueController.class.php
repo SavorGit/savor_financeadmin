@@ -130,7 +130,14 @@ class SaleissueController extends BaseController {
             $data['pay_money']         = $pay_money;                            //收款金额
             $data['pay_time']          = $pay_time;                             //收款时间
              
-            
+            $m_sale = new \Admin\Model\SaleModel();
+            $ret  = $m_sale->add($data);
+            if($ret){
+                
+                $this->output('添加成功!', 'saleissue/index');
+            }else{
+                $this->error('添加失败');
+            }
             
         }
         
