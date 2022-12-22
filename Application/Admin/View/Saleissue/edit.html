@@ -218,13 +218,22 @@
 	                  	<option value="2" <if condition="$vinfo['status'] eq 2">selected</if>> 已收款</option>
 	                </select>
 	              </div>
+	            <label class="col-xs-2 col-sm-2 control-label">
+					税率(%)：
+                </label>
+				<div class="col-xs-2 col-sm-2">
+                	<input  name="tax_rate"  type="text" value="{$vinfo.tax_rate}"  minlength="1" maxlength="2" class="form-control" />
+				</div>  
 			 	<label class="col-xs-2 col-sm-2 control-label">
 					收款金额：
                 </label>
 				<div class="col-xs-2 col-sm-2">
                 	<input  name="pay_money"  type="text" value="{$vinfo.pay_money}"  minlength="1" maxlength="50" class="form-control" />
 				</div>
-				<label class="col-xs-2 col-sm-2 control-label">
+				
+			 </div>
+             <div class="form-group row">
+             	<label class="col-xs-1 col-sm-1 control-label">
                 	收款时间：
 				</label>
 				<div class="col-xs-2 col-sm-3">
@@ -236,8 +245,7 @@
 	                  </span>
 	                </div> 
 				</div>
-			 </div>
-              
+             </div> 
               
 		  </div>
 		  

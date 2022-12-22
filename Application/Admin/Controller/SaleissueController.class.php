@@ -114,6 +114,7 @@ class SaleissueController extends BaseController {
                 $pay_image  = '';
             }
             $status          = I('post.status',0,'intval');
+            $tax_rate        = I('post.tax_rate',0,'intval');
             $pay_money       = I('post.pay_money','','trim');
             $pay_time        = I('post.pay_time','','trim');
             
@@ -144,7 +145,8 @@ class SaleissueController extends BaseController {
             $data['payer_account']     = $payer_account;                        //付款人账号
             $data['pay_image']         = $pay_image;                            //付款截图凭证
             $data['status']            = $status;                               //收款状态
-            $data['pay_money']         = !empty($pay_money) ? $pay_money:0;  //收款金额
+            $data['tax_rate']          = $tax_rate;                             //税率
+            $data['pay_money']         = !empty($pay_money) ? $pay_money:0;     //收款金额
             $data['pay_time']          = !empty($pay_time) ? $pay_time :'0000-00-00 00:00:00';  //收款时间
             $data['add_time']          = date('Y-m-d H:i:s'); 
             $m_sale = new \Admin\Model\SaleModel();
@@ -283,6 +285,7 @@ class SaleissueController extends BaseController {
                 $pay_image  = '';
             }
             $status          = I('post.status',0,'intval');
+            $tax_rate        = I('post.tax_rate',0,'intval');
             $pay_money       = I('post.pay_money','','trim');
             $pay_time        = I('post.pay_time','','trim');
             
@@ -313,7 +316,8 @@ class SaleissueController extends BaseController {
             $data['payer_account']     = $payer_account;                        //付款人账号
             $data['pay_image']         = $pay_image;                            //付款截图凭证
             $data['status']            = $status;                               //收款状态
-            $data['pay_money']         = !empty($pay_money) ? $pay_money:0;  //收款金额
+            $data['tax_rate']          = $tax_rate;                             //税率
+            $data['pay_money']         = !empty($pay_money) ? $pay_money:0;     //收款金额
             $data['pay_time']          = !empty($pay_time) ? $pay_time :'0000-00-00 00:00:00';  //收款时间
             
             $m_sale = new \Admin\Model\SaleModel();
