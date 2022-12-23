@@ -89,6 +89,12 @@ class SaleissueController extends BaseController {
                 $m_hotel = new \Admin\Model\HotelModel();
                 $hotel_info = $m_hotel->getHotelById('ext.maintainer_id',array('hotel.id'=>$hotel_id));
                 $maintainer_id = $hotel_info['maintainer_id'];
+                
+                
+                $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
+                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($hotel_id,$goods_info['goods_id'],0);
+            }else {
+                $settlement_price = 0.0;
             }
             
             //客人信息
@@ -128,7 +134,7 @@ class SaleissueController extends BaseController {
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
             $data['cost_price']        = $goods_info['cost_price'];             //商品成本价
-            $data['settlement_price']  = 0.0;                                   //商品成交价
+            $data['settlement_price']  = $settlement_price;                     //商品成交价
             
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
@@ -262,6 +268,11 @@ class SaleissueController extends BaseController {
                 $m_hotel = new \Admin\Model\HotelModel();
                 $hotel_info = $m_hotel->getHotelById('ext.maintainer_id',array('hotel.id'=>$hotel_id));
                 $maintainer_id = $hotel_info['maintainer_id'];
+                
+                $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
+                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($hotel_id,$goods_info['goods_id'],0);
+            }else {
+                $settlement_price = 0.0;
             }
             
             //客人信息
@@ -301,7 +312,7 @@ class SaleissueController extends BaseController {
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
             $data['cost_price']        = $goods_info['cost_price'];             //商品成本价
-            $data['settlement_price']  = 0.0;                                   //商品成交价
+            $data['settlement_price']  = $settlement_price;                     //商品成交价
             
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
@@ -327,7 +338,7 @@ class SaleissueController extends BaseController {
             $data['tax_rate']          = $tax_rate;                             //税率
             $data['pay_money']         = !empty($pay_money) ? $pay_money:0;     //收款金额
             $data['pay_time']          = !empty($pay_time) ? $pay_time :'0000-00-00 00:00:00';  //收款时间
-            
+            $data['edit_time']         = date('Y-m-d H:i:s');
             $m_sale = new \Admin\Model\SaleModel();
             $where = [];
             $where['id'] = $id;
