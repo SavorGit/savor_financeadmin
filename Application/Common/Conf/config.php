@@ -48,7 +48,7 @@ if(APP_DEBUG === false){
     $config['TMPL_TRACE_FILE'] = APP_PATH.'Site/View/Public/404.html';   // 页面Trace的模板文件
     $config['TMPL_EXCEPTION_FILE'] = APP_PATH.'Site/View/Public/404.html';// 异常页面的模板文件
 }
-
+$config['FINANCE_HOTELGOODS_PRICE']   = "finance:hotelgoods:price";//酒楼售卖酒商品结算价
 $config['RESOURCE_TYPE'] = array(
     '1'=>'视频',
     '2'=>'图片',
