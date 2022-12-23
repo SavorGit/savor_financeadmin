@@ -1,0 +1,106 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/pricetemplate/datalist" method="post">
+    <input type="hidden" name="pageNum" value="{$pageNum}"/>
+    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="col-xs-12 col-sm-8 col-md-8 col-lg-98">
+          <div class="tools-group">
+            <a class="btn btn-success btn-sm add" href="{$host_name}/pricetemplate/templateadd" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增</a>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 pull-right">
+          <div class="input-group input-group-sm">
+            <span class="input-group-btn">
+              <select name="type" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                <option value='0' >所有类型</option>
+                <volist name=":C('TEMPLATE_TYPES')" id="ttinfo">
+                  <option value="{$key}" <if condition="$type eq $key">selected</if> >{$ttinfo}</option>
+                </volist>
+              </select>
+            </span>
+            <span class="input-group-btn">
+              <select name="status" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                <option value='0' >所有状态</option>
+                <volist name=":C('TEMPLATE_STATUS')" id="tsinfo">
+                  <option value="{$key}" <if condition="$status eq $key">selected</if> >{$tsinfo}</option>
+                </volist>
+              </select>
+            </span>
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+
+          <tr id="post">
+            <th>ID</th>
+            <th>名称</th>
+            <th>创建人</th>
+            <th>创建时间</th>
+            <th>类型</th>
+            <th>使用酒楼</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <volist name="data" id="dinfo">
+            <tr target="sid_user">
+              <td data-title="ID">{$dinfo.id}</td>
+              <td data-title="名称">{$dinfo.name}</td>
+              <td data-title="创建人">{$dinfo.sys_username}</td>
+              <td data-title="创建时间">{$dinfo.add_time}</td>
+              <td data-title="类型">{$dinfo.type_str}</td>
+              <td data-title="使用酒楼">
+                <if condition="$dinfo.hotel_num gt 0">
+                  <a class="btn btn-success " title="酒楼数:{$dinfo.hotel_num}" target="navTab" mask="true" rel="pricetemplate/hotellist" href="{$host_name}/pricetemplate/hotellist?template_id={$dinfo.id}" >
+                    {$dinfo.hotel_num}</a>
+                  <else/>
+                  {$dinfo.hotel_num}
+                </if>
+              </td>
+              <td data-title="状态">{$dinfo.status_str}</td>
+              <td class="table-tool" data-title="操作">
+                <div class="tools-edit">
+                  <a data-tip="修改" target="dialog" mask="true" href="{$host_name}/pricetemplate/templateadd?id={$dinfo.id}" class="btn btn-success btn-icon">
+                    <i class="fa fa-pencil"></i>
+                  </a>
+
+                  <if condition="$dinfo.type eq 2">
+                  <a title="发布酒楼" data-tip="发布酒楼" target="dialog" mask="true" href="{$host_name}/pricetemplate/hoteladd?template_id={$dinfo.id}" class="btn btn-warning btn-icon">
+                    <i class="fa fa-hotel"></i>
+                  </a>
+                  <else />
+                  <a onclick="alertMsg.error('通用政策无需发布酒楼')" href="#" class="btn btn-warning btn-icon" style="opacity:0.6"><span><i class="fa fa-hotel"></i></span></a>
+                  </if>
+
+                  <a title="变更记录" data-tip="变更{$dinfo.name}记录" target="navTab" mask="true" rel="pricetemplate/history" href="{$host_name}/pricetemplate/history?template_id={$dinfo.id}" class="btn btn-default btn-icon">
+                    <i class="fa fa-history"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          </volist>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>

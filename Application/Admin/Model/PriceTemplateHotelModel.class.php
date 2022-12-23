@@ -1,0 +1,52 @@
+<?php
+namespace Admin\Model;
+use Common\Lib\Page;
+
+class PriceTemplateHotelModel extends BaseModel{
+	protected $tableName='finance_price_template_hotel';
+
+    public function getHotelDatas($fields,$where,$order,$group,$start=0,$size=5){
+        $list = $this->alias('a')
+            ->join('savor_hotel h on a.hotel_id=h.id','left')
+            ->field($fields)
+            ->where($where)
+            ->order($order)
+            ->limit($start,$size)
+            ->group($group)
+            ->select();
+
+        $count = $this->alias('a')
+            ->join('savor_hotel h on a.hotel_id=h.id','left')
+            ->field('a.id')
+            ->where($where)
+            ->group($group)
+            ->select();
+        $count = count($count);
+        $objPage = new Page($count,$size);
+        $show = $objPage->admin_page();
+        $data = array('list'=>$list,'page'=>$show);
+        return $data;
+    }
+
+    public function getHotelGoodsPrice($hotel_id,$goods_id){
+        $where = array('a.hotel_id'=>array('in',"$hotel_id,0"),'a.goods_id'=>$goods_id,'t.status'=>1);
+        $result = $this->alias('a')
+            ->join('savor_finance_price_template t on a.template_id=t.id','left')
+            ->field('a.template_id')
+            ->where($where)
+            ->order('t.id desc')
+            ->limit(0,1)
+            ->find();
+        $settlement_price = 0;
+        if(!empty($result)){
+            $template_id = $result['template_id'];
+            $m_pricegoods = new \Admin\Model\PriceTemplateGoodsModel();
+            $field = 'settlement_price';
+            $res_pgoods = $m_pricegoods->getAll($field,array('template_id'=>$template_id,'goods_id'=>$goods_id),0,1,'id desc');
+            if(!empty($res_pgoods[0]['settlement_price'])){
+                $settlement_price = $res_pgoods[0]['settlement_price'];
+            }
+        }
+        return $settlement_price;
+    }
+}

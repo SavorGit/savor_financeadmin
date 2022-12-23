@@ -264,6 +264,8 @@ $config['MEMBER_INTEGRAL']=array(
     'invite_vip_reward_saler'=>5600,
     'buy_reward_saler'=>400,
 );
+$config['TEMPLATE_TYPES'] = array('1'=>'通用政策','2'=>'特殊政策');
+$config['TEMPLATE_STATUS'] = array('1'=>'执行中','2'=>'已终止');
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
     'o9GS-4oZfWgjT0lySkJskdlflNrw'=>'黄勇',
