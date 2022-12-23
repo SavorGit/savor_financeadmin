@@ -366,7 +366,7 @@ class PricetemplateController extends BaseController {
         $area_id = I('area_id',0,'intval');
         $hotel_name = I('hotel_name', '','trim');
         $m_hotel = new \Admin\Model\HotelModel();
-        $where = array('ext.is_salehotel'=>1);
+        $where = array('hotel.state'=>1,'hotel.flag'=>0,'ext.is_salehotel'=>1);
         if($area_id){
             $where['hotel.area_id'] = $area_id;
         }
