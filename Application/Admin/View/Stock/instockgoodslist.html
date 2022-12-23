@@ -35,6 +35,10 @@
             <th>ID</th>
             <th>商品条形码</th>
             <th>商品名称</th>
+            <th>单价</th>
+            <th>税率</th>
+            <th>不含税单价</th>
+            <th>税额</th>
             <th>商品型号</th>
             <th>商品类型</th>
             <th>操作</th>
@@ -46,6 +50,11 @@
               <td data-title="ID">{$dinfo.id}</td>
               <td data-title="商品条形码">{$dinfo.barcode}</td>
               <td data-title="商品名称">{$dinfo.name}</td>
+              <td data-title="单价">{$dinfo.price}</td>
+              <td data-title="税率">{$dinfo.rate}</td>
+              <td data-title="不含税单价">{$dinfo.norate_price}</td>
+              <td data-title="税额">{$dinfo.rate_money}</td>
+
               <td data-title="商品型号">{$dinfo.unit}</td>
               <td data-title="商品类型">{$dinfo.category}</td>
               <td class="table-tool" data-title="操作">

@@ -3,6 +3,14 @@ namespace Admin\Controller;
 
 class StockController extends BaseController {
 
+    public $stock_serial_number_prefix = array(
+        '1'=>array('in'=>'BJRK','out'=>'BJCK'),
+        '9'=>array('in'=>'SHRK','out'=>'SHCK'),
+        '236'=>array('in'=>'GZRK','out'=>'GZCK'),
+        '246'=>array('in'=>'SZRK','out'=>'SZCK'),
+        '248'=>array('in'=>'FSRK','out'=>'FSCK'),
+        );
+
     public function inlist(){
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
@@ -67,11 +75,16 @@ class StockController extends BaseController {
                 $v['purchase_department_username'] = $departmentuser_arr[$v['purchase_department_user_id']]['name'];
                 $v['department_username'] = $departmentuser_arr[$v['department_user_id']]['name'];
                 $now_amount = 0;
-                $field='sum(total_amount) as total_amount';
+                $now_total_fee = 0;
+                $field='sum(total_amount) as total_amount,sum(total_fee) as total_fee';
                 $res_stock_record = $m_stock_record->getRow($field,array('stock_id'=>$v['id'],'type'=>1));
                 if(!empty($res_stock_record['total_amount'])){
                     $now_amount = intval($res_stock_record['total_amount']);
                 }
+                if(!empty($res_stock_record['total_fee'])){
+                    $now_total_fee = intval($res_stock_record['total_fee']);
+                }
+                $v['now_total_fee'] = $now_total_fee;
                 $v['now_amount'] = $now_amount;
                 $data_list[] = $v;
             }
@@ -119,6 +132,18 @@ class StockController extends BaseController {
             if($id){
                 $result = $m_stock->updateData(array('id'=>$id),$data);
             }else{
+                $nowdate = date('Ymd');
+                $field = 'count(id) as num';
+                $where = array('type'=>10,'area_id'=>$area_id,'DATE_FORMAT(add_time, "%Y%m%d")'=>$nowdate);
+                $res_stock = $m_stock->getAll($field,$where,0,1);
+                if($res_stock[0]['num']>0){
+                    $number = $res_stock[0]['num']+1;
+                }else{
+                    $number = 1;
+                }
+                $num_str = str_pad($number,3,'0',STR_PAD_LEFT);
+                $serial_number = $this->stock_serial_number_prefix[$area_id]['in'].$nowdate.$num_str;
+                $data['serial_number'] = $serial_number;
                 $data['update_time'] = date('Y-m-d H:i:s');
                 $result = $m_stock->addData($data);
             }
@@ -151,7 +176,7 @@ class StockController extends BaseController {
                 $purchase_arr[$v['id']]=$v;
             }
 
-            $vinfo = array('status'=>1);
+            $vinfo = array('status'=>1,'id'=>0);
             if($id){
                 $vinfo = $m_stock->getInfo(array('id'=>$id));
             }
@@ -172,7 +197,7 @@ class StockController extends BaseController {
 
         $start = ($pageNum-1)*$size;
         $m_stock_detail = new \Admin\Model\StockDetailModel();
-        $fields = 'a.id,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category';
+        $fields = 'a.id,goods.barcode,a.goods_id,a.unit_id,a.price,a.rate,goods.name,cate.name as category';
         $where = array('a.stock_id'=>$stock_id,'a.status'=>1);
         if(!empty($keyword)){
             $where['goods.name'] = array('like',"%$keyword%");
@@ -188,6 +213,18 @@ class StockController extends BaseController {
             }
             foreach ($res_list['list'] as $v){
                 $v['unit']=$all_unit[$v['unit_id']]['name'];
+                $price = $rate = $norate_price = $rate_money = '';
+                if($v['price']>0 && $v['rate']>0){
+                    $price = $v['price'];
+                    $rate_percent = $v['rate']*100;
+                    $rate = $rate_percent.'%';
+                    $rate_money = sprintf("%.2f",$v['price']*$v['rate']);
+                    $norate_price = $price - $rate_money;
+                }
+                $v['price'] = $price;
+                $v['rate'] = $rate;
+                $v['norate_price'] = $norate_price;
+                $v['rate_money'] = $rate_money;
                 $data_list[]=$v;
             }
         }
@@ -209,7 +246,7 @@ class StockController extends BaseController {
 
         $start = ($pageNum-1)*$size;
         $m_stock_reord = new \Admin\Model\StockRecordModel();
-        $fields = 'a.id,a.idcode,a.price,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category';
+        $fields = 'a.id,a.idcode,a.price,goods.barcode,a.goods_id,a.unit_id,goods.name,cate.name as category,stock.hotel_id';
         $where = array('a.stock_detail_id'=>$stock_detail_id);
         if($type){
             $where['a.type'] = $type;
@@ -218,20 +255,25 @@ class StockController extends BaseController {
         $res_list = $m_stock_reord->getList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list)){
+            $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
             $m_unit = new \Admin\Model\UnitModel();
-            $res_unit = $m_unit->getDataList('id,name',array('status'=>1),'id desc');
+            $res_unit = $m_unit->getDataList('id,name,convert_type',array('status'=>1),'id desc');
             $all_unit = array();
             foreach ($res_unit as $v){
                 $all_unit[$v['id']]=$v;
             }
             foreach ($res_list['list'] as $v){
+                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$v['goods_id']);
+                $goods_settlement_price = $settlement_price * $all_unit[$v['unit_id']]['convert_type'];
                 $v['unit']=$all_unit[$v['unit_id']]['name'];
                 $v['price']=abs($v['price']);
+                $v['settlement_price'] = $goods_settlement_price;
                 $data_list[]=$v;
             }
         }
 
         $this->assign('stock_detail_id',$stock_detail_id);
+        $this->assign('type',$type);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -248,8 +290,10 @@ class StockController extends BaseController {
             $purchase_detail_id = I('post.purchase_detail_id',0,'intval');
             $goods_id = I('post.goods_id',0,'intval');
             $unit_id = I('post.unit_id',0,'intval');
+            $rate = I('post.rate',0);
 
             $stock_amount = $stock_total_amount = 0;
+            $price = 0;
             if($purchase_detail_id>0){
                 $hwhere = array('stock_id'=>$stock_id,'purchase_detail_id'=>$purchase_detail_id);
                 $res_info = $m_pdetail->getInfo(array('id'=>$purchase_detail_id));
@@ -257,8 +301,19 @@ class StockController extends BaseController {
                 $unit_id = $res_info['unit_id'];
                 $stock_amount = $res_info['amount'];
                 $stock_total_amount = $res_info['total_amount'];
+
+                $m_unit = new \Admin\Model\UnitModel();
+                $res_unit = $m_unit->getInfo(array('id'=>$unit_id));
+                $total_amount = $res_unit['convert_type']*1;
+                $total_fee = $res_info['price'];
+                $price = sprintf("%.2f",$total_fee/$total_amount);//单瓶价格
             }else{
                 $hwhere = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id);
+                $m_stock_record = new \Admin\Model\StockRecordModel();
+                $res_record = $m_stock_record->getAll('price,total_fee',array('goods_id'=>$goods_id,'unit_id'=>$unit_id,'type'=>1),0,1,'id asc','');
+                if(!empty($res_record)){
+                    $price = $res_record[0]['price'];
+                }
             }
             if($id){
                 $hwhere['id']= array('neq',$id);
@@ -270,7 +325,7 @@ class StockController extends BaseController {
             }
 
             $data = array('stock_id'=>$stock_id,'purchase_detail_id'=>$purchase_detail_id,
-                'goods_id'=>$goods_id,'unit_id'=>$unit_id,'stock_amount'=>$stock_amount,
+                'goods_id'=>$goods_id,'rate'=>$rate,'price'=>$price,'unit_id'=>$unit_id,'stock_amount'=>$stock_amount,
                 'stock_total_amount'=>$stock_total_amount,'status'=>1);
             if($id){
                 $m_stock_detail->updateData(array('id'=>$id),$data);
@@ -368,10 +423,17 @@ class StockController extends BaseController {
         $res_list = $m_stock->getDataList('*',$where,'id desc',$start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $m_user = new \Admin\Model\SmallappUserModel();
             foreach ($res_list['list'] as $v){
                 $v['department'] = $department_arr[$v['department_id']]['name'];
                 $v['department_user'] = $departmentuser_arr[$v['department_user_id']]['name'];
                 $v['io_type_str'] = $io_types[$v['io_type']];
+                $receive_username = '';
+                if(!empty($v['receive_openid'])){
+                    $res_user = $m_user->getInfo(array('openid'=>$v['receive_openid']));
+                    $receive_username = $res_user['nickname'];
+                }
+                $v['receive_username'] = $receive_username;
                 $data_list[] = $v;
             }
         }
@@ -412,6 +474,18 @@ class StockController extends BaseController {
             if($id){
                 $result = $m_stock->updateData(array('id'=>$id),$data);
             }else{
+                $nowdate = date('Ymd');
+                $field = 'count(id) as num';
+                $where = array('type'=>20,'area_id'=>$area_id,'DATE_FORMAT(add_time, "%Y%m%d")'=>$nowdate);
+                $res_stock = $m_stock->getAll($field,$where,0,1);
+                if($res_stock[0]['num']>0){
+                    $number = $res_stock[0]['num']+1;
+                }else{
+                    $number = 1;
+                }
+                $num_str = str_pad($number,3,'0',STR_PAD_LEFT);
+                $serial_number = $this->stock_serial_number_prefix[$area_id]['out'].$nowdate.$num_str;
+                $data['serial_number'] = $serial_number;
                 $data['update_time'] = date('Y-m-d H:i:s');
                 $result = $m_stock->addData($data);
             }
@@ -445,7 +519,7 @@ class StockController extends BaseController {
                 $hotel_list[$k]['name'] = "{$area_arr[$v['area_id']]['region_name']}--".$v['name'];
             }
 
-            $vinfo = array('status'=>1);
+            $vinfo = array('status'=>1,'id'=>0);
             if($id){
                 $vinfo = $m_stock->getInfo(array('id'=>$id));
             }

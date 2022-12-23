@@ -45,6 +45,14 @@
 
             </if>
 
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">税率：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input name="rate" type="number" value="{$vinfo.rate}" class="form-control" min="0" max="0.9" required/>
+                </div>
+            </div>
+
         </div>
         <div class="modal-footer">
             <button class="btn btn-default close-m" type="button">取消</button>

@@ -3,13 +3,14 @@
         <input name="id" type="hidden" id="stock_id" value="{$vinfo.id}"/>
         <input type="hidden" id="now_department_user_id" value="{$vinfo.department_user_id}"/>
         <div class="pageFormContent modal-body">
+            <if condition="$vinfo.id gt 0">
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">入库单号：</label>
                 <div class="col-xs-12 col-sm-10">
-                    <input name="serial_number" type="text" value="{$vinfo.serial_number}" class="form-control" required/>
+                    <input name="serial_number" type="text" value="{$vinfo.serial_number}" class="form-control" readonly/>
                 </div>
             </div>
-
+            </if>
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">名称：</label>
                 <div class="col-xs-12 col-sm-10">

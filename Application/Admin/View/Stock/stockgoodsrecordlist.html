@@ -4,6 +4,7 @@
     <input type="hidden" name="pageNum" value="{$pageNum}"/>
     <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
     <input type="hidden" name="stock_detail_id" value="{$stock_detail_id}"/>
+    <input type="hidden" name="type" value="{$type}"/>
     <div class="searchBar">
       <div class="clearfix">
         <div class="col-xs-12 col-sm-6 col-md-10">
@@ -37,6 +38,10 @@
             <th>商品类型</th>
             <th>单位</th>
             <th>单价</th>
+            <if condition="$type eq 2">
+            <th>餐厅结算价</th>
+            </if>
+
           </tr>
           </thead>
           <tbody data-check="list" data-parent=".table">
@@ -49,7 +54,9 @@
               <td data-title="商品类型">{$dinfo.category}</td>
               <td data-title="单位">{$dinfo.unit}</td>
               <td data-title="单价">{$dinfo.price}</td>
-
+              <if condition="$type eq 2">
+              <td data-title="餐厅结算价">{$dinfo.settlement_price}</td>
+              </if>
             </tr>
           </volist>
           </tbody>
