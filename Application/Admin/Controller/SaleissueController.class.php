@@ -3,7 +3,7 @@ namespace Admin\Controller;
 
 class SaleissueController extends BaseController {
     private $required_arr = array(
-        'idcode'=>'请填写商品识别码',
+        'type'=>'请选择售卖类型','idcode'=>'请填写商品识别码',
     );
     
     public function __construct() {
@@ -27,7 +27,10 @@ class SaleissueController extends BaseController {
         
         
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = "a.id,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time";
+        $fileds = "a.id,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,case a.type
+				   when 1 then '餐厅售卖'
+				   when 2 then '团购售卖'
+                   when 3 then '其它售卖' END AS type";
         
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
         
@@ -42,7 +45,7 @@ class SaleissueController extends BaseController {
         
         //售酒餐厅
         $m_hotel = new \Admin\Model\HotelModel();
-        $fields = 'a.id hotel_id,a.name hotel_name';
+        $fields = "a.id hotel_id,a.name hotel_name";
         $where = [];
         $where['a.state'] = 1;
         $where['a.flag'] = 0;
@@ -65,6 +68,8 @@ class SaleissueController extends BaseController {
                     break;
                 }
             }
+            $type   = I('post.type',0,'intval');
+            
             $idcode = I('post.idcode','','trim');
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,goods.price as cost_price,unit.name as unit_name,
@@ -119,6 +124,7 @@ class SaleissueController extends BaseController {
             $pay_time        = I('post.pay_time','','trim');
             
             $data = [];
+            $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
             $data['cost_price']        = $goods_info['cost_price'];             //商品成本价
@@ -236,6 +242,7 @@ class SaleissueController extends BaseController {
                 }
                 
             }
+            $type   = I('post.type',0,'intval');
             $idcode = I('post.idcode','','trim');
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,goods.price as cost_price,unit.name as unit_name,
@@ -290,6 +297,7 @@ class SaleissueController extends BaseController {
             $pay_time        = I('post.pay_time','','trim');
             
             $data = [];
+            $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
             $data['cost_price']        = $goods_info['cost_price'];             //商品成本价
