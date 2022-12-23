@@ -334,16 +334,16 @@ class PricetemplateController extends BaseController {
                         break;
                     case 20:
                         $res_goods = $m_goods->getInfo(array('id'=>$v['goods_id']));
-                        $content = "商品:{$res_goods['name']},结算价:{$v['settlement_price']}";
+                        $content = "{$res_goods['name']},结算价:{$v['settlement_price']}";
                         break;
                     case 21:
                         $res_goods = $m_goods->getInfo(array('id'=>$v['goods_id']));
-                        $content = "商品:{$res_goods['name']}";
+                        $content = "{$res_goods['name']}";
                         break;
                     case 30:
                     case 31:
                         $res_hotel = $m_hotel->getInfo(array('id'=>$v['hotel_id']));
-                        $content = "酒楼:{$res_hotel['name']}";
+                        $content = "{$res_hotel['name']}";
                         break;
                     default:
                         $content = '';
