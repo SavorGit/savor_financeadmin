@@ -686,7 +686,7 @@ class StockController extends BaseController {
             foreach ($res_list['list'] as $v){
                 $goods_id = $v['goods_id'];
                 $fields = 'sum(a.total_fee) as total_fee,sum(a.total_amount) as total_amount';
-                $swhere = array('a.goods_id'=>$goods_id,'a.type'=>array('in',array(1,2,3)),'a.dstatus'=>1);
+                $swhere = array('a.goods_id'=>$goods_id,'a.type'=>array('in',array(1,2)),'a.dstatus'=>1);
                 if($area_id){
                     $swhere['stock.area_id'] = $area_id;
                 }
@@ -726,7 +726,7 @@ class StockController extends BaseController {
         $end_time = I('end_time','');
         $all_types = array('1'=>'入库','2'=>'出库','3'=>'拆箱');
 
-        $where = array('a.goods_id'=>$goods_id);
+        $where = array('a.goods_id'=>$goods_id,'a.dstatus'=>1);
         if($type){
             $where['a.type'] = $type;
         }else{
@@ -824,7 +824,7 @@ class StockController extends BaseController {
 
                 $m_stock_record = new \Admin\Model\StockRecordModel();
                 $fields = 'sum(total_amount) as total_amount';
-                $rwhere = array('goods_id'=>$goods_id,'unit_id'=>$v['unit_id'],'type'=>array('in',array(1,2,3)));
+                $rwhere = array('goods_id'=>$goods_id,'unit_id'=>$v['unit_id'],'type'=>array('in',array(1,2)),'dstatus'=>1);
                 $res_goods_inrecord = $m_stock_record->getAll($fields,$rwhere,0,1);
                 $now_amount = 0;
                 if(!empty($res_goods_inrecord)){
@@ -865,7 +865,7 @@ class StockController extends BaseController {
             $units[$v['id']]=$v;
         }
 
-        $where = array('a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.type'=>array('in',array(1,3)),'a.status'=>0);
+        $where = array('a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.type'=>array('in',array(1,3)),'a.status'=>0,'a.dstatus'=>1);
         $start = ($pageNum-1)*$size;
         $fields = 'a.*,goods.name,goods.specification_id,stock.serial_number,stock.area_id';
         $m_stock_record = new \Admin\Model\StockRecordModel();
