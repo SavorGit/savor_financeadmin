@@ -1,19 +1,13 @@
 <include file="Public/script"/>
 <!--显示列表样式1 start-->
 <div class="pageHeader">
-    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stock/idcodesearch" method="post">
-
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stock/idcodehistory" method="post">
+        <input type="hidden" name="idcode" value="{$idcode}"/>
         <div class="searchBar">
             <div class="clearfix">
 
                 <div class="form-inline">
 
-                    <div class="form-group">
-                        <div class="input-group input-group-sm">唯一识别码：</div>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="idcode" value="{$idcode}">
-                        </div>
-                    </div>
                     <div class="form-group">
                         <div class="input-group input-group-sm">
                             <span class="input-group-btn">
@@ -39,29 +33,30 @@
                 <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
                     <thead>
                     <tr id="post">
+                        <th>ID</th>
                         <th>唯一识别码</th>
+                        <th>酒楼名称</th>
+                        <th>入/出库单号</th>
                         <th>商品名称</th>
                         <th>单位</th>
                         <th>状态</th>
                         <th>数据状态</th>
                         <th>时间</th>
-                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody data-check="list" data-parent=".table">
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
+                            <td data-title="ID">{$dinfo.id}</td>
                             <td data-title="唯一识别码">{$dinfo.idcode}</td>
+                            <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
+                            <td data-title="入/出库单号">{$dinfo.serial_number}</td>
                             <td data-title="商品名称">{$dinfo.goods_name}</td>
                             <td data-title="单位">{$dinfo.unit_name}</td>
                             <td data-title="状态">{$dinfo.type_str}</td>
                             <td data-title="数据状态">{$dinfo.dstatus_str}</td>
                             <td data-title="时间">{$dinfo.add_time}</td>
-                            <td data-title="操作">
-                                <a title="{$dinfo.idcode}-流转明细" data-tip="流转明细" target="navTab" mask="true" rel="stock/idcodehistory" href="{$host_name}/stock/idcodehistory?idcode={$dinfo.idcode}" class="btn btn-success btn-icon">
-                                    <i class="fa fa-list"></i>
-                                </a>
-                            </td>
+
                         </tr>
                     </foreach>
                     </tbody>
@@ -70,5 +65,4 @@
 
         </div>
     </div>
-
 </div>

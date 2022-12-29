@@ -1641,6 +1641,42 @@ class StockController extends BaseController {
         $this->display();
     }
 
+    public function idcodehistory(){
+        $idcode = I('idcode','','trim');
+
+        $all_type = C('STOCK_RECORD_TYPE');
+        $wo_status = C('STOCK_WRITEOFF_STATUS');
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,stock.hotel_id,stock.serial_number,unit.name as unit_name,a.wo_status,a.dstatus,a.add_time';
+        $res_record = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode),'a.id desc','','');
+        $data_list = array();
+        $m_hotel = new \Admin\Model\HotelModel();
+        foreach ($res_record as $v){
+            $info = $v;
+            $type_str = $all_type[$info['type']];
+            if($info['type']==7){
+                $type_str.="（{$wo_status[$info['wo_status']]}）";
+            }
+            if($info['dstatus']==2){
+                $dstatus_str = '删除';
+            }else{
+                $dstatus_str = '正常';
+            }
+            $hotel_name = '';
+            if($info['hotel_id']>0){
+                $res_hotel = $m_hotel->getInfo(array('id'=>$info['hotel_id']));
+                $hotel_name = $res_hotel['name'];
+            }
+            $info['hotel_name']= $hotel_name;
+            $info['dstatus_str']= $dstatus_str;
+            $info['type_str']= $type_str;
+            $data_list[] = $info;
+        }
+        $this->assign('idcode',$idcode);
+        $this->assign('datalist',$data_list);
+        $this->display();
+    }
+
     public function getAjaxStockUnit(){
         $goods_id = I('goods_id',0,'intval');
         $unit_id = 0;
