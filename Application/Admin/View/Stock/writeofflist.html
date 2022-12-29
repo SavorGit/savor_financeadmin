@@ -92,6 +92,8 @@
                         <th>商品名称</th>
                         <th>商品编号</th>
                         <th>单位</th>
+                        <th>成本价</th>
+                        <th>结算价</th>
                         <th>核销原因</th>
                         <th>核销资料</th>
                         <th>状态</th>
@@ -111,6 +113,8 @@
                             <td data-title="商品名称">{$dinfo.name}</td>
                             <td data-title="商品编号">{$dinfo.goods_id}</td>
                             <td data-title="单位">{$dinfo.unit_name}</td>
+                            <td data-title="成本价">{$dinfo.price}</td>
+                            <td data-title="结算价">{$dinfo.settlement_price}</td>
                             <td data-title="核销原因">{$dinfo.wo_reason_type_str}</td>
                             <td data-title="核销资料">
                                 <volist name="dinfo.imgs" id="img">

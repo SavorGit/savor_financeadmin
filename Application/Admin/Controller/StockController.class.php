@@ -683,6 +683,7 @@ class StockController extends BaseController {
         }
         if(!empty($res_list['list'])){
             $m_stock_record = new \Admin\Model\StockRecordModel();
+            $m_avg_price = new \Admin\Model\GoodsAvgpriceModel();
             foreach ($res_list['list'] as $v){
                 $goods_id = $v['goods_id'];
                 $fields = 'sum(a.total_fee) as total_fee,sum(a.total_amount) as total_amount';
@@ -691,13 +692,11 @@ class StockController extends BaseController {
                     $swhere['stock.area_id'] = $area_id;
                 }
                 $res_goods_record = $m_stock_record->getAllStock($fields,$swhere,'a.id desc','');
-                $price = $total_fee = $stock_num = 0;
-                if(!empty($res_goods_record[0]['total_fee']) && !empty($res_goods_record[0]['total_amount'])){
-                    $total_fee = intval($res_goods_record[0]['total_fee']);
-                    $stock_num = intval($res_goods_record[0]['total_amount']);
-                    $price = sprintf("%.2f",$total_fee/$stock_num);
-                }
-                $v['price'] = $price;
+                $res_price = $m_avg_price->getAll('price',array('goods_id'=>$goods_id),0,1,'id desc');
+                $avg_price = $res_price[0]['price'];
+                $stock_num = intval($res_goods_record[0]['total_amount']);
+                $total_fee = $avg_price*$stock_num;
+                $v['price'] = $avg_price;
                 $v['stock_num'] = $stock_num;
                 $v['total_fee'] = $total_fee;
                 $v['area'] = $area_arr[$v['area_id']]['region_name'];
@@ -958,6 +957,9 @@ class StockController extends BaseController {
 
 //                $stock_num = $out_num+$unpack_num+$wo_num+$report_num;
                 $stock_num = $out_num+$wo_num+$report_num;
+                $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
+                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$goods_id,1);
+                $v['settlement_price'] = $settlement_price;
                 $v['price'] = $price;
                 $v['stock_num'] = $stock_num;
                 $v['total_fee'] = $price*$stock_num;
@@ -1155,6 +1157,7 @@ class StockController extends BaseController {
             $all_reason = C('STOCK_USE_TYPE');
             $oss_host = get_oss_host();
             $m_user = new \Admin\Model\SmallappUserModel();
+            $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
             foreach ($res_list['list'] as $v){
                 $imgs = array();
                 $v['department_user']=$departmentuser_arr[$v['department_user_id']]['name'];
@@ -1173,6 +1176,12 @@ class StockController extends BaseController {
                 $res_user = $m_user->getInfo(array('openid'=>$v['op_openid']));
                 $v['username'] = $res_user['nickname'];
                 $v['usermobile'] = $res_user['mobile'];
+                $price = abs($v['price']);
+                $total_amount = abs($v['total_amount']);
+                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$v['goods_id'],1);
+
+                $v['price'] = sprintf("%.2f",$price*$total_amount);
+                $v['settlement_price'] = sprintf("%.2f",$settlement_price*$total_amount);
                 $data_list[] = $v;
             }
         }

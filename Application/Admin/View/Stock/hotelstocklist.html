@@ -60,8 +60,8 @@
                         <th>商品规格</th>
                         <th>单位</th>
                         <th>当前库存(瓶)</th>
-<!--                        <th>单价</th>-->
-<!--                        <th>总金额</th>-->
+                        <th>出库成本价</th>
+                        <th>结算价</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -77,8 +77,8 @@
                             <td data-title="商品规格">{$dinfo.sepc_name}</td>
                             <td data-title="单位">{$dinfo.unit_name}</td>
                             <td data-title="当前库存">{$dinfo.stock_num}</td>
-<!--                            <td data-title="单价">{$dinfo.price}</td>-->
-<!--                            <td data-title="总金额">{$dinfo.total_fee}</td>-->
+                            <td data-title="出库成本价">{$dinfo.price}</td>
+                            <td data-title="结算价">{$dinfo.settlement_price}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
                                     <a title="{$dinfo.name}-明细" data-tip="明细" target="navTab" mask="true" rel="stock/hotelstockchangelist" href="{$host_name}/stock/hotelstockchangelist?goods_id={$dinfo.goods_id}&unit_id={$dinfo.unit_id}&hotel_id={$dinfo.hotel_id}" class="btn btn-success btn-icon">
