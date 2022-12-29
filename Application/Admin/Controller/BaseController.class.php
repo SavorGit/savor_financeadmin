@@ -424,7 +424,8 @@ class BaseController extends Controller {
         $free_action = array(
             'admin.menu.get_se_left','admin.clean.cache','admin.resource.uploadresource',
             'admin.resource.uploadresourcenew','admin.sysuser.chagepwd','admin.stock.getajaxstockunit',
-            'admin.inventorypurchase.getusers','admin.basicset.getuserbydepartmentid','admin.goods.getajaxotherinfo','admin.inventorypurchase.getgoodsinfo'
+            'admin.inventorypurchase.getusers','admin.basicset.getuserbydepartmentid','admin.goods.getajaxotherinfo','admin.inventorypurchase.getgoodsinfo',
+			'admin.saleissue.getsalelist'
         );
         $model_name      = strtolower(MODULE_NAME);
         $controller_name = strtolower(CONTROLLER_NAME);
