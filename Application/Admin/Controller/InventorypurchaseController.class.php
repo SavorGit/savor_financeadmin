@@ -395,7 +395,7 @@ class InventorypurchaseController extends BaseController {
             $ret = $m_purchase_detail->addData($data);
             if($ret){
                 //更新采购合同总金额、总数量
-                $rts = $m_purchase_detail->field('sum(amount) as amount,sum(total_fee) as total_fee')->where(array('purchase_id'=>$purchase_id))->find();
+                $rts = $m_purchase_detail->field('sum(amount) as amount,sum(total_fee) as total_fee')->where(array('purchase_id'=>$purchase_id,'status'=>1))->find();
                 //print_r($rts);exit;
                 $m_purchase = new \Admin\Model\PurchaseModel();
                 $map = [];
@@ -508,7 +508,7 @@ class InventorypurchaseController extends BaseController {
             $ret = $m_purchase_detail->updateData($where,$data);
             if($ret){
                 //更新采购合同总金额、总数量
-                $rts = $m_purchase_detail->field('sum(amount) as amount,sum(total_fee) as total_fee')->where(array('purchase_id'=>$purchase_id))->find();
+                $rts = $m_purchase_detail->field('sum(amount) as amount,sum(total_fee) as total_fee')->where(array('purchase_id'=>$purchase_id,'status'=>1))->find();
                 //print_r($rts);exit;
                 $m_purchase = new \Admin\Model\PurchaseModel();
                 $map = [];
@@ -545,6 +545,15 @@ class InventorypurchaseController extends BaseController {
         $data['status'] = 2;
         $ret = $m_purchase_detail->updateData($where, $data);
         if($ret){
+            
+            //更新采购合同总金额、总数量
+            $rts = $m_purchase_detail->field('sum(amount) as amount,sum(total_fee) as total_fee')->where(array('purchase_id'=>$purchase_id,'status'=>1))->find();
+            //print_r($rts);exit;
+            $m_purchase = new \Admin\Model\PurchaseModel();
+            $map = [];
+            $map['amount'] = $rts['amount'];
+            $map['total_fee'] = $rts['total_fee'];
+            $m_purchase->updateData(array('id'=>$purchase_id), $map);
             $this->output('删除成功!', 'inventorypurchase/detaillist','');
         }else {
             $this->error('删除失败');
