@@ -18,8 +18,34 @@ class SaleissueController extends BaseController {
         $sort = I('_sort','desc');
         $orders = $order.' '.$sort;
         $start  = ( $pageNum-1 ) * $size;
-
+        
         $where  = array();
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $type       = I('type',0,'intval');
+        $idcode     = I('idcode','','trim');
+        if($start_date && $end_date){
+            $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+            $this->assign('start_date',$start_date);
+            $this->assign('end_date',$end_date);
+        }else if(empty($start_date) && !empty($end_date)){
+            $where['a.add_time']= array( array('ELT',$end_date.' 23:59:59'));
+            $this->assign('end_date',$end_date);
+        }
+        
+        if(!empty($start_date)&& empty($end_date)){
+            $where['a.add_time']= array('EGT',$start_date.' 00:00:00');
+            $this->assign('start_date',$start_date);
+        }
+        if(!empty($type)){
+            $where['a.type'] = $type;
+            $this->assign('type',$type);
+        }
+        if(!empty($idcode)){
+            $where['a.idcode'] = $idcode;
+            $this->assign('idcode',$idcode);
+        }
+        
         $m_sale = new \Admin\Model\SaleModel();
         $fileds = "a.id,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,case a.type
 				   when 1 then '餐厅售卖'
@@ -67,9 +93,10 @@ class SaleissueController extends BaseController {
             $type   = I('post.type',0,'intval');
             $idcode = I('post.idcode','','trim');
             $m_stock_record = new \Admin\Model\StockRecordModel();
-            $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,goods.price as cost_price,unit.name as unit_name,
+            $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
                       a.wo_status,a.dstatus,a.add_time';
             $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode,'a.dstatus'=>1),'a.id desc','0,1','');
+            
             if(empty($res_list)){
                 $this->error('商品识别码异常');
             }
@@ -123,7 +150,7 @@ class SaleissueController extends BaseController {
             $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
-            $data['cost_price']        = $goods_info['cost_price'];             //商品成本价
+            $data['cost_price']        = abs($goods_info['cost_price']);        //商品成本价
             $data['settlement_price']  = $settlement_price;                     //商品成交价
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
@@ -229,9 +256,10 @@ class SaleissueController extends BaseController {
             $type   = I('post.type',0,'intval');
             $idcode = I('post.idcode','','trim');
             $m_stock_record = new \Admin\Model\StockRecordModel();
-            $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,goods.price as cost_price,unit.name as unit_name,
+            $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
                       a.wo_status,a.dstatus,a.add_time';
             $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode,'a.dstatus'=>1),'a.id desc','0,1','');
+            
             if(empty($res_list)){
                 $this->error('商品识别码异常');
             }
@@ -284,7 +312,7 @@ class SaleissueController extends BaseController {
             $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
-            $data['cost_price']        = $goods_info['cost_price'];             //商品成本价
+            $data['cost_price']        = abs($goods_info['cost_price']);        //商品成本价
             $data['settlement_price']  = $settlement_price;                     //商品成交价
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
