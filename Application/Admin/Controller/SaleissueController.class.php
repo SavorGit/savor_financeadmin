@@ -24,7 +24,12 @@ class SaleissueController extends BaseController {
         $fileds = "a.id,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,case a.type
 				   when 1 then '餐厅售卖'
 				   when 2 then '团购售卖'
-                   when 3 then '其它售卖' END AS type";
+                   when 3 then '其它售卖' END AS type,
+                   case record.wo_status 
+                   when 1 then '待审核'
+                   when 2 then '审核通过'
+                   when 3 then '审核不通过'
+                   when 4 then '待补充资料' END AS wo_status";
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
         $this->assign('list',$result['list']);
         $this->assign('page',$result['page']);

@@ -10,6 +10,7 @@ class SaleModel extends BaseModel{
         $list = $this->alias('a')
         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
         ->join('savor_finance_goods goods on a.goods_id   = goods.id','left')
+        ->join('savor_finance_stock_record record on a.stock_record_id=record.id','left')
         ->field($fileds)
         ->where($where)
         ->order($orders)
