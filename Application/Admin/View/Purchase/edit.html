@@ -1,3 +1,28 @@
+<style type="text/css">
+    .zhezhao{
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        background-color: black;
+        opacity: 0.7;
+        text-align: center;
+        z-index: 99;
+    }
+    .big{
+        display: none;
+    }
+    .addbig{
+        position: absolute;
+        width: 500px;
+        height: 500px;
+        top: 100px;
+        left: 26%;
+        z-index: 100;
+    }
+</style>
 <include file="Public/script"/>
 <div class="pageContent" style="height:100%;overflow: auto;background-color: #EEEEEE;">
   <form method="post" action="{$host_name}/purchase/doedit" class="pageForm -validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
@@ -757,6 +782,8 @@
     </div>
     
   </form>
+  <div class="zhezhao"></div>
+  <img class="big" src=""/>
 </div>
 <script type="text/javascript">
 
@@ -783,7 +810,34 @@
 	
   });
   $(function(){
-    
+	  $('#fkrqimg').click(function(){
+          var $a = $(this).attr('src');
+          $('.big').prop('src',$a).addClass('addbig');
+          $('.zhezhao').show(500);
+          $('.big').show(500);
+      })
+      $('#yfkimg').click(function(){
+          var $a = $(this).attr('src');
+          $('.big').prop('src',$a).addClass('addbig');
+          $('.zhezhao').show(500);
+          $('.big').show(500);
+      })
+      $('#zqjkimg').click(function(){
+          var $a = $(this).attr('src');
+          $('.big').prop('src',$a).addClass('addbig');
+          $('.zhezhao').show(500);
+          $('.big').show(500);
+      })
+      $('#wkimg').click(function(){
+          var $a = $(this).attr('src');
+          $('.big').prop('src',$a).addClass('addbig');
+          $('.zhezhao').show(500);
+          $('.big').show(500);
+      })
+      $('.zhezhao').click(function(){
+          $('.zhezhao').hide(500);
+          $('.big').hide(500);
+      })
 
     $(".form-control.date").datetimepicker({
       minView: "month", //选择日期后，不会再跳转去选择时分秒
