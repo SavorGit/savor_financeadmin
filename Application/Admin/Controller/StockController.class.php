@@ -465,6 +465,10 @@ class StockController extends BaseController {
             $use_type = I('post.use_type',0,'intval');
             $area_id = I('post.area_id',0,'intval');
             $hotel_id = I('post.hotel_id',0,'intval');
+            if(empty($io_date)){
+                $this->output('请选择出库日期', 'stock/addoutstock',2,0);
+            }
+
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
             $data = array('serial_number'=>$serial_number,'name'=>$name,'io_type'=>$io_type,'use_type'=>$use_type,'io_date'=>$io_date,
@@ -911,7 +915,7 @@ class StockController extends BaseController {
         }
 
         $start = ($pageNum-1)*$size;
-        $fileds = 'a.goods_id,goods.name,goods.barcode,cate.name as cate_name,spec.name as sepc_name,a.unit_id,unit.name as unit_name,hotel.id as hotel_id,hotel.name as hotel_name';
+        $fileds = 'a.goods_id,stock.area_id,goods.name,goods.barcode,cate.name as cate_name,spec.name as sepc_name,a.unit_id,unit.name as unit_name,hotel.id as hotel_id,hotel.name as hotel_name';
         $group = 'stock.hotel_id,a.goods_id,a.unit_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
         $res_list = $m_stock_detail->getHotelStockGoods($fileds,$where,$group,$start,$size);
@@ -963,6 +967,7 @@ class StockController extends BaseController {
                 $v['price'] = $price;
                 $v['stock_num'] = $stock_num;
                 $v['total_fee'] = $price*$stock_num;
+                $v['area_name'] = $area_arr[$v['area_id']]['region_name'];
                 $data_list[] = $v;
             }
         }
