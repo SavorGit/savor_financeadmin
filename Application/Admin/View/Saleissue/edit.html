@@ -23,6 +23,9 @@
                 </label>
 			<div class="col-xs-2 col-sm-2">
                 <select id="type" name="type" class="form-control bs-select" title="请选择售卖类型">
+                	<if condition="$vinfo['stock_record_id'] gt 0">
+                	<option value="1" <if condition="$vinfo['type'] eq 1">selected</if>> 餐厅售卖</option>
+                	</if>
                     <option value="2" <if condition="$vinfo['type'] eq 2">selected</if>> 团购售卖</option>
                   	<option value="3" <if condition="$vinfo['type'] eq 3">selected</if>> 其它售卖</option>
                 </select>
