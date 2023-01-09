@@ -476,6 +476,10 @@ class StockController extends BaseController {
                 'area_id'=>$area_id,'hotel_id'=>$hotel_id,'type'=>20,'sysuser_id'=>$sysuser_id
             );
             if($id){
+                $stock_info = $m_stock->getInfo(array('id'=>$id));
+                if($stock_info['status']>=2 && $stock_info['io_type']!=$io_type){
+                    $this->output('请勿修改出库类型', 'stock/addoutstock',2,0);
+                }
                 $result = $m_stock->updateData(array('id'=>$id),$data);
             }else{
                 $nowdate = date('Ymd');
