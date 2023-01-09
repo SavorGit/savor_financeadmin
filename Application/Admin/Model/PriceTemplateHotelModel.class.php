@@ -5,6 +5,19 @@ use Common\Lib\Page;
 class PriceTemplateHotelModel extends BaseModel{
 	protected $tableName='finance_price_template_hotel';
 
+	public function getHotelPriceTemplate($hotel_id){
+	    $fields = 't.id,t.name,t.type';
+	    $where = array('a.hotel_id'=>$hotel_id,'t.status'=>1);
+        $result = $this->alias('a')
+            ->join('savor_finance_price_template t on a.template_id=t.id','left')
+            ->field($fields)
+            ->where($where)
+            ->order('t.id desc')
+            ->limit(0,1)
+            ->find();
+        return $result;
+    }
+
     public function getHotelDatas($fields,$where,$order,$group,$start=0,$size=5){
         $list = $this->alias('a')
             ->join('savor_hotel h on a.hotel_id=h.id','left')

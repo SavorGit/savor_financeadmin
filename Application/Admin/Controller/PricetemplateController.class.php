@@ -74,6 +74,15 @@ class PricetemplateController extends BaseController {
                     $this->output('请输入商品的结算价', 'pricetemplate/templateadd',2,0);
                 }
             }
+            $repeat_where = array('type'=>1,'status'=>1);
+            if($id){
+                $repeat_where['id'] = array('neq',$id);
+            }
+            $res_repeat = $m_pricetemplate->getInfo($repeat_where);
+            if(!empty($res_repeat)){
+                $this->output('通用政策只能存在一个', 'pricetemplate/templateadd',2,0);
+            }
+
             $userInfo = session('sysUserInfo');
             $add_data = array('name'=>$name,'type'=>$type,'status'=>$status);
             $is_uphotel = 0;
@@ -235,6 +244,12 @@ class PricetemplateController extends BaseController {
                     $res_price_hotel = $m_pricehotel->getInfo(array('template_id'=>$template_id,'hotel_id'=>$hotel_id));
                     if(!empty($res_price_hotel)){
                         continue;
+                    }
+                    $res_has_template = $m_pricehotel->getHotelPriceTemplate($hotel_id);
+                    if(!empty($res_has_template) && $res_has_template['type']==2 && $res_has_template['id']!=$template_id){
+                        $message = '酒楼ID：'.$hotel_id.' 已有特殊政策,政策ID为：'.$res_has_template['id'];
+                        $this->output($message,'pricetemplate/hoteladd',2,0);
+                        break;
                     }
                     $hotel_goods = array();
                     foreach ($res_pgoods as $v){
