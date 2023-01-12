@@ -65,22 +65,25 @@ class PricetemplateController extends BaseController {
             $price = I('post.price');
             $goods_price = array();
             foreach ($goods_ids as $k=>$v){
-                if(!empty($price[$k])){
-                    $goods_price[$v]=array('goods_id'=>$v,'settlement_price'=>$price[$k]);
+                if(empty($price[$k])){
+                    $this->output('请输入全部商品的结算价', 'pricetemplate/templateadd',2,0);
                 }
+                $goods_price[$v]=array('goods_id'=>$v,'settlement_price'=>$price[$k]);
             }
             if($status==1){
                 if(empty($goods_price)){
                     $this->output('请输入商品的结算价', 'pricetemplate/templateadd',2,0);
                 }
             }
-            $repeat_where = array('type'=>1,'status'=>1);
-            if($id){
-                $repeat_where['id'] = array('neq',$id);
-            }
-            $res_repeat = $m_pricetemplate->getInfo($repeat_where);
-            if(!empty($res_repeat)){
-                $this->output('通用政策只能存在一个', 'pricetemplate/templateadd',2,0);
+            if($type==1){
+                $repeat_where = array('type'=>1,'status'=>1);
+                if($id){
+                    $repeat_where['id'] = array('neq',$id);
+                }
+                $res_repeat = $m_pricetemplate->getInfo($repeat_where);
+                if(!empty($res_repeat)){
+                    $this->output('通用政策只能存在一个', 'pricetemplate/templateadd',2,0);
+                }
             }
 
             $userInfo = session('sysUserInfo');
@@ -195,6 +198,7 @@ class PricetemplateController extends BaseController {
             $res_goods = $m_goods->getAllData('id,name,barcode',array('status'=>1),'brand_id asc');
 
             $dinfo = array();
+            $tmp_price_goods = $tmp_noprice_goods = array();
             if($id){
                 $dinfo = $m_pricetemplate->getInfo(array('id'=>$id));
                 $field = 'id,goods_id,settlement_price';
@@ -203,18 +207,24 @@ class PricetemplateController extends BaseController {
                 foreach ($res_pgoods as $v){
                     $price_goods[$v['goods_id']] = $v;
                 }
-                $tmp_price_goods = $tmp_noprice_goods = array();
-                foreach ($res_goods as $v){
-                    if(isset($price_goods[$v['id']])){
-                        $v['settlement_price'] = $price_goods[$v['id']]['settlement_price'];
-                        $tmp_price_goods[]=$v;
-                    }else{
-                        $v['settlement_price'] = '';
-                        $tmp_noprice_goods[]=$v;
-                    }
+            }else{
+                $field = 'id,goods_id,settlement_price';
+                $res_pgoods = $m_pricegoods->getDataList($field,array('template_id'=>2),'id desc');
+                $price_goods = array();
+                foreach ($res_pgoods as $v){
+                    $price_goods[$v['goods_id']] = $v;
                 }
-                $res_goods = array_merge($tmp_price_goods,$tmp_noprice_goods);
             }
+            foreach ($res_goods as $v){
+                if(isset($price_goods[$v['id']])){
+                    $v['settlement_price'] = $price_goods[$v['id']]['settlement_price'];
+                    $tmp_price_goods[]=$v;
+                }else{
+                    $v['settlement_price'] = '';
+                    $tmp_noprice_goods[]=$v;
+                }
+            }
+            $res_goods = array_merge($tmp_price_goods,$tmp_noprice_goods);
 
             $this->assign('dinfo',$dinfo);
             $this->assign('goods',$res_goods);
