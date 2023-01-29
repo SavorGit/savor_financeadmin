@@ -71,7 +71,82 @@ class JdyController extends Controller {
         print_r($result);
     }
 
-    private function jdy_query($method,$api,$params){
+    public function goods(){
+        $jdy_conf = C('JDY_CONF');
+        $cache_key = 'jdy_app_authorize_'.$jdy_conf['outer_instance_id'];
+        $redis = new \Common\Lib\SavorRedis();
+        $redis->select(12);
+        $res_config = $redis->get($cache_key);
+        $app_auth = json_decode($res_config,true);
+        $domain = $app_auth['domain'];
+        $res_token = $redis->get('jdy_app_token');
+        $token_info = json_decode($res_token,true);
+        $app_token = $token_info['app-token'];
+
+        $method = 'GET';
+        $api = '/jdy/v2/bd/material';
+        $page_size = 50;
+        $goods_parent_id = 1458678600654962688;
+        $params = array('page'=>1,'page_size'=>$page_size);
+        $result = $this->jdy_query($method,$api,$params,$app_token,$domain);
+        $res_data = json_decode($result['result'],true);
+        $all_goods = array();
+        $total_page = $res_data['data']['total_page'];
+        for ($i=1;$i<=$total_page;$i++){
+            $params = array('page'=>$i,'page_size'=>$page_size);
+            $result_page = $this->jdy_query($method,$api,$params,$app_token,$domain);
+            $res_page_data = json_decode($result_page['result'],true);
+            foreach ($res_page_data['data']['rows'] as $v){
+                if($v['parent_id']==$goods_parent_id){
+                    $all_goods[]=array('id'=>$v['id'],'name'=>$v['name'],'number'=>$v['number']);
+                }
+            }
+        }
+        print_r($all_goods);
+    }
+
+    public function saleorder(){
+        $jdy_conf = C('JDY_CONF');
+        $cache_key = 'jdy_app_authorize_'.$jdy_conf['outer_instance_id'];
+        $redis = new \Common\Lib\SavorRedis();
+        $redis->select(12);
+        $res_config = $redis->get($cache_key);
+        $app_auth = json_decode($res_config,true);
+        $domain = $app_auth['domain'];
+        $res_token = $redis->get('jdy_app_token');
+        $token_info = json_decode($res_token,true);
+        $app_token = $token_info['app-token'];
+
+        $method = 'GET';
+        $api = '/jdy/v2/scm/sal_out_bound';
+        $params = array('page'=>1,'page_size'=>50);
+        $result = $this->jdy_query($method,$api,$params,$app_token,$domain);
+        print_r($result['result']);
+    }
+
+    public function emp(){
+        $jdy_conf = C('JDY_CONF');
+        $cache_key = 'jdy_app_authorize_'.$jdy_conf['outer_instance_id'];
+        $redis = new \Common\Lib\SavorRedis();
+        $redis->select(12);
+        $res_config = $redis->get($cache_key);
+        $app_auth = json_decode($res_config,true);
+        $domain = $app_auth['domain'];
+        $res_token = $redis->get('jdy_app_token');
+        $token_info = json_decode($res_token,true);
+        $app_token = $token_info['app-token'];
+
+        $method = 'GET';
+        $api = '/jdy/v2/bd/emp';
+        $params = array('page'=>1,'page_size'=>100);
+        $result = $this->jdy_query($method,$api,$params,$app_token,$domain);
+        print_r($result['result']);
+    }
+
+
+
+
+    private function jdy_query($method,$api,$params,$app_token='',$domain=''){
         $jdy_conf = C('JDY_CONF');
         $api_host = $jdy_conf['api_host'];
         $client_id = $jdy_conf['client_id'];
@@ -91,7 +166,6 @@ class JdyController extends Controller {
             $params_3 = rtrim($params_3,'&');
             $params_query = rtrim($params_query,'&');
         }
-
         $nowtime = time();
         $now_timestamp = getMillisecond();
         $params_4 = "x-api-nonce:{$nowtime}";
@@ -100,7 +174,7 @@ class JdyController extends Controller {
         $sig = hash_hmac("sha256", $sign_str, $client_secret, false);
         $api_signature = base64_encode($sig);
 
-        $GLOBALS['HEADERINFO'] = array(
+        $header_info = array(
             "Content-Type: application/json;charset=utf-8",
             "X-Api-ClientID: $client_id",
             "X-Api-Auth-Version: 2.0",
@@ -109,6 +183,14 @@ class JdyController extends Controller {
             "X-Api-SignHeaders: X-Api-TimeStamp,X-Api-Nonce",
             "X-Api-Signature: $api_signature"
         );
+        if(!empty($app_token)){
+            $header_info[]="app-token: $app_token";
+        }
+        if(!empty($domain)){
+            $header_info[]="X-GW-Router-Addr: $domain";
+        }
+
+        $GLOBALS['HEADERINFO'] = $header_info;
         $url = $api_host.$api.'?'.$params_query;
         $res = '';
         $curl = new \Common\Lib\Curl();
