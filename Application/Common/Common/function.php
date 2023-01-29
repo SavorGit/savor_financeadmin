@@ -1294,4 +1294,36 @@ function geo_distance($lat1, $lng1, $lat2, $lng2, $type = 1){
     }
     return $distance;
 }
+
+/**
+ * @desc 获取客户端的ip地址
+ */
+function get_client_ipaddr()
+{
+    if (!empty($_SERVER ['HTTP_CLIENT_IP']) && filter_valid_ip($_SERVER ['HTTP_CLIENT_IP'])) {
+        return $_SERVER ['HTTP_CLIENT_IP'];
+    }
+    if (!empty($_SERVER ['HTTP_X_FORWARDED_FOR'])) {
+        $iplist = explode(',', $_SERVER ['HTTP_X_FORWARDED_FOR']);
+        foreach ($iplist as $ip) {
+            if (filter_valid_ip($ip)) {
+                return $ip;
+            }
+        }
+    }
+    if (!empty($_SERVER ['HTTP_X_FORWARDED']) && filter_valid_ip($_SERVER ['HTTP_X_FORWARDED'])) {
+        return $_SERVER ['HTTP_X_FORWARDED'];
+    }
+    if (!empty($_SERVER ['HTTP_X_CLUSTER_CLIENT_IP']) && filter_valid_ip($_SERVER ['HTTP_X_CLUSTER_CLIENT_IP'])) {
+        return $_SERVER ['HTTP_X_CLUSTER_CLIENT_IP'];
+    }
+    if (!empty($_SERVER ['HTTP_FORWARDED_FOR']) && filter_valid_ip($_SERVER ['HTTP_FORWARDED_FOR'])) {
+        return $_SERVER ['HTTP_FORWARDED_FOR'];
+    }
+    if (!empty($_SERVER ['HTTP_FORWARDED']) && filter_valid_ip($_SERVER ['HTTP_FORWARDED'])) {
+        return $_SERVER ['HTTP_FORWARDED'];
+    }
+    return $_SERVER ['REMOTE_ADDR'];
+}
+
 ?>
