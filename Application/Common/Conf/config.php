@@ -24,6 +24,7 @@ $config = array(
     'LOG_TYPE'              =>  'File', // 日志记录类型 默认为文件方式
     'LOG_LEVEL'             =>  'EMERG,ALERT,CRIT,ERR',// 允许记录的日志级别
     'LOG_EXCEPTION_RECORD'  =>  false,    // 是否记录异常信息日志
+    'REPORT_LOG_PATH'       =>'/application_data/web/php/savor_financeadmin/Public/content/',
     //缓存目录配置
     'MINIFY_CACHE_PATH'=>APP_PATH.'Runtime/Cache',
     'HTML_FILE_SUFFIX' => '.html',// 默认静态文件后缀
