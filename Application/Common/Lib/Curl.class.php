@@ -1,9 +1,10 @@
 <?php
-namespace Common\Lib;
 /**
  * Curl请求类
  *
  */
+namespace Common\Lib;
+use Common\Lib\RecordLog;
 class Curl {
     
 	/*
@@ -21,6 +22,10 @@ class Curl {
 		$retry = 1;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
+		if($GLOBALS['HEADERINFO']){//如设置访问header
+		    $header = $GLOBALS['HEADERINFO'];
+		    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);//设置HTTP头
+		}
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		if (defined('CURLOPT_SSL_VERIFYHOST')) {
@@ -36,12 +41,17 @@ class Curl {
 		for($i=1;$i<=$retry;$i++) {
 			if($re !== false) break;
 			$re = curl_exec($ch);
+            $end_time = microtime(true);
+            RecordLog::add_curl_log($ch, $url, $start_time, $end_time,'get');
 			if ( is_string($re) && strlen($re) ) {
 				curl_close($ch);
 				$return = 'info';
 			} else {
 				if($i == $retry) {
 					$curl_error = curl_error($ch);
+					if (class_exists('RecordLog', false)) {
+						RecordLog::addLog('请求接口：'.$url.',错误信息：'.$curl_error.serialize(curl_getinfo($ch)), '', 'error');
+					} 
 					curl_close($ch);
 				}
 			}
@@ -65,7 +75,12 @@ class Curl {
 		($timeout<10) && $timeout = 10;
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $url);
-	    curl_setopt($ch, CURLOPT_HEADER, 0); //过滤HTTP头
+		if($GLOBALS['HEADERINFO']){//如设置访问header
+		    $header = $GLOBALS['HEADERINFO'];
+		    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);//设置HTTP头
+		}else{
+		    curl_setopt($ch, CURLOPT_HEADER, 0); //过滤HTTP头
+		}
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
@@ -82,10 +97,16 @@ class Curl {
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		}
 		$result = curl_exec($ch);
+        $end_time = microtime(true);
+        RecordLog::add_curl_log($ch, $url,$start_time, $end_time, $data, 'post');
 		if (is_string($result) && strlen($result)) {
 			$return = 'info';
 		} else {
 			$curl_error = curl_error($ch);
+			if (class_exists('RecordLog', false)) {
+				RecordLog::addLog('请求接口：'.$url.',错误信息：'.$curl_error.serialize(curl_getinfo($ch)), '', 'error');
+			}
+			$return = 'error';
 		}
 		curl_close($ch);
 		if($return=='error') {
@@ -144,6 +165,7 @@ class Curl {
         return $body;
     }
     /**
+     * 以xml方式发送请求,从GoodsModel移动过来,然后再补充日志功能 xiechengwei 2013-11-11
      * @param type $url
      * @param type $xml_data
      * @param type $timeout
@@ -167,10 +189,16 @@ class Curl {
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);      //超时时间
 
         $response = curl_exec($ch);                       //接收返回信息
+        $end_time = microtime(true);
+        RecordLog::add_curl_log($ch, $url, $start_time, $end_time,'post');
         if (!$response) {
             $curl_error = curl_error($ch);
+            if (class_exists('RecordLog', false)) {
+                RecordLog::addLog('请求接口：' . $url . ',错误信息：' . $curl_error . ',请求参数:'.  $xml_data, '', 'error');
+            }
         }
         curl_close($ch);                                 //关闭curl链接
+        RecordLog::addLog('请求接口：' . $url . ',返回状态：' . $curl_error . ',返回结果:'.  $response, '', 'debug');
         return $response;
     }
     
