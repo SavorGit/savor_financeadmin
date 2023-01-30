@@ -114,6 +114,7 @@ $config['STOCK_RECORD_TYPE']=array('1'=>'入库','2'=>'出库','3'=>'拆箱','4'
 $config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过','4'=>'待补充资料');
 $config['STOCK_RECYLE_STATUS']=array('1'=>'待收回物料','2'=>'已收回物料');
 $config['MANGER_KEY'] = array(
+    'datacenter'=>'数据查询',
     'system'=>'系统管理',
     'baseset'=>'基础设置',
     'supplier'=>'供应商管理',
