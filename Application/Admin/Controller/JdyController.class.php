@@ -139,7 +139,7 @@ class JdyController extends Controller {
         print_r($result['result']);
     }
 
-    public function emp(){
+    public function emplist(){
         $jdy_conf = C('JDY_CONF');
         $cache_key = 'jdy_app_authorize_'.$jdy_conf['outer_instance_id'];
         $redis = new \Common\Lib\SavorRedis();
@@ -158,6 +158,31 @@ class JdyController extends Controller {
         print_r($result['result']);
     }
 
+    public function empadd(){
+        $jdy_conf = C('JDY_CONF');
+        $cache_key = 'jdy_app_authorize_'.$jdy_conf['outer_instance_id'];
+        $redis = new \Common\Lib\SavorRedis();
+        $redis->select(12);
+        $res_config = $redis->get($cache_key);
+        $app_auth = json_decode($res_config,true);
+        $domain = $app_auth['domain'];
+        $res_token = $redis->get('jdy_app_token');
+        $token_info = json_decode($res_token,true);
+        $app_token = $token_info['app-token'];
+
+        $method = 'POST';
+        $api = '/jdy/v2/bd/emp';
+        $params = array(
+            "birthday"=>"2019-12-05",
+            "number"=>"TS001",
+            "gender"=>1,
+            "name"=>"王测试",
+            "mobile"=>"13112345678",
+            "hire_date"=>"2019-12-05",
+        );
+        $result = $this->jdy_query($method,$api,$params,$app_token,$domain);
+        print_r($result);
+    }
 
 
 
@@ -181,6 +206,11 @@ class JdyController extends Controller {
             }
             $params_3 = rtrim($params_3,'&');
             $params_query = rtrim($params_query,'&');
+        }
+        if($method=='POST'){
+            if($api!='/jdyconnector/app_management/push_app_authorize'){
+                $params_3 = "";
+            }
         }
         $nowtime = time();
         $now_timestamp = getMillisecond();
@@ -206,15 +236,23 @@ class JdyController extends Controller {
             $header_info[]="X-GW-Router-Addr: $domain";
         }
         $GLOBALS['HEADERINFO'] = $header_info;
-        $url = $api_host.$api.'?'.$params_query;
+        $api_url = $api_host.$api;
         $res = '';
         $curl = new \Common\Lib\Curl();
         switch ($method){
             case 'GET':
+                $url = $api_url.'?'.$params_query;
                 $curl::get($url,$res,10);
                 break;
             case 'POST':
-                $curl::post($url,'',$res);
+                if($api=='/jdyconnector/app_management/push_app_authorize'){
+                    $url = $api_url.'?'.$params_query;
+                    $params = '';
+                }else{
+                    $url = $api_url;
+                    $params = json_encode($params);
+                }
+                $curl::post($url,$params,$res);
                 break;
         }
         return array('url'=>$url,'result'=>$res);
