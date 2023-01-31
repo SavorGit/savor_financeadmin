@@ -18,14 +18,16 @@ class JdyController extends Controller {
         @file_put_contents($log_file_name, $log_content, FILE_APPEND);
 
         if(!empty($content)){
-            $params = json_decode($content,true);
-            $app_authorize = $params['data'][0];
-            $app_authorize['bizType'] = $params['bizType'];
-            $app_authorize['timestamp'] = $params['timestamp'];
-            $redis = new \Common\Lib\SavorRedis();
-            $redis->select(12);
-            $cache_key = 'jdy_app_authorize_'.$app_authorize['outerInstanceId'];
-            $redis->set($cache_key,json_encode($app_authorize));
+            $res_data = json_decode($content,true);
+            if($res_data['bizType']=='app_authorize'){
+                $app_authorize = $res_data['data'][0];
+                $app_authorize['bizType'] = $res_data['bizType'];
+                $app_authorize['timestamp'] = $res_data['timestamp'];
+                $redis = new \Common\Lib\SavorRedis();
+                $redis->select(12);
+                $cache_key = 'jdy_app_authorize_'.$app_authorize['outerInstanceId'];
+                $redis->set($cache_key,json_encode($app_authorize));
+            }
         }
         echo 'success';
     }
