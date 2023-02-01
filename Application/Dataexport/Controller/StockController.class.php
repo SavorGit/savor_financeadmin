@@ -198,6 +198,271 @@ class StockController extends BaseController {
         $filename = '全部唯一码数据';
         $this->exportToExcel($cell,$data_list,$filename,2);
     }
-
+    /**
+     * @desc 数据查询 入库明细导表
+     */
+    public function inlist(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        
+        $where = [];
+        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        $where['a.status']       = 1;
+        $where['stock.type']     = 10;
+        $where['stock.io_type']  = array('in','11,12,13');
+        
+        
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $fields = "stock.name stock_name,stock.serial_number,stock.io_date,
+                   case stock.io_type
+				   when 11 then '采购入库'
+                   when 12 then '调拨入库'
+                   when 13 then '餐厅退回' END AS io_type,
+                   case stock.status
+                   when 1 then '进行中'
+                   when 2 then '已完成'
+                   when 3 then '已领取'
+                   when 4 then '已验收' END AS status,
+            
+                   s.name supplier_name,goods.barcode,goods.name goods_name,
+                   unit.name u_name,area.region_name,a.total_amount,a.price,a.rate";
+        $result = $m_stock_detail->alias('a')
+                                 ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                                 ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                                 ->join('savor_area_info area on stock.area_id=area.id','left')
+                                 ->join('savor_finance_supplier s on goods.supplier_id= s.id','left')
+                                 ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                                 ->field($fields)
+                                 ->where($where)
+                                 ->order('stock.id desc')
+                                 
+                                 ->select();
+        foreach($result as $key=>$v){
+            
+            $result[$key]['rate'] = !empty($v['rate']) ? ($v['rate']*100).'%':'';
+            $rate_money = $v['price'] * $v['rate'];
+            $total_money = $v['price'] * $v['total_amount'];
+            $no_rate_total_money = $total_money - $rate_money * $v['total_amount'];
+            
+            $result[$key]['no_rate_price']      = $v['price'] - $rate_money;
+            $result[$key]['rate_money']         = $rate_money;
+            $result[$key]['total_money']        = $total_money;
+            $result[$key]['no_rate_total_money']= $no_rate_total_money;
+        }
+        
+        $cell = array(
+            array('serial_number','入库单编号'),
+            array('io_date','入库日期'),
+            array('io_type','入库类型'),
+            array('status','状态'),
+            array('supplier_name','供应商'),
+            array('barcode','商品编码'),
+            array('goods_name','商品名称'),
+            array('u_name','规格'),
+            array('region_name','库房名称'),
+            array('total_amount','数量'),
+            array('price','单价'),
+            array('rate','税率'),
+            array('no_rate_price','不含税单价'),
+            array('no_rate_total_money','不含税总金额'),
+            array('rate_money','税额'),
+            array('total_money','含税总金额'),
+        );
+        $filename = '入库明细表';
+        $this->exportToExcel($cell,$result,$filename,1);
+    }
+    public function insummary(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        
+        $order = 'stock.id desc';
+        $where = [];
+        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        $where['a.status']       = 1;
+        $where['stock.type']     = 10;
+        $where['stock.io_type']  = array('in','11,12,13');
+        
+        $fields = 'a.goods_id,goods.barcode,goods.name goods_name,unit.name u_name,
+                   brand.name brand_name';
+        
+        $group = 'a.goods_id';
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $result = $m_stock_detail->alias('a')
+                                 ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                                 ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                                 ->join('savor_area_info area on stock.area_id=area.id','left')
+                                 ->join('savor_finance_supplier s on goods.supplier_id= s.id','left')
+                                 ->join('savor_finance_brand brand on goods.brand_id=brand.id','left')
+                                 ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                                 ->field($fields)
+                                 ->where($where)
+                                 ->order($order)
+                                 ->group($group)
+                                 ->select();
+        foreach($result as $key=>$v){
+            
+            $where = [];
+            $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+            $where['a.goods_id'] = $v['goods_id'];
+            $where['a.status']       = 1;
+            $where['stock.type']     = 10;
+            $where['stock.io_type']  = array('in','11,12,13');
+            
+            $fields = 'a.total_amount,a.price,a.rate,goods.name goods_name,brand.name brand_name';
+            $rts = $m_stock_detail->alias('a')
+            ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+            ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+            ->join('savor_finance_brand brand on goods.brand_id=brand.id','left')
+            ->field($fields)
+            ->where($where)
+            ->select();
+            $total_amount = 0;          //数量
+            $total_money = 0;           //含税总金额
+            $no_rate_total_money = 0;   //不含税总金额
+            foreach($rts as $kk=>$vv){
+                //数量
+                $total_amount += $vv['total_amount'];
+                $total_money  += $vv['price'] * $vv['total_amount'];
+                $rate_money    = $vv['price'] * $vv['rate'];
+                $no_rate_total_money += $total_money - $rate_money;
+                
+            }
+            $result[$key]['total_amount']         = $total_amount;
+            $result[$key]['total_money']          = $total_money;
+            $result[$key]['no_rate_total_money']  = $no_rate_total_money;
+        }
+        $cell = array(
+            
+            array('barcode','商品编码'),
+            array('goods_name','商品名称'),
+            array('brand_name','品牌'),
+            array('u_name','规格'),
+            array('total_amount','数量'),
+            
+            array('no_rate_total_money','不含税总金额'),
+            
+            array('total_money','含税总金额'),
+        );
+        $filename = '入库汇总表';
+        $this->exportToExcel($cell,$result,$filename,1);
+    }
+    /**
+     * @desc 数据查询 唯一识别码跟踪
+     */
+    public function idcodetrack(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        $orders = 'stock.id desc';
+        $where = [];
+        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        
+        $where['stock.type']     = 10;
+        $where['stock.io_type']  = array('in','11');
+        
+        $m_stock_detail = new \Admin\Model\StockRecordModel();
+        
+        $fields = 'a.idcode';
+        $group  = 'a.idcode';
+        $idcode_list  = $m_stock_detail->getAllStock($fields, $where, $orders,$group);
+        $data_list  = [];
+        $all_type = C('STOCK_RECORD_TYPE');
+        $wo_status = C('STOCK_WRITEOFF_STATUS');
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $m_hotel = new \Admin\Model\HotelModel();
+        
+        foreach($idcode_list as $key=>$v){
+            
+            $idcode = $v['idcode'];
+            
+            
+            
+            
+            $fileds = 'a.id,a.type,a.idcode,goods.barcode,goods.name as goods_name,stock.hotel_id,stock.serial_number,unit.name as unit_name,a.wo_status,a.dstatus,a.add_time';
+            $res_record = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode),'a.id desc','','');
+           
+            
+            foreach ($res_record as $v){
+                $info = $v;
+                $type_str = $all_type[$info['type']];
+                if($info['type']==7){
+                    $type_str.="（{$wo_status[$info['wo_status']]}）";
+                }
+                if($info['dstatus']==2){
+                    $dstatus_str = '删除';
+                }else{
+                    $dstatus_str = '正常';
+                }
+                $hotel_name = '';
+                if($info['hotel_id']>0){
+                    $res_hotel = $m_hotel->getInfo(array('id'=>$info['hotel_id']));
+                    $hotel_name = $res_hotel['name'];
+                }
+                $info['hotel_name']= $hotel_name;
+                $info['dstatus_str']= $dstatus_str;
+                $info['type_str']= $type_str;
+                $data_list[] = $info;
+            }
+        }
+        $cell = array(
+            array('idcode','唯一识别码'),
+            array('barcode','商品编码'),
+            array('goods_name','商品名称'),
+            array('add_time','日期'),
+            array('serial_number','单号'),
+            
+            array('hotel_name','酒楼名称'),
+            array('dstatus_str','状态'),
+        );
+        $filename = '唯一识别码跟踪表';
+        $this->exportToExcel($cell,$data_list,$filename,1);
+    }
+    /**
+     * @desc 数据查询-商品收发明细表
+     */
+    public function goodsiolist(){
+        return false;
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        $order = 'stock.id desc';
+        
+        $where = [];
+        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        $where['a.status']       = 1;
+        
+        $fields = 'a.goods_id,goods.barcode,goods.name goods_name,unit.name u_name,
+                   brand.name brand_name';
+        
+        $group = 'a.goods_id';
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $result = $m_stock_detail->alias('a')
+        ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+        ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+        ->join('savor_area_info area on stock.area_id=area.id','left')
+        ->join('savor_finance_supplier s on goods.supplier_id= s.id','left')
+        ->join('savor_finance_brand brand on goods.brand_id=brand.id','left')
+        ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+        ->field($fields)
+        ->where($where)
+        ->order($order)
+        ->group($group)
+        ->select();
+        
+        foreach($result as $key=>$v){
+            
+            $where  = [];
+            $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date));
+            $where['sd.goods_id']    = $v['goods_id'];
+            $where['stock.type']     = 10;
+            
+        }
+    }
 
 }

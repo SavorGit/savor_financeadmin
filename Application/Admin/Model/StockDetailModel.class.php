@@ -86,5 +86,32 @@ class StockDetailModel extends BaseModel{
         $data = array('list'=>$list,'page'=>$show);
         return $data;
     }
+    public function getAllStockGoods($fields,$where, $order='a.id desc',$start=0,$size=5,$group = ''){
+        $list = $this->alias('a')
+        ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+        ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+        ->join('savor_area_info area on stock.area_id=area.id','left')
+        ->join('savor_finance_supplier s on goods.supplier_id= s.id','left')
+        ->join('savor_finance_brand brand on goods.brand_id=brand.id','left')
+        ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+        ->field($fields)
+        ->where($where)
+        ->order($order)
+        ->group($group)
+        ->limit($start,$size)
+        ->select();
+        $count = $this->alias('a')
+        ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+        ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+        ->join('savor_finance_supplier s on goods.supplier_id= s.id','left')
+        ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+        ->where($where)
+        ->group($group)
+        ->count();
+        $objPage = new Page($count,$size);
+        $show = $objPage->admin_page();
+        $data = array('list'=>$list,'page'=>$show);
+        return $data;
+    }
 
 }

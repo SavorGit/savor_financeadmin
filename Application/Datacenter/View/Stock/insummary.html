@@ -1,0 +1,128 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start
+<style type="text/css">
+  
+</style>-->
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/stock/insummary" method="post" >
+    <input type="hidden" name="pageNum" value="{$pageNum}"/>
+    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <input type="hidden" name="_order" value="{$_order}"/>
+    <input type="hidden" name="_sort" value="{$_sort}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="form-inline" style="margin-top:3px;">
+        <div class="form-group">
+        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$start_date}">
+          		<input style="margin-left: 6px;" name="start_date" type="text" size="16" class="form-control date" placeholder="入库开始日期" value="{$start_date}" readonly>
+                <span class="input-group-btn">
+                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                </span>
+       	 	</div>
+
+        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$end_date}" >
+
+          		<input    name="end_date" type="text" size="16" class="form-control date" placeholder="入库结束日期" value="{$end_date}" readonly>
+                <span class="input-group-btn"  >
+                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                </span>
+        	</div>
+        </div>
+        
+        <div class="form-group" style="margin-top:10px; margin-left:6px;">
+				<div class="input-group input-group-sm pull-right">
+				
+				<span class="input-group-btn">
+					<button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
+				</span>
+				</div>
+			</div>
+          
+		 
+		 
+		  
+		  
+			
+            
+            <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
+				
+				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/stock/insummary?start_date={$start_date}&end_date={$end_date}" title="导出入库汇总表" target="_blank" mask="true"><i class="fa fa-plus"></i>导出入库汇总表</a>
+          
+			</div>
+			
+          
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent" style="margin-top:40px;" >
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+          <tr id="post">
+            <!-- <th class="table-checkbox">
+              <input type="checkbox" data-check="all" data-parent=".table" />
+            </th> -->
+            
+            
+            <th>商品编码</th>
+            <th>商品名称</th>
+            <th>品牌</th>
+            <th>规格</th>
+            
+            <th>数量</th>
+            <th>不含税总金额</th>
+            
+            <th>含税总金额</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <volist name="list" id="vlist">
+            <tr target="sid_user">
+              
+              
+              <td data-title="商品编码">{$vlist.barcode}</td>
+              <td data-title="商品名称">{$vlist.goods_name}</td>
+              <td data-title="规格">{$vlist.brand_name}</td>
+              <td data-title="规格">{$vlist.u_name}</td>
+              
+              <td data-title="数量">{$vlist.total_amount}</td>
+              
+              <td data-title="不含税总金额">{$vlist.no_rate_total_money}</td>
+              
+              <td data-title="含税总金额">{$vlist.total_money}</td>
+            </tr>
+          </volist>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
+
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+
+
+  $(function(){
+    
+
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+</script>
