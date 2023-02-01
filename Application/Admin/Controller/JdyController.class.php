@@ -18,14 +18,16 @@ class JdyController extends Controller {
         @file_put_contents($log_file_name, $log_content, FILE_APPEND);
 
         if(!empty($content)){
-            $params = json_decode($content,true);
-            $app_authorize = $params['data'][0];
-            $app_authorize['bizType'] = $params['bizType'];
-            $app_authorize['timestamp'] = $params['timestamp'];
-            $redis = new \Common\Lib\SavorRedis();
-            $redis->select(12);
-            $cache_key = 'jdy_app_authorize_'.$app_authorize['outerInstanceId'];
-            $redis->set($cache_key,json_encode($app_authorize));
+            $res_data = json_decode($content,true);
+            if($res_data['bizType']=='app_authorize'){
+                $app_authorize = $res_data['data'][0];
+                $app_authorize['bizType'] = $res_data['bizType'];
+                $app_authorize['timestamp'] = $res_data['timestamp'];
+                $redis = new \Common\Lib\SavorRedis();
+                $redis->select(12);
+                $cache_key = 'jdy_app_authorize_'.$app_authorize['outerInstanceId'];
+                $redis->set($cache_key,json_encode($app_authorize));
+            }
         }
         echo 'success';
     }
@@ -85,24 +87,15 @@ class JdyController extends Controller {
 
         $method = 'GET';
         $api = '/jdy/v2/bd/material';
-        $page_size = 50;
+        $page_size = 100;
         $goods_parent_id = 1458678600654962688;
-        $params = array('page'=>1,'page_size'=>$page_size);
+        $params = array('page'=>1,'page_size'=>$page_size,'parent'=>$goods_parent_id);
         $result = $this->jdy_query($method,$api,$params,$app_token,$domain);
         $res_data = json_decode($result['result'],true);
-        $all_goods = array();
-        $total_page = $res_data['data']['total_page'];
-        for ($i=1;$i<=$total_page;$i++){
-            $params = array('page'=>$i,'page_size'=>$page_size);
-            $result_page = $this->jdy_query($method,$api,$params,$app_token,$domain);
-            $res_page_data = json_decode($result_page['result'],true);
-            foreach ($res_page_data['data']['rows'] as $v){
-                if($v['parent_id']==$goods_parent_id){
-                    $all_goods[]=array('id'=>$v['id'],'name'=>$v['name'],'number'=>$v['number']);
-                }
-            }
+        foreach ($res_data['data']['rows'] as $v){
+            $all_goods[]=array('material_id'=>$v['id'],'material_name'=>$v['name'],'goods_id'=>$v['number']);
         }
-        print_r($all_goods);
+        echo json_encode($all_goods);
     }
 
     public function saleorder(){
@@ -117,14 +110,38 @@ class JdyController extends Controller {
         $token_info = json_decode($res_token,true);
         $app_token = $token_info['app-token'];
 
+        $stime = strtotime('2023-01-29 00:00:00');
+        $create_start_time = $stime.'000';
+        $etime = strtotime('2023-01-29 23:59:59');
+        $create_end_time	= $etime.'000';
+
         $method = 'GET';
         $api = '/jdy/v2/scm/sal_out_bound';
-        $params = array('page'=>1,'page_size'=>50);
+        $params = array('create_start_time'=>$create_start_time,'create_end_time'=>$create_end_time,'settle_status'=>'A','page'=>1,'page_size'=>50);
         $result = $this->jdy_query($method,$api,$params,$app_token,$domain);
         print_r($result['result']);
     }
 
-    public function emp(){
+    public function orderinfo(){
+        $jdy_conf = C('JDY_CONF');
+        $cache_key = 'jdy_app_authorize_'.$jdy_conf['outer_instance_id'];
+        $redis = new \Common\Lib\SavorRedis();
+        $redis->select(12);
+        $res_config = $redis->get($cache_key);
+        $app_auth = json_decode($res_config,true);
+        $domain = $app_auth['domain'];
+        $res_token = $redis->get('jdy_app_token');
+        $token_info = json_decode($res_token,true);
+        $app_token = $token_info['app-token'];
+
+        $method = 'GET';
+        $api = '/jdy/v2/scm/sal_out_bound_detail';
+        $params = array('id'=>1608850196882570240);
+        $result = $this->jdy_query($method,$api,$params,$app_token,$domain);
+        print_r($result['result']);
+    }
+
+    public function emplist(){
         $jdy_conf = C('JDY_CONF');
         $cache_key = 'jdy_app_authorize_'.$jdy_conf['outer_instance_id'];
         $redis = new \Common\Lib\SavorRedis();
@@ -143,6 +160,31 @@ class JdyController extends Controller {
         print_r($result['result']);
     }
 
+    public function empadd(){
+        $jdy_conf = C('JDY_CONF');
+        $cache_key = 'jdy_app_authorize_'.$jdy_conf['outer_instance_id'];
+        $redis = new \Common\Lib\SavorRedis();
+        $redis->select(12);
+        $res_config = $redis->get($cache_key);
+        $app_auth = json_decode($res_config,true);
+        $domain = $app_auth['domain'];
+        $res_token = $redis->get('jdy_app_token');
+        $token_info = json_decode($res_token,true);
+        $app_token = $token_info['app-token'];
+
+        $method = 'POST';
+        $api = '/jdy/v2/bd/emp';
+        $params = array(
+            "birthday"=>"2019-12-05",
+            "number"=>"TS001",
+            "gender"=>1,
+            "name"=>"王测试",
+            "mobile"=>"13112345678",
+            "hire_date"=>"2019-12-05",
+        );
+        $result = $this->jdy_query($method,$api,$params,$app_token,$domain);
+        print_r($result);
+    }
 
 
 
@@ -157,6 +199,7 @@ class JdyController extends Controller {
         $params_3 = "";
         $params_query = "";
         if(!empty($params)){
+            ksort($params);
             foreach ($params as $k=>$v){
                 $pq = urlencode($v);
                 $params_query.="$k=$pq".'&';
@@ -165,6 +208,11 @@ class JdyController extends Controller {
             }
             $params_3 = rtrim($params_3,'&');
             $params_query = rtrim($params_query,'&');
+        }
+        if($method=='POST'){
+            if($api!='/jdyconnector/app_management/push_app_authorize'){
+                $params_3 = "";
+            }
         }
         $nowtime = time();
         $now_timestamp = getMillisecond();
@@ -189,17 +237,24 @@ class JdyController extends Controller {
         if(!empty($domain)){
             $header_info[]="X-GW-Router-Addr: $domain";
         }
-
         $GLOBALS['HEADERINFO'] = $header_info;
-        $url = $api_host.$api.'?'.$params_query;
+        $api_url = $api_host.$api;
         $res = '';
         $curl = new \Common\Lib\Curl();
         switch ($method){
             case 'GET':
+                $url = $api_url.'?'.$params_query;
                 $curl::get($url,$res,10);
                 break;
             case 'POST':
-                $curl::post($url,'',$res);
+                if($api=='/jdyconnector/app_management/push_app_authorize'){
+                    $url = $api_url.'?'.$params_query;
+                    $params = '';
+                }else{
+                    $url = $api_url;
+                    $params = json_encode($params);
+                }
+                $curl::post($url,$params,$res);
                 break;
         }
         return array('url'=>$url,'result'=>$res);
