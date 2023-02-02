@@ -16,34 +16,24 @@ class SaleissueController extends BaseController {
         $pageNum = I('pageNum',1);
         $order = I('_order','a.id');
         $sort = I('_sort','desc');
-        $orders = $order.' '.$sort;
-        $start  = ( $pageNum-1 ) * $size;
-        
-        $where  = array();
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
         $idcode     = I('idcode','','trim');
-        if($start_date && $end_date){
-            $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
-            $this->assign('start_date',$start_date);
-            $this->assign('end_date',$end_date);
-        }else if(empty($start_date) && !empty($end_date)){
-            $where['a.add_time']= array( array('ELT',$end_date.' 23:59:59'));
-            $this->assign('end_date',$end_date);
+
+        $orders = $order.' '.$sort;
+        $start  = ($pageNum-1) * $size;
+        $where  = array();
+        if(empty($start_date) || empty($end_date)){
+            $start_date = date('Y-m-d',strtotime("-6 day"));
+            $end_date = date('Y-m-d');
         }
-        
-        if(!empty($start_date)&& empty($end_date)){
-            $where['a.add_time']= array('EGT',$start_date.' 00:00:00');
-            $this->assign('start_date',$start_date);
-        }
+        $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         if(!empty($type)){
             $where['a.type'] = $type;
-            $this->assign('type',$type);
         }
         if(!empty($idcode)){
             $where['a.idcode'] = $idcode;
-            $this->assign('idcode',$idcode);
         }
         
         $m_sale = new \Admin\Model\SaleModel();
@@ -63,6 +53,10 @@ class SaleissueController extends BaseController {
         $this->assign('numPerPage',$size);
         $this->assign('_order',$order);
         $this->assign('_sort',$sort);
+        $this->assign('idcode',$idcode);
+        $this->assign('type',$type);
+        $this->assign('start_date',$start_date);
+        $this->assign('end_date',$end_date);
         $this->display();
     }
     public function add(){
@@ -81,6 +75,7 @@ class SaleissueController extends BaseController {
         $this->assign('hotel_list',$hotel_list);
         $this->display();
     }
+
     public function doadd(){
         if(IS_POST){
             foreach($this->required_arr as $key=>$v){
@@ -96,7 +91,6 @@ class SaleissueController extends BaseController {
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
                       a.wo_status,a.dstatus,a.add_time';
             $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode,'a.dstatus'=>1),'a.id desc','0,1','');
-            
             if(empty($res_list)){
                 $this->error('商品识别码异常');
             }
@@ -172,9 +166,18 @@ class SaleissueController extends BaseController {
             $data['tax_rate']          = $tax_rate;                             //税率
             $data['pay_money']         = !empty($pay_money) ? $pay_money:0;     //收款金额
             $data['pay_time']          = !empty($pay_time) ? $pay_time :'0000-00-00 00:00:00';  //收款时间
-            $data['add_time']          = date('Y-m-d H:i:s'); 
+            $data['add_time']          = date('Y-m-d H:i:s');
             $m_sale = new \Admin\Model\SaleModel();
-            $ret  = $m_sale->addData($data);
+            $index_voucher_no = 10001;
+            $res_data = $m_sale->getAll($field='id,jd_voucher_no','',0,1,'id desc');
+            if(!empty($res_data[0]['jd_voucher_no'])){
+                $jd_voucher_no = $res_data[0]['jd_voucher_no']+1;
+            }else{
+                $jd_voucher_no = $index_voucher_no;
+            }
+            $data['jd_voucher_no'] = $jd_voucher_no;
+
+            $ret = $m_sale->addData($data);
             if($ret){
                 $this->output('添加成功!', 'saleissue/index');
             }else{
