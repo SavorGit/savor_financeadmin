@@ -1365,35 +1365,40 @@ class StockController extends BaseController {
                             }
                         //}
                         //end
+                        //会员复购奖励 增加分润
+                        $res_recordinfo = $m_integralrecord->getAllData('*',array('jdorder_id'=>$idcode,'type'=>19,'status'=>2),'id desc');
+                        if(!empty($res_recordinfo)){
+                            $where = array('hotel_id'=>$res_recordinfo[0]['hotel_id'],'status'=>1);
+                            $field_merchant = 'id as merchant_id,is_integral,is_shareprofit,shareprofit_config';
+                            $res_merchant = $m_merchant->getRow($field_merchant,$where,'id desc');
+                            $is_integral = $res_merchant['is_integral'];
+                            foreach ($res_recordinfo as $v){
+                                $m_integralrecord->updateData(array('id'=>$v['id']),array('status'=>1,'integral_time'=>date('Y-m-d H:i:s')));
 
-                        //if($is_recycle==0 || $res_staff[0]['merchant_id']==89){
-                            //会员复购奖励 增加分润
-                            $res_recordinfo = $m_integralrecord->getAllData('*',array('jdorder_id'=>$idcode,'type'=>19,'status'=>2),'id desc');
-                            if(!empty($res_recordinfo)){
-                                $where = array('hotel_id'=>$res_recordinfo[0]['hotel_id'],'status'=>1);
-                                $field_merchant = 'id as merchant_id,is_integral,is_shareprofit,shareprofit_config';
-                                $res_merchant = $m_merchant->getRow($field_merchant,$where,'id desc');
-                                $is_integral = $res_merchant['is_integral'];
-                                foreach ($res_recordinfo as $v){
-                                    $m_integralrecord->updateData(array('id'=>$v['id']),array('status'=>1,'integral_time'=>date('Y-m-d H:i:s')));
-
-                                    $now_integral = $v['integral'];
-                                    if($is_integral==1){
-                                        $res_integral = $m_userintegral->getInfo(array('openid'=>$v['openid']));
-                                        if(!empty($res_integral)){
-                                            $userintegral = $res_integral['integral']+$now_integral;
-                                            $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
-                                        }else{
-                                            $m_userintegral->add(array('openid'=>$v['openid'],'integral'=>$now_integral));
-                                        }
+                                $now_integral = $v['integral'];
+                                if($is_integral==1){
+                                    $res_integral = $m_userintegral->getInfo(array('openid'=>$v['openid']));
+                                    if(!empty($res_integral)){
+                                        $userintegral = $res_integral['integral']+$now_integral;
+                                        $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
                                     }else{
-                                        $where = array('id'=>$res_merchant['merchant_id']);
-                                        $m_merchant->where($where)->setInc('integral',$now_integral);
+                                        $m_userintegral->add(array('openid'=>$v['openid'],'integral'=>$now_integral));
                                     }
+                                }else{
+                                    $where = array('id'=>$res_merchant['merchant_id']);
+                                    $m_merchant->where($where)->setInc('integral',$now_integral);
                                 }
                             }
-                            //end
-                        //}
+                        }
+                        //end
+                    }
+                }
+            }else{
+                if($wo_status==3){
+                    $m_sale = new \Admin\Model\SaleModel();
+                    $res_sale = $m_sale->getInfo(array('stock_record_id'=>$id));
+                    if(!empty($res_sale)){
+                        $m_sale->delData(array('id'=>$res_sale['id']));
                     }
                 }
             }
