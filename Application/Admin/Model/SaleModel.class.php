@@ -7,22 +7,43 @@ class SaleModel extends BaseModel{
     protected $tableName='finance_sale';
     
     public function getList($fileds,$where, $orders, $start,$size){
-        $list = $this->alias('a')
-        ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
-        ->join('savor_finance_goods goods on a.goods_id   = goods.id','left')
-        ->join('savor_finance_stock_record record on a.stock_record_id=record.id','left')
-        ->field($fileds)
-        ->where($where)
-        ->order($orders)
-        ->limit($start,$size)
-        ->select();
-        
-        $count = $this->alias('a')
-        ->where($where)
-        ->count();
-        $objPage = new Page($count,$size);
-        $show = $objPage->admin_page();
-        $data = array('list'=>$list,'page'=>$show);
+        if($start>=0 && $size>0){
+            $list = $this->alias('a')
+                ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                ->join('savor_finance_goods goods on a.goods_id   = goods.id','left')
+                ->join('savor_finance_stock_record record on a.stock_record_id=record.id','left')
+                ->field($fileds)
+                ->where($where)
+                ->order($orders)
+                ->limit($start,$size)
+                ->select();
+
+            $count = $this->alias('a')->where($where)->count();
+            $objPage = new Page($count,$size);
+            $show = $objPage->admin_page();
+            $data = array('list'=>$list,'page'=>$show);
+        }else{
+            $data = $this->alias('a')
+                ->join('savor_hotel hotel on a.hotel_id=hotel.id','left')
+                ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                ->join('savor_finance_stock_record record on a.stock_record_id=record.id','left')
+                ->field($fileds)
+                ->where($where)
+                ->order($orders)
+                ->select();
+        }
+        return $data;
+    }
+
+    public function getJdDataList($fileds,$where){
+        $data = $this->alias('a')
+            ->join('savor_finance_stock_record record on a.stock_record_id=record.id','left')
+            ->join('savor_hotel hotel on a.hotel_id=hotel.id','left')
+            ->join('savor_hotel_ext ext on hotel.id=ext.hotel_id','left')
+            ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+            ->field($fileds)
+            ->where($where)
+            ->select();
         return $data;
     }
     public function getAllList($fileds,$where, $orders, $start,$size){

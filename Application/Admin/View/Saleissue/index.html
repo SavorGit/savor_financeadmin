@@ -1,112 +1,103 @@
 <include file="Public/script"/>
-<!--显示列表样式1 start
-<style type="text/css">
-  
-</style>-->
+<!--显示列表样式1 start-->
 <div class="pageHeader">
-  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/saleissue/index" method="post" >
-    <input type="hidden" name="pageNum" value="{$pageNum}"/>
-    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
-    <input type="hidden" name="_order" value="{$_order}"/>
-    <input type="hidden" name="_sort" value="{$_sort}"/>
-    <div class="searchBar">
-      <div class="clearfix">
-        <div class="form-inline" style="margin-top:3px;">
-        	<div class="form-group">
-        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$start_date}">
-          		<input style="margin-left: 6px;" name="start_date" type="text" size="16" class="form-control date" placeholder="开始日期" value="{$start_date}" readonly>
-                <span class="input-group-btn">
-                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
-                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
-                </span>
-       	 	</div>
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/saleissue/index" method="post">
+        <input type="hidden" name="pageNum" value="{$pageNum}"/>
+        <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+        <input type="hidden" name="goods_id" value="{$goods_id}"/>
+        <input type="hidden" name="unit_id" value="{$unit_id}"/>
+        <input type="hidden" name="hotel_id" value="{$hotel_id}"/>
+        <div class="searchBar">
+            <div class="clearfix">
 
-        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$end_date}" >
+                <div class="form-inline">
 
-          		<input    name="end_date" type="text" size="16" class="form-control date" placeholder="结束日期" value="{$end_date}" readonly>
-                <span class="input-group-btn"  >
-                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
-                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
-                </span>
-        	</div>
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">时间：</div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$start_date}" data-ymd="true">
+                            <input name="start_date" type="text" size="16" class="form-control date" placeholder="开始日期" value="{$start_date}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$end_date}" data-ymd="true">
+                            <input name="end_date" type="text" size="16" class="form-control date" placeholder="结束日期" value="{$end_date}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">售卖类型：</div>
+                        <div class="input-group">
+                            <select name="type" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0 >全部</option>
+                                <option value="1" <if condition="$type eq 1">selected</if>>餐厅售卖</option>
+                                <option value="2" <if condition="$type eq 2">selected</if>>团购售卖</option>
+                                <option value="3" <if condition="$type eq 3">selected</if>>其他售卖</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">唯一识别码：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="idcode" value="{$idcode}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-btn">
+                             <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-group-sm pull-right">
+                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/saleissue/exportjd?type={$type}&start_date={$start_date}&end_date={$end_date}" title="导出金蝶数据" target="_blank" mask="true"><i class="fa fa-download"></i>导出金蝶数据</a>
+                        <a class="btn btn-success btn-sm add" href="{$host_name}/saleissue/jddataimport" title="导入金蝶数据" target="dialog" mask="true"><i class="fa fa-upload"></i> 导入金蝶数据</a>
+                        <a class="btn btn-success btn-sm add" href="{$host_name}/saleissue/add" title="新增出库单" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增出库单</a>
+                    </div>
+
+                </div>
+
+            </div>
         </div>
-        
-        <div class="form-group">
-          <div class="input-group input-group-sm">
-            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
-              	售卖类型：
-            </label>
-                <span class="input-group-btn">
-               <select name="type" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
-                 <option value=0 >全部</option>
-                 <option value="1" <if condition="$type eq 1">selected</if>>餐厅售卖</option>
-				 <option value="2" <if condition="$type eq 2">selected</if>>团购售卖</option>
-				 <option value="3" <if condition="$type eq 3">selected</if>>其他售卖</option>
-               </select>
-          </div>
-         </div>
-          
-		 
-		 
-		  
-			 <div class="form-group" style="margin-top:10px; margin-left:6px;">
-				<div class="input-group input-group-sm pull-right">
-				<input type="text" class="form-control" name="idcode" value="{$idcode }" placeholder="请输入商品识别码">
-				<span class="input-group-btn">
-					<button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
-				</span>
-				</div>
-			</div> 
-            
-            <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
-				<a class="btn btn-success btn-sm add" href="{$host_name}/saleissue/add" title="新增出库单" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增出库单</a>
-				<!-- <a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/contract/proxysale?start_date={$start_date}&end_date={$end_date}&area_id={$area_id}&ctype={$ctype}&status={$status}&sign_user_id={$sign_user_id}&name={$name}" title="导出合同数据" target="_blank" mask="true"><i class="fa fa-plus"></i> 导出合同数据</a> -->
-          
-			</div>
-			
-          
-        </div>
-      </div>
-    </div>
-  </form>
+    </form>
 </div>
-<div class="pageContent" id="pagecontent"  >
+<div class="pageContent" id="pagecontent">
   <div id="w_list_print">
     <div class="no-more-tables">
       <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
         <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
           <thead>
           <tr id="post">
-            <!-- <th class="table-checkbox">
-              <input type="checkbox" data-check="all" data-parent=".table" />
-            </th> -->
             <th>ID</th>
             <th>售卖类型</th>
             <th>商品名称</th>
             <th>唯一识别码</th>
             <th>售酒餐厅</th>
+            <th>收款状态</th>
             <th>核销状态</th>
             <th>添加日期</th>
-            
             <th class="table-tool">操作</th>
           </tr>
           </thead>
           <tbody data-check="list" data-parent=".table">
           <volist name="list" id="vlist">
             <tr target="sid_user">
-              
               <td data-title="合同ID">{$vlist.id}</td>
               <td data-title="售卖类型">{$vlist.type}</td>
               <td data-title="商品名称">{$vlist.goods_name}</td>
               <td data-title="标题">{$vlist.idcode}</td>
               <td data-title="售酒餐厅">{$vlist.hotel_name}</td>
-              <td data-title="售酒餐厅">{$vlist.wo_status}</td>
+              <td data-title="收款状态">{$vlist.status}</td>
+              <td data-title="核销状态">{$vlist.wo_status}</td>
               <td data-title="采购日期">{$vlist.add_time}</td>
-              
-              
-              
-             
-
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
                   
@@ -128,23 +119,3 @@
   </div>
   {$page}
 </div>
-
-<script type="text/javascript">
-
-  $('.date-reset').click(function(){
-    $(this).parent().prev().val('')
-  });
-
-
-  $(function(){
-    
-
-    $(".form-control.date").datetimepicker({
-      minView: "month", //选择日期后，不会再跳转去选择时分秒
-      language:  'zh-CN',
-      format: 'yyyy-mm-dd',
-      todayBtn:  1,
-      autoclose: 1,
-    });
-  })
-</script>
