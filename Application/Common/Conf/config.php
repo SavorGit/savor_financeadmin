@@ -268,6 +268,17 @@ $config['MEMBER_INTEGRAL']=array(
 );
 $config['TEMPLATE_TYPES'] = array('1'=>'通用政策','2'=>'特殊政策');
 $config['TEMPLATE_STATUS'] = array('1'=>'执行中','2'=>'已终止');
+$config['JD_CITY_DEPARTMENT'] = array(
+    '1'=>'BM000017',
+    '9'=>'BM000018',
+    '236'=>'BM000019',
+    '248'=>'BM000062',
+);
+$config['JD_SUBJECT_CODE'] = array(
+    '112202'=>array('name'=>'应收账款_第三方-','type'=>'jf'),
+    '600108'=>array('name'=>'主营业务收入_销售商品收入-','type'=>'df','rate'=>1.13),
+    '22210102'=>array('name'=>'应交税费_应交增值税_销项税额','type'=>'jf-df','rate'=>1.13),
+);
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
     'o9GS-4oZfWgjT0lySkJskdlflNrw'=>'黄勇',

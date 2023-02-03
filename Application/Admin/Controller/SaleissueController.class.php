@@ -41,6 +41,10 @@ class SaleissueController extends BaseController {
 				   when 1 then '餐厅售卖'
 				   when 2 then '团购售卖'
                    when 3 then '其它售卖' END AS type,
+                   case a.status 
+                   when 0 then ''
+                   when 1 then '未收款'
+                   when 2 then '已收款' END AS status,
                    case record.wo_status 
                    when 1 then '待审核'
                    when 2 then '审核通过'
@@ -346,5 +350,53 @@ class SaleissueController extends BaseController {
                 $this->error('编辑失败!');
             }
         }
+    }
+
+    public function jddataimport(){
+        if(IS_POST){
+            $upload = new \Think\Upload();
+            $upload->exts = array('xls','xlsx','csv');
+            $upload->maxSize = 2097152;
+            $upload->rootPath = $this->imgup_path();
+            $upload->savePath = '';
+            $upload->saveName = time().mt_rand();
+            $info = $upload->upload();
+            if(!$info){
+                $errMsg = $upload->getError();
+                $this->output($errMsg, 'saleissue/jddataimport', 0,0);
+            }else{
+                $file_path = $myimg = SITE_TP_PATH.'/Public/uploads/'.$info['fileup']['savepath'].$info['fileup']['savename'];
+                vendor("PHPExcel.PHPExcel.IOFactory");
+                vendor("PHPExcel.PHPExcel");
+                $inputFileType = \PHPExcel_IOFactory::identify($file_path);
+                $objReader = \PHPExcel_IOFactory::createReader($inputFileType);
+                $objPHPExcel = $objReader->load($file_path);
+
+                $sheet = $objPHPExcel->getSheet(0);
+                $highestRow = $sheet->getHighestRow();
+                $highestColumn = $sheet->getHighestColumn();
+
+                $all_data = array();
+                for ($row = 2; $row <= $highestRow; $row++){
+                    $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
+                    $pay_time = date('Y-m-d H:i:s',strtotime($rowData[0][0]));
+                    $idcode = $rowData[0][17];
+                    $pay_money = $rowData[0][22];
+                    if(!empty($idcode)){
+                        $all_data[]=array('idcode'=>$idcode,'pay_time'=>$pay_time,'pay_money'=>$pay_money);
+                    }
+                }
+                if(!empty($all_data)){
+                    $m_sale = new \Admin\Model\SaleModel();
+                    foreach ($all_data as $v){
+                        $m_sale->updateData(array('idcode'=>$v['idcode']),array('status'=>2,'pay_time'=>$v['pay_time'],'pay_money'=>$v['pay_money']));
+                    }
+                }
+                $this->output('导入成功!', 'saleissue/index');
+            }
+        }else{
+            $this->display();
+        }
+
     }
 }
