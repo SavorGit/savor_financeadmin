@@ -8,7 +8,7 @@ class SaleissueController extends BaseController {
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
 
-        $where  = array('a.status'=>1,'record.type'=>7,'record.wo_status'=>2);
+        $where  = array('a.status'=>array('in','0,1'),'record.type'=>7,'record.wo_status'=>2);
         if(!empty($start_date) && !empty($end_date)){
             $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         }
@@ -20,7 +20,6 @@ class SaleissueController extends BaseController {
         $m_sale = new \Admin\Model\SaleModel();
         $fileds = 'a.goods_id,a.idcode,a.settlement_price,a.hotel_id,a.maintainer_id,a.add_time,a.jd_voucher_no,ext.jd_custom_no,hotel.area_id';
         $res_data = $m_sale->getJdDataList($fileds,$where);
-
         $datalist = array();
         $i = 1;
         foreach ($res_data as $v){
