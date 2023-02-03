@@ -4,7 +4,7 @@
   
 </style>-->
 <div class="pageHeader">
-  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/stock/dgoodsiolist" method="post" >
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/stock/doutlistcost" method="post" >
     <input type="hidden" name="pageNum" value="{$pageNum}"/>
     <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
     <input type="hidden" name="_order" value="{$_order}"/>
@@ -14,7 +14,7 @@
         <div class="form-inline" style="margin-top:3px;">
         <div class="form-group">
         	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$start_date}">
-          		<input style="margin-left: 6px;" name="start_date" type="text" size="16" class="form-control date" placeholder="入出库开始日期" value="{$start_date}" readonly>
+          		<input style="margin-left: 6px;" name="start_date" type="text" size="16" class="form-control date" placeholder="出库开始日期" value="{$start_date}" readonly>
                 <span class="input-group-btn">
                   <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
                   <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
@@ -23,7 +23,7 @@
 
         	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$end_date}" >
 
-          		<input    name="end_date" type="text" size="16" class="form-control date" placeholder="入出库结束日期" value="{$end_date}" readonly>
+          		<input    name="end_date" type="text" size="16" class="form-control date" placeholder="出库结束日期" value="{$end_date}" readonly>
                 <span class="input-group-btn"  >
                   <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
                   <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
@@ -48,7 +48,7 @@
             
             <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
 				
-				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/stock/goodsiolist?start_date={$start_date}&end_date={$end_date}" title="导出商品收发明细表" target="_blank" mask="true"><i class="fa fa-plus"></i>导出商品收发明细表</a>
+				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/stock/outlistcost?start_date={$start_date}&end_date={$end_date}" title="导出出库成本核算表" target="_blank" mask="true"><i class="fa fa-plus"></i>导出出库成本核算表</a>
           
 			</div>
 			

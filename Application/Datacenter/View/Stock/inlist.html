@@ -4,7 +4,7 @@
   
 </style>-->
 <div class="pageHeader">
-  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/stock/inlist" method="post" >
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/stock/dinlist" method="post" >
     <input type="hidden" name="pageNum" value="{$pageNum}"/>
     <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
     <input type="hidden" name="_order" value="{$_order}"/>
@@ -83,8 +83,9 @@
             <th>单价</th>
             <th>税率</th>
             <th>不含税单价</th>
-            <th>不含税总金额</th>
             <th>税额</th>
+            <th>不含税总金额</th>
+            
             <th>含税总金额</th>
           </tr>
           </thead>
@@ -105,8 +106,8 @@
               <td data-title="单价">{$vlist.price}</td>
               <td data-title="税率">{$vlist.rate}</td>
               <td data-title="不含税单价">{$vlist.no_rate_price}</td>
-              <td data-title="不含税总金额">{$vlist.no_rate_total_money}</td>
               <td data-title="税额">{$vlist.rate_money}</td>
+              <td data-title="不含税总金额">{$vlist.no_rate_total_money}</td>
               <td data-title="含税总金额">{$vlist.total_money}</td>
             </tr>
           </volist>

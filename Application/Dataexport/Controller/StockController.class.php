@@ -215,6 +215,7 @@ class StockController extends BaseController {
         
         
         $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $m_stock_record = new \Admin\Model\StockRecordModel();
         $fields = "stock.name stock_name,stock.serial_number,stock.io_date,
                    case stock.io_type
 				   when 11 then '采购入库'
@@ -241,15 +242,31 @@ class StockController extends BaseController {
                                  ->select();
         foreach($result as $key=>$v){
             
-            $result[$key]['rate'] = !empty($v['rate']) ? ($v['rate']*100).'%':'';
-            $rate_money = $v['price'] * $v['rate'];
-            $total_money = $v['price'] * $v['total_amount'];
-            $no_rate_total_money = $total_money - $rate_money * $v['total_amount'];
+            //数量
+            $where = [];
+            $map['stock_id']        = $v['stock_id'];
+            $map['stock_detail_id'] = $v['stock_detail_id'];
+            $map['goods_id']        = $v['goods_id'];
+            $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')
+            ->where($map)
+            ->find();
+            $total_amount = $rt['total_amount'];
             
-            $result[$key]['no_rate_price']      = $v['price'] - $rate_money;
-            $result[$key]['rate_money']         = $rate_money;
-            $result[$key]['total_money']        = $total_money;
-            $result[$key]['no_rate_total_money']= $no_rate_total_money;
+            
+            $result['list'][$key]['rate'] = !empty($v['rate']) ? ($v['rate']*100).'%':'';
+            $no_rate_price = round($v['price'] / (1+$v['rate']),2); //不含税单价
+            
+            $rate_money = $v['price'] - $no_rate_price;
+            $total_money = $v['price'] * $total_amount;
+            
+            
+            
+            $no_rate_total_money = $no_rate_price * $total_amount;
+            
+            $result['list'][$key]['no_rate_price']      = $no_rate_price;
+            $result['list'][$key]['rate_money']         = $rate_money;
+            $result['list'][$key]['total_money']        = $total_money;
+            $result['list'][$key]['no_rate_total_money']= $no_rate_total_money;
         }
         
         $cell = array(
@@ -379,17 +396,25 @@ class StockController extends BaseController {
         foreach($idcode_list as $key=>$v){
             
             $idcode = $v['idcode'];
-            
-            
-            
-            
-            $fileds = 'a.id,a.type,a.idcode,goods.barcode,goods.name as goods_name,stock.hotel_id,stock.serial_number,unit.name as unit_name,a.wo_status,a.dstatus,a.add_time';
-            $res_record = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode),'a.id desc','','');
-           
-            
+            $fileds = 'a.id,a.type,a.idcode,goods.barcode,goods.name as goods_name,stock.hotel_id, hotel.name hotel_name,
+                       stock.area_id,area.region_name,
+                       stock.serial_number,unit.name as unit_name,a.wo_status,a.dstatus,a.add_time';
+            //$res_record = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode),'a.id desc','','');
+            $res_record = $m_stock_record->alias('a')
+                                         ->field($fileds)
+                                         ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                                         ->join('savor_area_info area on stock.area_id=area.id','left')
+                                         ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+                                         ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                                         ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                                         ->join('savor_finance_category cate on goods.category_id=cate.id','left')
+                                         ->join('savor_finance_specification spec on goods.specification_id=spec.id','left')
+                                         ->order('a.id desc')
+                                         ->where(array('a.idcode'=>$idcode))
+                                         ->select();
             foreach ($res_record as $v){
                 $info = $v;
-                $type_str = $all_type[$info['type']];
+                /*$type_str = $all_type[$info['type']];
                 if($info['type']==7){
                     $type_str.="（{$wo_status[$info['wo_status']]}）";
                 }
@@ -402,10 +427,20 @@ class StockController extends BaseController {
                 if($info['hotel_id']>0){
                     $res_hotel = $m_hotel->getInfo(array('id'=>$info['hotel_id']));
                     $hotel_name = $res_hotel['name'];
+                }*/
+                if($info['hotel_id']){
+                    $info['storage_id'] = $info['hotel_id'];
+                    $info['storage_name'] = $info['hotel_name'];
+                }else {
+                    $info['storage_id'] = $info['area_id'];
+                    $info['storage_name'] = $info['region_name'];
                 }
-                $info['hotel_name']= $hotel_name;
-                $info['dstatus_str']= $dstatus_str;
-                $info['type_str']= $type_str;
+                if($info['dstatus']==2){
+                    $info['dstatus_str'] = '删除';
+                }else{
+                    $info['dstatus_str'] = '正常';
+                }
+                
                 $data_list[] = $info;
             }
         }
@@ -415,8 +450,8 @@ class StockController extends BaseController {
             array('goods_name','商品名称'),
             array('add_time','日期'),
             array('serial_number','单号'),
-            
-            array('hotel_name','酒楼名称'),
+            array('storage_id','仓库编号'),
+            array('storage_name','仓库名称'),
             array('dstatus_str','状态'),
         );
         $filename = '唯一识别码跟踪表';
@@ -426,7 +461,6 @@ class StockController extends BaseController {
      * @desc 数据查询-商品收发明细表
      */
     public function goodsiolist(){
-        return false;
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
@@ -437,11 +471,15 @@ class StockController extends BaseController {
         $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
         $where['a.status']       = 1;
         
-        $fields = 'a.goods_id,goods.barcode,goods.name goods_name,unit.name u_name,
-                   brand.name brand_name';
+        $fields = "stock.id stock_id,a.id stock_detail_id,a.goods_id,goods.barcode,goods.name goods_name,
+                   unit.name u_name,brand.name brand_name,
+                   case stock.type
+				   when 10 then '入库'
+                   when 20 then '出库' END AS type";
         
         $group = 'a.goods_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $m_stock_record = new \Admin\Model\StockRecordModel();
         $result = $m_stock_detail->alias('a')
         ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
         ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
@@ -454,15 +492,320 @@ class StockController extends BaseController {
         ->order($order)
         ->group($group)
         ->select();
-        
+        $data_list = [];
         foreach($result as $key=>$v){
             
+            $fields = "stock.id stock_id ,a.id stock_detail_id,a.goods_id,stock.serial_number,stock.type,case stock.type
+				   when 10 then '入库'
+                   when 20 then '出库' END AS type_str,
+                   stock.io_date,area.id area_id,area.region_name,hotel.id hotel_id, hotel.name hotel_name,unit.name unit_name";
             $where  = [];
             $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date));
-            $where['sd.goods_id']    = $v['goods_id'];
-            $where['stock.type']     = 10;
+            $where['a.goods_id']    = $v['goods_id'];
+            
+            $rets = $m_stock_detail->alias('a')
+                           ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                           ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                           ->join('savor_area_info area on stock.area_id=area.id','left')
+                           ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+                           ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                           ->field($fields)
+                           ->where($where)
+                           ->select();
+            
+            foreach($rets as $kk=>$vv){
+                //数量  sum(total_amount)
+                $map = [];
+                
+                $map['stock_id']        = $vv['stock_id'];
+                $map['stock_detail_id'] = $vv['stock_detail_id'];
+                $map['goods_id']        = $vv['goods_id'];
+                if($rets[$kk]['type']==10){
+                    $map['type'] = 1;
+                }else if($rets[$kk]['type']==11){
+                    $map['type'] = 2;
+                }
+                $map['dstatus']         = 1;
+                //print_r($map);exit;
+                $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')->where($map)->find();
+                $vv['total_amount'] = $rt['total_amount'];
+                $vv['total_fee']    = $rt['total_fee'];
+                if($vv['hotel_id']){
+                    $vv['storage_id'] = $vv['hotel_id'];
+                    $vv['storage_name'] = $vv['hotel_name'];
+                    $vv['storage_type'] = '前置仓';
+                }else {
+                    $vv['storage_id'] = $vv['area_id'];
+                    $vv['storage_name'] = $vv['region_name'];
+                    $vv['storage_type'] = '中转仓';
+                }
+                $data_list[] = array_merge($v,$vv);
+                
+            }         
             
         }
+        //print_r($result);
+        $cell = array(
+            array('barcode','商品编码'),
+            array('goods_name','商品名称'),
+            array('type_str','类型'),
+            array('io_date','日期'),
+            array('serial_number','单号'),
+            array('io_date','单据日期'),
+            array('region_name','城市'),
+            array('storage_type','仓别'),
+            array('storage_id','仓库编号'),
+            array('storage_name','仓库名称'),
+            array('unit_name','单位'),
+            array('total_amount','数量'),
+            array('total_fee','成本'),
+        );
+        $filename = '商品收发明细表';
+        $this->exportToExcel($cell,$data_list,$filename,1);
     }
-
+    public function outlistcost(){
+        $order = 'stock.id desc';
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        
+        $where = [];
+        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        
+        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        $where['a.status']       = 1;
+        $where['stock.type']     = 20;
+        
+        $fields = 'a.goods_id,goods.barcode,goods.name goods_name,unit.name u_name';
+        $group = 'a.goods_id';
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $result = $m_stock_detail->alias('a')
+                                ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                                ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                                ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                                ->field($fields)
+                                ->where($where)
+                                ->order($order)
+                                ->group($group)
+                                ->select();
+        $data_list = [];
+        foreach($result as $key=>$v){
+            $where = [];
+            $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+            $where['a.status']       = 1;
+            $where['stock.type']     = 20;
+            $where['a.goods_id']     = $v['goods_id'];
+            
+            $fields = 'stock.id stock_id,a.id stock_detail_id,a.goods_id,area.id area_id,area.region_name,
+                       stock.serial_number,hotel.id hotel_id,hotel.name hotel_name,unit.name unit_name';
+            $rts =  $m_stock_detail->alias('a')
+                                   ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                                   ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                                   ->join('savor_area_info area on stock.area_id=area.id','left')
+                                   ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+                                   ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                                   ->field($fields)
+                                   ->where($where)
+                                   ->order($order)
+                                   ->select();
+            foreach($rts as $kk=>$vv){
+                //数量
+                
+                //成本
+                
+                $map = [];
+                $map['stock_id']        = $vv['stock_id'];
+                $map['stock_detail_id'] = $vv['stock_detail_id'];
+                $map['goods_id']        = $vv['goods_id'];
+                $map['type']            = 2;
+                $map['dstatus']         = 1;
+                $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')->where($map)->find();
+                //print_r($rt);exit;
+                $vv['total_amount'] = $rt['total_amount'];
+                $vv['total_fee']    = $rt['total_fee'];
+                if($vv['hotel_id']){
+                    $vv['storage_id'] = $vv['hotel_id'];
+                    $vv['storage_name'] = $vv['hotel_name'];
+                    $vv['storage_type'] = '前置仓';
+                }else {
+                    $vv['storage_id'] = $vv['area_id'];
+                    $vv['storage_name'] = $vv['region_name'];
+                    $vv['storage_type'] = '中转仓';
+                }
+                $data_list[] = array_merge($v,$vv);
+            }
+        }
+        $cell = array(
+            array('barcode','商品编码'),
+            array('goods_name','商品名称'),
+            array('region_name','城市'),
+            array('storage_type','仓别'),
+            array('serial_number','单号'),
+            array('storage_id','仓库编号'),
+            array('storage_name','仓库名称'),
+            array('unit_name','单位'),
+            array('total_amount','数量'),
+            array('total_fee','成本'),
+        );
+        $filename = '出库成本核算表';
+        $this->exportToExcel($cell,$data_list,$filename,1);
+        
+        
+    }
+    /**
+     * @desc 数据查询 库龄分析表
+     */
+    public function stockage(){
+        $order = 'stock.id desc';
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        
+        $where = [];
+        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        $where['stock.type']     = 10;
+        $where['a.dstatus']       = 1;
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $fields = 'a.idcode';
+        $group  = 'a.idcode';
+        $idcode_list = $m_stock_record->alias('a')
+                       ->join('savor_finance_stock_detail sd on a.stock_detail_id=sd.id','left')
+                       ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                       ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                       ->where($where)
+                       ->field($fields)
+                       ->group($group)
+                       ->select();
+                       
+       $data_list = [];
+       foreach($idcode_list as $key=>$v){
+           //判断是否核销了 如果核销了不要
+           $map = [];
+           $map['idcode'] = $v['idcode'];
+           $map['type']   = 7;
+           //$map['wo_status'] = array('neq',3);
+           $map['dstatus']   = 1;
+           $rt = $m_stock_record->field('wo_status')->where($map)->order('id desc')->find();
+           
+           if(!empty($rt) && $rt['wo_status']!=3){//如果被核销了
+               continue;
+           }
+           //如果未核销
+           $where = [];
+           //$where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+           $where['a.idcode']       = $v['idcode'];
+           //$where['stock.type']     = 10;
+           $where['a.dstatus']       = 1;
+           $fields = 'stock.serial_number,stock.id stock_id,a.id stock_detail_id,a.idcode,stock.io_date,stock.area_id,stock.hotel_id,
+                      area.region_name,hotel.name hotel_name,goods.id goods_id,goods.barcode,
+                      goods.name goods_name,unit.name unit_name';
+           $order  = 'stock.id desc';
+           $stock_info = $m_stock_record->alias('a')
+                                         ->join('savor_finance_stock_detail sd on a.stock_detail_id=sd.id','left')
+                                         ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                                         ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                                         ->join('savor_area_info area on stock.area_id=area.id','left')
+                                         ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
+                                         ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
+                                         ->where($where)
+                                         ->field($fields)
+                                         ->order($order)
+                                         ->find();
+           $io_date = $stock_info['io_date'];
+           $day_arr = $this->viewDayTime($io_date);
+           $stock_info['days'] = $day_arr['days'];
+           $stock_info['days_str'] = $day_arr['days_str'];
+           if($stock_info['hotel_id']){
+               $stock_info['storage_id']   = $stock_info['hotel_id'];
+               $stock_info['storage_name'] = $stock_info['hotel_name'];
+               $stock_info['storage_type'] = '前置仓';
+               
+               //数量
+               $map = [];
+               $map['stock_id']        = $stock_info['stock_id'];
+               $map['type']            =2;
+               $map['dstatus']         =1;
+               $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')
+               ->where($map)
+               ->find();
+               $map = [];
+               $map['stock_id']        = $stock_info['stock_id'];
+               
+               $map['dstatus']         =1;
+               $map['type']            = 7;
+               $rts = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')
+               ->where($map)
+               ->find();
+               $stock_info['total_amount'] = $rt['total_amount'] - $rts['total_amount'];
+               $stock_info['total_fee']    = $rt['total_fee']    - $rts['total_fee'];
+           }else {
+               $stock_info['storage_id']   = $stock_info['area_id'];
+               $stock_info['storage_name'] = $stock_info['region_name'];
+               $stock_info['storage_type'] = '中转仓';
+               
+               //数量
+               $map = [];
+               $map['stock_id']        = $stock_info['stock_id'];
+               $map['type']            =1;
+               $map['dstatus']         =1;
+               $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')
+               ->where($map)
+               ->find();
+               $map = [];
+               $map['stock_id']        = $stock_info['stock_id'];
+               
+               $map['dstatus']         =1;
+               $map['type']            = 7;
+               $rts = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')
+               ->where($map)
+               ->find();
+               $stock_info['total_amount'] = $rt['total_amount'] - $rts['total_amount'];
+               $stock_info['total_fee']    = $rt['total_fee']    - $rts['total_fee'];
+           }
+           
+           $data_list[] = $stock_info;
+       }
+       $cell = array(
+           array('barcode','商品编码'),
+           array('goods_name','商品名称'),
+           array('idcode','商品唯一编码'),
+           array('region_name','城市'),
+           array('serial_number','单号'),
+           
+           array('storage_type','仓别'),
+           array('storage_id','仓库编号'),
+           array('storage_name','仓库名称'),
+           array('unit_name','单位'),
+           array('total_amount','库存数量'),
+           array('total_fee','库存金额'),
+           array('days_str','库存天数'),
+       );
+       $filename = '库龄分析表';
+       $this->exportToExcel($cell,$data_list,$filename,1);
+       
+    }
+    private function viewDayTime($start_date,$type=1){
+        $now_date = date('Y-m-d');
+        $diff_time = strtotime($now_date) - strtotime($start_date);
+        
+        $days = ceil($diff_time / 86400);
+        if($type==1){
+            if($days>=1 && $days<=30){
+                $days_str = '1-30天';
+            }else if($days>=31 && $days<=60){
+                $days_str = '31-60天';
+            }else if($days>=61 && $days<=90){
+                $days_str = '61-90天';
+            }else{
+                $days_str = '61-90天';
+            }
+        }else if($type==2){
+            
+        }
+        return array('days'=>$days,'days_str'=>$days_str);
+        
+    }
 }
