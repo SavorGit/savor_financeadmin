@@ -5,7 +5,7 @@ namespace Dataexport\Controller;
 
 
 class SaleissueController extends BaseController {
-    
+    private $sale_type_arr = array(1=>'餐厅售卖',2=>'团购售卖',3=>'其它售卖');
     public function exportjd() {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
@@ -185,6 +185,112 @@ class SaleissueController extends BaseController {
         );
         $filename = '销售出库单列表';
         $this->exportToExcel($cell,$data_list,$filename,1);
+    }
+    /**
+     * @desc 数据查询 销售出库单汇总表
+     */
+    public function datasummary(){
+        
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        $orders = "a.id desc";
+        $where = [];
+        $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+         
+        $fields = "a.hotel_id,hotel.name hotel_name,area.region_name";
+        $group  = "a.hotel_id";
+        $m_sale = new \Admin\Model\SaleModel();
+        $list =   $m_sale->alias('a')
+                         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                         ->join('savor_area_info area on hotel.area_id= area.id','left')
+                         ->field($fields)
+                         ->where($where)
+                         ->order($orders)
+                         ->group($group)
+                         ->select();
+         $sale_type_arr = $this->sale_type_arr;
+         $data_list = [];
+         foreach($list as $key=>$v){
+         
+             foreach($sale_type_arr as $kk=>$vv){
+                 
+                 $map = [];
+                 $map['a.hotel_id'] = $v['hotel_id'];
+                 $map['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+                 $map['a.type']     = $kk;
+                 $ret = $m_sale->alias('a')
+                               ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                               ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                               ->field('a.hotel_id,a.goods_id,goods.name goods_name')
+                               ->where($map)
+                               ->group('a.goods_id')
+                               ->select();
+                 foreach($ret as $kkk=>$vvv){
+                     $map = [];
+                     $map['hotel_id'] = $v['hotel_id'];
+                     $map['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+                     $map['a.type']     = $kk;
+                     $map['goods_id'] = $vvv['goods_id'];
+                     $fields = 'a.cost_price,a.settlement_price';
+                     $rts = $m_sale->alias('a')
+                                   ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                                   ->join('savor_area_info area on hotel.area_id= area.id','left')
+                                   ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                                   ->where($map)
+                                   ->field($fields)
+                                   ->select();
+                    if(!empty($rts)){
+                        $cost_total = 0;
+                        $settlement_total = 0;
+                        $sale_profit = 0;
+                        foreach($rts as $rk=>$rv){
+                            $cost_total +=$rv['cost_price'] *1;
+                            $settlement_total +=$rv['settlement_price'] *1;
+                            $sale_profit = $rv['settlement_price'] - $rv['cost_price'];
+                            
+                        }
+                        $no_rate_settlement_total = $settlement_total / 1.13;
+                        $rate_settlement_total    = $settlement_total - $no_rate_settlement_total;
+                        $info = [];
+                        $info['type'] = $vv;
+                        $info['region_name'] = $v['region_name'];
+                        $info['hotel_id']    = $v['hotel_id'];
+                        $info['hotel_name']  = $v['hotel_name'];
+                        $info['barcode']     = $vvv['barcode'];
+                        $info['goods_name']  = $vvv['goods_name'];
+                        $info['total_amount']= count($rts);
+                        $info['cost_total'] = $cost_total;              //出库成本
+                        $info['settlement_total'] = $settlement_total;  //销售收入
+                        $info['no_rate_settlement_total'] = round($no_rate_settlement_total,2);  //销售收入
+                        $info['rate_settlement_total']    = round($rate_settlement_total,2);      //销售税金
+                        $info['sale_profit'] = $sale_profit *$info['total_amount'] ;  //销售毛利
+                        
+                        $data_list[] = $info;
+                    }
+                 }
+             }
+         }
+         $cell = array(
+             array('type','销售类型'),
+             
+             array('region_name','城市'),
+             array('hotel_id','仓库编号'),
+             array('hotel_name','仓库名称'),
+             array('goods_id','商品编码'),
+             array('goods_name','商品名称'),
+             array('total_amount','数量'),
+             array('cost_total','出库成本'),
+             array('settlement_total','销售收入'),
+             array('no_rate_settlement_total','销售收入(不含税)'),
+             
+             array('rate_settlement_total','销售收入(税金)'),
+             array('sale_profit','毛利'),
+             
+         );
+         $filename = '销售出库单汇总表';
+         $this->exportToExcel($cell,$data_list,$filename,1);
     }
 
 }
