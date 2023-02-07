@@ -12,7 +12,7 @@ class PurchaselistController extends BaseController {
         $where = [];
         $where['p.purchase_date'] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
         $where['a.status'] = 1;
-        $fileds = "ct.serial_number c_serial_number,p.serial_number,p.purchase_date,a.total_amount,s.name supplier_name,
+        $fileds = "ct.id,ct.serial_number c_serial_number,p.serial_number,p.purchase_date,a.total_amount,s.name supplier_name,
                    case a.status
 				   when 1 then '进行中'
 				   when 2 then '已完成' END AS status,
@@ -24,7 +24,7 @@ class PurchaselistController extends BaseController {
                             ->join('savor_finance_goods g on a.goods_id=g.id','left')
                             ->join('savor_finance_category c on g.category_id=c.id','left')
                             ->join('savor_finance_unit  u on a.unit_id  = u.id','left')
-                            ->join('savor_finance_supplier s on g.supplier_id= s.id','left')
+                            ->join('savor_finance_supplier s on p.supplier_id= s.id','left')
                             ->join('savor_finance_stock st on st.purchase_id=p.id','left')
                             ->field($fileds)
                             ->where($where)
@@ -81,7 +81,7 @@ class PurchaselistController extends BaseController {
             
         }
         $cell = array(
-            array('c_serial_number','采购合同编号'),
+            array('id','采购合同编号'),
             array('serial_number','采购单号'),
             array('purchase_date','采购日期'),
             array('total_amount','数量'),

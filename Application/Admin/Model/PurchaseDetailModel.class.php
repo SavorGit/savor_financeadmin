@@ -35,7 +35,7 @@ class PurchaseDetailModel extends BaseModel{
 	                 ->join('savor_finance_goods g on a.goods_id=g.id','left')
 	                 ->join('savor_finance_category c on g.category_id=c.id','left')
 	                 ->join('savor_finance_unit  u on a.unit_id  = u.id','left')
-	                 ->join('savor_finance_supplier s on g.supplier_id= s.id','left')
+	                 ->join('savor_finance_supplier s on p.supplier_id= s.id','left')
 	                 ->join('savor_finance_stock st on st.purchase_id=p.id','left')
 	                 ->field($fields)
 	                 ->where($where)

@@ -26,7 +26,7 @@ class PurchaselistController extends BaseController {
         $where = [];
         $where['p.purchase_date'] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
         $where['a.status'] = 1;
-        $fileds = "ct.serial_number c_serial_number,p.serial_number,p.purchase_date,a.total_amount,s.name supplier_name,
+        $fileds = "ct.id,ct.serial_number c_serial_number,p.serial_number,p.purchase_date,a.total_amount,s.name supplier_name,
                    case a.status
 				   when 1 then '进行中'
 				   when 2 then '已完成' END AS status,
