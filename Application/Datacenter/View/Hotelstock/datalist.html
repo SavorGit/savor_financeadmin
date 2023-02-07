@@ -1,0 +1,92 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/hotelstock/datalist" method="post">
+        <input type="hidden" name="pageNum" value="{$pageNum}"/>
+        <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+        <div class="searchBar">
+            <div class="clearfix">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">库房城市：</div>
+                        <div class="input-group">
+                            <select name="area_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0>全部</option>
+                                <volist name="area" id="vo">
+                                    <option value="{$vo.id}" <if condition="$vo.id eq $area_id">selected</if>>{$vo.region_name}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-btn">
+                             <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-group-sm pull-right">
+                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/hotelstock/datalist?area_id={$area_id}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+<div class="pageContent" id="pagecontent" style="margin-top:25px;">
+    <div id="w_list_print">
+        <div class="no-more-tables">
+            <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+                <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+                    <thead>
+                    <tr id="post">
+                        <th>商品名称</th>
+                        <th>商品编码</th>
+                        <th>商品类型</th>
+                        <th>商品单价</th>
+                        <th>仓库编码</th>
+                        <th>仓库名称</th>
+                        <th>仓库城市</th>
+                        <th>期初数量</th>
+                        <th>期初金额</th>
+                        <th>结余数量</th>
+                        <th>结余金额</th>
+                        <th>入库数量</th>
+                        <th>入库金额</th>
+                        <th>出库数量</th>
+                        <th>出库金额</th>
+                    </tr>
+                    </thead>
+                    <tbody data-check="list" data-parent=".table">
+                    <foreach name="datalist" item="dinfo">
+                        <tr target="sid_user">
+                            <td data-title="商品名称">{$dinfo.name}</td>
+                            <td data-title="商品编码">{$dinfo.goods_id}</td>
+                            <td data-title="商品类型">{$dinfo.cate_name}</td>
+                            <td data-title="商品单价">{$dinfo.settlement_price}</td>
+                            <td data-title="仓库编码">{$dinfo.hotel_id}</td>
+                            <td data-title="仓库名称">{$dinfo.hotel_name}</td>
+                            <td data-title="仓库城市">{$dinfo.area_name}</td>
+                            <td data-title="期初数量">0</td>
+                            <td data-title="期初金额">0</td>
+                            <td data-title="结余数量">{$dinfo.surplus_num}</td>
+                            <td data-title="结余金额">{$dinfo.surplus_total_fee}</td>
+                            <td data-title="入库数量">{$dinfo.in_num}</td>
+                            <td data-title="入库金额">{$dinfo.in_total_fee}</td>
+                            <td data-title="出库数量">{$dinfo.out_num}</td>
+                            <td data-title="出库金额">{$dinfo.out_total_fee}</td>
+
+                        </tr>
+                    </foreach>
+                    </tbody>
+                </table>
+            </form>
+
+        </div>
+    </div>
+    {$page}
+</div>

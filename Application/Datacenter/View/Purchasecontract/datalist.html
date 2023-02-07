@@ -1,0 +1,83 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/purchasecontract/datalist" method="post">
+        <input type="hidden" name="pageNum" value="{$pageNum}"/>
+        <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+        <div class="searchBar">
+            <div class="clearfix">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">城市：</div>
+                        <div class="input-group">
+                            <select name="area_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0>全部</option>
+                                <volist name="area" id="vo">
+                                    <option value="{$vo.id}" <if condition="$vo.id eq $area_id">selected</if>>{$vo.region_name}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-btn">
+                             <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-group-sm pull-right">
+                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/purchasecontract/datalist?area_id={$area_id}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+<div class="pageContent" id="pagecontent" style="margin-top:25px;">
+    <div id="w_list_print">
+        <div class="no-more-tables">
+            <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+                <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+                    <thead>
+                    <tr id="post">
+                        <th>供应商名称</th>
+                        <th>单据日期</th>
+                        <th>采购款总金额</th>
+                        <th>已付款金额合计</th>
+                        <th>转预付金额</th>
+                        <th>未付款金额</th>
+                        <th>付款账户</th>
+                        <th>采购合同编号</th>
+                        <th>城市</th>
+                        <th>收款单位名称</th>
+                        <th>收款人账号</th>
+                    </tr>
+                    </thead>
+                    <tbody data-check="list" data-parent=".table">
+                    <foreach name="datalist" item="dinfo">
+                        <tr target="sid_user">
+                            <td data-title="供应商名称">{$dinfo.company_name}</td>
+                            <td data-title="单据日期">{$dinfo.sign_time}</td>
+                            <td data-title="采购款总金额">{$dinfo.contract_money}</td>
+                            <td data-title="已付款金额合计">{$dinfo.have_pay_money}</td>
+                            <td data-title="转预付金额">0</td>
+                            <td data-title="未付款金额">{$dinfo.no_pay_money}</td>
+                            <td data-title="付款账户"></td>
+                            <td data-title="采购合同编号">{$dinfo.serial_number}</td>
+                            <td data-title="城市">{$dinfo.area_name}</td>
+                            <td data-title="收款单位名称">{$dinfo.account_name}</td>
+                            <td data-title="收款人账号">{$dinfo.bank_account}</td>
+                        </tr>
+                    </foreach>
+                    </tbody>
+                </table>
+            </form>
+
+        </div>
+    </div>
+    {$page}
+</div>
