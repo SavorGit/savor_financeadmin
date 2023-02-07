@@ -729,6 +729,7 @@ class StockController extends BaseController {
         $pageNum = I('pageNum',1,'intval');//当前页码
         $goods_id = I('goods_id',0,'intval');
         $type = I('type',0,'intval');
+        $area_id = I('area_id',0,'intval');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
         $all_types = array('1'=>'入库','2'=>'出库','3'=>'拆箱');
@@ -738,6 +739,9 @@ class StockController extends BaseController {
             $where['a.type'] = $type;
         }else{
             $where['a.type'] = array('in',array_keys($all_types));
+        }
+        if($area_id){
+            $where['stock.area_id'] = $area_id;
         }
         if(!empty($start_time) && !empty($end_time)){
             $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
@@ -785,6 +789,7 @@ class StockController extends BaseController {
         $this->assign('all_types', $all_types);
         $this->assign('type', $type);
         $this->assign('goods_id', $goods_id);
+        $this->assign('area_id', $area_id);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -796,6 +801,7 @@ class StockController extends BaseController {
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
         $goods_id = I('goods_id',0,'intval');
+        $area_id = I('area_id',0,'intval');
 
         $departments = $specifications = $units = array();
         $m_department = new \Admin\Model\DepartmentModel();
@@ -816,6 +822,9 @@ class StockController extends BaseController {
         }
 
         $where = array('a.goods_id'=>$goods_id,'a.status'=>1,'stock.type'=>10);
+        if($area_id){
+            $where['stock.area_id'] = $area_id;
+        }
         $start = ($pageNum-1)*$size;
         $fields = 'a.id,goods.id as goods_id,goods.name,goods.barcode,goods.specification_id,a.unit_id,stock.department_id,stock.serial_number,a.amount,stock.io_date';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
@@ -824,15 +833,18 @@ class StockController extends BaseController {
 
         $data_list = array();
         if(!empty($res_list['list'])){
+            $m_stock_record = new \Admin\Model\StockRecordModel();
             foreach ($res_list['list'] as $v){
                 $v['department']=$departments[$v['department_id']]['name'];
                 $v['specification']=$specifications[$v['specification_id']]['name'];
                 $v['unit']=$units[$v['unit_id']]['name'];
 
-                $m_stock_record = new \Admin\Model\StockRecordModel();
-                $fields = 'sum(total_amount) as total_amount';
-                $rwhere = array('goods_id'=>$goods_id,'unit_id'=>$v['unit_id'],'type'=>array('in',array(1,2)),'dstatus'=>1);
-                $res_goods_inrecord = $m_stock_record->getAll($fields,$rwhere,0,1);
+                $fields = 'sum(a.total_amount) as total_amount';
+                $rwhere = array('a.goods_id'=>$goods_id,'a.unit_id'=>$v['unit_id'],'a.type'=>array('in',array(1,2)),'a.dstatus'=>1);
+                if($area_id){
+                    $rwhere['stock.area_id'] = $area_id;
+                }
+                $res_goods_inrecord = $m_stock_record->getAllStock($fields,$rwhere,'','','0,1');
                 $now_amount = 0;
                 if(!empty($res_goods_inrecord)){
                     $now_amount = $res_goods_inrecord[0]['total_amount'];
@@ -841,6 +853,7 @@ class StockController extends BaseController {
                 $data_list[] = $v;
             }
         }
+        $this->assign('area_id', $area_id);
         $this->assign('goods_id', $goods_id);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
@@ -853,6 +866,7 @@ class StockController extends BaseController {
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
         $goods_id = I('goods_id',0,'intval');
+        $area_id = I('area_id',0,'intval');
         $unit_id = I('unit_id',0,'intval');
 
         $areas = $departmentusers = $units = array();
@@ -873,6 +887,9 @@ class StockController extends BaseController {
         }
 
         $where = array('a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.type'=>array('in',array(1,3)),'a.status'=>0,'a.dstatus'=>1);
+        if($area_id){
+            $where['stock.area_id'] = $area_id;
+        }
         $start = ($pageNum-1)*$size;
         $fields = 'a.*,goods.name,goods.specification_id,stock.serial_number,stock.area_id';
         $m_stock_record = new \Admin\Model\StockRecordModel();
@@ -888,6 +905,7 @@ class StockController extends BaseController {
                 $data_list[] = $v;
             }
         }
+        $this->assign('area_id',$area_id);
         $this->assign('goods_id',$goods_id);
         $this->assign('unit_id',$unit_id);
         $this->assign('datalist',$data_list);
