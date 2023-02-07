@@ -50,7 +50,7 @@ class IndexController extends BaseController {
                 $where['isenable'] = 1;
                 $where['menulevel'] = 1;
                 $where['parentid'] = $val['id'];
-                $secend_menu = $m_node_menu->getWhere($where,'id,name,media_id,select_media_id,m,c,a');
+                $secend_menu = $m_node_menu->getWhere($where,'id,name,media_id,select_media_id,m,c,a','displayorder,id asc');
                 $first_menu[$key]['child'] = $secend_menu;
                 if($val['select_media_id']){
                     $mediainfo = $mediaModel->getMediaInfoById($val['select_media_id']);
