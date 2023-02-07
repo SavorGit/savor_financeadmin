@@ -469,84 +469,67 @@ class StockController extends BaseController {
         
         $where = [];
         $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
-        $where['a.status']       = 1;
+        $where['sd.status']       = 1;
+        //$where['stock.io_type']   = array('in','11,12,13');
         
-        $fields = "stock.id stock_id,a.id stock_detail_id,a.goods_id,goods.barcode,goods.name goods_name,
-                   unit.name u_name,brand.name brand_name,
+        $fields = "a.idcode,stock.id stock_id,a.stock_detail_id,a.goods_id,goods.barcode,goods.name goods_name,
+                   unit.name u_name,brand.name brand_name,stock.type,
                    case stock.type
 				   when 10 then '入库'
-                   when 20 then '出库' END AS type";
+                   when 20 then '出库' END AS type_str,
+                   stock.io_date,area.id area_id,area.region_name,hotel.id hotel_id, hotel.name hotel_name,unit.name unit_name";
         
-        $group = 'a.goods_id';
+        //$group = 'a.goods_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
         $m_stock_record = new \Admin\Model\StockRecordModel();
-        $result = $m_stock_detail->alias('a')
-        ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+        $result = $m_stock_record->alias('a')
+        ->join('savor_finance_stock_detail sd on a.stock_detail_id=sd.id','left')
         ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+        ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
         ->join('savor_area_info area on stock.area_id=area.id','left')
+        ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
         ->join('savor_finance_supplier s on goods.supplier_id= s.id','left')
         ->join('savor_finance_brand brand on goods.brand_id=brand.id','left')
         ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
         ->field($fields)
         ->where($where)
         ->order($order)
-        ->group($group)
         ->select();
         $data_list = [];
+        //print_r($result);exit;
         foreach($result as $key=>$v){
             
-            $fields = "stock.id stock_id ,a.id stock_detail_id,a.goods_id,stock.serial_number,stock.type,case stock.type
-				   when 10 then '入库'
-                   when 20 then '出库' END AS type_str,
-                   stock.io_date,area.id area_id,area.region_name,hotel.id hotel_id, hotel.name hotel_name,unit.name unit_name";
-            $where  = [];
-            $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date));
-            $where['a.goods_id']    = $v['goods_id'];
+            $map = [];
             
-            $rets = $m_stock_detail->alias('a')
-                           ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
-                           ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
-                           ->join('savor_area_info area on stock.area_id=area.id','left')
-                           ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
-                           ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
-                           ->field($fields)
-                           ->where($where)
-                           ->select();
-            
-            foreach($rets as $kk=>$vv){
-                //数量  sum(total_amount)
-                $map = [];
-                
-                $map['stock_id']        = $vv['stock_id'];
-                $map['stock_detail_id'] = $vv['stock_detail_id'];
-                $map['goods_id']        = $vv['goods_id'];
-                if($rets[$kk]['type']==10){
-                    $map['type'] = 1;
-                }else if($rets[$kk]['type']==11){
-                    $map['type'] = 2;
-                }
-                $map['dstatus']         = 1;
-                //print_r($map);exit;
-                $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')->where($map)->find();
-                $vv['total_amount'] = $rt['total_amount'];
-                $vv['total_fee']    = $rt['total_fee'];
-                if($vv['hotel_id']){
-                    $vv['storage_id'] = $vv['hotel_id'];
-                    $vv['storage_name'] = $vv['hotel_name'];
-                    $vv['storage_type'] = '前置仓';
-                }else {
-                    $vv['storage_id'] = $vv['area_id'];
-                    $vv['storage_name'] = $vv['region_name'];
-                    $vv['storage_type'] = '周转仓';
-                }
-                $data_list[] = array_merge($v,$vv);
-                
-            }         
+            $map['stock_id']        = $v['stock_id'];
+            $map['stock_detail_id'] = $v['stock_detail_id'];
+            $map['goods_id']        = $v['goods_id'];
+            if($v['type']==10){
+                $map['type'] = 1;
+            }else if($v['type']==11){
+                $map['type'] = 2;
+            }
+            $map['dstatus']         = 1;
+            //print_r($map);exit;
+            $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')->where($map)->find();
+            //print_r($rt);exit;
+            $v['total_amount'] = $rt['total_amount'];
+            $v['total_fee']    = $rt['total_fee'];
+            if($v['hotel_id']){
+                $v['storage_id'] = $v['hotel_id'];
+                $v['storage_name'] = $v['hotel_name'];
+                $v['storage_type'] = '前置仓';
+            }else {
+                $v['storage_id'] = $v['area_id'];
+                $v['storage_name'] = $v['region_name'];
+                $v['storage_type'] = '周转仓';
+            }
+            $data_list[] = $v;
             
         }
-        //print_r($result);
         $cell = array(
-            array('barcode','商品编码'),
+            array('idcode','唯一识别码'),
+            array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('type_str','类型'),
             array('io_date','日期'),
