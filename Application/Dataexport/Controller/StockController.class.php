@@ -537,7 +537,7 @@ class StockController extends BaseController {
                 }else {
                     $vv['storage_id'] = $vv['area_id'];
                     $vv['storage_name'] = $vv['region_name'];
-                    $vv['storage_type'] = '中转仓';
+                    $vv['storage_type'] = '周转仓';
                 }
                 $data_list[] = array_merge($v,$vv);
                 
@@ -632,13 +632,13 @@ class StockController extends BaseController {
                 }else {
                     $vv['storage_id'] = $vv['area_id'];
                     $vv['storage_name'] = $vv['region_name'];
-                    $vv['storage_type'] = '中转仓';
+                    $vv['storage_type'] = '周转仓';
                 }
                 $data_list[] = array_merge($v,$vv);
             }
         }
         $cell = array(
-            array('barcode','商品编码'),
+            array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('region_name','城市'),
             array('storage_type','仓别'),
@@ -744,7 +744,7 @@ class StockController extends BaseController {
            }else {
                $stock_info['storage_id']   = $stock_info['area_id'];
                $stock_info['storage_name'] = $stock_info['region_name'];
-               $stock_info['storage_type'] = '中转仓';
+               $stock_info['storage_type'] = '周转仓';
                
                //数量
                $map = [];
@@ -769,7 +769,7 @@ class StockController extends BaseController {
            $data_list[] = $stock_info;
        }
        $cell = array(
-           array('barcode','商品编码'),
+           array('goods_id','商品编码'),
            array('goods_name','商品名称'),
            array('idcode','商品唯一编码'),
            array('region_name','城市'),
