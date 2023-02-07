@@ -145,7 +145,7 @@ class StockController extends BaseController {
             $no_rate_total_money = 0;   //不含税总金额
             foreach($rts as $kk=>$vv){
                 //数量
-                $where = [];
+                $map = [];
                 $map['stock_id']        = $vv['stock_id'];
                 $map['stock_detail_id'] = $vv['stock_detail_id'];
                 $map['goods_id']        = $vv['goods_id'];

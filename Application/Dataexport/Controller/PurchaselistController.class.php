@@ -125,7 +125,7 @@ class PurchaselistController extends BaseController {
         $result = $PurchaseDetailModel->alias('a')
         ->join('savor_finance_purchase p on a.purchase_id=p.id','left')
         ->join('savor_finance_goods g on a.goods_id = g.id','left')
-        ->join('savor_finance_supplier s on g.supplier_id= s.id','left')
+        ->join('savor_finance_supplier s on p.supplier_id= s.id','left')
         ->field($fields)->where($where)->group('a.goods_id')->select();
         foreach($result as $key=>$v){
             //数量

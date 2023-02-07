@@ -308,6 +308,7 @@ class StockController extends BaseController {
         
         $group = 'a.goods_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $m_stock_record = new \Admin\Model\StockRecordModel();
         $result = $m_stock_detail->alias('a')
                                  ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
                                  ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
@@ -321,15 +322,15 @@ class StockController extends BaseController {
                                  ->group($group)
                                  ->select();
         foreach($result as $key=>$v){
-            
             $where = [];
-            $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+            $where['stock.io_date'] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
             $where['a.goods_id'] = $v['goods_id'];
             $where['a.status']       = 1;
             $where['stock.type']     = 10;
             $where['stock.io_type']  = array('in','11,12,13');
             
-            $fields = 'a.total_amount,a.price,a.rate,goods.name goods_name,brand.name brand_name';
+            $fields = 'a.id stock_detail_id,stock.id stock_id,a.total_amount,a.price,a.rate,
+                       goods.id goods_id,goods.name goods_name,brand.name brand_name';
             $rts = $m_stock_detail->alias('a')
             ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
             ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
@@ -337,21 +338,37 @@ class StockController extends BaseController {
             ->field($fields)
             ->where($where)
             ->select();
+            
+            
+            
+            
             $total_amount = 0;          //数量
             $total_money = 0;           //含税总金额
             $no_rate_total_money = 0;   //不含税总金额
+            
             foreach($rts as $kk=>$vv){
                 //数量
-                $total_amount += $vv['total_amount'];
-                $total_money  += $vv['price'] * $vv['total_amount'];
-                $rate_money    = $vv['price'] * $vv['rate'];
-                $no_rate_total_money += $total_money - $rate_money;
+                $map = [];
+                $map['stock_id']        = $vv['stock_id'];
+                $map['stock_detail_id'] = $vv['stock_detail_id'];
+                $map['goods_id']        = $vv['goods_id'];
+                $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')
+                ->where($map)
+                ->find();
+                
+                
+                $total_amount += $rt['total_amount'];
+                
+                $total_money  += $vv['price'] * $rt['total_amount'];
+                $rate_money    = $vv['price'] /(1+$vv['rate']) ;
+                $no_rate_total_money += $rate_money * $rt['total_amount'];
                 
             }
             $result[$key]['total_amount']         = $total_amount;
             $result[$key]['total_money']          = $total_money;
             $result[$key]['no_rate_total_money']  = $no_rate_total_money;
         }
+        
         $cell = array(
             
             array('goods_id','商品编码'),
