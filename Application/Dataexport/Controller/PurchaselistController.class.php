@@ -16,7 +16,7 @@ class PurchaselistController extends BaseController {
                    case a.status
 				   when 1 then '进行中'
 				   when 2 then '已完成' END AS status,
-                   g.barcode,a.goods_id,g.name goods_name,p.id purchase_id,st.id stock_id,st.io_date,st.serial_number stock_serial_number";
+                   g.id goods_id,a.goods_id,g.name goods_name,p.id purchase_id,st.id stock_id,st.io_date,st.serial_number stock_serial_number";
         $PurchaseDetailModel = new \Admin\Model\PurchaseDetailModel();
         $data_list = $PurchaseDetailModel->alias('a')
                             ->join('savor_finance_purchase p on a.purchase_id=p.id','left')
@@ -87,7 +87,7 @@ class PurchaselistController extends BaseController {
             array('total_amount','数量'),
             array('supplier_name','供应商'),
             array('status','采购状态'),
-            array('barcode','商品编码'),
+            array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('price','含税单价'),
             array('rate','税率'),
@@ -151,15 +151,20 @@ class PurchaselistController extends BaseController {
                 $total_money += $all_money;
             }
             $result[$key]['total_amount'] = $total_amount;
+            $no_rate_total_money = round($total_money / 1.13,2);
+            $result[$key]['no_rate_total_money'] = $no_rate_total_money;
+            $result[$key]['rate_total_money']    = $total_money - $no_rate_total_money;
             $result[$key]['total_money']  = $total_money;
             
         }
         $cell = array(
-            array('barcode','商品编码'),
+            array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('supplier_name','供应商'),
             array('total_amount','数量'),
             array('total_money','含税总金额'),
+            array('no_rate_total_money','不含税总金额'),
+            array('rate_total_money','税额'),
             
         );
         $filename = '采购汇总表';

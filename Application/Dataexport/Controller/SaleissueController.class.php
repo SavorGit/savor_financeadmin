@@ -6,6 +6,13 @@ namespace Dataexport\Controller;
 
 class SaleissueController extends BaseController {
     private $sale_type_arr = array(1=>'餐厅售卖',2=>'团购售卖',3=>'其它售卖');
+    private $days_range_arr = array(
+        array('min'=>1,'max'=>7,'name'=>'1-7天','money'=>0), 
+        array('min'=>8,'max'=>15,'name'=>'8-15天','money'=>0),
+        array('min'=>16,'max'=>30,'name'=>'16-30天','money'=>0),
+        array('min'=>31,'max'=>60,'name'=>'31-60天','money'=>0),
+        array('min'=>61,'max'=>9999999,'name'=>'61天以上','money'=>0),
+    );
     public function exportjd() {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
@@ -292,5 +299,159 @@ class SaleissueController extends BaseController {
          $filename = '销售出库单汇总表';
          $this->exportToExcel($cell,$data_list,$filename,1);
     }
-
+    public function receivables(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        $orders = "a.id desc";
+        $where = [];
+        $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+        
+        $fields = "a.hotel_id,hotel.name hotel_name,area.region_name,user.remark";
+        $group  = "a.hotel_id";
+        $m_sale = new \Admin\Model\SaleModel();
+        $list =   $m_sale->alias('a')
+                         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                         ->join('savor_sysuser user on a.maintainer_id=user.id','left')
+                         ->join('savor_area_info area on hotel.area_id= area.id','left')
+                         ->field($fields)
+                         ->where($where)
+                         ->order($orders)
+                         ->group($group)
+                         ->select();
+        foreach($list as $key=>$v){
+            $map = [];
+            $map['a.hotel_id'] = $v['hotel_id'];
+            $map['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+            
+            $ret = $m_sale->alias('a')
+                          ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                          ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                          ->field('a.hotel_id,a.goods_id,goods.name goods_name')
+                          ->where($map)
+                          ->group('a.goods_id')
+                          ->select();
+            foreach($ret as $kkk=>$vvv){
+                  $map = [];
+                  $map['hotel_id'] = $v['hotel_id'];
+                  $map['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+                  
+                  $map['goods_id'] = $vvv['goods_id'];
+                  $fields = 'a.cost_price,a.settlement_price';
+                  $rts = $m_sale->alias('a')
+                                ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                                ->join('savor_area_info area on hotel.area_id= area.id','left')
+                                ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+                                ->where($map)
+                                ->field($fields)
+                                ->select();
+                  if(!empty($rts)){
+                      $info = [];
+                      $info['region_name'] = $v['region_name'];
+                      $info['hotel_id']    = $v['hotel_id'];
+                      $info['hotel_name']  = $v['hotel_name'];
+                      $info['goods_id']    = $vvv['goods_id'];
+                      $info['goods_name']  = $vvv['goods_name'];
+                      $info['remark']      = $v['remark'];
+                      $receivable_money = 0;
+                      foreach($rts as $rk=>$rv){
+                          $receivable_money += $rv['settlement_price'] - $rv['pay_money'];
+                      }
+                      $info['receivable_money'] = $receivable_money;
+                      
+                      $data_list[] = $info;
+                  }
+            }
+        }//end list
+        $cell = array(
+            
+            array('region_name','城市'),
+            array('hotel_id','仓库编号'),
+            array('hotel_name','仓库名称'),
+            array('goods_id','商品编码'),
+            array('goods_name','商品名称'),
+            array('remark','业务员'),
+            array('receivable_money','应收余额'),
+            
+        );
+        $filename = '应收账款汇总表';
+        $this->exportToExcel($cell,$data_list,$filename,1);
+    }
+    public function accountage(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        $orders = "a.id desc";
+        $where = [];
+        $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+        
+        
+        $fields = "a.hotel_id,hotel.name hotel_name,area.region_name,user.remark";
+        $group  = "a.hotel_id";
+        $m_sale = new \Admin\Model\SaleModel();
+        $list =   $m_sale->alias('a')
+                         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                         ->join('savor_sysuser user on a.maintainer_id=user.id','left')
+                         ->join('savor_area_info area on hotel.area_id= area.id','left')
+                         ->field($fields)
+                         ->where($where)
+                         ->order($orders)
+                         ->group($group)
+                         ->select();
+       
+       foreach($list as $key=>$v){
+           
+           $fields = 'a.settlement_price,a.status,a.pay_time,a.add_time';
+           $map = [];
+           $map['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+           $map['a.hotel_id'] = $v['hotel_id'];
+           
+           $rts = $m_sale->alias('a')
+                         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
+                         ->join('savor_sysuser user on a.maintainer_id=user.id','left')
+                         ->join('savor_area_info area on hotel.area_id= area.id','left')
+                         ->field($fields)
+                         ->where($map)
+                         ->order($orders)
+                         ->select();
+           $days_range_arr = $this->days_range_arr;
+           //print_r($days_range_arr);exit;
+           //print_r($rts);exit;
+           foreach($rts as $kk=>$vv){
+                if($vv['status']==2){
+                    continue;
+                }
+                $diff_day = ceil((time() - strtotime($vv['add_time'])) / 86400); 
+                foreach($days_range_arr as $dk=>$dv){
+                    if($diff_day>=$dv['min'] && $diff_day<=$dv['max']){
+                        $days_range_arr[$dk]['money'] +=$vv['settlement_price'];
+                        break;
+                    }
+                    
+                }
+           }
+           foreach($days_range_arr as $dk=>$dv){
+               $list[$key][$days_range_arr[$dk]['name']] = $days_range_arr[$dk]['money'];
+           }
+          
+       }
+       $cell = array(
+           
+           array('region_name','城市'),
+           array('hotel_id','仓库编号'),
+           array('hotel_name','仓库名称'),
+           array('remark','业务员'),
+           array('1-7天','1-7天'),
+           array('8-15天','8-15天'),
+           array('16-30天','16-30天'),
+           array('31-60天','31-60天'),
+           array('61天以上','61天以上'),
+           
+           
+       );
+       $filename = '账龄分析表';
+       $this->exportToExcel($cell,$list,$filename,1);
+    }
 }

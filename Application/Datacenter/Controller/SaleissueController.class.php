@@ -118,5 +118,29 @@ class SaleissueController extends BaseController {
         $this->assign('numPerPage',$size);
         $this->display();
     }
+    /**
+     * @desc 数据查询-应收账款汇总
+     */
+    public function receivables(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        $this->assign('start_date',$start_date);
+        $this->assign('end_date',$end_date);
+        $this->display();
+    }
+    /**
+     * @desc 数据查询-账龄分析表
+     */
+    public function accountage(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+        $this->assign('start_date',$start_date);
+        $this->assign('end_date',$end_date);
+        $this->display();
+    }
     
 }

@@ -30,7 +30,7 @@ class PurchaselistController extends BaseController {
                    case a.status
 				   when 1 then '进行中'
 				   when 2 then '已完成' END AS status,
-                   g.barcode,g.name goods_name";
+                   g.id goods_id,g.name goods_name";
         $PurchaseDetailModel = new \Admin\Model\PurchaseDetailModel();
         $result = $PurchaseDetailModel->getDataCenterList($fileds,$where,$orders,$start,$size);
         //print_r($result['page']);
@@ -107,8 +107,10 @@ class PurchaselistController extends BaseController {
             }
                                 
             $result[$key]['total_amount'] = $total_amount;
+            $no_rate_total_money = round($total_money / 1.13,2);
+            $result[$key]['no_rate_total_money'] = $no_rate_total_money;
+            $result[$key]['rate_total_money']    = $total_money - $no_rate_total_money;
             $result[$key]['total_money']  = $total_money;
-            
             
             
             
