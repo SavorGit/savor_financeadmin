@@ -205,7 +205,7 @@ class StockController extends BaseController {
         //print_r($where);exit;
         $m_stock_detail = new \Admin\Model\StockRecordModel();
         
-        $fields = 'a.idcode,goods.barcode,goods.name goods_name';
+        $fields = 'a.idcode,goods.id goods_id,goods.barcode,goods.name goods_name';
         $group  = 'a.idcode';
        
         $result = $m_stock_detail->alias('a')

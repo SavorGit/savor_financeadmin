@@ -216,7 +216,7 @@ class StockController extends BaseController {
         
         $m_stock_detail = new \Admin\Model\StockDetailModel();
         $m_stock_record = new \Admin\Model\StockRecordModel();
-        $fields = "stock.name stock_name,stock.serial_number,stock.io_date,
+        $fields = "a.id stock_detail_id,stock.id stock_id,stock.name stock_name,stock.serial_number,stock.io_date,
                    case stock.io_type
 				   when 11 then '采购入库'
                    when 12 then '调拨入库'
@@ -227,7 +227,7 @@ class StockController extends BaseController {
                    when 3 then '已领取'
                    when 4 then '已验收' END AS status,
             
-                   s.name supplier_name,goods.barcode,goods.name goods_name,
+                   s.name supplier_name,goods.id goods_id,goods.barcode,goods.name goods_name,
                    unit.name u_name,area.region_name,a.total_amount,a.price,a.rate";
         $result = $m_stock_detail->alias('a')
                                  ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
@@ -240,10 +240,11 @@ class StockController extends BaseController {
                                  ->order('stock.id desc')
                                  
                                  ->select();
+        
         foreach($result as $key=>$v){
             
             //数量
-            $where = [];
+            $map = [];
             $map['stock_id']        = $v['stock_id'];
             $map['stock_detail_id'] = $v['stock_detail_id'];
             $map['goods_id']        = $v['goods_id'];
@@ -253,7 +254,7 @@ class StockController extends BaseController {
             $total_amount = $rt['total_amount'];
             
             
-            $result['list'][$key]['rate'] = !empty($v['rate']) ? ($v['rate']*100).'%':'';
+            $result[$key]['rate'] = !empty($v['rate']) ? ($v['rate']*100).'%':'';
             $no_rate_price = round($v['price'] / (1+$v['rate']),2); //不含税单价
             
             $rate_money = $v['price'] - $no_rate_price;
@@ -263,19 +264,18 @@ class StockController extends BaseController {
             
             $no_rate_total_money = $no_rate_price * $total_amount;
             
-            $result['list'][$key]['no_rate_price']      = $no_rate_price;
-            $result['list'][$key]['rate_money']         = $rate_money;
-            $result['list'][$key]['total_money']        = $total_money;
-            $result['list'][$key]['no_rate_total_money']= $no_rate_total_money;
+            $result[$key]['no_rate_price']      = $no_rate_price;
+            $result[$key]['rate_money']         = $rate_money;
+            $result[$key]['total_money']        = $total_money;
+            $result[$key]['no_rate_total_money']= $no_rate_total_money;
         }
-        
         $cell = array(
             array('serial_number','入库单编号'),
             array('io_date','入库日期'),
             array('io_type','入库类型'),
             array('status','状态'),
             array('supplier_name','供应商'),
-            array('barcode','商品编码'),
+            array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('u_name','规格'),
             array('region_name','库房名称'),
@@ -354,7 +354,7 @@ class StockController extends BaseController {
         }
         $cell = array(
             
-            array('barcode','商品编码'),
+            array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('brand_name','品牌'),
             array('u_name','规格'),
@@ -396,7 +396,7 @@ class StockController extends BaseController {
         foreach($idcode_list as $key=>$v){
             
             $idcode = $v['idcode'];
-            $fileds = 'a.id,a.type,a.idcode,goods.barcode,goods.name as goods_name,stock.hotel_id, hotel.name hotel_name,
+            $fileds = 'a.id,a.type,a.idcode,goods.id goods_id,goods.barcode,goods.name as goods_name,stock.hotel_id, hotel.name hotel_name,
                        stock.area_id,area.region_name,
                        stock.serial_number,unit.name as unit_name,a.wo_status,a.dstatus,a.add_time';
             //$res_record = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode),'a.id desc','','');
@@ -446,7 +446,7 @@ class StockController extends BaseController {
         }
         $cell = array(
             array('idcode','唯一识别码'),
-            array('barcode','商品编码'),
+            array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('add_time','日期'),
             array('serial_number','单号'),
