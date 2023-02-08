@@ -17,7 +17,9 @@ class CompanystockController extends BaseController {
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
         foreach ($res_area as $v){
-            $area_arr[$v['id']]=$v;
+            if($v['id']!=246){
+                $area_arr[$v['id']]=$v;
+            }
         }
         $m_category = new \Admin\Model\CategoryModel();
         $res_category = $m_category->getAll('id,name',array('status'=>1),0,1000,'id asc');
@@ -33,9 +35,6 @@ class CompanystockController extends BaseController {
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $m_avg_price = new \Admin\Model\GoodsAvgpriceModel();
             foreach ($res_list['list'] as $v){
-                $in_num = $out_num = 0;
-                $in_total_fee = $out_total_fee = $price = 0;
-
                 $goods_id = $v['goods_id'];
                 $res_price = $m_avg_price->getAll('price',array('goods_id'=>$goods_id),0,1,'id desc');
                 $avg_price = $res_price[0]['price'];
@@ -45,9 +44,11 @@ class CompanystockController extends BaseController {
                 if($area_id){
                     $all_areas = array(array('id'=>$area_id));
                 }else{
-                    $all_areas = $res_area;
+                    $all_areas = $area_arr;
                 }
                 foreach ($all_areas as $av){
+                    $in_num = $out_num = 0;
+                    $in_total_fee = $out_total_fee = $price = 0;
                     $now_area_id = $av['id'];
                     $swhere['stock.area_id'] = $now_area_id;
                     $res_goods_record = $m_stock_record->getAllStock($fields,$swhere,'a.id desc','a.type');

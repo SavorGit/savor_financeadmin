@@ -12,7 +12,9 @@ class HotelstockController extends BaseController {
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
         foreach ($res_area as $v){
-            $area_arr[$v['id']]=$v;
+            if($v['id']!=246){
+                $area_arr[$v['id']]=$v;
+            }
         }
 
         $where = array('stock.type'=>20);
