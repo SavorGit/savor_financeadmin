@@ -5,6 +5,7 @@
         <input type="hidden" name="pageNum" value="{$pageNum}"/>
         <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
         <input type="hidden" name="goods_id" value="{$goods_id}"/>
+        <input type="hidden" name="area_id" value="{$area_id}"/>
         <div class="searchBar">
             <div class="clearfix">
 
@@ -57,7 +58,7 @@
                             <td data-title="当前库存">{$dinfo.now_amount}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
-                                    <a title="{$dinfo.name}-查看明细" data-tip="查看明细" target="navTab" mask="true" rel="stock/stockgoodsrecord" href="{$host_name}/stock/stockgoodsrecord?goods_id={$dinfo.goods_id}&unit_id={$dinfo.unit_id}" class="btn btn-success btn-icon">
+                                    <a title="{$dinfo.name}-查看明细" data-tip="查看明细" target="navTab" mask="true" rel="stock/stockgoodsrecord" href="{$host_name}/stock/stockgoodsrecord?goods_id={$dinfo.goods_id}&unit_id={$dinfo.unit_id}&area_id={$area_id}" class="btn btn-success btn-icon">
                                         <i class="fa fa-list"></i>
                                     </a>
 

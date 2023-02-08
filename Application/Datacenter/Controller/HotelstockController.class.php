@@ -12,7 +12,9 @@ class HotelstockController extends BaseController {
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
         foreach ($res_area as $v){
-            $area_arr[$v['id']]=$v;
+            if($v['id']!=246){
+                $area_arr[$v['id']]=$v;
+            }
         }
 
         $where = array('stock.type'=>20);
@@ -38,21 +40,31 @@ class HotelstockController extends BaseController {
 
                 $rfileds = 'sum(a.total_amount) as total_amount,sum(a.total_fee) as total_fee,a.type';
                 $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.dstatus'=>1);
-                $rwhere['a.type'] = array('in',array(2,4));
-                $rgroup = 'a.type';
-                $res_record = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','',$rgroup);
-                foreach ($res_record as $rv){
-                    switch ($rv['type']){
-                        case 2:
-                            $in_num = abs($rv['total_amount']);
-                            $in_total_fee = $in_num*$settlement_price;
-                            break;
-                        case 4:
-                            $out_num = abs($rv['total_amount']);
-                            $out_total_fee = $out_num*$settlement_price;
-                            break;
-                    }
+                $rwhere['a.type'] = 2;
+                $res_record = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
+                if(!empty($res_record[0]['total_amount'])){
+                    $in_num = abs($res_record[0]['total_amount']);
+                    $in_total_fee = $in_num*$settlement_price;
                 }
+
+                $rwhere['a.type']=7;
+                $rwhere['a.wo_status']= array('in',array(1,2,4));
+                $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
+                $wo_num = 0;
+                if(!empty($res_worecord[0]['total_amount'])){
+                    $wo_num = abs($res_worecord[0]['total_amount']);
+                }
+                $rwhere['a.type']=6;
+                unset($rwhere['a.wo_status']);
+                $rwhere['a.status']= array('in',array(1,2));
+                $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
+                $report_num = 0;
+                if(!empty($res_worecord[0]['total_amount'])){
+                    $report_num = abs($res_worecord[0]['total_amount']);
+                }
+                $out_num = $wo_num+$report_num;
+                $out_total_fee = $out_num*$settlement_price;
+
                 $surplus_num = $surplus_total_fee = 0;
                 if($in_num-$out_num>0){
                     $surplus_num = $in_num-$out_num;
