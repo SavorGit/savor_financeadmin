@@ -21,7 +21,7 @@ class PurchasecontractController extends BaseController {
         $start  = ($pageNum-1) * $size;
         $m_contract  = new \Admin\Model\ContractModel();
         $fields = 'id,serial_number,name,sign_user_id,self_type,sign_time,status,area_id,contract_money,
-        info_money,company_name,account_name,bank_name,bank_account';
+        info_money,company_name,account_name,bank_name,bank_account,settlement_type';
         $result = $m_contract->getDataList($fields,$where,'id desc',$start,$size);
         $datalist = array();
         if(!empty($result['list'])){
@@ -34,6 +34,9 @@ class PurchasecontractController extends BaseController {
                 $contract_money = intval($v['contract_money']);
                 $info_money = json_decode($v['info_money'],true);
                 $have_pay_money = intval($info_money['have_pay_monye']);
+                if($v['settlement_type']==2){
+                    $have_pay_money = intval($info_money['f_have_pay_monye']);
+                }
                 $no_pay_money = $contract_money-$have_pay_money;
 
                 $datalist[$k]['area_name'] = $area_arr[$v['area_id']]['region_name'];
