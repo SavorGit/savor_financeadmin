@@ -50,9 +50,10 @@ class SaleModel extends BaseModel{
         $list = $this->alias('a')
         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
         ->join('savor_finance_goods goods on a.goods_id   = goods.id','left')
-        ->join('savor_finance_unit unit on unit.id =goods.unit_id','left')
+        
         ->join('savor_finance_specification spe on goods.specification_id= spe.id','left')
         ->join('savor_finance_stock_record record on a.stock_record_id=record.id','left')
+        ->join('savor_finance_unit unit on unit.id = record.unit_id','left')
         ->join('savor_sysuser sysuser on a.maintainer_id= sysuser.id ','left')
         ->join('savor_area_info area on  area.id=hotel.area_id','left')
         ->join('savor_smallapp_user user on a.sale_openid=user.openid','left')
