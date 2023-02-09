@@ -340,7 +340,7 @@ class StockController extends BaseController {
             $all_goods = array();
             if(in_array($res_stock['io_type'],array(12,13)) && $res_stock['purchase_id']==0){
                 $m_goods = new \Admin\Model\GoodsModel();
-                $all_goods = $m_goods->getDataList('id,name',array('status'=>1),'id desc');
+                $all_goods = $m_goods->getDataList('id,name',array('status'=>1),'brand_id asc,id asc');
             }
 
             $all_purchase_detail = array();
