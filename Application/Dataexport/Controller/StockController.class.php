@@ -740,7 +740,7 @@ class StockController extends BaseController {
                //数量
                $map = [];
                $map['stock_id']        = $stock_info['stock_id'];
-               $map['type']            =2;
+               $map['type']            =array('in',"1,2");
                $map['dstatus']         =1;
                $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')
                ->where($map)
@@ -763,7 +763,7 @@ class StockController extends BaseController {
                //数量
                $map = [];
                $map['stock_id']        = $stock_info['stock_id'];
-               $map['type']            =1;
+               $map['type']            =array('in',"1,2");
                $map['dstatus']         =1;
                $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')
                ->where($map)
