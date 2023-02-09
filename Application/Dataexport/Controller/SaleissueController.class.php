@@ -37,13 +37,13 @@ class SaleissueController extends BaseController {
             $jd_voucher_str = '转';
             $jd_voucher_no = $v['jd_voucher_no'];
             $jd_custom_no = $v['jd_custom_no'];
-            $maintainer_id = $v['maintainer_id'];
-            $goods_id = $v['goods_id'];
             $department = '';
             $appendix_num = 1;
             $summary = '销售应收款';
             $lb_name = '唯一识别码';
             $idcode = $v['idcode'];
+            $maintainer_id = '';
+            $goods_id = '';
 
             $rmb = 'RMB';
             $rate = 1.00;
@@ -69,6 +69,8 @@ class SaleissueController extends BaseController {
                         $lb_name = '';
                         $idcode = '';
                         $department = $jd_department[$v['area_id']];
+                        $maintainer_id = $v['maintainer_id'];
+                        $goods_id = $v['goods_id'];
                         break;
                     case 'jf-df':
                         $tmp_df_money = sprintf("%.2f",$v['settlement_price']/$cv['rate']);
@@ -88,7 +90,7 @@ class SaleissueController extends BaseController {
                     'df'=>$df_money,'jd_custom_no'=>$jd_custom_no,'gys'=>$gys,'maintainer_id'=>$maintainer_id,'goods_id'=>$goods_id,
                     'department'=>$department,'ch'=>$ch,'lb_name'=>$lb_name,'idcode'=>$idcode,'lb1'=>$lb1,'bm1'=>$bm1,'sl'=>$sl,
                     'dj'=>$dj,'money'=>$money,'rmb'=>$rmb,'rate'=>$rate
-                    );
+                );
             }
         }
         $cell = array(
@@ -267,7 +269,6 @@ class SaleissueController extends BaseController {
                         $info['hotel_id']    = $v['hotel_id'];
                         $info['hotel_name']  = $v['hotel_name'];
                         $info['barcode']     = $vvv['barcode'];
-                        $info['goods_id']    = $vvv['goods_id'];
                         $info['goods_name']  = $vvv['goods_name'];
                         $info['total_amount']= count($rts);
                         $info['cost_total'] = $cost_total;              //出库成本
