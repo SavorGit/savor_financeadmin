@@ -416,6 +416,7 @@ class StockController extends BaseController {
         foreach($idcode_list as $key=>$v){
             
             $idcode = $v['idcode'];
+           
             $fileds = 'a.id,a.type,a.idcode,goods.id goods_id,goods.barcode,goods.name as goods_name,stock.hotel_id, hotel.name hotel_name,
                        stock.area_id,area.region_name,
                        stock.serial_number,unit.name as unit_name,a.wo_status,a.dstatus,a.add_time';
@@ -430,7 +431,7 @@ class StockController extends BaseController {
                                          ->join('savor_finance_category cate on goods.category_id=cate.id','left')
                                          ->join('savor_finance_specification spec on goods.specification_id=spec.id','left')
                                          ->order('a.id desc')
-                                         ->where(array('a.idcode'=>$idcode))
+                                         ->where(array('a.idcode'=>$idcode,'dstatus'=>1))
                                          ->select();
             foreach ($res_record as $v){
                 $info = $v;
