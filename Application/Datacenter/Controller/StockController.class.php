@@ -201,7 +201,7 @@ class StockController extends BaseController {
         $where['stock.io_date'] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
         
         $where['stock.type']     = 10;
-        $where['stock.io_type']  = array('in','11');
+        $where['stock.io_type']  = array('in','11,12,13');
         //print_r($where);exit;
         $m_stock_detail = new \Admin\Model\StockRecordModel();
         
