@@ -44,7 +44,7 @@ class StockController extends BaseController {
                    when 4 then '已验收' END AS status,
  
                    s.name supplier_name,goods.id goods_id,goods.barcode,goods.name goods_name,
-                   unit.name u_name,area.region_name,a.total_amount,a.price,a.rate";
+                   unit.name u_name,area.id area_id,area.region_name,a.total_amount,a.price,a.rate";
         $result = $m_stock_detail->getAllStockGoods($fields, $where,$orders,$start,$size);
         foreach($result['list'] as $key=>$v){
             
@@ -112,7 +112,7 @@ class StockController extends BaseController {
         $where['stock.io_type']  = array('in','11,12,13');
         
         $fields = 'a.goods_id,goods.barcode,goods.name goods_name,unit.name u_name,
-                   brand.name brand_name';
+                   brand.name brand_name,sp.name sp_name';
         
         $group = 'a.goods_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();

@@ -93,6 +93,7 @@ class StockDetailModel extends BaseModel{
         ->join('savor_finance_purchase p on stock.purchase_id=p.id','left')
         ->join('savor_area_info area on stock.area_id=area.id','left')
         ->join('savor_finance_supplier s on p.supplier_id= s.id','left')
+        ->join('savor_finance_specification sp on sp.id=goods.specification_id','left')
         ->join('savor_finance_brand brand on goods.brand_id=brand.id','left')
         ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
         ->field($fields)

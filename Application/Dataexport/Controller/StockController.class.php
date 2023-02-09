@@ -228,7 +228,7 @@ class StockController extends BaseController {
                    when 4 then '已验收' END AS status,
             
                    s.name supplier_name,goods.id goods_id,goods.barcode,goods.name goods_name,
-                   unit.name u_name,area.region_name,a.total_amount,a.price,a.rate";
+                   unit.name u_name,area.id area_id,area.region_name,a.total_amount,a.price,a.rate";
         $result = $m_stock_detail->alias('a')
                                  ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
                                  ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
@@ -278,7 +278,8 @@ class StockController extends BaseController {
             array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('u_name','规格'),
-            array('region_name','库房名称'),
+            array('area_id','仓库编号'),
+            array('region_name','仓库名称'),
             array('total_amount','数量'),
             array('price','单价'),
             array('rate','税率'),
@@ -304,7 +305,7 @@ class StockController extends BaseController {
         $where['stock.io_type']  = array('in','11,12,13');
         
         $fields = 'a.goods_id,goods.barcode,goods.name goods_name,unit.name u_name,
-                   brand.name brand_name';
+                   brand.name brand_name,sp.name sp_name';
         
         $group = 'a.goods_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
@@ -315,6 +316,7 @@ class StockController extends BaseController {
                                  ->join('savor_area_info area on stock.area_id=area.id','left')
                                  ->join('savor_finance_supplier s on goods.supplier_id= s.id','left')
                                  ->join('savor_finance_brand brand on goods.brand_id=brand.id','left')
+                                 ->join('savor_finance_specification sp on sp.id=goods.specification_id','left')
                                  ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
                                  ->field($fields)
                                  ->where($where)
@@ -374,7 +376,8 @@ class StockController extends BaseController {
             array('goods_id','商品编码'),
             array('goods_name','商品名称'),
             array('brand_name','品牌'),
-            array('u_name','规格'),
+            array('sp_name','规格'),
+            array('u_name','单位'),
             array('total_amount','数量'),
             
             array('no_rate_total_money','不含税总金额'),
@@ -445,6 +448,8 @@ class StockController extends BaseController {
                     $res_hotel = $m_hotel->getInfo(array('id'=>$info['hotel_id']));
                     $hotel_name = $res_hotel['name'];
                 }*/
+                $type_str = $all_type[$info['type']];
+                $info['type_str'] = $type_str;
                 if($info['hotel_id']){
                     $info['storage_id'] = $info['hotel_id'];
                     $info['storage_name'] = $info['hotel_name'];
@@ -470,6 +475,7 @@ class StockController extends BaseController {
             array('storage_id','仓库编号'),
             array('storage_name','仓库名称'),
             array('dstatus_str','状态'),
+            array('type_str','类型')
         );
         $filename = '唯一识别码跟踪表';
         $this->exportToExcel($cell,$data_list,$filename,1);
