@@ -581,6 +581,7 @@ class StockController extends BaseController {
         $group = 'a.goods_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
         $m_stock_record = new \Admin\Model\StockRecordModel();
+        $m_avg_price = new \Admin\Model\GoodsAvgpriceModel();
         $result = $m_stock_detail->alias('a')
                                 ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
                                 ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
@@ -623,8 +624,11 @@ class StockController extends BaseController {
                 $map['dstatus']         = 1;
                 $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')->where($map)->find();
                 //print_r($rt);exit;
-                $vv['total_amount'] = $rt['total_amount'];
-                $vv['total_fee']    = $rt['total_fee'];
+                $res_price = $m_avg_price->getAll('price',array('goods_id'=>$vv['goods_id']),0,1,'id desc');
+                $avg_price = $res_price[0]['price'];
+                $vv['total_amount'] = !empty($rt['total_amount']) ?$rt['total_amount']:0  ;
+                //$vv['total_fee']    = $rt['total_fee'];
+                $vv['total_fee']    = $rt['total_amount'] * $avg_price;
                 if($vv['hotel_id']){
                     $vv['storage_id'] = $vv['hotel_id'];
                     $vv['storage_name'] = $vv['hotel_name'];
