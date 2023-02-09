@@ -713,6 +713,7 @@ class StockController extends BaseController {
                       area.region_name,hotel.name hotel_name,goods.id goods_id,goods.barcode,
                       goods.name goods_name,unit.name unit_name';
            $order  = 'stock.id desc';
+           
            $stock_info = $m_stock_record->alias('a')
                                          ->join('savor_finance_stock_detail sd on a.stock_detail_id=sd.id','left')
                                          ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
@@ -724,8 +725,10 @@ class StockController extends BaseController {
                                          ->field($fields)
                                          ->order($order)
                                          ->find();
+           
            $io_date = $stock_info['io_date'];
            $day_arr = $this->viewDayTime($io_date);
+           
            $stock_info['days'] = $day_arr['days'];
            $stock_info['days_str'] = $day_arr['days_str'];
            if($stock_info['hotel_id']){
@@ -799,7 +802,7 @@ class StockController extends BaseController {
     }
     private function viewDayTime($start_date,$type=1){
         $now_date = date('Y-m-d');
-        $diff_time = strtotime($now_date) - strtotime($start_date);
+        $diff_time = time() - strtotime($start_date);
         
         $days = ceil($diff_time / 86400);
         if($type==1){
