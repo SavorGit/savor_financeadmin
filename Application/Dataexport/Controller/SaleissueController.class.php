@@ -269,6 +269,7 @@ class SaleissueController extends BaseController {
                         $info['hotel_id']    = $v['hotel_id'];
                         $info['hotel_name']  = $v['hotel_name'];
                         $info['barcode']     = $vvv['barcode'];
+                        $info['goods_id']    = $vvv['goods_id'];
                         $info['goods_name']  = $vvv['goods_name'];
                         $info['total_amount']= count($rts);
                         $info['cost_total'] = $cost_total;              //出库成本
