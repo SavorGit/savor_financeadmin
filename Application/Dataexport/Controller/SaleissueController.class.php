@@ -33,7 +33,7 @@ class SaleissueController extends BaseController {
         $datalist = array();
         $i = 1;
         foreach ($res_data as $v){
-            $data_date = date('Y/m/d',strtotime($v['add_time']));
+            $data_date = date('Y-m-d',strtotime($v['add_time']));
             $jd_voucher_str = '转';
             $jd_voucher_no = $v['jd_voucher_no'];
             $jd_custom_no = $v['jd_custom_no'];
@@ -121,7 +121,7 @@ class SaleissueController extends BaseController {
             array('rate','汇率'),
         );
         $filename = '系统导出金蝶系统需要数据';
-        $this->exportToExcel($cell,$datalist,$filename,1);
+        $this->exportToExcel($cell,$datalist,$filename,1,'Excel5');
     }
     /**
      * @desc 数据查询  销售出库单列表
