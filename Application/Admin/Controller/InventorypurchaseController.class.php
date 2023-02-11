@@ -469,30 +469,34 @@ class InventorypurchaseController extends BaseController {
             $amount   = I('post.amount',0,'intval');
             
             $m_unit = new \Admin\Model\UnitModel();
-            $where = [];
-            $where['id'] = $unit_id;
-            $unit_info = $m_unit->field('convert_type')->where($where)->find();
+            $unit_info = $m_unit->field('convert_type')->where(array('id'=>$unit_id))->find();
             $total_amount = intval($unit_info['convert_type'] * $amount);  //总瓶数
-            
             $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
+			$detail_info = $m_purchase_detail->field('goods_id,unit_id,price')->where(array('id'=>$id))->find();
 			
-			$map = [];
-			$map['id'] = $id;
-			$detail_info = $m_purchase_detail->field('unit_id,price')->where($map)->find();
-			
-			if($unit_id != $detail_info['unit_id'] || $price!=$detail_info['price']){
-				$where = [];
-				$where['purchase_detail_id'] = $id;
-				$where['status'] = 1;
-				$m_stock_detail =    new \Admin\Model\StockDetailModel();
+			if($unit_id != $detail_info['unit_id'] || $goods_id!=$detail_info['goods_id']){
+				$where = array('purchase_detail_id'=>$id,'status'=>1);
+				$m_stock_detail = new \Admin\Model\StockDetailModel();
 				$ret = $m_stock_detail->field('id')->where($where)->select();
 				if(!empty($ret)){
 					$this->error('已有入库信息不可修改');
 				}
-		
 			}
-			
-			
+			if($price!=$detail_info['price']){
+                $userinfo = session('sysUserInfo');
+			    $m_changeprice = new \Admin\Model\ChangepriceRecordModel();
+			    $cwhere = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id);
+			    $cwhere["DATE_FORMAT(add_time,'%Y-%m-%d')"] = date('Y-m-d');
+			    $res_data = $m_changeprice->getInfo($cwhere);
+                $cdata = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id,
+                    'price'=>$price,'old_price'=>$detail_info['price'],'sysuser_id'=>$userinfo['id']);
+			    if(empty($res_data)){
+                    $m_changeprice->add($cdata);
+                }else{
+                    $m_changeprice->updateData(array('id'=>$res_data['id']),$cdata);
+                }
+            }
+
             $data['goods_id']    = $goods_id;
             $data['price']       = $price;
             $data['unit_id']     = $unit_id;
@@ -503,8 +507,6 @@ class InventorypurchaseController extends BaseController {
             $where = [];
             $where['id'] = $id;
             $where['purchase_id'] = $purchase_id;
-
-            
             $ret = $m_purchase_detail->updateData($where,$data);
             if($ret){
                 //更新采购合同总金额、总数量
@@ -515,16 +517,13 @@ class InventorypurchaseController extends BaseController {
                 $map['amount'] = $rts['amount'];
                 $map['total_fee'] = $rts['total_fee'];
                 $m_purchase->updateData(array('id'=>$purchase_id), $map);
-                
-                
                 $this->outputNew('编辑成功!', 'inventorypurchase/detaillist');
-                
             }else {
                 $this->error('编辑失败');
             }
-            
         }
     }
+
     public function deldetail(){
         $purchase_id = I('get.purchase_id',0,'intval');
         $id          = I('get.id',0,'intval');
