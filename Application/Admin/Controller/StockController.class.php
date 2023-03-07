@@ -1310,11 +1310,7 @@ class StockController extends BaseController {
                             $integralrecord_openid = $res_record['op_openid'];
                             if($is_recycle==0){
                                 if($admin_integral>0){
-                                    //挪到外面来
-									//$adminwhere = array('merchant_id'=>$res_staff[0]['merchant_id'],'level'=>1,'status'=>1);
-                                    //$res_admin_staff = $m_staff->getAll('id,openid',$adminwhere,0,1,'id desc');
                                     if(!empty($res_admin_staff)){
-                                        
                                         $m_userintegral = new \Admin\Model\Smallapp\UserIntegralModel();
                                         $res_integral = $m_userintegral->getInfo(array('openid'=>$admin_openid));
                                         if(!empty($res_integral)){
@@ -1332,7 +1328,6 @@ class StockController extends BaseController {
                                 }else{
                                     $m_userintegral->add(array('openid'=>$res_record['op_openid'],'integral'=>$now_integral));
                                 }
-
                             }
                         }else{
                             $integralrecord_openid = $res_stock['hotel_id'];
@@ -1356,32 +1351,30 @@ class StockController extends BaseController {
                         //end
 
                         //邀请新会员(优惠券任务) 审核通过后立即发放积分
-                        //if($is_recycle==0 || $res_staff[0]['merchant_id']==89){//上线后判断条件去掉
-                            $res_recordinfo = $m_integralrecord->getAllData('*',array('jdorder_id'=>$idcode,'type'=>18,'status'=>2),'id desc');
-                            if(!empty($res_recordinfo)){
-                                $where = array('hotel_id'=>$res_recordinfo[0]['hotel_id'],'status'=>1);
-                                $field_merchant = 'id as merchant_id,is_integral,is_shareprofit,shareprofit_config';
-                                $res_merchant = $m_merchant->getRow($field_merchant,$where,'id desc');
-                                $is_integral = $res_merchant['is_integral'];
-                                foreach ($res_recordinfo as $v){
-                                    $m_integralrecord->updateData(array('id'=>$v['id']),array('status'=>1,'integral_time'=>date('Y-m-d H:i:s')));
+                        $res_recordinfo = $m_integralrecord->getAllData('*',array('jdorder_id'=>$idcode,'type'=>18,'status'=>2),'id desc');
+                        if(!empty($res_recordinfo)){
+                            $where = array('hotel_id'=>$res_recordinfo[0]['hotel_id'],'status'=>1);
+                            $field_merchant = 'id as merchant_id,is_integral,is_shareprofit,shareprofit_config';
+                            $res_merchant = $m_merchant->getRow($field_merchant,$where,'id desc');
+                            $is_integral = $res_merchant['is_integral'];
+                            foreach ($res_recordinfo as $v){
+                                $m_integralrecord->updateData(array('id'=>$v['id']),array('status'=>1,'integral_time'=>date('Y-m-d H:i:s')));
 
-                                    $now_integral = $v['integral'];
-                                    if($is_integral==1){
-                                        $res_integral = $m_userintegral->getInfo(array('openid'=>$v['openid']));
-                                        if(!empty($res_integral)){
-                                            $userintegral = $res_integral['integral']+$now_integral;
-                                            $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
-                                        }else{
-                                            $m_userintegral->add(array('openid'=>$v['openid'],'integral'=>$now_integral));
-                                        }
+                                $now_integral = $v['integral'];
+                                if($is_integral==1){
+                                    $res_integral = $m_userintegral->getInfo(array('openid'=>$v['openid']));
+                                    if(!empty($res_integral)){
+                                        $userintegral = $res_integral['integral']+$now_integral;
+                                        $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
                                     }else{
-                                        $where = array('id'=>$res_merchant['merchant_id']);
-                                        $m_merchant->where($where)->setInc('integral',$now_integral);
+                                        $m_userintegral->add(array('openid'=>$v['openid'],'integral'=>$now_integral));
                                     }
+                                }else{
+                                    $where = array('id'=>$res_merchant['merchant_id']);
+                                    $m_merchant->where($where)->setInc('integral',$now_integral);
                                 }
                             }
-                        //}
+                        }
                         //end
                         //会员复购奖励 增加分润
                         $res_recordinfo = $m_integralrecord->getAllData('*',array('jdorder_id'=>$idcode,'type'=>19,'status'=>2),'id desc');
@@ -1530,7 +1523,8 @@ class StockController extends BaseController {
                         }
                     }
                 }
-
+                $m_taskuser = new \Admin\Model\TaskUserModel();
+                $m_taskuser->finishTastewine($idcode);
             }
             $this->output('操作完成', 'stock/writeofflist');
         }else{
