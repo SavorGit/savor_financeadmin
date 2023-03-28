@@ -67,10 +67,7 @@ class SaleissueController extends BaseController {
         //售酒餐厅
         $m_hotel = new \Admin\Model\HotelModel();
         $fields = "a.id hotel_id,a.name hotel_name";
-        $where = [];
-        $where['a.state'] = 1;
-        $where['a.flag'] = 0;
-        $where['ext.is_salehotel'] = 1;
+        $where = array('a.state'=>1,'a.flag'=>0,'ext.is_salehotel'=>1);
         $hotel_list = $m_hotel->alias('a')
                               ->join('savor_hotel_ext ext on a.id = ext.hotel_id','left')
                               ->field($fields)->where($where)->select();
@@ -195,10 +192,7 @@ class SaleissueController extends BaseController {
         if(!empty($hotel_id)){
             $m_staff = new \Admin\Model\StaffModel();
             $fields = 'user.nickName nickname,a.openid';
-            $where = [];
-            $where['merchant.hotel_id'] = $hotel_id;
-            $where['a.level'] = array('in',array('1','2'));
-            $where['a.status'] = 1;
+            $where = array('merchant.hotel_id'=>$hotel_id,'a.level'=>array('in',array('1','2')),'a.status'=>1);
             $staff_list = $m_staff->getMerchantStaff($fields,$where);
             $msg = '';
             $res = array('code'=>1,'msg'=>$msg,'data'=>$staff_list);
@@ -236,10 +230,7 @@ class SaleissueController extends BaseController {
         //售酒餐厅
         $m_hotel = new \Admin\Model\HotelModel();
         $fields = 'a.id hotel_id,a.name hotel_name';
-        $where = [];
-        $where['a.state'] = 1;
-        $where['a.flag'] = 0;
-        $where['ext.is_salehotel'] = 1;
+        $where = array('a.state'=>1,'a.flag'=>0,'ext.is_salehotel'=>1);
         $hotel_list = $m_hotel->alias('a')
                               ->join('savor_hotel_ext ext on a.id = ext.hotel_id','left')
                               ->field($fields)->where($where)->select();
