@@ -36,7 +36,7 @@
                             <a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=pay&rtype=2" data-browse-file>
                                 选择图片
                             </a>
-                            <input type="hidden" name="pay_media_id" id="pay" value="">
+                            <input type="hidden" name="pay_media_id" id="pay" value="{$vinfo.pay_image_media_id}">
                             <a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
                         </div>
                     </div>
@@ -75,7 +75,7 @@
                     关联出库单:
                 </label>
                 <div class="col-xs-12 col-sm-10">
-                    <select name="sale_ids[]" class="form-control bs-select class-filter" data-live-search="true" data-container="body" multiple="multiple" required>
+                    <select name="sale_ids[]" class="form-control bs-select class-filter" data-live-search="true" data-container="body" multiple="multiple">
                         <volist name="all_sales" id="asinfo">
                             <option value="{$asinfo.id}" {$asinfo.is_select}> {$asinfo.id}--{$asinfo.idcode}</option>
                         </volist>

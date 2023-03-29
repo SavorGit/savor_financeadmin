@@ -18,7 +18,11 @@ class SalepaymentController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             $data_list = $res_list['list'];
+            $oss_host = get_oss_host();
             foreach ($data_list as $k=>$v){
+                if(!empty($v['pay_image'])){
+                    $data_list[$k]['pay_image'] = $oss_host.$v['pay_image'];
+                }
                 $data_list[$k]['sale_ids'] = trim($v['sale_ids'],',');
             }
         }
@@ -53,15 +57,17 @@ class SalepaymentController extends BaseController {
             $data = array('payer_name'=>$payer_name,'payer_account'=>$payer_account,'pay_image'=>$pay_image,'tax_rate'=>$tax_rate,
                 'pay_money'=>$pay_money,'pay_time'=>$pay_time,'sysuser_id'=>$sysuser_id
             );
+            if(!empty($sale_ids)){
+                $sale_ids = join(',',$sale_ids);
+                $data['sale_ids'] = ",$sale_ids,";
+            }else{
+                $data['sale_ids'] = "";
+            }
             if(!empty($id)){
                 $res_info = $m_salepayment->getInfo(array('id'=>$id));
                 if(!empty($res_info['sale_ids'])){
                     $old_sale_ids = trim($res_info['sale_ids'],',');
                     $m_sale->updateData(array('id'=>array('in',$old_sale_ids)),array('status'=>0,'sale_payment_id'=>0));
-                }
-                if(!empty($sale_ids)){
-                    $sale_ids = join(',',$sale_ids);
-                    $data['sale_ids'] = ",$sale_ids,";
                 }
                 $data['update_time'] = date('Y-m-d H:i:s');
                 $m_salepayment->updateData(array('id'=>$id),$data);
@@ -76,17 +82,22 @@ class SalepaymentController extends BaseController {
             $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id";
             $where = array('record.wo_status'=>2);
             $all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
-            foreach ($all_sales as $v){
+            foreach ($all_sales as $k=>$v){
                 $is_select = '';
                 if($id>0 && $v['sale_payment_id']==$id){
                     $is_select = 'selected';
                 }
-                $v['is_select'] = $is_select;
-                $all_sales[]=$v;
+                $all_sales[$k]['is_select'] = $is_select;
             }
             $vinfo = array('tax_rate'=>13);
             if($id){
                 $vinfo = $m_salepayment->getInfo(array('id'=>$id));
+                if(!empty($vinfo['pay_image'])){
+                    $m_media = new \Admin\Model\MediaModel();
+                    $media_info = $m_media->field('id')->where(array('oss_addr'=>$vinfo['pay_image']))->find();
+                    $vinfo['pay_image'] = get_oss_host().$vinfo['pay_image'];
+                    $vinfo['pay_image_media_id'] = $media_info['id'];
+                }
             }
             $this->assign('vinfo',$vinfo);
             $this->assign('all_sales',$all_sales);
