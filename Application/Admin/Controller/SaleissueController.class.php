@@ -124,23 +124,7 @@ class SaleissueController extends BaseController {
             $is_express      = I('post.is_express',0,'intval');
             $express_name    = I('post.express_name','','trim');
             $express_number  = I('post.express_number','','trim');
-            
-            //收款信息
-            $payer_name      = I('post.payer_name','','trim');
-            $payer_account   = I('post.payer_account','','trim');
-            $pay_media_id    = I('post.pay_media_id',0,'intval');
-            if(!empty($pay_media_id)){
-                $m_media = new \Admin\Model\MediaModel();
-                $media_info = $m_media->field('oss_addr')->where(array('id'=>$pay_media_id))->find();
-                $pay_image  = $media_info['oss_addr'];
-            }else{
-                $pay_image  = '';
-            }
-            $status          = I('post.status',0,'intval');
-            $tax_rate        = I('post.tax_rate',0,'intval');
-            $pay_money       = I('post.pay_money','','trim');
-            $pay_time        = I('post.pay_time','','trim');
-            
+
             $data = [];
             $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
@@ -160,13 +144,6 @@ class SaleissueController extends BaseController {
             $data['is_express ']       = $is_express ;                          //是否需要快递
             $data['express_name']      = $express_name;                         //快递名称
             $data['express_number']    = $express_number;                       //快递编号
-            $data['payer_name']        = $payer_name;                           //付款人名称
-            $data['payer_account']     = $payer_account;                        //付款人账号
-            $data['pay_image']         = $pay_image;                            //付款截图凭证
-            $data['status']            = $status;                               //收款状态
-            $data['tax_rate']          = $tax_rate;                             //税率
-            $data['pay_money']         = !empty($pay_money) ? $pay_money:0;     //收款金额
-            $data['pay_time']          = !empty($pay_time) ? $pay_time :'0000-00-00 00:00:00';  //收款时间
             $data['add_time']          = date('Y-m-d H:i:s');
             $m_sale = new \Admin\Model\SaleModel();
             $index_voucher_no = 10001;
@@ -208,24 +185,12 @@ class SaleissueController extends BaseController {
         if($info['invoice_time']=='0000-00-00 00:00:00'){
             $info['invoice_time'] = '';
         }
-        if($info['pay_time']=='0000-00-00 00:00:00'){
-            $info['pay_time'] = '';
-        }
-        $staff_list = [];
+        $staff_list = array();
         if(!empty($info['hotel_id'])){
             $m_staff = new \Admin\Model\StaffModel();
             $fields = 'user.nickName nickname,a.openid';
-            $where = [];
-            $where['merchant.hotel_id'] = $info['hotel_id'];
-            $where['a.level'] = array('in',array('1','2'));
-            $where['a.status'] = 1;
+            $where = array('merchant.hotel_id'=>$info['hotel_id'],'a.level'=>array('in','1,2'),'a.status'=>1);
             $staff_list = $m_staff->getMerchantStaff($fields,$where);
-        }
-        if(!empty($info['pay_image'])){
-            $m_media = new \Admin\Model\MediaModel();
-            $media_info = $m_media->field('id')->where(array('oss_addr'=>$info['pay_image']))->find();
-            $info['pay_image'] = get_oss_host().$info['pay_image'];
-            $info['pay_image_media_id'] = $media_info['id'];
         }
         //售酒餐厅
         $m_hotel = new \Admin\Model\HotelModel();
@@ -235,10 +200,19 @@ class SaleissueController extends BaseController {
                               ->join('savor_hotel_ext ext on a.id = ext.hotel_id','left')
                               ->field($fields)->where($where)->select();
         $host_name = get_host_name();
+        $pay_info = array();
+        if($info['sale_payment_id']){
+            $m_salepayment = new \Admin\Model\SalePaymentModel();
+            $pay_info = $m_salepayment->getInfo(array('id'=>$info['sale_payment_id']));
+            if(!empty($pay_info['pay_image'])){
+                $pay_info['pay_image'] = get_oss_host().$info['pay_image'];
+            }
+        }
         $this->assign('honame',$host_name);
         $this->assign('hotel_list',$hotel_list);
         $this->assign('staff_list',$staff_list);
         $this->assign('vinfo',$info);
+        $this->assign('pay_info',$pay_info);
         $this->display();
     }
     public function doedit(){
@@ -290,22 +264,7 @@ class SaleissueController extends BaseController {
             $is_express      = I('post.is_express',0,'intval');
             $express_name    = I('post.express_name','','trim');
             $express_number  = I('post.express_number','','trim');
-            
-            //收款信息
-            $payer_name      = I('post.payer_name','','trim');
-            $payer_account   = I('post.payer_account','','trim');
-            $pay_media_id    = I('post.pay_media_id',0,'intval');
-            if(!empty($pay_media_id)){
-                $m_media = new \Admin\Model\MediaModel();
-                $media_info = $m_media->field('oss_addr')->where(array('id'=>$pay_media_id))->find();
-                $pay_image  = $media_info['oss_addr'];
-            }else{
-                $pay_image  = '';
-            }
-            $status          = I('post.status',0,'intval');
-            $tax_rate        = I('post.tax_rate',0,'intval');
-            $pay_money       = I('post.pay_money','','trim');
-            $pay_time        = I('post.pay_time','','trim');
+
             $data = [];
             $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
@@ -325,13 +284,6 @@ class SaleissueController extends BaseController {
             $data['is_express ']       = $is_express ;                          //是否需要快递
             $data['express_name']      = $express_name;                         //快递名称
             $data['express_number']    = $express_number;                       //快递编号
-            $data['payer_name']        = $payer_name;                           //付款人名称
-            $data['payer_account']     = $payer_account;                        //付款人账号
-            $data['pay_image']         = $pay_image;                            //付款截图凭证
-            $data['status']            = $status;                               //收款状态
-            $data['tax_rate']          = $tax_rate;                             //税率
-            $data['pay_money']         = !empty($pay_money) ? $pay_money:0;     //收款金额
-            $data['pay_time']          = !empty($pay_time) ? $pay_time :'0000-00-00 00:00:00';  //收款时间
             $data['edit_time']         = date('Y-m-d H:i:s');
             $m_sale = new \Admin\Model\SaleModel();
             $ret = $m_sale->updateData(array('id'=>$id), $data);
