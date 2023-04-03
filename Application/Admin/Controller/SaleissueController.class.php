@@ -35,23 +35,26 @@ class SaleissueController extends BaseController {
         if(!empty($idcode)){
             $where['a.idcode'] = $idcode;
         }
-        
+        $all_types = C('SALE_TYPES');
+        $all_status = C('PAY_STATUS');
+        $all_wo_status = C('STOCK_WRITEOFF_STATUS');
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = "a.id,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,case a.type
-				   when 1 then '餐厅售卖'
-				   when 2 then '团购售卖'
-                   when 3 then '其它售卖' END AS type,
-                   case a.status 
-                   when 0 then ''
-                   when 1 then '未收款'
-                   when 2 then '已收款' END AS status,
-                   case record.wo_status 
-                   when 1 then '待审核'
-                   when 2 then '审核通过'
-                   when 3 then '审核不通过'
-                   when 4 then '待补充资料' END AS wo_status";
+        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,a.type,a.status,record.wo_status";
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
-        $this->assign('list',$result['list']);
+        $datalist = $result['list'];
+        foreach ($datalist as $k=>$v){
+            $status_str = '';
+            if(isset($all_status[$v['status']])){
+                $status_str = $all_status[$v['status']];
+            }
+            $type_str = $all_types[$v['type']];
+            $wo_status_str = $all_wo_status[$v['wo_status']];
+            $datalist[$k]['status_str'] = $status_str;
+            $datalist[$k]['type_str'] = $type_str;
+            $datalist[$k]['wo_status_str'] = $wo_status_str;
+        }
+
+        $this->assign('list',$datalist);
         $this->assign('page',$result['page']);
         $this->assign('pageNum',$pageNum);
         $this->assign('numPerPage',$size);
