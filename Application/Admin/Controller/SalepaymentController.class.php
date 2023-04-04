@@ -43,7 +43,7 @@ class SalepaymentController extends BaseController {
             $payer_account = I('post.payer_account','','trim');
             $pay_media_id = I('post.pay_media_id',0,'intval');
             $tax_rate = I('post.tax_rate',0,'intval');
-            $pay_money = I('post.pay_money','','trim');
+            $pay_money = I('post.pay_money',0,'intval');
             $pay_time = I('post.pay_time','','trim');
             $sale_ids = I('post.sale_ids');
             $pay_image = '';
@@ -58,11 +58,18 @@ class SalepaymentController extends BaseController {
                 'pay_money'=>$pay_money,'pay_time'=>$pay_time,'sysuser_id'=>$sysuser_id
             );
             if(!empty($sale_ids)){
+                $res_money = $m_sale->getAllData('sum(settlement_price) as all_money',array('id'=>array('in',$sale_ids)));
+                $all_money = intval($res_money[0]['all_money']);
+
+                if($pay_money-$all_money<0){
+                    $this->output('出库单结算价大于收款金额', 'salepayment/addpayment', 2, 0);
+                }
                 $sale_ids = join(',',$sale_ids);
                 $data['sale_ids'] = ",$sale_ids,";
             }else{
                 $data['sale_ids'] = "";
             }
+
             if(!empty($id)){
                 $res_info = $m_salepayment->getInfo(array('id'=>$id));
                 if(!empty($res_info['sale_ids'])){
@@ -79,7 +86,7 @@ class SalepaymentController extends BaseController {
             }
             $this->output('操作成功', 'salepayment/datalist');
         }else{
-            $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id";
+            $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price";
             $where = array('record.wo_status'=>2);
             $all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
             foreach ($all_sales as $k=>$v){

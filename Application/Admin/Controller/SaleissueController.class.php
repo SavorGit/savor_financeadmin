@@ -207,6 +207,7 @@ class SaleissueController extends BaseController {
         if($info['sale_payment_id']){
             $m_salepayment = new \Admin\Model\SalePaymentModel();
             $pay_info = $m_salepayment->getInfo(array('id'=>$info['sale_payment_id']));
+            $pay_info['pay_money'] = $info['settlement_price'];
             if(!empty($pay_info['pay_image'])){
                 $pay_info['pay_image'] = get_oss_host().$pay_info['pay_image'];
             }
