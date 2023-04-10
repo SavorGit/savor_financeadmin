@@ -13,7 +13,7 @@ class SaleissueController extends BaseController {
         array('min'=>31,'max'=>60,'name'=>'31-60天','money'=>0),
         array('min'=>61,'max'=>9999999,'name'=>'61天以上','money'=>0),
     );
-    public function exportjd() {
+    public function exportjdsale() {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
@@ -120,7 +120,29 @@ class SaleissueController extends BaseController {
             array('rmb','币别'),
             array('rate','汇率'),
         );
-        $filename = '系统导出金蝶系统需要数据';
+        $filename = '系统导出金蝶单据';
+        $this->exportToExcel($cell,$datalist,$filename,1,'Excel5');
+    }
+    public function exportjdidcode() {
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $type       = I('type',0,'intval');
+
+        $where  = array('a.status'=>array('in','0,1'),'record.type'=>7,'record.wo_status'=>2);
+        if(!empty($start_date) && !empty($end_date)){
+            $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+        }
+        if(!empty($type)){
+            $where['a.type'] = $type;
+        }
+        $m_sale = new \Admin\Model\SaleModel();
+        $fileds = 'a.idcode,goods.name as goods_name';
+        $datalist = $m_sale->getJdDataList($fileds,$where);
+        $cell = array(
+            array('idcode','编码'),
+            array('goods_name','名称'),
+        );
+        $filename = '系统导出金蝶唯一识别码';
         $this->exportToExcel($cell,$datalist,$filename,1,'Excel5');
     }
     /**

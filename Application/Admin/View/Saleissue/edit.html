@@ -181,14 +181,14 @@
 					付款人名称：
                 </label>
 			<div class="col-xs-2 col-sm-2">
-                <input  name="payer_name"  type="text" value="{$vinfo.payer_name}"  minlength="1" maxlength="50" class="form-control" />
+                <input  name="payer_name"  type="text" value="{$pay_info.payer_name}"  minlength="1" maxlength="50" class="form-control" readonly/>
 				
               </div>
 			  <label class="col-xs-2 col-sm-1 control-label">
                 	付款人账户：
               </label>
               <div class="col-xs-5 col-sm-5">
-                <input  name="payer_account"  type="text" value="{$vinfo.payer_account}"  minlength="1" maxlength="50" class="form-control" />
+                <input  name="payer_account"  type="text" value="{$pay_info.payer_account}"  minlength="1" maxlength="50" class="form-control" readonly/>
 				
               </div>
 		    </div>
@@ -200,21 +200,13 @@
 							<div class="fileinput fileinput-new" data-fileinput>
 								<div class="fileinput-preview thumbnail" data-trigger="fileinput">
 									<a data-target="#modal-file" href="javascript:void(0)">
-											<if condition="($vinfo.pay_image eq 'NULL') OR $vinfo.pay_image eq ''">
-										
+											<if condition="($pay_info.pay_image eq 'NULL') OR $pay_info.pay_image eq ''">
 											<img id="payimg" src="/Public/admin/assets/img/noimage.png" border="0" />
 											<else />
-											<img id="payimg" src="{$vinfo.pay_image}" border="0" />
+											<img id="payimg" src="{$pay_info.pay_image}" border="0" />
 										</if>
 										<span id="payimgname"></span>
 									</a>
-								</div>
-								<div>
-									<a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=pay&rtype=2" data-browse-file>
-										选择图片
-									</a>
-									<input type="hidden" name="pay_media_id" id="pay" value="{$vinfo.pay_image_media_id}" >
-									<a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
 								</div>
 							</div>
 						</div>
@@ -224,8 +216,7 @@
 					收款状态：
                 </label>
 				<div class="col-xs-2 col-sm-2">
-	                <select id="status" name="status" class="form-control bs-select" title="请选择收款状态">
-	                  
+	                <select id="status" name="status" class="form-control bs-select" title="请选择收款状态" disabled>
 	                    <option value="1" <if condition="$vinfo['status'] eq 1">selected</if>> 未收款</option>
 	                  	<option value="2" <if condition="$vinfo['status'] eq 2">selected</if>> 已收款</option>
 	                </select>
@@ -234,13 +225,13 @@
 					税率(%)：
                 </label>
 				<div class="col-xs-2 col-sm-2">
-                	<input  name="tax_rate"  type="text" value="{$vinfo.tax_rate}"  minlength="1" maxlength="2" class="form-control" />
+                	<input  name="tax_rate"  type="text" value="{$pay_info.tax_rate}"  minlength="1" maxlength="2" class="form-control" readonly/>
 				</div>  
 			 	<label class="col-xs-2 col-sm-2 control-label">
 					收款金额：
                 </label>
 				<div class="col-xs-2 col-sm-2">
-                	<input  name="pay_money"  type="text" value="{$vinfo.pay_money}"  minlength="1" maxlength="50" class="form-control" />
+                	<input  name="pay_money"  type="text" value="{$pay_info.pay_money}"  minlength="1" maxlength="50" class="form-control" readonly/>
 				</div>
 				
 			 </div>
@@ -249,11 +240,10 @@
                 	收款时间：
 				</label>
 				<div class="col-xs-2 col-sm-3">
-	                <div class="input-group date form_date" data-date="{$vinfo.pay_time}">
-	                  <input name="pay_time" type="text" size="16" class="form-control date" placeholder="收款时间" value="{$vinfo.pay_time}" >
+	                <div class="input-group date form_date" data-date="{$pay_info.pay_time}">
+	                  <input name="pay_time" type="text" size="16" class="form-control date" placeholder="收款时间" value="{$pay_info.pay_time}" disabled>
 	                  <span class="input-group-btn">
-	                    
-	                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+	                    <button class="btn btn-success date-set" type="button" disabled><i class="fa fa-calendar"></i></button>
 	                  </span>
 	                </div> 
 				</div>

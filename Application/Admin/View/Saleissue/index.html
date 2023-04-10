@@ -58,8 +58,9 @@
                     </div>
 
                     <div class="input-group input-group-sm pull-right">
-                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/saleissue/exportjd?type={$type}&start_date={$start_date}&end_date={$end_date}" title="导出金蝶数据" target="_blank" mask="true"><i class="fa fa-download"></i>导出金蝶数据</a>
-                        <a class="btn btn-success btn-sm add" href="{$host_name}/saleissue/jddataimport" title="导入金蝶数据" target="dialog" mask="true"><i class="fa fa-upload"></i> 导入金蝶数据</a>
+<!--                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/saleissue/exportjdidcode?type={$type}&start_date={$start_date}&end_date={$end_date}" title="导出金蝶1" target="_blank" mask="true"><i class="fa fa-download"></i>导出金蝶1</a>-->
+<!--                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/saleissue/exportjdsale?type={$type}&start_date={$start_date}&end_date={$end_date}" title="导出金蝶2" target="_blank" mask="true"><i class="fa fa-download"></i>导出金蝶2</a>-->
+<!--                        <a class="btn btn-success btn-sm add" href="{$host_name}/saleissue/jddataimport" title="导入金蝶数据" target="dialog" mask="true"><i class="fa fa-upload"></i> 导入金蝶数据</a>-->
                         <a class="btn btn-success btn-sm add" href="{$host_name}/saleissue/add" title="新增出库单" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增出库单</a>
                     </div>
 
@@ -80,6 +81,7 @@
             <th>售卖类型</th>
             <th>商品名称</th>
             <th>唯一识别码</th>
+            <th>结算价</th>
             <th>售酒餐厅</th>
             <th>收款状态</th>
             <th>核销状态</th>
@@ -91,18 +93,18 @@
           <volist name="list" id="vlist">
             <tr target="sid_user">
               <td data-title="合同ID">{$vlist.id}</td>
-              <td data-title="售卖类型">{$vlist.type}</td>
+              <td data-title="售卖类型">{$vlist.type_str}</td>
               <td data-title="商品名称">{$vlist.goods_name}</td>
-              <td data-title="标题">{$vlist.idcode}</td>
+              <td data-title="唯一识别码">{$vlist.idcode}</td>
+              <td data-title="结算价">{$vlist.settlement_price}</td>
               <td data-title="售酒餐厅">{$vlist.hotel_name}</td>
-              <td data-title="收款状态">{$vlist.status}</td>
-              <td data-title="核销状态">{$vlist.wo_status}</td>
+              <td data-title="收款状态">{$vlist.status_str}</td>
+              <td data-title="核销状态">{$vlist.wo_status_str}</td>
               <td data-title="采购日期">{$vlist.add_time}</td>
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
                   
                   <a data-tip="修改详情" title="销售出库单-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="edit" href="{$host_name}/saleissue/edit?id={$vlist.id}" class="btn btn-success btn-icon">
-
                     <i class="fa fa-tag"></i>
                   </a>
 				  
