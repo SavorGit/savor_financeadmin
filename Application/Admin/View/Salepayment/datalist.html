@@ -32,9 +32,6 @@
                     <thead>
                     <tr id="post">
                         <th>ID</th>
-                        <th>付款人名称</th>
-                        <th>付款人账户</th>
-                        <th>付款截图凭证</th>
                         <th>税率(%)</th>
                         <th>收款金额</th>
                         <th>收款时间</th>
@@ -47,9 +44,6 @@
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
                             <td data-title="ID"><a class="click-able-title">{$dinfo.id}</a></td>
-                            <td data-title="付款人名称">{$dinfo.payer_name}</td>
-                            <td data-title="付款人账户">{$dinfo.payer_account}</td>
-                            <td data-title="付款截图凭证"><a href="{$dinfo.pay_image}" target="_blank"><img src="{$dinfo.pay_image}" ></a></td>
                             <td data-title="税率">{$dinfo.tax_rate}</td>
                             <td data-title="收款金额">{$dinfo.pay_money}</td>
                             <td data-title="收款时间">{$dinfo.pay_time}</td>
