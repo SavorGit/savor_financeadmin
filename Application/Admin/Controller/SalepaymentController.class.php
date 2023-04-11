@@ -46,23 +46,23 @@ class SalepaymentController extends BaseController {
             $sale_ids = I('post.sale_ids');
             $userInfo = session('sysUserInfo');
             $sysuser_id = $userInfo['id'];
-            $nowdate = date('Ymd');
-            $field = 'count(id) as num';
-            $where = array('DATE_FORMAT(add_time, "%Y%m%d")'=>$nowdate);
-            $res_salepayment = $m_salepayment->getAllData($field,$where);
-            if($res_salepayment[0]['num']>0){
-                $number = $res_salepayment[0]['num']+1;
-            }else{
-                $number = 1;
-            }
-            $num_str = str_pad($number,4,'0',STR_PAD_LEFT);
-            $serial_number = "SKD-$nowdate-$num_str";
-            $data = array('serial_number'=>$serial_number,'hotel_id'=>$hotel_id,'tax_rate'=>$tax_rate,'pay_money'=>$pay_money,'pay_time'=>$pay_time,'sysuser_id'=>$sysuser_id);
+
+            $data = array('hotel_id'=>$hotel_id,'tax_rate'=>$tax_rate,'pay_money'=>$pay_money,'pay_time'=>$pay_time,'sysuser_id'=>$sysuser_id);
+            $pay_record = array();
             if(!empty($sale_ids)){
-                $res_money = $m_sale->getAllData('sum(settlement_price) as all_money',array('id'=>array('in',$sale_ids)));
-                $all_money = intval($res_money[0]['all_money']);
-                if($pay_money-$all_money<0){
-                    $this->output('出库单结算价大于收款金额', 'salepayment/addpayment', 2, 0);
+                $res_money = $m_sale->getAllData('id,settlement_price',array('id'=>array('in',$sale_ids)));
+                $is_over = 0;
+                foreach ($res_money as $v){
+                    if($is_over){
+                        $this->output('所选出库单数大于可分配的收款金额', 'salepayment/addpayment', 2, 0);
+                    }
+                    if($pay_money>=0){
+                        $pay_record[]=array('sale_id'=>$v['id'],'pay_money'=>$v['settlement_price'],'ptype'=>1,'re_pay_money'=>$pay_money);
+                    }else{
+                        $is_over = 1;
+                        $pay_record[]=array('sale_id'=>$v['id'],'pay_money'=>abs($pay_money),'ptype'=>2,'re_pay_money'=>$pay_money);
+                    }
+                    $pay_money = $pay_money-$v['settlement_price'];
                 }
             }
 
@@ -75,6 +75,17 @@ class SalepaymentController extends BaseController {
                 $data['update_time'] = date('Y-m-d H:i:s');
                 $m_salepayment->updateData(array('id'=>$id),$data);
             }else{
+                $nowdate = date('Ymd');
+                $where = array('DATE_FORMAT(add_time, "%Y%m%d")'=>$nowdate);
+                $res_salepayment = $m_salepayment->getAllData('count(id) as num',$where);
+                if($res_salepayment[0]['num']>0){
+                    $number = $res_salepayment[0]['num']+1;
+                }else{
+                    $number = 1;
+                }
+                $num_str = str_pad($number,4,'0',STR_PAD_LEFT);
+                $serial_number = "SKD-$nowdate-$num_str";
+                $data['serial_number']=$serial_number;
                 $id = $m_salepayment->add($data);
             }
             if(!empty($sale_ids)){

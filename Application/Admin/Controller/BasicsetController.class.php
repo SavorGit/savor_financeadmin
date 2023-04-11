@@ -509,7 +509,7 @@ class BasicsetController extends BaseController {
         $all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
         foreach ($all_sales as $k=>$v){
             $is_select = '';
-            if($v['sale_payment_id']==$sale_payment_id){
+            if($sale_payment_id>0 && $v['sale_payment_id']==$sale_payment_id){
                 $is_select = 'selected';
             }
             $all_sales[$k]['is_select'] = $is_select;

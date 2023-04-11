@@ -48,9 +48,6 @@
                 </label>
                 <div class="col-xs-12 col-sm-10" id="sale_id">
                     <select name="sale_ids[]" class="form-control bs-select" data-live-search="true" data-container="body" multiple="multiple">
-                        <volist name="all_sales" id="asinfo">
-                            <option value="{$asinfo.id}" {$asinfo.is_select}> {$asinfo.name}</option>
-                        </volist>
                     </select>
                 </div>
             </div>
@@ -81,8 +78,6 @@
                     for (var i=0; i < all_data.length; i++) {
                         data_option_str+='<option value="'+all_data[i].id+'"'+all_data[i].is_select+'>'+all_data[i].name+'</option>';
                     }
-                    //$("#sale_id").children("select").empty()
-                    //$("#sale_id").children("select").append(data_option_str)
                     $("#sale_id select").empty()
                     $("#sale_id select").append(data_option_str)
                     $("#sale_id select").selectpicker("refresh");
