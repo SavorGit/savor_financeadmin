@@ -14,7 +14,7 @@
 
                 <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 pull-right">
                     <div class="input-group input-group-sm">
-                        <input type="text" class="form-control" name="keyword" value="{$keyword}" placeholder="付款人名称">
+                        <input type="text" class="form-control" name="keyword" value="{$keyword}" placeholder="酒楼名称">
                         <span class="input-group-btn">
                         <button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
                         </span>
@@ -32,6 +32,7 @@
                     <thead>
                     <tr id="post">
                         <th>ID</th>
+                        <th>酒楼名称</th>
                         <th>税率(%)</th>
                         <th>收款金额</th>
                         <th>收款时间</th>
@@ -44,16 +45,25 @@
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
                             <td data-title="ID"><a class="click-able-title">{$dinfo.id}</a></td>
+                            <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
                             <td data-title="税率">{$dinfo.tax_rate}</td>
                             <td data-title="收款金额">{$dinfo.pay_money}</td>
                             <td data-title="收款时间">{$dinfo.pay_time}</td>
-                            <td data-title="关联出库单">{$dinfo.sale_ids}</td>
+                            <td data-title="关联出库单">
+                                <a data-tip="关联出库单" title="关联出库单" target="navTab" mask="true" rel="salepayment/linksalelist" href="{$host_name}/salepayment/linksalelist?sale_payment_id={$dinfo.id}" class="btn btn-success btn-icon">
+                                    {$dinfo.link_sale_num}
+                                </a>
+                            </td>
                             <td data-title="添加时间">{$dinfo.add_time}</td>
 
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
                                     <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/salepayment/addpayment?id={$dinfo.id}" class="btn btn-success btn-icon">
                                         <i class="fa fa-pencil"></i>
+                                    </a>
+
+                                    <a title="关联销售出库单" data-tip="关联销售出库单" target="dialog" mask="true" href="{$host_name}/salepayment/linksaleadd?sale_payment_id={$dinfo.id}" class="btn btn-success btn-icon">
+                                        <i class="fa fa-rebel"></i>
                                     </a>
                                 </div>
                             </td>
