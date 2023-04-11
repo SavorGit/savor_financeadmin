@@ -498,4 +498,25 @@ class BasicsetController extends BaseController {
         die(json_encode($data));
     }
 
+    public function getHotelSales(){
+        $hotel_id = I('hotel_id',0,'intval');
+        $sale_payment_id = I('sale_payment_id',0,'intval');
+
+        $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price,
+        a.goods_id,goods.name as goods_name,a.sale_openid";
+        $where = array('a.hotel_id'=>$hotel_id,'record.wo_status'=>2);
+        $m_sale = new \Admin\Model\SaleModel();
+        $all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
+        foreach ($all_sales as $k=>$v){
+            $is_select = '';
+            if($v['sale_payment_id']==$sale_payment_id){
+                $is_select = 'selected';
+            }
+            $all_sales[$k]['is_select'] = $is_select;
+            $all_sales[$k]['name'] = "{$v['id']}-{$v['add_time']}-{$v['goods_name']}-{$v['settlement_price']}";
+        }
+        $data = array('datalist'=>$all_sales);
+        die(json_encode($data));
+    }
+
 }

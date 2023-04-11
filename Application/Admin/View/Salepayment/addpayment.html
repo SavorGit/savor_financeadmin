@@ -2,47 +2,6 @@
     <form method="post" action="{$host_name}/salepayment/addpayment" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
         <input name="id" type="hidden" id="id" value="{$vinfo.id}"/>
         <div class="pageFormContent modal-body">
-        <!--
-            <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">付款人名称：</label>
-                <div class="col-xs-12 col-sm-10">
-                    <input  name="payer_name"  type="text" value="{$vinfo.payer_name}"  minlength="1" maxlength="50" class="form-control"/>
-                </div>
-            </div>
-
-            <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">付款人账户：</label>
-                <div class="col-xs-12 col-sm-10">
-                    <input  name="payer_account"  type="text" value="{$vinfo.payer_account}"  minlength="1" maxlength="50" class="form-control"/>
-                </div>
-            </div>
-
-            <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">付款截图凭证：</label>
-                <div class="col-xs-12 col-sm-10">
-                    <div class="fileinput fileinput-new" data-fileinput>
-                        <div class="fileinput-preview thumbnail" data-trigger="fileinput">
-                            <a data-target="#modal-file" href="javascript:void(0)">
-                                <if condition="($vinfo.pay_image eq 'NULL') OR $vinfo.pay_image eq ''">
-
-                                    <img id="payimg" src="/Public/admin/assets/img/noimage.png" border="0" />
-                                    <else />
-                                    <img id="payimg" src="{$vinfo.pay_image}" border="0" />
-                                </if>
-                                <span id="payimgname"></span>
-                            </a>
-                        </div>
-                        <div>
-                            <a class="btn btn-success btn-file" data-target="#modal-file" href="{$host_name}/resource/uploadResource?filed=pay&rtype=2" data-browse-file>
-                                选择图片
-                            </a>
-                            <input type="hidden" name="pay_media_id" id="pay" value="{$vinfo.pay_image_media_id}">
-                            <a href="javascript:;" class="btn btn-danger" data-remove-file="/Public/admin/assets/img/noimage.png">删除</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            -->
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">税率(%)：</label>
                 <div class="col-xs-12 col-sm-10">
@@ -70,14 +29,27 @@
                 </div>
             </div>
 
+            <div class="form-group row" id="stock_hotel_id">
+                <label class="col-xs-12 col-sm-2 control-label">选择酒楼：</label>
+                <div class="col-xs-12 col-sm-10  form-inline">
+                    <select name="hotel_id" id="choose_hotel_id" class="form-control bs-select class-filter" data-live-search="true">
+                        <option value=0>请选择酒楼</option>
+                        <volist name="hotel_list" id="hinfo">
+                            <option value="{$hinfo.id}" <if condition="$hinfo.id eq $vinfo['hotel_id']"> selected </if> >{$hinfo.name}</option>
+                        </volist>
+                    </select>
+
+                </div>
+            </div>
+
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">
                     关联出库单:
                 </label>
-                <div class="col-xs-12 col-sm-10">
+                <div class="col-xs-12 col-sm-10" id="sale_id">
                     <select name="sale_ids[]" class="form-control bs-select class-filter" data-live-search="true" data-container="body" multiple="multiple">
                         <volist name="all_sales" id="asinfo">
-                            <option value="{$asinfo.id}" {$asinfo.is_select}> {$asinfo.id}--{$asinfo.idcode}--{$asinfo.settlement_price}</option>
+                            <option value="{$asinfo.id}" {$asinfo.is_select}> {$asinfo.name}</option>
                         </volist>
                     </select>
                 </div>
@@ -91,3 +63,29 @@
         </div>
     </form>
 </div>
+
+<script>
+
+    $('#choose_hotel_id').change(function() {
+        var now_hotel_id = $(this).val()
+
+        $.ajax({
+            type: 'POST',
+            dataType: 'json',
+            url: '{$host_name}/basicset/getHotelSales',
+            data: 'hotel_id='+now_hotel_id,
+            success: function(msg) {
+                var all_data = msg.datalist
+                if (all_data!=null) {
+                    var data_option_str = ''
+                    for (var i=0; i < all_data.length; i++) {
+                        data_option_str+='<option value="'+all_data[i].id+'"'+all_data[i].is_select+'>'+all_data[i].name+'</option>';
+                    }
+                    $("#sale_id").children("select").empty()
+                    $("#sale_id").children("select").append(data_option_str)
+                }
+            }
+        })
+    })
+    $("#choose_hotel_id").trigger('change');
+</script>

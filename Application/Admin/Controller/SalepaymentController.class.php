@@ -39,35 +39,31 @@ class SalepaymentController extends BaseController {
         $m_salepayment = new \Admin\Model\SalePaymentModel();
         $m_sale = new \Admin\Model\SaleModel();
         if(IS_POST){
-            $payer_name = I('post.payer_name','','trim');
-            $payer_account = I('post.payer_account','','trim');
-            $pay_media_id = I('post.pay_media_id',0,'intval');
             $tax_rate = I('post.tax_rate',0,'intval');
             $pay_money = I('post.pay_money',0,'intval');
+            $hotel_id = I('post.hotel_id',0,'intval');
             $pay_time = I('post.pay_time','','trim');
             $sale_ids = I('post.sale_ids');
-            $pay_image = '';
-            if(!empty($pay_media_id)){
-                $m_media = new \Admin\Model\MediaModel();
-                $media_info = $m_media->getMediaInfoById($pay_media_id);
-                $pay_image  = $media_info['oss_path'];
-            }
             $userInfo = session('sysUserInfo');
             $sysuser_id = $userInfo['id'];
-            $data = array('payer_name'=>$payer_name,'payer_account'=>$payer_account,'pay_image'=>$pay_image,'tax_rate'=>$tax_rate,
-                'pay_money'=>$pay_money,'pay_time'=>$pay_time,'sysuser_id'=>$sysuser_id
-            );
+            $nowdate = date('Ymd');
+            $field = 'count(id) as num';
+            $where = array('DATE_FORMAT(add_time, "%Y%m%d")'=>$nowdate);
+            $res_salepayment = $m_salepayment->getAllData($field,$where);
+            if($res_salepayment[0]['num']>0){
+                $number = $res_salepayment[0]['num']+1;
+            }else{
+                $number = 1;
+            }
+            $num_str = str_pad($number,4,'0',STR_PAD_LEFT);
+            $serial_number = "SKD-$nowdate-$num_str";
+            $data = array('serial_number'=>$serial_number,'hotel_id'=>$hotel_id,'tax_rate'=>$tax_rate,'pay_money'=>$pay_money,'pay_time'=>$pay_time,'sysuser_id'=>$sysuser_id);
             if(!empty($sale_ids)){
                 $res_money = $m_sale->getAllData('sum(settlement_price) as all_money',array('id'=>array('in',$sale_ids)));
                 $all_money = intval($res_money[0]['all_money']);
-
                 if($pay_money-$all_money<0){
                     $this->output('出库单结算价大于收款金额', 'salepayment/addpayment', 2, 0);
                 }
-                $sale_ids = join(',',$sale_ids);
-                $data['sale_ids'] = ",$sale_ids,";
-            }else{
-                $data['sale_ids'] = "";
             }
 
             if(!empty($id)){
@@ -86,28 +82,17 @@ class SalepaymentController extends BaseController {
             }
             $this->output('操作成功', 'salepayment/datalist');
         }else{
-            $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price";
-            $where = array('record.wo_status'=>2);
-            $all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
-            foreach ($all_sales as $k=>$v){
-                $is_select = '';
-                if($id>0 && $v['sale_payment_id']==$id){
-                    $is_select = 'selected';
-                }
-                $all_sales[$k]['is_select'] = $is_select;
-            }
             $vinfo = array('tax_rate'=>13);
             if($id){
                 $vinfo = $m_salepayment->getInfo(array('id'=>$id));
-                if(!empty($vinfo['pay_image'])){
-                    $m_media = new \Admin\Model\MediaModel();
-                    $media_info = $m_media->field('id')->where(array('oss_addr'=>$vinfo['pay_image']))->find();
-                    $vinfo['pay_image'] = get_oss_host().$vinfo['pay_image'];
-                    $vinfo['pay_image_media_id'] = $media_info['id'];
-                }
             }
+            $m_hotel = new \Admin\Model\HotelModel();
+            $hotel_list = $m_hotel->getHotelDatas('hotel.id,hotel.name,area.region_name',array('hotel.state'=>1,'hotel.flag'=>0,'ext.is_salehotel'=>1),'area.id asc');
+            foreach ($hotel_list as $k=>$v){
+                $hotel_list[$k]['name'] = "{$v['region_name']}--".$v['name'];
+            }
+            $this->assign('hotel_list',$hotel_list);
             $this->assign('vinfo',$vinfo);
-            $this->assign('all_sales',$all_sales);
             $this->display();
         }
     }
