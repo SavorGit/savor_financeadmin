@@ -475,6 +475,13 @@ class StockController extends BaseController {
                 'department_id'=>$department_id,'department_user_id'=>$department_user_id,'amount'=>$amount,'total_fee'=>$total_fee,
                 'area_id'=>$area_id,'hotel_id'=>$hotel_id,'type'=>20,'sysuser_id'=>$sysuser_id
             );
+            if(in_array($io_type,array(22,23)) && $hotel_id>0){
+                $m_hotel = new \Admin\Model\HotelModel();
+                $res_hotel = $m_hotel->getHotelById('ext.is_salehotel',array('hotel.id'=>$hotel_id));
+                if($res_hotel['is_salehotel']==0){
+                    $this->output('请先设置当前酒楼为售酒餐厅', 'stock/addoutstock',2,0);
+                }
+            }
             if($id){
                 $stock_info = $m_stock->getInfo(array('id'=>$id));
                 if($stock_info['status']>=2 && $stock_info['io_type']!=$io_type){
