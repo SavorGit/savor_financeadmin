@@ -1,6 +1,6 @@
 <div class="pageContent">
     <form method="post" action="{$host_name}/salepayment/addpayment" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
-        <input name="id" type="hidden" id="id" value="{$vinfo.id}"/>
+        <input name="id" type="hidden" id="sale_payment_id" value="{$vinfo.id}"/>
         <div class="pageFormContent modal-body">
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">税率(%)：</label>
@@ -47,7 +47,7 @@
                     关联出库单:
                 </label>
                 <div class="col-xs-12 col-sm-10" id="sale_id">
-                    <select name="sale_ids[]" class="form-control bs-select class-filter" data-live-search="true" data-container="body" multiple="multiple">
+                    <select name="sale_ids[]" class="form-control class-filter" data-live-search="true" data-container="body" multiple="multiple">
                         <volist name="all_sales" id="asinfo">
                             <option value="{$asinfo.id}" {$asinfo.is_select}> {$asinfo.name}</option>
                         </volist>
@@ -68,12 +68,12 @@
 
     $('#choose_hotel_id').change(function() {
         var now_hotel_id = $(this).val()
-
+        var sale_payment_id = $("#sale_payment_id").val()
         $.ajax({
             type: 'POST',
             dataType: 'json',
             url: '{$host_name}/basicset/getHotelSales',
-            data: 'hotel_id='+now_hotel_id,
+            data: 'hotel_id='+now_hotel_id+'&sale_payment_id='+sale_payment_id,
             success: function(msg) {
                 var all_data = msg.datalist
                 if (all_data!=null) {
