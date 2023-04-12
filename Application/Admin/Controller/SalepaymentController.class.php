@@ -90,16 +90,18 @@ class SalepaymentController extends BaseController {
             $remain_money = $res_salepayment['pay_money']-intval($res_money[0]['all_pay_money']);
 
             $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price,
-            a.goods_id,goods.name as goods_name,a.sale_openid";
+            a.goods_id,goods.name as goods_name,a.sale_openid,a.maintainer_id";
             $where = array('a.hotel_id'=>$res_salepayment['hotel_id'],'a.ptype'=>array('in','0,2'),'record.wo_reason_type'=>1,'record.wo_status'=>2);
             $all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
+            $m_sysuser = new \Admin\Model\SysuserModel();
             foreach ($all_sales as $k=>$v){
                 $is_select = '';
                 if($sale_payment_id>0 && $v['sale_payment_id']==$sale_payment_id){
                     $is_select = 'selected';
                 }
                 $all_sales[$k]['is_select'] = $is_select;
-                $all_sales[$k]['name'] = "{$v['id']}-{$v['add_time']}-{$v['goods_name']}-{$v['settlement_price']}";
+                $res_user = $m_sysuser->getSysUser($v['maintainer_id']);
+                $all_sales[$k]['name'] = "{$v['id']}-{$v['add_time']}-{$v['goods_name']}-{$v['settlement_price']}-{$res_user[0]['remark']}";
             }
 
             $this->assign('all_sales',$all_sales);
