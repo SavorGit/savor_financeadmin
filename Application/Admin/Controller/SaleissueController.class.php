@@ -38,8 +38,9 @@ class SaleissueController extends BaseController {
         $all_types = C('SALE_TYPES');
         $all_status = C('PAY_STATUS');
         $all_wo_status = C('STOCK_WRITEOFF_STATUS');
+        $all_ptype = C('PAY_TYPE');
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,a.type,a.status,record.wo_status";
+        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.status,record.wo_status";
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
         $datalist = $result['list'];
         foreach ($datalist as $k=>$v){
@@ -47,10 +48,15 @@ class SaleissueController extends BaseController {
             if(isset($all_status[$v['status']])){
                 $status_str = $all_status[$v['status']];
             }
+            $pay_type_str = '';
+            if(isset($all_ptype[$v['ptype']])){
+                $pay_type_str = $all_ptype[$v['ptype']];
+            }
             $type_str = $all_types[$v['type']];
             $wo_status_str = $all_wo_status[$v['wo_status']];
             $datalist[$k]['status_str'] = $status_str;
             $datalist[$k]['type_str'] = $type_str;
+            $datalist[$k]['pay_type_str'] = $pay_type_str;
             $datalist[$k]['wo_status_str'] = $wo_status_str;
         }
 
@@ -207,10 +213,10 @@ class SaleissueController extends BaseController {
         if($info['sale_payment_id']){
             $m_salepayment = new \Admin\Model\SalePaymentModel();
             $pay_info = $m_salepayment->getInfo(array('id'=>$info['sale_payment_id']));
-            $pay_info['pay_money'] = $info['settlement_price'];
-            if(!empty($pay_info['pay_image'])){
-                $pay_info['pay_image'] = get_oss_host().$pay_info['pay_image'];
-            }
+
+            $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
+            $res_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_id'=>$id));
+            $pay_info['pay_money'] = intval($res_money[0]['all_pay_money']);
         }
         $this->assign('honame',$host_name);
         $this->assign('hotel_list',$hotel_list);

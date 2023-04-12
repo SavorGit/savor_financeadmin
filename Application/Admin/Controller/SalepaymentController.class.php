@@ -119,6 +119,9 @@ class SalepaymentController extends BaseController {
             $res_sale = $m_sale->getInfo(array('id'=>$sale_id));
             $res_sale_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_id'=>$sale_id));
             $remian_settlement_price = $res_sale['settlement_price']-intval($res_sale_money[0]['all_pay_money']);
+            if($remian_settlement_price==0){
+                $this->output('所选出库单已完成收款', 'salepayment/linksaleadd',2,0);
+            }
             if($remian_settlement_price>$remain_money){
                 $pay_money = $remain_money;
                 $ptype = 2;
@@ -144,7 +147,7 @@ class SalepaymentController extends BaseController {
         $fields = 'a.*,sale.goods_id,sale.idcode,sale.settlement_price,sale.ptype,sale.status';
         $result = $m_paymentrecord->getList($fields,array('a.sale_payment_id'=>$sale_payment_id),'a.id desc',$start,$size);
         $datalist = $result['list'];
-        $all_ptype = array('1'=>'完全收款','2'=>'部分收款');
+        $all_ptype = C('PAY_TYPE');
         foreach ($datalist as $k=>$v){
             $datalist[$k]['ptype_str'] = $all_ptype[$v['ptype']];
         }
