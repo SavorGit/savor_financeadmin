@@ -91,7 +91,7 @@ class SalepaymentController extends BaseController {
 
             $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price,
             a.goods_id,goods.name as goods_name,a.sale_openid";
-            $where = array('a.hotel_id'=>$res_salepayment['hotel_id'],'record.wo_status'=>2);
+            $where = array('a.hotel_id'=>$res_salepayment['hotel_id'],'a.ptype'=>array('in','0,2'),'record.wo_reason_type'=>1,'record.wo_status'=>2);
             $all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
             foreach ($all_sales as $k=>$v){
                 $is_select = '';
