@@ -97,10 +97,11 @@ class SaleissueController extends BaseController {
             }
             $type   = I('post.type',0,'intval');
             $idcode = I('post.idcode','','trim');
+            $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
                       a.wo_status,a.dstatus,a.add_time';
-            $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode,'a.dstatus'=>1),'a.id desc','0,1','');
+            $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($all_idcodes[0]),'a.dstatus'=>1),'a.id desc','0,1','');
             if(empty($res_list)){
                 $this->error('商品识别码异常');
             }
@@ -155,6 +156,7 @@ class SaleissueController extends BaseController {
             $data['express_number']    = $express_number;                       //快递编号
             $data['add_time']          = date('Y-m-d H:i:s');
             $m_sale = new \Admin\Model\SaleModel();
+            /*
             $index_voucher_no = 10001;
             $res_data = $m_sale->getAll($field='id,jd_voucher_no','',0,1,'id desc');
             if(!empty($res_data[0]['jd_voucher_no'])){
@@ -162,7 +164,8 @@ class SaleissueController extends BaseController {
             }else{
                 $jd_voucher_no = $index_voucher_no;
             }
-            $data['jd_voucher_no'] = $jd_voucher_no;
+            $data['jd_voucher_no'] = $index_voucher_no;
+            */
 
             $ret = $m_sale->addData($data);
             if($ret){
