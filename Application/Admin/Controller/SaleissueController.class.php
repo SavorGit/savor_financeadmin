@@ -19,18 +19,22 @@ class SaleissueController extends BaseController {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
+        $ptype       = I('ptype',0,'intval');
         $idcode     = I('idcode','','trim');
 
         $orders = $order.' '.$sort;
         $start  = ($pageNum-1) * $size;
         $where  = array();
         if(empty($start_date) || empty($end_date)){
-            $start_date = date('Y-m-d',strtotime("-6 day"));
+            $start_date = date('Y-m-d',strtotime("-1 month"));
             $end_date = date('Y-m-d');
         }
         $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         if(!empty($type)){
             $where['a.type'] = $type;
+        }
+        if(!empty($ptype)){
+            $where['a.ptype'] = $ptype;
         }
         if(!empty($idcode)){
             $where['a.idcode'] = $idcode;
@@ -67,6 +71,9 @@ class SaleissueController extends BaseController {
         $this->assign('_order',$order);
         $this->assign('_sort',$sort);
         $this->assign('idcode',$idcode);
+        $this->assign('ptype',$ptype);
+        $this->assign('all_ptype',$all_ptype);
+        $this->assign('all_types',$all_types);
         $this->assign('type',$type);
         $this->assign('start_date',$start_date);
         $this->assign('end_date',$end_date);

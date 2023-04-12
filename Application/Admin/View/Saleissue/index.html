@@ -31,13 +31,25 @@
                     </div>
 
                     <div class="form-group">
+                        <div class="input-group input-group-sm">收款类型：</div>
+                        <div class="input-group">
+                            <select name="ptype" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0 >全部</option>
+                                <volist name="all_ptype" id="apinfo">
+                                    <option value="{$key}" <if condition="$ptype eq $key">selected</if> >{$apinfo}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <div class="input-group input-group-sm">售卖类型：</div>
                         <div class="input-group">
                             <select name="type" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
                                 <option value=0 >全部</option>
-                                <option value="1" <if condition="$type eq 1">selected</if>>餐厅售卖</option>
-                                <option value="2" <if condition="$type eq 2">selected</if>>团购售卖</option>
-                                <option value="3" <if condition="$type eq 3">selected</if>>其他售卖</option>
+                                <volist name="all_types" id="atinfo">
+                                    <option value="{$key}" <if condition="$type eq $key">selected</if> >{$atinfo}</option>
+                                </volist>
                             </select>
                         </div>
                     </div>
