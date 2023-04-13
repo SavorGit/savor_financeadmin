@@ -117,7 +117,7 @@ class SaleissueController extends BaseController {
             $hotel_id = I('post.hotel_id',0,'intval');
             $sale_openid = I('post.sale_openid','','trim');
             $maintainer_id = 0;
-            if(!empty($hotel_id)){
+            if(!empty($hotel_id) && in_array($type,array(2,3))){
                 $m_hotel = new \Admin\Model\HotelModel();
                 $hotel_info = $m_hotel->getHotelById('ext.maintainer_id',array('hotel.id'=>$hotel_id));
                 $maintainer_id = $hotel_info['maintainer_id'];
@@ -260,7 +260,7 @@ class SaleissueController extends BaseController {
             $hotel_id = I('post.hotel_id',0,'intval');
             $sale_openid = I('post.sale_openid','','trim');
             $maintainer_id = 0;
-            if(!empty($hotel_id)){
+            if(!empty($hotel_id) && in_array($type,array(2,3))){
                 $m_hotel = new \Admin\Model\HotelModel();
                 $hotel_info = $m_hotel->getHotelById('ext.maintainer_id',array('hotel.id'=>$hotel_id));
                 $maintainer_id = $hotel_info['maintainer_id'];
