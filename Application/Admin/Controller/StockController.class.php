@@ -1182,7 +1182,8 @@ class StockController extends BaseController {
         }
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,stock.area_id,hotel.name as hotel_name,hotel.id as hotel_id';
+        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,
+        stock.area_id,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
@@ -1210,10 +1211,24 @@ class StockController extends BaseController {
                 $res_user = $m_user->getInfo(array('openid'=>$v['op_openid']));
                 $v['username'] = $res_user['nickname'];
                 $v['usermobile'] = $res_user['mobile'];
-                $price = abs($v['price']);
+//                $price = abs($v['price']);
+                $price = $v['avg_price'];
+                if($price==0){
+                    $map1['idcode']=$v['idcode'];
+                    $map2['goods_id']=$v['goods_id'];
+                    $avg_where['_complex'] = array(
+                        $map1,
+                        $map2,
+                        '_logic' => 'or'
+                    );
+                    $avg_where['avg_price'] = array('gt',0);
+                    $avg_where['add_time'] = array('elt',$v['add_time']);
+                    $res_avg_price = $m_stock_record->getAll('avg_price',$avg_where,0,1,'id desc');
+                    $price = $res_avg_price[0]['avg_price'];
+                }
                 $total_amount = abs($v['total_amount']);
-                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$v['goods_id'],1);
-
+//                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$v['goods_id'],1);
+                $settlement_price = $v['settlement_price'];
                 $v['price'] = sprintf("%.2f",$price*$total_amount);
                 $v['settlement_price'] = sprintf("%.2f",$settlement_price*$total_amount);
                 $data_list[] = $v;
@@ -1655,6 +1670,23 @@ class StockController extends BaseController {
                     }
                 }else{
                     $parent_id = $res_qrcontent['parent_id'];
+                    $parent_idcode = encrypt_data($parent_id);
+                    $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$parent_idcode),'a.id desc','0,1','');
+                    if(!empty($res_list)){
+                        $type_str = $all_type[$res_list[0]['type']];
+                        if($res_list[0]['type']==7){
+                            $type_str.="（{$wo_status[$res_list[0]['wo_status']]}）";
+                        }
+                        $res_list[0]['type_str']= $type_str;
+                        if($res_list[0]['dstatus']==2){
+                            $dstatus_str = '删除';
+                        }else{
+                            $dstatus_str = '正常';
+                        }
+                        $res_list[0]['idcode'] = $res_list[0]['idcode'].'(箱码)';
+                        $res_list[0]['dstatus_str']= $dstatus_str;
+                        $data_list = $res_list;
+                    }
                 }
                 $res_allqrcode = $m_qrcode_content->getDataList('id',array('parent_id'=>$parent_id),'id asc');
                 foreach ($res_allqrcode as $v){
