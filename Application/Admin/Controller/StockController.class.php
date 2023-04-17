@@ -1226,6 +1226,7 @@ class StockController extends BaseController {
                     $res_avg_price = $m_stock_record->getAll('avg_price',$avg_where,0,1,'id desc');
                     $price = $res_avg_price[0]['avg_price'];
                 }
+                $price = abs($price);
                 $total_amount = abs($v['total_amount']);
 //                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$v['goods_id'],1);
                 $settlement_price = $v['settlement_price'];
