@@ -337,6 +337,7 @@ class SaleissueController extends BaseController {
         $fields = "a.hotel_id,hotel.name hotel_name,area.region_name,user.remark";
         $group  = "a.hotel_id";
         $m_sale = new \Admin\Model\SaleModel();
+        $m_sale_paymeng_record = new \Admin\Model\SalePaymentRecordModel();
         $list =   $m_sale->alias('a')
                          ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
                          ->join('savor_sysuser user on a.maintainer_id=user.id','left')
@@ -354,17 +355,19 @@ class SaleissueController extends BaseController {
             $ret = $m_sale->alias('a')
                           ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
                           ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
-                          ->field('a.hotel_id,a.goods_id,goods.name goods_name')
+                          ->field('a.hotel_id,a.goods_id,goods.name goods_name,a.id sale_id')
                           ->where($map)
                           ->group('a.goods_id')
                           ->select();
+            
             foreach($ret as $kkk=>$vvv){
                   $map = [];
                   $map['hotel_id'] = $v['hotel_id'];
                   $map['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
                   
                   $map['goods_id'] = $vvv['goods_id'];
-                  $fields = 'a.cost_price,a.settlement_price';
+                  
+                  $fields = 'a.cost_price,a.settlement_price,a.id sale_id';
                   $rts = $m_sale->alias('a')
                                 ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
                                 ->join('savor_area_info area on hotel.area_id= area.id','left')
@@ -372,6 +375,7 @@ class SaleissueController extends BaseController {
                                 ->where($map)
                                 ->field($fields)
                                 ->select();
+                  
                   if(!empty($rts)){
                       $info = [];
                       $info['region_name'] = $v['region_name'];
@@ -381,8 +385,20 @@ class SaleissueController extends BaseController {
                       $info['goods_name']  = $vvv['goods_name'];
                       $info['remark']      = $v['remark'];
                       $receivable_money = 0;
+                      //print_r($rts);exit;
                       foreach($rts as $rk=>$rv){
-                          $receivable_money += $rv['settlement_price'] - $rv['pay_money'];
+                          
+                          $payment_result = $m_sale_paymeng_record->where(array('sale_id'=>$rv['sale_id']))->select();
+                          $pay_money = 0;
+                          if(!empty($payment_result)){
+                              foreach($payment_result as $pk=>$pv){
+                                  $pay_money +=$pv['pay_money'];
+                              }
+                          }else {
+                              
+                          }
+                          
+                          $receivable_money += $rv['settlement_price'] - $pay_money;
                       }
                       $info['receivable_money'] = $receivable_money;
                       
