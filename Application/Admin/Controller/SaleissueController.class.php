@@ -247,11 +247,11 @@ class SaleissueController extends BaseController {
             }
             $type   = I('post.type',0,'intval');
             $idcode = I('post.idcode','','trim');
+            $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
                       a.wo_status,a.dstatus,a.add_time';
-            $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode,'a.dstatus'=>1),'a.id desc','0,1','');
-            
+            $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($all_idcodes[0]),'a.dstatus'=>1),'a.id desc','0,1','');
             if(empty($res_list)){
                 $this->error('商品识别码异常');
             }
