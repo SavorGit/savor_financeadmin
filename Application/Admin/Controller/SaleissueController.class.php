@@ -19,18 +19,22 @@ class SaleissueController extends BaseController {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
+        $ptype       = I('ptype',0,'intval');
         $idcode     = I('idcode','','trim');
 
         $orders = $order.' '.$sort;
         $start  = ($pageNum-1) * $size;
         $where  = array();
         if(empty($start_date) || empty($end_date)){
-            $start_date = date('Y-m-d',strtotime("-6 day"));
+            $start_date = date('Y-m-d',strtotime("-1 month"));
             $end_date = date('Y-m-d');
         }
         $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         if(!empty($type)){
             $where['a.type'] = $type;
+        }
+        if(!empty($ptype)){
+            $where['a.ptype'] = $ptype;
         }
         if(!empty($idcode)){
             $where['a.idcode'] = $idcode;
@@ -38,8 +42,9 @@ class SaleissueController extends BaseController {
         $all_types = C('SALE_TYPES');
         $all_status = C('PAY_STATUS');
         $all_wo_status = C('STOCK_WRITEOFF_STATUS');
+        $all_ptype = C('PAY_TYPE');
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,a.type,a.status,record.wo_status";
+        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.status,record.wo_status";
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
         $datalist = $result['list'];
         foreach ($datalist as $k=>$v){
@@ -47,10 +52,15 @@ class SaleissueController extends BaseController {
             if(isset($all_status[$v['status']])){
                 $status_str = $all_status[$v['status']];
             }
+            $pay_type_str = '';
+            if(isset($all_ptype[$v['ptype']])){
+                $pay_type_str = $all_ptype[$v['ptype']];
+            }
             $type_str = $all_types[$v['type']];
             $wo_status_str = $all_wo_status[$v['wo_status']];
             $datalist[$k]['status_str'] = $status_str;
             $datalist[$k]['type_str'] = $type_str;
+            $datalist[$k]['pay_type_str'] = $pay_type_str;
             $datalist[$k]['wo_status_str'] = $wo_status_str;
         }
 
@@ -61,6 +71,9 @@ class SaleissueController extends BaseController {
         $this->assign('_order',$order);
         $this->assign('_sort',$sort);
         $this->assign('idcode',$idcode);
+        $this->assign('ptype',$ptype);
+        $this->assign('all_ptype',$all_ptype);
+        $this->assign('all_types',$all_types);
         $this->assign('type',$type);
         $this->assign('start_date',$start_date);
         $this->assign('end_date',$end_date);
@@ -91,10 +104,11 @@ class SaleissueController extends BaseController {
             }
             $type   = I('post.type',0,'intval');
             $idcode = I('post.idcode','','trim');
+            $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
                       a.wo_status,a.dstatus,a.add_time';
-            $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$idcode,'a.dstatus'=>1),'a.id desc','0,1','');
+            $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($all_idcodes[0]),'a.dstatus'=>1),'a.id desc','0,1','');
             if(empty($res_list)){
                 $this->error('商品识别码异常');
             }
@@ -103,7 +117,7 @@ class SaleissueController extends BaseController {
             $hotel_id = I('post.hotel_id',0,'intval');
             $sale_openid = I('post.sale_openid','','trim');
             $maintainer_id = 0;
-            if(!empty($hotel_id)){
+            if(!empty($hotel_id) && in_array($type,array(2,3))){
                 $m_hotel = new \Admin\Model\HotelModel();
                 $hotel_info = $m_hotel->getHotelById('ext.maintainer_id',array('hotel.id'=>$hotel_id));
                 $maintainer_id = $hotel_info['maintainer_id'];
@@ -149,6 +163,7 @@ class SaleissueController extends BaseController {
             $data['express_number']    = $express_number;                       //快递编号
             $data['add_time']          = date('Y-m-d H:i:s');
             $m_sale = new \Admin\Model\SaleModel();
+            /*
             $index_voucher_no = 10001;
             $res_data = $m_sale->getAll($field='id,jd_voucher_no','',0,1,'id desc');
             if(!empty($res_data[0]['jd_voucher_no'])){
@@ -156,7 +171,8 @@ class SaleissueController extends BaseController {
             }else{
                 $jd_voucher_no = $index_voucher_no;
             }
-            $data['jd_voucher_no'] = $jd_voucher_no;
+            $data['jd_voucher_no'] = $index_voucher_no;
+            */
 
             $ret = $m_sale->addData($data);
             if($ret){
@@ -207,10 +223,10 @@ class SaleissueController extends BaseController {
         if($info['sale_payment_id']){
             $m_salepayment = new \Admin\Model\SalePaymentModel();
             $pay_info = $m_salepayment->getInfo(array('id'=>$info['sale_payment_id']));
-            $pay_info['pay_money'] = $info['settlement_price'];
-            if(!empty($pay_info['pay_image'])){
-                $pay_info['pay_image'] = get_oss_host().$pay_info['pay_image'];
-            }
+
+            $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
+            $res_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_id'=>$id));
+            $pay_info['pay_money'] = intval($res_money[0]['all_pay_money']);
         }
         $this->assign('honame',$host_name);
         $this->assign('hotel_list',$hotel_list);
@@ -244,7 +260,7 @@ class SaleissueController extends BaseController {
             $hotel_id = I('post.hotel_id',0,'intval');
             $sale_openid = I('post.sale_openid','','trim');
             $maintainer_id = 0;
-            if(!empty($hotel_id)){
+            if(!empty($hotel_id) && in_array($type,array(2,3))){
                 $m_hotel = new \Admin\Model\HotelModel();
                 $hotel_info = $m_hotel->getHotelById('ext.maintainer_id',array('hotel.id'=>$hotel_id));
                 $maintainer_id = $hotel_info['maintainer_id'];

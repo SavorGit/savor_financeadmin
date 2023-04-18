@@ -31,13 +31,25 @@
                     </div>
 
                     <div class="form-group">
+                        <div class="input-group input-group-sm">收款类型：</div>
+                        <div class="input-group">
+                            <select name="ptype" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0 >全部</option>
+                                <volist name="all_ptype" id="apinfo">
+                                    <option value="{$key}" <if condition="$ptype eq $key">selected</if> >{$apinfo}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <div class="input-group input-group-sm">售卖类型：</div>
                         <div class="input-group">
                             <select name="type" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
                                 <option value=0 >全部</option>
-                                <option value="1" <if condition="$type eq 1">selected</if>>餐厅售卖</option>
-                                <option value="2" <if condition="$type eq 2">selected</if>>团购售卖</option>
-                                <option value="3" <if condition="$type eq 3">selected</if>>其他售卖</option>
+                                <volist name="all_types" id="atinfo">
+                                    <option value="{$key}" <if condition="$type eq $key">selected</if> >{$atinfo}</option>
+                                </volist>
                             </select>
                         </div>
                     </div>
@@ -83,6 +95,7 @@
             <th>唯一识别码</th>
             <th>结算价</th>
             <th>售酒餐厅</th>
+            <th>收款类型</th>
             <th>收款状态</th>
             <th>核销状态</th>
             <th>添加日期</th>
@@ -98,6 +111,7 @@
               <td data-title="唯一识别码">{$vlist.idcode}</td>
               <td data-title="结算价">{$vlist.settlement_price}</td>
               <td data-title="售酒餐厅">{$vlist.hotel_name}</td>
+              <td data-title="收款类型">{$vlist.pay_type_str}</td>
               <td data-title="收款状态">{$vlist.status_str}</td>
               <td data-title="核销状态">{$vlist.wo_status_str}</td>
               <td data-title="采购日期">{$vlist.add_time}</td>

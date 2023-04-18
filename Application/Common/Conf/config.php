@@ -117,6 +117,7 @@ $config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=
 $config['STOCK_RECYLE_STATUS']=array('1'=>'待收回物料','2'=>'已收回物料');
 $config['SALE_TYPES']=array('1'=>'餐厅售卖','2'=>'团购售卖','3'=>'其它售卖');
 $config['PAY_STATUS']=array('1'=>'未收款','2'=>'已收款');
+$config['PAY_TYPE']=array('1'=>'完全收款','2'=>'部分收款');
 
 
 $config['MANGER_KEY'] = array(

@@ -93,4 +93,11 @@ class SysuserModel extends Model{
              ->select();
         return $data;
     }
+
+    public function getSysUser($user_id){
+        $user_id = intval($user_id);
+        $sql = "SELECT * FROM savor_sysuser where id={$user_id}";
+        $result   = $this->query($sql);
+        return $result;
+    }
 }

@@ -1,0 +1,63 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/salepayment/linksalelist" method="post">
+    <input type="hidden" name="sale_payment_id" value="{$sale_payment_id}"/>
+    <input type="hidden" name="pageNum" value="{$pageNum}"/>
+    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="col-xs-12 col-sm-8 col-md-8 col-lg-98">
+          <div class="tools-group">
+            <a class="btn btn-success btn-sm add" href="{$host_name}/salepayment/linksaleadd?sale_payment_id={$sale_payment_id}" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i><span>新增</span></a>
+          </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 pull-right">
+          <div class="input-group input-group-sm">
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+          <tr id="post">
+            <th>销售出库单ID</th>
+            <th>收款金额</th>
+            <th>收款类型</th>
+            <th>时间</th>
+            <th class="table-tool">操作</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <foreach name="datalist" item="dinfo">
+            <tr target="sid_user">
+              <td data-title="销售出库单ID">{$dinfo.sale_id}</td>
+              <td data-title="金额">{$dinfo.pay_money}</td>
+              <td data-title="收款类型">{$dinfo.ptype_str}</td>
+              <td data-title="时间">{$dinfo.add_time}</td>
+              <td class="table-tool" data-title="操作">
+                <div class="tools-edit">
+                  <a warn="警告" data-tip="删除" title="请确认无误后,谨慎操作,你确定要删除吗？" target="ajaxTodo" href="{$host_name}/salepayment/linksaledel?id={$dinfo.id}" calback="navTabAjaxDone" class="btn btn-danger btn-icon"><span><i class="fa fa-trash"></i></span></a>
+                </div>
+              </td>
+            </tr>
+          </foreach>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>

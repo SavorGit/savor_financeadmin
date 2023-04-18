@@ -1,0 +1,32 @@
+<div class="pageContent">
+    <form method="post" action="{$host_name}/salepayment/linksaleadd" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <input name="sale_payment_id" type="hidden" id="sale_payment_id" value="{$sale_payment_id}"/>
+        <div class="pageFormContent modal-body">
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">剩余金额：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input name="remain_money"  type="text" value="{$remain_money}"  class="form-control" readonly/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    关联销售出库单:
+                </label>
+                <div class="col-xs-12 col-sm-10" id="sale_id">
+                    <select name="sale_id" class="form-control bs-select class-filter" data-live-search="true" title="请选择出库单" required>
+                        <volist name="all_sales" id="asinfo">
+                            <option value="{$asinfo.id}" {$asinfo.is_select}> {$asinfo.name}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default close-m" type="button">取消</button>
+            <button class="btn btn-primary" type="submit">保存</button>
+        </div>
+    </form>
+</div>
