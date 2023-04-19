@@ -80,62 +80,109 @@ class SalepaymentController extends BaseController {
 
     public function linksaleadd(){
         $sale_payment_id = I('sale_payment_id',0,'intval');
+        $source = I('source',0,'intval');
 
         $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
         $m_sale = new \Admin\Model\SaleModel();
-        if(IS_GET){
+        if(IS_POST){
+            $sale_ids = I('post.sale_ids','','trim');
+            $remain_money = I('post.remain_money',0);
+            if($remain_money==0){
+                $this->output('已完成收款', 'salepayment/linksaleadd',2,0);
+            }
+            if(!empty($sale_ids)){
+                $sale_ids = explode(',',$sale_ids);
+                $pay_money = $remain_money;
+                $is_over = 0;
+                foreach ($sale_ids as $v){
+                    $sale_id = intval($v);
+                    $res_sale = $m_sale->getInfo(array('id'=>$sale_id));
+                    $settlement_price = $res_sale['settlement_price'];
+
+                    $res_record = $m_paymentrecord->getAllData('*',array('sale_id'=>$sale_id,'sale_payment_id'=>$sale_payment_id));
+                    if(!empty($res_record)){
+                        $this->output("出库单:{$sale_id}请勿重复收款", 'salepayment/linksaleadd',2,0);
+                    }
+                    $res_sale_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_id'=>$sale_id));
+                    $remian_settlement_price = $settlement_price-intval($res_sale_money[0]['all_pay_money']);
+                    if($remian_settlement_price==0){
+                        $this->output("出库单:{$sale_id}已完成收款", 'salepayment/linksaleadd',2,0);
+                    }
+                    $record_pay_money = 0;
+                    $ptype = 0;
+                    if($pay_money>=0){
+                        if($pay_money>=$remian_settlement_price){
+                            $record_pay_money = $remian_settlement_price;
+                            $ptype = 1;
+                        }else{
+                            if($pay_money>0){
+                                $ptype = 2;
+                                $record_pay_money = $pay_money;
+                            }
+                        }
+                    }else{
+                        $is_over=1;
+                        $record_pay_money = abs($pay_money);
+                        $ptype = 2;
+                    }
+                    if($is_over==1){
+                        $this->output('所选出库单数大于可分配的收款金额', 'salepayment/linksaleadd', 2, 0);
+                    }
+                    $pay_money = $pay_money-$remian_settlement_price;
+                    $pay_record[]=array('sale_id'=>$sale_id,'pay_money'=>$record_pay_money,'ptype'=>$ptype,'re_pay_money'=>$pay_money,'is_over'=>$is_over);
+                }
+                if(!empty($pay_record)){
+                    foreach ($pay_record as $v){
+                        if($v['pay_money']>0){
+                            $m_sale->updateData(array('id'=>$v['sale_id']),array('status'=>2,'sale_payment_id'=>$sale_payment_id,'ptype'=>$v['ptype']));
+                            $m_paymentrecord->add(array('sale_id'=>$v['sale_id'],'sale_payment_id'=>$sale_payment_id,'pay_money'=>$v['pay_money']));
+                        }
+                    }
+                }
+            }
+            if($source==1){
+                $jump_url = 'salepayment/datalist';
+            }else{
+                $jump_url = 'salepayment/linksalelist';
+            }
+            $this->output('操作成功', $jump_url);
+        }else{
             $m_salepayment = new \Admin\Model\SalePaymentModel();
             $res_salepayment = $m_salepayment->getInfo(array('id'=>$sale_payment_id));
             $res_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_payment_id'=>$sale_payment_id));
             $remain_money = $res_salepayment['pay_money']-intval($res_money[0]['all_pay_money']);
 
-            $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price,
+            $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price,a.ptype,
             a.goods_id,goods.name as goods_name,a.sale_openid,a.maintainer_id";
             $where = array('a.hotel_id'=>$res_salepayment['hotel_id'],'a.ptype'=>array('in','0,2'),'record.wo_reason_type'=>1,'record.wo_status'=>2);
-            $all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
+            $res_all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
             $m_sysuser = new \Admin\Model\SysuserModel();
-            foreach ($all_sales as $k=>$v){
+            $all_sales = array();
+            foreach ($res_all_sales as $k=>$v){
                 $is_select = '';
                 if($sale_payment_id>0 && $v['sale_payment_id']==$sale_payment_id){
                     $is_select = 'selected';
+                    continue;
                 }
-                $all_sales[$k]['is_select'] = $is_select;
+                $v['is_select'] = $is_select;
                 $res_user = $m_sysuser->getSysUser($v['maintainer_id']);
-                $all_sales[$k]['name'] = "{$v['id']}-{$v['add_time']}-{$v['goods_name']}-{$v['settlement_price']}-{$res_user[0]['remark']}";
+                $pay_money = $v['settlement_price'];
+                $pay_status = '';
+                if($v['ptype']==2){
+                    $res_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_id'=>$v['id']));
+                    $pay_money = $pay_money-$res_money[0]['all_pay_money'];
+                    $pay_money = sprintf("%.2f",$pay_money);
+                    $pay_status = '【部分收款】';
+                }
+                $v['name'] = "{$v['id']}--{$v['add_time']}--{$v['goods_name']}--{$pay_money}--{$res_user[0]['remark']}{$pay_status}";
+                $all_sales[]=$v;
             }
 
             $this->assign('all_sales',$all_sales);
             $this->assign('sale_payment_id',$sale_payment_id);
             $this->assign('remain_money',$remain_money);
+            $this->assign('source',$source);
             $this->display();
-        }else{
-            $sale_id = I('post.sale_id',0,'intval');
-            $remain_money = I('post.remain_money',0);
-            if($remain_money==0){
-                $this->output('已完成收款', 'salepayment/linksaleadd',2,0);
-            }
-            $res_record = $m_paymentrecord->getAllData('*',array('sale_id'=>$sale_id,'sale_payment_id'=>$sale_payment_id));
-            if(!empty($res_record)){
-                $this->output('请勿重复收款', 'salepayment/linksaleadd',2,0);
-            }
-            $res_sale = $m_sale->getInfo(array('id'=>$sale_id));
-            $res_sale_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_id'=>$sale_id));
-            $remian_settlement_price = $res_sale['settlement_price']-intval($res_sale_money[0]['all_pay_money']);
-            if($remian_settlement_price==0){
-                $this->output('所选出库单已完成收款', 'salepayment/linksaleadd',2,0);
-            }
-            if($remian_settlement_price>$remain_money){
-                $pay_money = $remain_money;
-                $ptype = 2;
-            }else{
-                $pay_money = $remian_settlement_price;
-                $ptype = 1;
-            }
-
-            $m_sale->updateData(array('id'=>$sale_id),array('status'=>2,'sale_payment_id'=>$sale_payment_id,'ptype'=>$ptype));
-            $m_paymentrecord->add(array('sale_id'=>$sale_id,'sale_payment_id'=>$sale_payment_id,'pay_money'=>$pay_money));
-
-            $this->output('操作成功', 'salepayment/linksalelist');
         }
     }
 
@@ -166,9 +213,22 @@ class SalepaymentController extends BaseController {
         $id = I('get.id',0,'intval');
         $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
         $res_info = $m_paymentrecord->getInfo(array('id'=>$id));
-        $m_sale = new \Admin\Model\SaleModel();
-        $m_sale->updateData(array('id'=>$res_info['sale_id']),array('status'=>0,'sale_payment_id'=>0,'ptype'=>0));
         $m_paymentrecord->delData(array('id'=>$id));
+
+        $res_allsale = $m_paymentrecord->getDataList('*',array('sale_id'=>$res_info['sale_id']),'id desc');
+        $sale_payment_id = 0;
+        foreach ($res_allsale as $v){
+            if($v['id']!=$id && $sale_payment_id==0){
+                $sale_payment_id = $v['sale_payment_id'];
+            }
+        }
+        $status=$ptype=0;
+        if($sale_payment_id){
+            $status = 2;
+            $ptype = 2;
+        }
+        $m_sale = new \Admin\Model\SaleModel();
+        $m_sale->updateData(array('id'=>$res_info['sale_id']),array('status'=>$status,'sale_payment_id'=>$sale_payment_id,'ptype'=>$ptype));
 
         $this->output('操作成功!', 'salepayment/linksalelist',2);
     }
