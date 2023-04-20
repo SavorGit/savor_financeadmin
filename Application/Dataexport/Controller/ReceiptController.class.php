@@ -120,13 +120,15 @@ class ReceiptController extends BaseController {
                 $info['sysuser_id']    = $v['sysuser_id'];
                 //print_r($info);exit;
                 $ret = $m_sale_payment->addData($info);   
-                //第二步 更新 savor_finance_sale 表 ptype为1 sale_payment_id settlement_price为表格中的价格
-                $condition = [];
+                //第二步 更新 savor_finance_sale 表 ptype为1 sale_payment_id settlement_price为表格中的价格, status为2，type为1
+                $condition       = [];
                 $condition['id'] = $v['sale_ids'];
-                $upinfo = [];
-                $upinfo['ptype'] = 1;
-                $upinfo['sale_payment_id'] = $ret;
+                $upinfo                     = [];
+                $upinfo['ptype']            = 1;
+                $upinfo['sale_payment_id']  = $ret;
                 $upinfo['settlement_price'] = $v['price'];
+                $upinfo['status']           = 2;
+                $upinfo['type']             = 1;
                 
                 //print_r($condition);exit;
                 
