@@ -177,6 +177,7 @@ class HotelstockController extends BaseController {
                 $v['stock_num'] = $stock_num;
                 $v['area_name'] = $area_arr[$v['area_id']]['region_name'];
                 $v['check_num'] = $check_num;
+                $v['check_had_num'] = $check_num-$diff_check_num;
                 $v['diff_check_num'] = $diff_check_num;
                 $v['check_uname'] = $check_uname;
                 $v['check_time'] = $check_time;

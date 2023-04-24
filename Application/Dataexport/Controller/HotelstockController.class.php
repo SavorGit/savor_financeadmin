@@ -179,6 +179,7 @@ class HotelstockController extends BaseController {
                 $v['stock_num'] = $stock_num;
                 $v['area_name'] = $area_arr[$v['area_id']]['region_name'];
                 $v['check_num'] = $check_num;
+                $v['check_had_num'] = $check_num-$diff_check_num;
                 $v['diff_check_num'] = $diff_check_num;
                 $v['check_uname'] = $check_uname;
                 $v['check_time'] = $check_time;
@@ -193,7 +194,7 @@ class HotelstockController extends BaseController {
             array('name','商品名称'),
             array('sepc_name','商品规格'),
             array('stock_num','当前库存'),
-            array('check_num','盘点量'),
+            array('check_had_num','盘点量'),
             array('diff_check_num','差异值'),
             array('check_uname','盘点人'),
             array('check_time','盘点日期'),
