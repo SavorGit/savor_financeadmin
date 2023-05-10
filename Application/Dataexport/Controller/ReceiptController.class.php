@@ -8,14 +8,14 @@ class ReceiptController extends BaseController {
      * 处理excel数据
      */
     public function analyseExcel(){
-        exit('已执行改脚本');
+        
         set_time_limit(9000);
         ini_set("memory_limit", "8018M");
         $m_sale = new \Admin\Model\SaleModel();
         $m_sale_payment = new \Admin\Model\SalePaymentModel();
         $m_sale_payment_record = new \Admin\Model\SalePaymentRecordModel();
         $serial_number_prefix = $this->serial_number_prefix;
-        $path = '/application_data/web/php/savor_financeadmin/Public/uploads/2023-04-10/收款记录表12.xlsx';
+        $path = '/application_data/web/php/savor_financeadmin/Public/uploads/2023-05-10/收款记录表20230510.xlsx';
         if  ($path == '') {
             $res = array('error'=>0,'message'=>array());
             echo json_encode($res);
@@ -106,7 +106,7 @@ class ReceiptController extends BaseController {
         print_r($tmp);exit;    
             
         echo "ok";exit;*/
-        //print_r($datas);exit;
+        print_r($datas);exit;
         foreach($datas as $key=>$v){
             //print_r($v);exit;
             if(!empty($v['sale_ids'])){
