@@ -8,7 +8,7 @@ class ReceiptController extends BaseController {
      * 处理excel数据
      */
     public function analyseExcel(){
-        
+        exit('已执行该脚本');
         set_time_limit(9000);
         ini_set("memory_limit", "8018M");
         $m_sale = new \Admin\Model\SaleModel();
@@ -66,7 +66,6 @@ class ReceiptController extends BaseController {
             //$spx = ',';
             $row['price'] = $row['pay_money'] / $row['number'];
             $row['sysuser_id'] = 349;
-            
             if(!empty($row['hx_time'])){
                 $timestamp = strtotime($row['sk_date']);
                 $row['sk_date'] = date('Y-m-d',$timestamp);
@@ -92,7 +91,6 @@ class ReceiptController extends BaseController {
                 $row['sale_ids'] = $sale_info['id'];
                 $datas [] = $row;
             }
-            
         }
         
         //$data[] = $datas['1420'];
@@ -106,7 +104,7 @@ class ReceiptController extends BaseController {
         print_r($tmp);exit;    
             
         echo "ok";exit;*/
-        print_r($datas);exit;
+        //print_r($datas);exit;
         foreach($datas as $key=>$v){
             //print_r($v);exit;
             if(!empty($v['sale_ids'])){
