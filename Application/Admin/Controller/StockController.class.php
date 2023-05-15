@@ -1147,12 +1147,14 @@ class StockController extends BaseController {
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
         $wo_status = I('wo_status',0,'intval');
+        $wo_reason_type = I('wo_reason_type',0,'intval');
         $area_id = I('area_id',0,'intval');
         $hotel_name = I('hotel_name','','trim');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
 
         $all_wo_status = C('STOCK_WRITEOFF_STATUS');
+        $all_reason = C('STOCK_USE_TYPE');
         $area_arr = $departmentuser_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
@@ -1168,6 +1170,9 @@ class StockController extends BaseController {
         $where = array('a.type'=>7);
         if($wo_status){
             $where['a.wo_status'] = $wo_status;
+        }
+        if($wo_reason_type){
+            $where['a.wo_reason_type'] = $wo_reason_type;
         }
         if($area_id){
             $where['hotel.area_id'] = $area_id;
@@ -1189,7 +1194,6 @@ class StockController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             $all_op_user = C('STOCK_MANAGER');
-            $all_reason = C('STOCK_USE_TYPE');
             $oss_host = get_oss_host();
             $m_user = new \Admin\Model\SmallappUserModel();
             $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
@@ -1240,8 +1244,10 @@ class StockController extends BaseController {
         $this->assign('start_time',$start_time);
         $this->assign('end_time',$end_time);
         $this->assign('hotel_name',$hotel_name);
+        $this->assign('wo_reason_type',$wo_reason_type);
         $this->assign('wo_status',$wo_status);
         $this->assign('all_wo_status',$all_wo_status);
+        $this->assign('all_wo_reason',$all_reason);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
