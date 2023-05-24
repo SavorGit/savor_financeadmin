@@ -7,11 +7,21 @@ class SalepaymentController extends BaseController {
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
         $keyword = I('keyword','','trim');
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
 
         $where = array();
         if(!empty($keyword)){
             $where['hotel.name'] = array('like',"%$keyword%");
         }
+        if(empty($start_time) || empty($end_time)){
+            $start_time = date('Y-m-d',strtotime('-1 month'));
+            $end_time = date('Y-m-d');
+        }
+        $now_start_time = date('Y-m-d',strtotime($start_time));
+        $now_end_time = date('Y-m-d',strtotime($end_time));
+        $where['a.pay_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+
         $start = ($pageNum-1)*$size;
         $m_salepayment = new \Admin\Model\SalePaymentModel();
         $res_list = $m_salepayment->getList('a.*,hotel.name as hotel_name',$where,'a.id desc', $start,$size);
@@ -25,6 +35,8 @@ class SalepaymentController extends BaseController {
             }
         }
         $this->assign('keyword',$keyword);
+        $this->assign('start_time',$start_time);
+        $this->assign('end_time',$end_time);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
