@@ -1,9 +1,6 @@
 <?php
 namespace Dataexport\Controller;
 
-    
-
-
 class SaleissueController extends BaseController {
     private $sale_type_arr = array(1=>'餐厅售卖',2=>'团购售卖',3=>'其它售卖');
     private $days_range_arr = array(
