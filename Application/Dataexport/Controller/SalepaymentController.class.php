@@ -21,8 +21,12 @@ class SalepaymentController extends BaseController {
         foreach ($res_list as $v){
             $res_idcodes = $m_paymentrecord->getList('a.*,sale.idcode',array('a.sale_payment_id'=>$v['id']),'a.id desc');
             foreach ($res_idcodes as $iv){
+                $idcode = $iv['idcode'];
+                if(is_numeric($idcode)){
+                    $idcode = "'$idcode";
+                }
                 $data_list[]=array('id'=>$v['id'],'serial_number'=>$v['serial_number'],'hotel_id'=>$v['hotel_id'],'hotel_name'=>$v['hotel_name'],
-                    'tax_rate'=>$v['tax_rate'],'pay_time'=>$v['pay_time'],'idcode'=>$iv['idcode'],'idcode_pay_money'=>$iv['pay_money']
+                    'tax_rate'=>$v['tax_rate'],'pay_time'=>$v['pay_time'],'idcode'=>$idcode,'idcode_pay_money'=>$iv['pay_money']
                 );
             }
         }
