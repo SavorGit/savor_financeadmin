@@ -39,6 +39,7 @@
           <thead>
           <tr id="post">
             <th>唯一识别码</th>
+            <th>酒水名称</th>
             <th>是否盘点</th>
             <th>类型</th>
             <th>错误信息</th>
@@ -49,6 +50,7 @@
           <volist name="datalist" id="dinfo">
             <tr target="sid_user">
               <td data-title="唯一识别码">{$dinfo.idcode}</td>
+              <td data-title="酒水名称">{$dinfo.goods_name}</td>
               <td data-title="是否盘点">{$dinfo.is_check_str}</td>
               <td data-title="类型">{$dinfo.type_str}</td>
               <td data-title="错误信息">{$dinfo.desc}</td>

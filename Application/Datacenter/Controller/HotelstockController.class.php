@@ -278,12 +278,15 @@ class HotelstockController extends BaseController {
         $m_check_record = new \Admin\Model\StockCheckRecordModel();
         $start = ($pageNum-1)*$size;
         $where = array('salerecord_id'=>$salerecord_id);
+        $orderby = 'type desc,is_check desc';
         if($type){
             $where['type'] = $type;
         }
-        $res_list = $m_check_record->getDataList('*',$where,'type desc',$start,$size);
+        $res_list = $m_check_record->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
         $all_types = array('1'=>'盘点商品码','2'=>'未入系统商品码');
+        $m_goods = new \Admin\Model\GoodsModel();
+        $goods_info = array();
         foreach ($res_list['list'] as $v){
             $is_check_str = '';
             if($v['type']==1){
@@ -293,12 +296,21 @@ class HotelstockController extends BaseController {
                     $is_check_str = '否';
                 }
             }
+            if(isset($goods_info[$v['goods_id']])){
+                $goods_name = $goods_info[$v['goods_id']]['name'];
+            }else{
+                $res_goods = $m_goods->getInfo(array('id'=>$v['goods_id']));
+                $goods_info[$v['goods_id']] = $res_goods;
+                $goods_name = $res_goods['name'];
+            }
+            $v['goods_name'] = $goods_name;
             $v['is_check_str'] = $is_check_str;
             $v['type_str'] = $all_types[$v['type']];
             $data_list[]=$v;
         }
         $this->assign('salerecord_id',$salerecord_id);
         $this->assign('all_types',$all_types);
+        $this->assign('type',$type);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
