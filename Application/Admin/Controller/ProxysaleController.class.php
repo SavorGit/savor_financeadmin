@@ -564,16 +564,21 @@ class ProxysaleController extends BaseController{
 		}
 	}
 	public function linkhotel(){
-		
 		$id = I('id',0,'intval');
 		$m_contract = new \Admin\Model\ContractModel;
 		$contract_info = $m_contract->where('id='.$id)->field('area_id')->find();
 		
 		
 		$m_hotel = new \Admin\Model\HotelModel();
-		$where= array('area_id'=>$contract_info['area_id'],'state'=>1,'flag'=>0);
+		$where= array('area_id'=>$contract_info['area_id'],'state'=>1,'flag'=>0,'htype'=>10);
 		$hotel_list = $m_hotel->where($where)->field('id,name')->select();
-		
+
+		$m_signhotel = new \Admin\Model\SignhotelModel();
+		$signwhere = array('hotel.area_id'=>$contract_info['area_id'],'hotel.htype'=>20,'a.sign_progress_id'=>array('egt',7));
+		$sign_hotel = $m_signhotel->getAllList('hotel.id,hotel.name',$signwhere,'a.id desc');
+		if(!empty($sign_hotel)){
+            $hotel_list = array_merge($hotel_list,$sign_hotel);
+        }
 		$m_contract_hotel= new \Admin\Model\ContracthotelModel();
 		$link_hotel_list = $m_contract_hotel->where('contract_id='.$id)->select();
 		$link_hotel_list_arr = array_column($link_hotel_list,'hotel_id');
