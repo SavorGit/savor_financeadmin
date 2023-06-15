@@ -570,7 +570,7 @@ class ProxysaleController extends BaseController{
 		
 		
 		$m_hotel = new \Admin\Model\HotelModel();
-		$where= array('area_id'=>$contract_info['area_id'],'state'=>1,'flag'=>0,'htype'=>10);
+		$where= array('area_id'=>$contract_info['area_id'],'state'=>array('in','1,4'),'flag'=>0,'htype'=>10);
 		$hotel_list = $m_hotel->where($where)->field('id,name')->select();
 
 		$m_signhotel = new \Admin\Model\SignhotelModel();
