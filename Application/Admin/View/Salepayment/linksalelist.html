@@ -33,6 +33,7 @@
           <thead>
           <tr id="post">
             <th>销售出库单ID</th>
+            <th>唯一识别码</th>
             <th>收款金额</th>
             <th>收款类型</th>
             <th>时间</th>
@@ -43,6 +44,7 @@
           <foreach name="datalist" item="dinfo">
             <tr target="sid_user">
               <td data-title="销售出库单ID">{$dinfo.sale_id}</td>
+              <td data-title="唯一识别码">{$dinfo.idcode}</td>
               <td data-title="金额">{$dinfo.pay_money}</td>
               <td data-title="收款类型">{$dinfo.ptype_str}</td>
               <td data-title="时间">{$dinfo.add_time}</td>
