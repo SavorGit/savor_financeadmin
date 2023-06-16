@@ -15,7 +15,7 @@ class ReceiptController extends BaseController {
         $m_sale_payment = new \Admin\Model\SalePaymentModel();
         $m_sale_payment_record = new \Admin\Model\SalePaymentRecordModel();
         $serial_number_prefix = $this->serial_number_prefix;
-        $path = '/application_data/web/php/savor_financeadmin/Public/uploads/2023-05-10/收款记录表20230510.xlsx';
+        $path = '/application_data/web/php/savor_financeadmin/Public/uploads/2023-06-16/收款记录表2023061602.xlsx';
         if  ($path == '') {
             $res = array('error'=>0,'message'=>array());
             echo json_encode($res);
@@ -43,6 +43,7 @@ class ReceiptController extends BaseController {
         
         //开始取出数据并存入数组
         $datas = array();
+        $muyou = array();
         //$hotel_str = '';
         //$spx = '';
         $serial_number_new = [];
@@ -87,12 +88,19 @@ class ReceiptController extends BaseController {
             
             
             if(!empty($row['idcode'])){
-                $sale_info = $m_sale->field('id')->where(array('idcode'=>$row['idcode']))->find();
+                $sale_info = $m_sale->field('id,ptype')->where(array('idcode'=>$row['idcode']))->find();
                 $row['sale_ids'] = $sale_info['id'];
-                $datas [] = $row;
+                $row['ptype']    = $sale_info['ptype'];
+                if($row['ptype']==2 || $row['ptype']==0){
+                    $datas [] = $row;
+                }
+                if(empty($sale_info)){
+                    $muyou [] = $row;
+                }
+                
             }
         }
-        
+        //print_r($muyou);exit;
         //$data[] = $datas['1420'];
         //print_r($datas);exit;
         /*$tmp = [];
@@ -104,12 +112,15 @@ class ReceiptController extends BaseController {
         print_r($tmp);exit;    
             
         echo "ok";exit;*/
+        //$datas = array_slice($datas, 100,100);
         //print_r($datas);exit;
+        $flag = 1;
         foreach($datas as $key=>$v){
             //print_r($v);exit;
             if(!empty($v['sale_ids'])){
                 //第一步数据导入savor_finance_sale_payment表
                 $info = [];
+                $info['id'] = $flag;
                 $info['hotel_id']      = $v['hotel_id'];
                 $info['serial_number'] = $v['serial_number'];
                 $info['tax_rate']      = 13;
@@ -140,7 +151,7 @@ class ReceiptController extends BaseController {
                 $rinfo['pay_money']       = $v['pay_money'];
                 $m_sale_payment_record->addData($rinfo);
                 
-                
+                $flag ++;
             }
              
             
