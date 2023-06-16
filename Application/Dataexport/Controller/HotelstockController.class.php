@@ -157,13 +157,13 @@ class HotelstockController extends BaseController {
                 }
                 $stock_num = $out_num+$wo_num+$report_num;
 
-                $sale_fields = 'record.id,record.add_time,staff.id as staff_id,staff.job,sysuser.remark as staff_name';
+                $sale_fields = 'record.id,record.add_time,record.stock_check_status,staff.id as staff_id,staff.job,sysuser.remark as staff_name';
                 $salewhere = array('record.signin_hotel_id'=>$v['hotel_id'],'record.type'=>2);
                 $salewhere["date_format(record.add_time,'%Y-%m')"] = $now_stat_date;
                 $res_sale = $m_sale_record->getRecordList($sale_fields,$salewhere,'record.id desc','0,1');
                 $check_num=$diff_check_num=0;
                 $check_uname=$check_time='';
-                if(!empty($res_sale)){
+                if(!empty($res_sale) && $res_sale[0]['stock_check_status']==2){
                     $check_uname = $res_sale[0]['staff_name'];
                     $check_time = $res_sale[0]['add_time'];
                     $res_check = $m_check_record->getAllData('count(id) as num,is_check',array('salerecord_id'=>$res_sale[0]['id'],'goods_id'=>$goods_id,'type'=>1),'','is_check');

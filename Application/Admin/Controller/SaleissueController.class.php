@@ -44,7 +44,7 @@ class SaleissueController extends BaseController {
         $all_wo_status = C('STOCK_WRITEOFF_STATUS');
         $all_ptype = C('PAY_TYPE');
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.status,record.wo_status";
+        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.id as hotel_id,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.status,record.wo_status";
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
         $datalist = $result['list'];
         foreach ($datalist as $k=>$v){
