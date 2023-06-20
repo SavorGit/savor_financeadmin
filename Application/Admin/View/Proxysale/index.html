@@ -168,7 +168,7 @@
 						$now_date  = time();
 						if($s_time>=$now_date){ 
 							$status_str =  '待生效';
-						}else if($s_time<$now_date && $e_time>now_date){
+						}else if($s_time<$now_date && $e_time>$now_date){
 							$status_str =  '进行中';
 						}else if($e_time<=$now_date){
 							$status_str =  '已到期';
