@@ -330,6 +330,7 @@ class SaleissueController extends BaseController {
         $orders = "a.id desc";
         $where = [];
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+        $where['a.hotel_id'] = array(array('not in',C('TEST_HOTEL')));
         
         $fields = "a.hotel_id,hotel.name hotel_name,area.region_name,user.remark";
         $group  = "a.hotel_id";
