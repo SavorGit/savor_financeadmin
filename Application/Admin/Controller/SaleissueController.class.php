@@ -30,6 +30,7 @@ class SaleissueController extends BaseController {
             $end_date = date('Y-m-d');
         }
         $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
+        $where['a.hotel_id'] = array('not in',C('TEST_HOTEL'));
         if(!empty($type)){
             $where['a.type'] = $type;
         }
