@@ -297,7 +297,7 @@ class StockcheckController extends BaseController {
                 $m_staff = new \Admin\Model\StaffModel();
                 $res_staff = $m_staff->getInfo(array('id'=>$vinfo['staff_id']));
                 $m_taskuser = new \Admin\Model\TaskUserModel();
-                $res_integral = $m_taskuser->finishStockCheckTask($res_staff['openid'],$id);
+                $res_integral = $m_taskuser->finishStockCheckTask($res_staff['openid'],$id,$vinfo['task_user_id']);
                 if($res_integral>0){
                     $updata['integral'] = $res_integral;
                     $updata['is_get_integral'] = 1;
