@@ -274,6 +274,7 @@ $config['MEMBER_INTEGRAL']=array(
     'invite_vip_reward_saler'=>5600,
     'buy_reward_saler'=>400,
 );
+$config['STOCKCHECK_STATUS'] = array('21'=>'正常','22'=>'盘赢','23'=>'盘亏','24'=>'盘赢+盘亏');
 $config['TEMPLATE_TYPES'] = array('1'=>'通用政策','2'=>'特殊政策');
 $config['TEMPLATE_STATUS'] = array('1'=>'执行中','2'=>'已终止');
 $config['JD_CITY_DEPARTMENT'] = array(

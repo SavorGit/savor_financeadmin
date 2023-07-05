@@ -1,0 +1,67 @@
+<include file="Public/script"/>
+<div class="pageHeader">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/stockcheck/taskcodelist" method="post">
+    <input type="hidden" name="pageNum" value="{$pageNum}"/>
+    <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+    <input type="hidden" name="stockcheck_id" value="{$stockcheck_id}"/>
+    <div class="searchBar">
+      <div class="clearfix">
+        <div class="col-xs-12 col-sm-6 col-md-10">
+          <div class="tools-group s2">
+
+          </div>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-2 pull-right">
+          <div class="input-group input-group-sm">
+            <span class="input-group-btn">
+              <select name="type" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                <option value='0' >所有类型</option>
+                <volist name="all_types" id="aname">
+                    <option value="{$key}" <if condition="$key eq $type"> selected </if> > {$aname}</option>
+                </volist>
+
+              </select>
+            </span>
+            <span class="input-group-btn">
+              <button class="btn btn-primary" type="submit" id="choosedata"><i class="fa fa-search"></i></button>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print">
+    <div class="no-more-tables">
+      <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+          <tr id="post">
+            <th>唯一识别码</th>
+            <th>酒水名称</th>
+            <th>是否盘点</th>
+            <th>类型</th>
+            <th>错误信息</th>
+            <th>添加时间</th>
+          </tr>
+          </thead>
+          <tbody data-check="list" data-parent=".table">
+          <volist name="datalist" id="dinfo">
+            <tr target="sid_user">
+              <td data-title="唯一识别码">{$dinfo.idcode}</td>
+              <td data-title="酒水名称">{$dinfo.goods_name}</td>
+              <td data-title="是否盘点">{$dinfo.is_check_str}</td>
+              <td data-title="类型">{$dinfo.type_str}</td>
+              <td data-title="错误信息">{$dinfo.desc}</td>
+              <td data-title="添加时间">{$dinfo.add_time}</td>
+            </tr>
+          </volist>
+          </tbody>
+        </table>
+      </form>
+
+    </div>
+  </div>
+  {$page}
+</div>
