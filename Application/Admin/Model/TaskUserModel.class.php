@@ -109,14 +109,14 @@ class TaskUserModel extends BaseModel{
                     $admin_openid = $res_admin_staff[0]['openid'];
                     $integralrecord_data = array('openid'=>$admin_openid,'area_id'=>$res_hotel['area_id'],'area_name'=>$res_hotel['area_name'],
                         'hotel_id'=>$res_staff[0]['hotel_id'],'hotel_name'=>$res_hotel['hotel_name'],'hotel_box_type'=>$res_hotel['hotel_box_type'],
-                        'task_id'=>$task_id,'integral'=>$admin_integral,'content'=>1,'jdorder_id'=>$stockcheck_id,'status'=>1,'type'=>34,'source'=>4);
+                        'task_id'=>$task_id,'integral'=>$admin_integral,'content'=>1,'jdorder_id'=>$stockcheck_id,'status'=>1,'type'=>24,'source'=>4,'integral_time'=>date('Y-m-d H:i:s'));
                     $m_integralrecord->add($integralrecord_data);
                 }
             }
 
             $integralrecord_data = array('openid'=>$integralrecord_openid,'area_id'=>$res_hotel['area_id'],'area_name'=>$res_hotel['area_name'],
                 'hotel_id'=>$res_staff[0]['hotel_id'],'hotel_name'=>$res_hotel['hotel_name'],'hotel_box_type'=>$res_hotel['hotel_box_type'],
-                'task_id'=>$task_id,'integral'=>$now_integral,'content'=>1,'jdorder_id'=>$stockcheck_id,'status'=>1,'type'=>34);
+                'task_id'=>$task_id,'integral'=>$now_integral,'content'=>1,'jdorder_id'=>$stockcheck_id,'status'=>1,'type'=>24,'integral_time'=>date('Y-m-d H:i:s'));
             $m_integralrecord->add($integralrecord_data);
         }
         return $now_integral;
