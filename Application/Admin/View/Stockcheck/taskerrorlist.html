@@ -24,6 +24,16 @@
                             </span>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">盘点原因：</div>
+                        <div class="input-group">
+                            <select name="check_type" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0 >全部</option>
+                                <option value="1" <if condition="$check_type eq 1">selected</if> >正常</option>
+                                <option value="2" <if condition="$check_type eq 2">selected</if> >异常</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <div class="form-group">
                         <div class="input-group input-group-sm">酒楼名称：</div>

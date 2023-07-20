@@ -233,6 +233,7 @@ class StockcheckController extends BaseController {
         $hotel_name = I('hotel_name','','trim');
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
+        $check_type = I('check_type',2,'intval');//盘点原因 1正常2异常
 
         $area_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
@@ -248,7 +249,12 @@ class StockcheckController extends BaseController {
         a.stock_check_num,a.stock_check_hadnum,a.stock_check_success_status,a.is_handle_stock_check,
         hotel.id as hotel_id,hotel.name as hotel_name,hotel.area_id,sysuser.remark as maintainer_name,
         user.nickName as check_username,user.mobile';
-        $where = array('a.stock_check_success_status'=>array('in','22,23,24'));
+        $where = array();
+        if($check_type==1){
+            $where = array('a.stock_check_success_status'=>21);
+        }elseif($check_type==2){
+            $where = array('a.stock_check_success_status'=>array('in','22,23,24'));
+        }
         $where['a.add_time']= array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
@@ -272,6 +278,7 @@ class StockcheckController extends BaseController {
                 $data_list[]=$v;
             }
         }
+        $this->assign('check_type',$check_type);
         $this->assign('start_date',$start_date);
         $this->assign('end_date',$end_date);
         $this->assign('hotel_name',$hotel_name);
