@@ -55,8 +55,7 @@ class TaskUserModel extends BaseModel{
     public function finishStockCheckTask($openid,$stockcheck_id,$task_user_id){
         $now_integral = 0;
         $task_id = 0;
-        $where = array('a.id'=>$task_user_id,'a.openid'=>$openid,'a.status'=>1,'task.status'=>1,'task.flag'=>1);
-        $where['task.end_time'] = array('EGT',date('Y-m-d H:i:s'));
+        $where = array('a.id'=>$task_user_id,'a.openid'=>$openid,'a.status'=>1);
         $fields = "a.id as task_user_id,task.id task_id,task.task_info,task.integral";
         $res_utask = $this->alias('a')
             ->field($fields)

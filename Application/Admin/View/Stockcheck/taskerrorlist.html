@@ -97,7 +97,7 @@
                             <td data-title="盘点日期">{$dinfo.add_time}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
-                                    <if condition="$dinfo.is_handle_stock_check eq 0">
+                                    <if condition="($dinfo.is_handle_stock_check eq 0) AND $dinfo.stock_check_success_status neq 21">
                                     <a title="ID: {$dinfo.id}" data-tip="处理异常" target="dialog" mask="true" href="{$host_url}/stockcheck/handletaskerror?id={$dinfo.id}&hotel_name={$dinfo.hotel_name}" class="btn btn-success btn-icon">
                                         <i class="fa fa-pencil"></i>
                                     </a>
