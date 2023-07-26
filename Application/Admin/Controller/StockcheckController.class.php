@@ -309,6 +309,8 @@ class StockcheckController extends BaseController {
                     $updata['integral'] = $res_integral;
                     $updata['is_get_integral'] = 1;
                     $updata['get_time'] = date('Y-m-d H:i:s');
+
+                    $m_taskuser->updateData(array('id'=>$vinfo['task_user_id']),array('status'=>3));
                 }
             }
             $m_stockcheck->updateData(array('id'=>$id),$updata);
