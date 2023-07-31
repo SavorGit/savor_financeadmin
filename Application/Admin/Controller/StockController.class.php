@@ -1713,6 +1713,8 @@ class StockController extends BaseController {
                         $info['dstatus_str']= $dstatus_str;
                         $info['type_str']= $type_str;
                         $data_list[] = $info;
+                    }else{
+                        $data_list[] = array('idcode'=>$qrcontent);
                     }
                 }
             }
