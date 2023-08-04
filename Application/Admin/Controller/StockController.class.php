@@ -1188,7 +1188,7 @@ class StockController extends BaseController {
 
         $start = ($pageNum-1)*$size;
         $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,
-        stock.area_id,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price';
+        stock.area_id,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price,su.remark as residenter_name';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();

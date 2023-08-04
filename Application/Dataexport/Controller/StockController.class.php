@@ -26,7 +26,7 @@ class StockController extends BaseController {
             $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
         }
         $fields = 'a.id,a.idcode,a.goods_id,a.op_openid,a.wo_status,a.wo_reason_type,a.add_time,goods.name,goods.specification_id,
-        unit.name as unit_name,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price';
+        unit.name as unit_name,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price,su.remark as residenter_name';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', 0,0);
         $data_list = array();
@@ -58,6 +58,7 @@ class StockController extends BaseController {
             array('username','核销人'),
             array('usermobile','核销人手机号码'),
             array('add_time','核销时间'),
+            array('residenter_name','驻店人'),
         );
         $filename = '核销管理';
         $this->exportToExcel($cell,$data_list,$filename,1);

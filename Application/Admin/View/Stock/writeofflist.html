@@ -112,6 +112,7 @@
                         <th>核销人</th>
                         <th>核销人手机号码</th>
                         <th>核销时间</th>
+                        <th>驻店人</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -137,6 +138,7 @@
                             <td data-title="核销人">{$dinfo.username}</td>
                             <td data-title="核销人手机号码">{$dinfo.usermobile}</td>
                             <td data-title="核销时间">{$dinfo.add_time}</td>
+                            <td data-title="驻店人">{$dinfo.residenter_name}</td>
                             <td class="table-tool" data-title="操作">
                                 <if condition="$dinfo['wo_status'] eq 1">
                                     <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/stock/auditwriteoff?id={$dinfo.id}" class="btn btn-success btn-icon">
