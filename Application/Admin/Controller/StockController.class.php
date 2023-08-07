@@ -699,17 +699,27 @@ class StockController extends BaseController {
         if(!empty($res_list['list'])){
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $m_avg_price = new \Admin\Model\GoodsAvgpriceModel();
+            $m_companystock = new \Admin\Model\CompanyStockModel();
             foreach ($res_list['list'] as $v){
                 $goods_id = $v['goods_id'];
-                $fields = 'sum(a.total_fee) as total_fee,sum(a.total_amount) as total_amount';
-                $swhere = array('a.goods_id'=>$goods_id,'a.type'=>array('in',array(1,2)),'a.dstatus'=>1);
-                if($area_id){
-                    $swhere['stock.area_id'] = $area_id;
+
+                $stock_where = array('goods_id'=>$goods_id);
+                if($area_id>0){
+                    $stock_where['area_id'] = $area_id;
                 }
-                $res_goods_record = $m_stock_record->getAllStock($fields,$swhere,'a.id desc','');
+                $res_stock = $m_companystock->getRow('sum(num) as stock_num',$stock_where);
+                $stock_num = intval($res_stock['stock_num']);
+
+//                $fields = 'sum(a.total_fee) as total_fee,sum(a.total_amount) as total_amount';
+//                $swhere = array('a.goods_id'=>$goods_id,'a.type'=>array('in',array(1,2)),'a.dstatus'=>1);
+//                if($area_id){
+//                    $swhere['stock.area_id'] = $area_id;
+//                }
+//                $res_goods_record = $m_stock_record->getAllStock($fields,$swhere,'a.id desc','');
+//                $stock_num = intval($res_goods_record[0]['total_amount']);
+
                 $res_price = $m_avg_price->getAll('price',array('goods_id'=>$goods_id),0,1,'id desc');
                 $avg_price = $res_price[0]['price'];
-                $stock_num = intval($res_goods_record[0]['total_amount']);
                 $total_fee = $avg_price*$stock_num;
                 $v['price'] = $avg_price;
                 $v['stock_num'] = $stock_num;
@@ -724,6 +734,45 @@ class StockController extends BaseController {
         $this->assign('area', $area_arr);
         $this->assign('category', $category_arr);
         $this->assign('keyword',$keyword);
+        $this->assign('datalist',$data_list);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+
+    public function stockidcodes(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        $goods_id = I('goods_id',0,'intval');
+        $area_id = I('area_id',0,'intval');
+        $idcode = I('idcode','','trim');
+
+        $where = array('goods_id'=>$goods_id);
+        if($area_id){
+            $where['area_id'] = $area_id;
+        }
+        if(!empty($idcode)){
+            $where['idcode'] = $idcode;
+        }
+        $start = ($pageNum-1)*$size;
+        $m_company_stock_detail = new \Admin\Model\CompanyStockDetailModel();
+        $res_list = $m_company_stock_detail->getDataList('*',$where,'type asc',$start,$size);
+        $data_list = array();
+        if(!empty($res_list['list'])){
+            foreach ($res_list['list'] as $v){
+                if($v['type']==1){
+                    $type_str = '箱码';
+                }else{
+                    $type_str = '瓶码';
+                }
+                $v['type_str'] = $type_str;
+                $data_list[] = $v;
+            }
+        }
+        $this->assign('idcode', $idcode);
+        $this->assign('goods_id', $goods_id);
+        $this->assign('area_id', $area_id);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
