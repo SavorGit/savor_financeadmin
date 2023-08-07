@@ -90,6 +90,20 @@ class SalepaymentController extends BaseController {
         }
     }
 
+    public function delpayment(){
+        $sale_payment_id = I('get.id',0,'intval');
+
+        $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
+        $res_record = $m_paymentrecord->getAllData('count(id) as num',array('sale_payment_id'=>$sale_payment_id));
+        if($res_record[0]['num']>0){
+            $this->output('已关联出库单无法删除', 'salepayment/delpayment',2,0);
+        }
+        $m_salepayment = new \Admin\Model\SalePaymentModel();
+        $m_salepayment->delData(array('id'=>$sale_payment_id));
+
+        $this->output('操作成功!', 'salepayment/datalist',2);
+    }
+
     public function linksaleadd(){
         $sale_payment_id = I('sale_payment_id',0,'intval');
         $source = I('source',0,'intval');

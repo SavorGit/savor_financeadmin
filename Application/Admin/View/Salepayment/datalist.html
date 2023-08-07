@@ -97,6 +97,8 @@
                                     <a title="关联销售出库单" data-tip="关联销售出库单" target="dialog" mask="true" href="{$host_name}/salepayment/linksaleadd?sale_payment_id={$dinfo.id}&source=1" class="btn btn-success btn-icon">
                                         <i class="fa fa-rebel"></i>
                                     </a>
+
+                                    <a warn="警告" data-tip="删除" title="请确认无误后,谨慎操作,你确定要删除吗？" target="ajaxTodo" href="{$host_name}/salepayment/delpayment?id={$dinfo.id}" calback="navTabAjaxDone" class="btn btn-danger btn-icon"><span><i class="fa fa-trash"></i></span></a>
                                 </div>
                             </td>
                         </tr>
