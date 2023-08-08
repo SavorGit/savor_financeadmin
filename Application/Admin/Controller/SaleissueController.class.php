@@ -81,6 +81,24 @@ class SaleissueController extends BaseController {
         $this->display();
     }
     public function add(){
+        
+        $m_opuser_role = new \Admin\Model\OpuserroleModel(); 
+        $fields = 'a.user_id sale_user_id,user.remark user_name';
+        
+        $mps = [];
+        $mps['a.state'] = 1;
+        $mps['user.status'] = 1;
+        $mps['a.role_id'] = array('in',array(1,3));
+        $mps['user.id'] = array('gt',0);
+        $sale_user_list = $m_opuser_role->getAllRole($fields,$mps,'' );
+        
+        /*$l_c = count($user_info);
+        $user_info[$l_c] = array(
+            'main_id'=>0,
+            'remark'=>'无',
+        );*/
+        
+        
         //售酒餐厅
         $m_hotel = new \Admin\Model\HotelModel();
         $fields = "a.id hotel_id,a.name hotel_name";
@@ -91,6 +109,7 @@ class SaleissueController extends BaseController {
         $host_name = get_host_name();
         $this->assign('honame',$host_name);
         $this->assign('hotel_list',$hotel_list);
+        $this->assign('sale_user_list',$sale_user_list);
         $this->display();
     }
 
@@ -104,6 +123,12 @@ class SaleissueController extends BaseController {
                 }
             }
             $type   = I('post.type',0,'intval');
+            
+            $sale_user_id =0;
+            if($type==2){//团购售卖
+                $sale_user_id = I('post.sale_user_id',0,'intval');  //销售人员id
+                
+            }
             $idcode = I('post.idcode','','trim');
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
@@ -147,11 +172,22 @@ class SaleissueController extends BaseController {
             $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
+            
             $data['cost_price']        = abs($goods_info['cost_price']);        //商品成本价
-            $data['settlement_price']  = $settlement_price;                     //商品成交价
+            
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
-            $data['maintainer_id']     = $maintainer_id;                       //合作维护人id
+            if($type==2){
+                $data['residenter_id']     = $sale_user_id;                     //团购销售 关联销售人员
+                
+                $s_price = I('post.settlement_price');
+                $data['settlement_price']  = $s_price;
+            }else{
+                $s_price = I('post.settlement_price');
+                
+                $data['settlement_price']  = $s_price;                          //商品成交价
+            }
+            $data['maintainer_id']     = $maintainer_id;                    //合作维护人id
             $data['guest_openid']      = $guest_openid;                         //客人openid
             $data['guest_mobile']      = $guest_mobile;                         //客人手机号
             $data['invoice_time ']     = !empty($invoice_time) ?$invoice_time : '0000-00-00 00:00:00'; //开票时间
@@ -229,11 +265,24 @@ class SaleissueController extends BaseController {
             $res_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_id'=>$id));
             $pay_info['pay_money'] = intval($res_money[0]['all_pay_money']);
         }
+        
+        $m_opuser_role = new \Admin\Model\OpuserroleModel();
+        $fields = 'a.user_id sale_user_id,user.remark user_name';
+        
+        $mps = [];
+        $mps['a.state'] = 1;
+        $mps['user.status'] = 1;
+        $mps['a.role_id'] = array('in',array(1,3));
+        $mps['user.id'] = array('gt',0);
+        $sale_user_list = $m_opuser_role->getAllRole($fields,$mps,'' );
+        
+        
         $this->assign('honame',$host_name);
         $this->assign('hotel_list',$hotel_list);
         $this->assign('staff_list',$staff_list);
         $this->assign('vinfo',$info);
         $this->assign('pay_info',$pay_info);
+        $this->assign('sale_user_list',$sale_user_list);
         $this->display();
     }
     public function doedit(){
@@ -247,6 +296,11 @@ class SaleissueController extends BaseController {
                 }
             }
             $type   = I('post.type',0,'intval');
+            $sale_user_id =0;
+            if($type==2){//团购售卖
+                $sale_user_id = I('post.sale_user_id',0,'intval');  //销售人员id
+                
+            }
             $idcode = I('post.idcode','','trim');
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
@@ -291,9 +345,20 @@ class SaleissueController extends BaseController {
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
             $data['cost_price']        = abs($goods_info['cost_price']);        //商品成本价
-            $data['settlement_price']  = $settlement_price;                     //商品成交价
+            
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
+            if($type==2){
+                $data['residenter_id']     = $sale_user_id;                     //团购销售 关联销售人员
+                
+                $s_price = I('post.settlement_price');
+                $data['settlement_price']  = $s_price;
+            }else{
+                $s_price = I('post.settlement_price');
+                
+                $data['settlement_price']  = $s_price;                          //商品成交价
+            }
+            
             $data['maintainer_id']     = $maintainer_id;                       //合作维护人id
             $data['guest_openid']      = $guest_openid;                         //客人openid
             $data['guest_mobile']      = $guest_mobile;                         //客人手机号
