@@ -87,6 +87,9 @@
                             <td data-title="总金额">{$dinfo.total_fee}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
+                                    <a title="{$dinfo.name}-库存明细" data-tip="库存明细" target="navTab" mask="true" rel="stock/stockidcodes" href="{$host_name}/stock/stockidcodes?goods_id={$dinfo.goods_id}&area_id={$area_id}" class="btn btn-success btn-icon">
+                                        <i class="fa fa-codepen"></i>
+                                    </a>
                                     <a title="{$dinfo.name}-变更记录" data-tip="变更记录" target="navTab" mask="true" rel="stock/stockchangelist" href="{$host_name}/stock/stockchangelist?goods_id={$dinfo.goods_id}&area_id={$area_id}" class="btn btn-success btn-icon">
                                         <i class="fa fa-list"></i>
                                     </a>
