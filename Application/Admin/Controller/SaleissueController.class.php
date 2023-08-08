@@ -19,7 +19,7 @@ class SaleissueController extends BaseController {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
-        $ptype       = I('ptype',0,'intval');
+        $ptype       = I('ptype',99,'intval');
         $idcode     = I('idcode','','trim');
 
         $orders = $order.' '.$sort;
@@ -34,7 +34,7 @@ class SaleissueController extends BaseController {
         if(!empty($type)){
             $where['a.type'] = $type;
         }
-        if(!empty($ptype)){
+        if($ptype!=99){
             $where['a.ptype'] = $ptype;
         }
         if(!empty($idcode)){
