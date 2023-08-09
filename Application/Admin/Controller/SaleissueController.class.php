@@ -183,7 +183,7 @@ class SaleissueController extends BaseController {
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
             if($type==2){
-                $data['residenter_id'] = $sale_user_id;
+                $data['maintainer_id'] = $sale_user_id;
             }
             if(!empty($settlement_price)){
                 $data['settlement_price'] = $settlement_price;
