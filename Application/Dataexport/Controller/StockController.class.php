@@ -6,6 +6,7 @@ class StockController extends BaseController {
     public function writeofflist() {
         $wo_status = I('wo_status',0,'intval');
         $area_id = I('area_id',0,'intval');
+        $recycle_status = I('recycle_status',0,'intval');
         $hotel_name = I('hotel_name','','trim');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
@@ -13,6 +14,9 @@ class StockController extends BaseController {
         $where = array('a.type'=>7);
         if($wo_status){
             $where['a.wo_status'] = $wo_status;
+        }
+        if($recycle_status){
+            $where['a.recycle_status'] = $recycle_status;
         }
         if($area_id){
             $where['hotel.area_id'] = $area_id;
@@ -25,7 +29,7 @@ class StockController extends BaseController {
             $now_end_time = date('Y-m-d 23:59:59',strtotime($end_time));
             $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
         }
-        $fields = 'a.id,a.idcode,a.goods_id,a.op_openid,a.wo_status,a.wo_reason_type,a.add_time,goods.name,goods.specification_id,
+        $fields = 'a.id,a.idcode,a.goods_id,a.op_openid,a.wo_status,a.wo_reason_type,a.recycle_status,a.add_time,goods.name,goods.specification_id,
         unit.name as unit_name,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price,su.remark as residenter_name';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', 0,0);
@@ -33,10 +37,16 @@ class StockController extends BaseController {
         if(!empty($res_list)){
             $all_wo_status = C('STOCK_WRITEOFF_STATUS');
             $all_reason = C('STOCK_USE_TYPE');
+            $all_recycle_status = C('STOCK_RECYLE_STATUS');
             $m_user = new \Admin\Model\SmallappUserModel();
             foreach ($res_list as $v){
                 $v['wo_reason_type_str'] = $all_reason[$v['wo_reason_type']];
                 $v['wo_status_str'] = $all_wo_status[$v['wo_status']];
+                $recycle_status_str = '';
+                if(isset($all_recycle_status[$v['recycle_status']])){
+                    $recycle_status_str = $all_recycle_status[$v['recycle_status']];
+                }
+                $v['recycle_status_str']=$recycle_status_str;
                 $res_user = $m_user->getInfo(array('openid'=>$v['op_openid']));
                 $v['username'] = $res_user['nickname'];
                 $v['usermobile'] = $res_user['mobile'];
@@ -58,6 +68,7 @@ class StockController extends BaseController {
             array('username','核销人'),
             array('usermobile','核销人手机号码'),
             array('add_time','核销时间'),
+            array('recycle_status_str','回收状态'),
             array('residenter_name','驻店人'),
         );
         $filename = '核销管理';
