@@ -29,14 +29,15 @@ class SaleissueController extends BaseController {
         $fields = "a.add_time,a.id,case a.type when 1 then '餐厅销售' when 2 then '团购售卖' when 3 then '其他售卖' end as type,
                    a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,goods.name goods_name,
                    unit.name unit_name,spe.name spe_name,a.settlement_price,a.cost_price,a.settlement_price-a.cost_price as profit ,
-                   a.pay_time,a.pay_money,a.settlement_price-a.pay_money uncollected_money,a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";
+                   spr.add_time pay_time,spr.pay_money,a.settlement_price-spr.pay_money uncollected_money,a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";
         $m_sale = new \Admin\Model\SaleModel();
         $result = $m_sale->getAllList($fields, $where, $orders, $start, $size);
         
         foreach($result['list'] as $key=>$v){
-            if($v['uncollected_money']==0){
+            if($v['uncollected_money']==0 && $v['pay_time']!=''){
                 $account_days =  ceil((strtotime($v['pay_time']) - strtotime($v['add_time'])) / 86400) ;
             }else {
+                
                 $account_days =  ceil((time() - strtotime($v['add_time'])) / 86400) ;
             }    
             $result['list'][$key]['account'] = $account_days.'天';

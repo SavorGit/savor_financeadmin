@@ -389,8 +389,8 @@ class SaleissueController extends BaseController {
                           $payment_result = $m_sale_paymeng_record->alias('a')
                                                                   ->join('savor_finance_sale sale on a.sale_id=sale.id','left')
                                                                   ->join('savor_finance_stock_record record on sale.stock_record_id=record.id','left')
-                                                                                        
-                                                                    ->where(array('a.sale_id'=>$rv['sale_id'],'record.wo_status'=>2))->select();
+                                                                  ->field('a.pay_money')                      
+                                                                  ->where(array('a.sale_id'=>$rv['sale_id'],'record.wo_status'=>2))->select();
                           $pay_money = 0;
                           if(!empty($payment_result)){
                               foreach($payment_result as $pk=>$pv){
