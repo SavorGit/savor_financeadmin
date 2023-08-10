@@ -1198,12 +1198,14 @@ class StockController extends BaseController {
         $wo_status = I('wo_status',0,'intval');
         $wo_reason_type = I('wo_reason_type',0,'intval');
         $area_id = I('area_id',0,'intval');
+        $recycle_status = I('recycle_status',0,'intval');
         $hotel_name = I('hotel_name','','trim');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
 
         $all_wo_status = C('STOCK_WRITEOFF_STATUS');
         $all_reason = C('STOCK_USE_TYPE');
+        $all_recycle_status = C('STOCK_RECYLE_STATUS');
         $area_arr = $departmentuser_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
@@ -1222,6 +1224,9 @@ class StockController extends BaseController {
         }
         if($wo_reason_type){
             $where['a.wo_reason_type'] = $wo_reason_type;
+        }
+        if($recycle_status){
+            $where['a.recycle_status'] = $recycle_status;
         }
         if($area_id){
             $where['hotel.area_id'] = $area_id;
@@ -1259,6 +1264,11 @@ class StockController extends BaseController {
                         }
                     }
                 }
+                $recycle_status_str = '';
+                if(isset($all_recycle_status[$v['recycle_status']])){
+                    $recycle_status_str = $all_recycle_status[$v['recycle_status']];
+                }
+                $v['recycle_status_str']=$recycle_status_str;
                 $v['wo_status_str']=$all_wo_status[$v['wo_status']];
                 $v['imgs']=$imgs;
                 $res_user = $m_user->getInfo(array('openid'=>$v['op_openid']));
@@ -1295,6 +1305,7 @@ class StockController extends BaseController {
         $this->assign('hotel_name',$hotel_name);
         $this->assign('wo_reason_type',$wo_reason_type);
         $this->assign('wo_status',$wo_status);
+        $this->assign('recycle_status',$recycle_status);
         $this->assign('all_wo_status',$all_wo_status);
         $this->assign('all_wo_reason',$all_reason);
         $this->assign('datalist',$data_list);

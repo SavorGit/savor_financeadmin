@@ -19,7 +19,7 @@ class SaleissueController extends BaseController {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
-        $ptype       = I('ptype',0,'intval');
+        $ptype       = I('ptype',99,'intval');
         $idcode     = I('idcode','','trim');
 
         $orders = $order.' '.$sort;
@@ -34,7 +34,7 @@ class SaleissueController extends BaseController {
         if(!empty($type)){
             $where['a.type'] = $type;
         }
-        if(!empty($ptype)){
+        if($ptype!=99){
             $where['a.ptype'] = $ptype;
         }
         if(!empty($idcode)){
@@ -122,13 +122,8 @@ class SaleissueController extends BaseController {
                     break;
                 }
             }
+            $settlement_price = I('post.settlement_price',0,'intval');
             $type   = I('post.type',0,'intval');
-            
-            $sale_user_id =0;
-            if($type==2){//团购售卖
-                $sale_user_id = I('post.sale_user_id',0,'intval');  //销售人员id
-                
-            }
             $idcode = I('post.idcode','','trim');
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
@@ -138,19 +133,31 @@ class SaleissueController extends BaseController {
             if(empty($res_list)){
                 $this->error('商品识别码异常');
             }
+            $sale_user_id =0;
+            if($type==2){//团购售卖
+                $sale_user_id = I('post.sale_user_id',0,'intval');//销售人员id
+                if(count($all_idcodes)>1){
+                    foreach ($all_idcodes as $v){
+                        if(!empty($v)){
+                            $res_info = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($v),'a.dstatus'=>1),'a.id desc','0,1','');
+                            if(empty($res_info)){
+                                $this->error("商品识别码{$v}异常");
+                            }
+                            if($res_list[0]['goods_name']!=$res_info[0]['goods_name']){
+                                $this->error("团购商品识别码,必须是同一种商品");
+                            }
+                        }
+                    }
+                }
+            }
+
             $goods_info  = $res_list[0];
             //酒楼信息
             $hotel_id = I('post.hotel_id',0,'intval');
             $sale_openid = I('post.sale_openid','','trim');
-            $maintainer_id = 0;
-            if(!empty($hotel_id) && in_array($type,array(2,3))){
-                $m_hotel = new \Admin\Model\HotelModel();
-                $hotel_info = $m_hotel->getHotelById('ext.maintainer_id',array('hotel.id'=>$hotel_id));
-                $maintainer_id = $hotel_info['maintainer_id'];
+            if(empty($settlement_price) && in_array($type,array(2,3))){
                 $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
-                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($hotel_id,$goods_info['goods_id'],0);
-            }else {
-                $settlement_price = 0.0;
+                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice(0,$goods_info['goods_id'],0);
             }
             //客人信息
             $guest_openid = I('post.guest_openid','','trim');
@@ -172,22 +179,15 @@ class SaleissueController extends BaseController {
             $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
-            
             $data['cost_price']        = abs($goods_info['cost_price']);        //商品成本价
-            
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
             if($type==2){
-                $data['residenter_id']     = $sale_user_id;                     //团购销售 关联销售人员
-                
-                $s_price = I('post.settlement_price');
-                $data['settlement_price']  = $s_price;
-            }else{
-                $s_price = I('post.settlement_price');
-                
-                $data['settlement_price']  = $s_price;                          //商品成交价
+                $data['maintainer_id'] = $sale_user_id;
             }
-            $data['maintainer_id']     = $maintainer_id;                    //合作维护人id
+            if(!empty($settlement_price)){
+                $data['settlement_price'] = $settlement_price;
+            }
             $data['guest_openid']      = $guest_openid;                         //客人openid
             $data['guest_mobile']      = $guest_mobile;                         //客人手机号
             $data['invoice_time ']     = !empty($invoice_time) ?$invoice_time : '0000-00-00 00:00:00'; //开票时间

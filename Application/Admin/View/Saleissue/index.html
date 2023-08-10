@@ -34,7 +34,7 @@
                         <div class="input-group input-group-sm">收款类型：</div>
                         <div class="input-group">
                             <select name="ptype" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
-                                <option value=0 >全部</option>
+                                <option value=99 >全部</option>
                                 <volist name="all_ptype" id="apinfo">
                                     <option value="{$key}" <if condition="$ptype eq $key">selected</if> >{$apinfo}</option>
                                 </volist>

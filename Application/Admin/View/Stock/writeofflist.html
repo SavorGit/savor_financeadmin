@@ -49,6 +49,18 @@
                     </div>
 
                     <div class="form-group">
+                        <div class="input-group input-group-sm">回收状态：</div>
+                        <div class="input-group">
+                            <select name="recycle_status" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0>全部</option>
+                                <volist name=":C('STOCK_RECYLE_STATUS')" id="srsinfo">
+                                    <option value="{$key}" <if condition="$key eq $recycle_status">selected</if> >{$srsinfo}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <div class="input-group input-group-sm">时间：</div>
                         <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$start_time}" data-ymd="true">
                             <input name="start_time" type="text" size="16" class="form-control date" placeholder="开始日期" value="{$start_time}">
@@ -81,7 +93,7 @@
                     </div>
 
                     <div class="input-group input-group-sm pull-right">
-                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/stock/writeofflist?wo_status={$wo_status}&area_id={$area_id}&hotel_name={$hotel_name}&start_time={$start_time}&end_time={$end_time}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
+                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/stock/writeofflist?wo_status={$wo_status}&recycle_status={$recycle_status}&area_id={$area_id}&hotel_name={$hotel_name}&start_time={$start_time}&end_time={$end_time}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
                     </div>
 
                 </div>
@@ -112,6 +124,7 @@
                         <th>核销人</th>
                         <th>核销人手机号码</th>
                         <th>核销时间</th>
+                        <th>物料回收状态</th>
                         <th>驻店人</th>
                         <th>操作</th>
                     </tr>
@@ -138,6 +151,7 @@
                             <td data-title="核销人">{$dinfo.username}</td>
                             <td data-title="核销人手机号码">{$dinfo.usermobile}</td>
                             <td data-title="核销时间">{$dinfo.add_time}</td>
+                            <td data-title="物料回收状态">{$dinfo.recycle_status_str}</td>
                             <td data-title="驻店人">{$dinfo.residenter_name}</td>
                             <td class="table-tool" data-title="操作">
                                 <if condition="$dinfo['wo_status'] eq 1">
