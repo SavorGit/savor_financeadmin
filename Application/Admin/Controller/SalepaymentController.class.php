@@ -50,12 +50,18 @@ class SalepaymentController extends BaseController {
         if(IS_POST){
             $tax_rate = I('post.tax_rate',0,'intval');
             $pay_money = I('post.pay_money',0,'intval');
+            $type = I('post.type',1,'intval');
             $hotel_id = I('post.hotel_id',0,'intval');
             $pay_time = I('post.pay_time','','trim');
             $userInfo = session('sysUserInfo');
             $sysuser_id = $userInfo['id'];
+            if($type==1){
+                if(empty($hotel_id)){
+                    $this->output('请选择酒楼', 'salepayment/addpayment',2,0);
+                }
+            }
 
-            $data = array('hotel_id'=>$hotel_id,'tax_rate'=>$tax_rate,'pay_money'=>$pay_money,'pay_time'=>$pay_time,'sysuser_id'=>$sysuser_id);
+            $data = array('hotel_id'=>$hotel_id,'tax_rate'=>$tax_rate,'pay_money'=>$pay_money,'pay_time'=>$pay_time,'type'=>$type,'sysuser_id'=>$sysuser_id);
             if(!empty($id)){
                 $data['update_time'] = date('Y-m-d H:i:s');
                 $m_salepayment->updateData(array('id'=>$id),$data);
@@ -75,7 +81,7 @@ class SalepaymentController extends BaseController {
             }
             $this->output('操作成功', 'salepayment/datalist');
         }else{
-            $vinfo = array('tax_rate'=>13);
+            $vinfo = array('tax_rate'=>13,'type'=>1);
             if($id){
                 $vinfo = $m_salepayment->getInfo(array('id'=>$id));
             }
@@ -178,11 +184,18 @@ class SalepaymentController extends BaseController {
             $res_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_payment_id'=>$sale_payment_id));
             $remain_money = $res_salepayment['pay_money']-intval($res_money[0]['all_pay_money']);
 
-            $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price,a.ptype,
+            if($res_salepayment['type']==1){
+                $fileds = "a.id,a.idcode,hotel.name hotel_name,a.add_time,a.sale_payment_id,a.settlement_price,a.ptype,
             a.goods_id,goods.name as goods_name,a.sale_openid,a.maintainer_id";
-            $where = array('a.hotel_id'=>$res_salepayment['hotel_id'],'a.ptype'=>array('in','0,2'),'record.wo_reason_type'=>1,'record.wo_status'=>2);
-            $res_all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
+                $where = array('a.hotel_id'=>$res_salepayment['hotel_id'],'a.ptype'=>array('in','0,2'),'record.wo_reason_type'=>1,'record.wo_status'=>2);
+                $res_all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
+            }else{
+                $where = array('type'=>2,'ptype'=>array('in','0,2'));
+                $res_all_sales = $m_sale->getAllData('*',$where,'id desc');
+            }
+
             $m_sysuser = new \Admin\Model\SysuserModel();
+            $m_stock_record = new \Admin\Model\StockRecordModel();
             $all_sales = array();
             foreach ($res_all_sales as $k=>$v){
                 $is_select = '';
@@ -200,7 +213,15 @@ class SalepaymentController extends BaseController {
                     $pay_money = sprintf("%.2f",$pay_money);
                     $pay_status = '【部分收款】';
                 }
-                $v['name'] = "{$v['id']}--{$v['add_time']}--{$v['goods_name']}--{$pay_money}--{$res_user[0]['remark']}{$pay_status}";
+                $goods_name = $v['goods_name'];
+                if($res_salepayment['type']==2){
+                    $all_idcodes = explode("\n",$v['idcode']);
+                    $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id';
+                    $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($all_idcodes[0]),'a.dstatus'=>1),'a.id desc','0,1','');
+                    $goods_name = $res_list[0]['goods_name'];
+                }
+
+                $v['name'] = "{$v['id']}--{$v['add_time']}--{$goods_name}--{$pay_money}--{$res_user[0]['remark']}{$pay_status}";
                 $all_sales[]=$v;
             }
 

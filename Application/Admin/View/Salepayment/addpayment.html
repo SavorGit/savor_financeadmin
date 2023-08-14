@@ -29,10 +29,20 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">类型：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="type" id="sale_paytype" class="form-control bs-select" title="请选择">
+                        <option value="1" <if condition="$vinfo.type eq 1">selected</if> >核销</option>
+                        <option value="2" <if condition="$vinfo.type eq 2">selected</if> >团购</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group row" id="stock_hotel_id">
                 <label class="col-xs-12 col-sm-2 control-label">选择酒楼：</label>
                 <div class="col-xs-12 col-sm-10  form-inline">
-                    <select name="hotel_id" id="choose_hotel_id" class="form-control bs-select class-filter" title="请选择酒楼" data-live-search="true" required>
+                    <select name="hotel_id" id="choose_hotel_id" class="form-control bs-select class-filter" title="请选择酒楼" data-live-search="true">
                         <volist name="hotel_list" id="hinfo">
                             <option value="{$hinfo.id}" <if condition="$hinfo.id eq $vinfo['hotel_id']"> selected </if> >{$hinfo.name}</option>
                         </volist>
@@ -47,3 +57,16 @@
         </div>
     </form>
 </div>
+
+<script>
+
+    $('#sale_paytype').change(function() {
+        if($(this).val()==1){
+            $('#stock_hotel_id').show();
+        }else{
+            $('#stock_hotel_id').hide();
+        }
+    })
+    $('#sale_paytype').trigger('change');
+
+</script>

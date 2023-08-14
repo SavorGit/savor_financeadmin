@@ -1,0 +1,54 @@
+<style type="text/css">
+    .zhezhao{
+        display: none;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        background-color: black;
+        opacity: 0.7;
+        text-align: center;
+        z-index: 99;
+    }
+    .big{
+        display: none;
+    }
+    .addbig{
+        position: absolute;
+        width: 300px;
+        height: 200px;
+        top: 100px;
+        left: 26%;
+        z-index: 100;
+    }
+</style>
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+ <div class="tools-group hidden-xs ">全局设置</div>
+</div>
+<div class="pageContent" id="pagecontent">
+  <div id="w_list_print" style="overflow:hidden;">
+    <div class="no-more-tables" style="margin-top:20px;">
+      
+      <form method="post" action="{$host_name}/globalconfig/editconfig" id="configvolume" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+          <thead>
+          <th colspan="4">阀值配置</th>
+            <tr >
+              <td>应收账款金额<input type="text" name="sale_ys_money" value="{$info.sale_ys_money}" min='1' max='10000000'  /></td>
+              <td>超期欠款金额<input type="text" name="sale_cq_money" value="{$info.sale_cq_money}" min='1' max='10000000'  /></td>
+              <td>酒楼库存量<input type="text" name="hotel_stock_num" value="{$info.hotel_stock_num}" min='1' max='10000'  /></td>
+              <td><button class="btn btn-primary" type="submit">保存</button></td>
+            </tr>
+
+          </thead>
+          
+          </tbody>
+        </table>
+        
+      </form>
+    </div>
+  </div>
+</div>
