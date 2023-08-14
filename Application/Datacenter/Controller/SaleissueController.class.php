@@ -26,24 +26,74 @@ class SaleissueController extends BaseController {
         $where = [];
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         
+        /*$fields = "a.add_time,a.id,case a.type when 1 then '餐厅销售' when 2 then '团购售卖' when 3 then '其他售卖' end as type,
+                   a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,
+                   goods.name goods_name,unit.name unit_name,spe.name spe_name,a.settlement_price,
+                   a.cost_price,a.settlement_price-a.cost_price as profit ,
+                   spr.add_time pay_time,spr.pay_money,a.settlement_price-spr.pay_money uncollected_money,
+                   a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";*/
         $fields = "a.add_time,a.id,case a.type when 1 then '餐厅销售' when 2 then '团购售卖' when 3 then '其他售卖' end as type,
-                   a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,goods.name goods_name,
-                   unit.name unit_name,spe.name spe_name,a.settlement_price,a.cost_price,a.settlement_price-a.cost_price as profit ,
-                   spr.add_time pay_time,spr.pay_money,a.settlement_price-spr.pay_money uncollected_money,a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";
+                   a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,
+                   goods.name goods_name,unit.name unit_name,spe.name spe_name,a.settlement_price,
+                   a.cost_price,a.settlement_price-a.cost_price as profit ,
+                   a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";
+        
+        
+        
         $m_sale = new \Admin\Model\SaleModel();
         $result = $m_sale->getAllList($fields, $where, $orders, $start, $size);
         
+        $m_sale_payment_record = new \Admin\Model\SalePaymentRecordModel();
+        
         foreach($result['list'] as $key=>$v){
-            if($v['uncollected_money']==0 && $v['pay_time']!=''){
+            
+            
+            $map = [];
+            $map['sale_id'] = $v['id'];
+            $rts = $m_sale_payment_record->where($map)->field('add_time as  pay_time,pay_money')->order('add_time desc')->select();
+            
+            if(empty($v['name'])){
+                $result['list'][$key]['name'] = $v['nickname'];
+            }
+            if(empty($rts)){
+                $account_days =  ceil((time() - strtotime($v['add_time'])) / 86400) ;
+                
+                $result['list'][$key]['account'] = $account_days.'天';
+                $result['list'][$key]['uncollected_money'] = $v['settlement_price'];
+                
+                
+                
+                
+            }else {
+                $t_money = 0;
+                foreach($rts as $kk=>$vv){
+                    
+                    $t_money += $vv['pay_money'];
+                    
+                }
+                
+                $account_days = ceil((strtotime($rts[0]['pay_time']) - strtotime($v['add_time'])) / 86400) ;
+                $result['list'][$key]['uncollected_money'] = $v['settlement_price'] - $t_money;
+                $result['list'][$key]['pay_money'] = $t_money;
+                $result['list'][$key]['pay_time']  = $rts[0]['pay_time'];
+                $result['list'][$key]['account']   = $account_days.'天';
+              
+                
+                
+            }
+            
+            
+            /*if($v['uncollected_money']==0 && $v['pay_time']!=''){
                 $account_days =  ceil((strtotime($v['pay_time']) - strtotime($v['add_time'])) / 86400) ;
             }else {
                 
                 $account_days =  ceil((time() - strtotime($v['add_time'])) / 86400) ;
+                $result['list'][$key]['uncollected_money'] = $v['settlement_price'];
             }    
             $result['list'][$key]['account'] = $account_days.'天';
             if(empty($v['name'])){
                 $result['list'][$key]['name'] = $v['nickname'];
-            }
+            }*/
         }
         
         $this->assign('list', $result['list']);

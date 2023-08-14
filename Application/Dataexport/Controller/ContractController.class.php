@@ -110,6 +110,7 @@ class ContractController extends BaseController {
             array('name','合同名称'),
             array('sign_user','签约人'),
             array('ctype_str','合同类型'),
+            array('archive_time','合同归档日期'),
             array('sign_time','签约时间'),
             array('expire_time','合同有效期'),
             array('status_str','合作状态'),
