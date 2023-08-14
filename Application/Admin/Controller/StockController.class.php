@@ -481,6 +481,10 @@ class StockController extends BaseController {
                 if($res_hotel['is_salehotel']==0){
                     $this->output('请先设置当前酒楼为售酒餐厅', 'stock/addoutstock',2,0);
                 }
+                $is_check_out = $m_stock->checkHotelThreshold($hotel_id);
+                if($is_check_out==0){
+                    $this->output('已超过出库阀值，不能出库', 'stock/addoutstock',2,0);
+                }
             }
             if($id){
                 $stock_info = $m_stock->getInfo(array('id'=>$id));
