@@ -118,7 +118,9 @@ $config['STOCK_RECYLE_STATUS']=array('1'=>'待收回物料','2'=>'已收回物�
 $config['SALE_TYPES']=array('1'=>'餐厅售卖','2'=>'团购售卖','3'=>'其它售卖');
 $config['PAY_STATUS']=array('1'=>'未收款','2'=>'已收款');
 $config['PAY_TYPE']=array('1'=>'完全收款','2'=>'部分收款','0'=>'未收款');
-
+$config['FINANCE_HOTELSTOCK']   = "finance:hotelstock";
+$config['FINANCE_GOODSSTOCK']   = "finance:goodsstock";
+$config['FINANCE_HOTELGOODS_PRICE']   = "finance:hotelgoods:price";//酒楼售卖酒商品结算价
 
 $config['MANGER_KEY'] = array(
     'datacenter'=>'数据查询',

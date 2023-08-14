@@ -42,7 +42,7 @@ class GlobalconfigController extends BaseController {
         $sys_list = $m_sys_config->getList(array('status'=>1));
         $redis  =  \Common\Lib\SavorRedis::getInstance();
         $redis->select(12);
-        $cache_key = C('SYSTEM_CONFIG');
+        $cache_key = 'system_config';
         $redis->set($cache_key, json_encode($sys_list));
         $this->output('操作成功','globalconfig/configdata');
     }
