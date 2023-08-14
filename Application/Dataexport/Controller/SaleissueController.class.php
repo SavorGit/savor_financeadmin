@@ -155,9 +155,11 @@ class SaleissueController extends BaseController {
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         $orders = 'a.id desc';
         $fields = "a.add_time,a.id,case a.type when 1 then '餐厅销售' when 2 then '团购售卖' when 3 then '其他售卖' end as type,
-                   a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,goods.name goods_name,
-                   unit.name unit_name,spe.name spe_name,a.settlement_price,a.cost_price,a.settlement_price-a.cost_price as profit ,
-                   a.pay_time,a.pay_money,a.settlement_price-a.pay_money uncollected_money,a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";
+                   a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,
+                   goods.name goods_name,unit.name unit_name,spe.name spe_name,a.settlement_price,
+                   a.cost_price,a.settlement_price-a.cost_price as profit ,
+                   a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";
+        
         $m_sale = new \Admin\Model\SaleModel();
         $data_list = $m_sale->alias('a')
         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
@@ -173,17 +175,57 @@ class SaleissueController extends BaseController {
         ->where($where)
         ->order($orders)
         ->select();
+        $m_sale_payment_record = new \Admin\Model\SalePaymentRecordModel();
         foreach($data_list as $key=>$v){
-            if($v['uncollected_money']==0){
+            
+            $map = [];
+            $map['sale_id'] = $v['id'];
+            $rts = $m_sale_payment_record->where($map)->field('add_time as  pay_time,pay_money')->order('add_time desc')->select();
+            
+            if(empty($v['name'])){
+                $data_list[$key]['name'] = $v['nickname'];
+            }
+            $v['amount'] = 1;
+            if(empty($rts)){
+                $account_days =  ceil((time() - strtotime($v['add_time'])) / 86400) ;
+                
+                $data_list[$key]['account'] = $account_days.'天';
+                $data_list[$key]['uncollected_money'] = $v['settlement_price'];
+                
+                
+                
+                
+            }else {
+                $t_money = 0;
+                foreach($rts as $kk=>$vv){
+                    
+                    $t_money += $vv['pay_money'];
+                    
+                }
+                
+                $account_days = ceil((strtotime($rts[0]['pay_time']) - strtotime($v['add_time'])) / 86400) ;
+                $data_list[$key]['uncollected_money'] = $v['settlement_price'] - $t_money;
+                $data_list[$key]['pay_money'] = $t_money;
+                $data_list[$key]['pay_time']  = $rts[0]['pay_time'];
+                $data_list[$key]['account']   = $account_days.'天';
+               
+                
+                
+            }
+            
+            
+            
+            /*if($v['uncollected_money']==0 && $v['pay_time']!=''){
                 $account_days =  ceil((strtotime($v['pay_time']) - strtotime($v['add_time'])) / 86400) ;
             }else {
                 $account_days =  ceil((time() - strtotime($v['add_time'])) / 86400) ;
+                $data_list[$key]['uncollected_money'] = $v['settlement_price'];
             }
             $data_list[$key]['account'] = $account_days.'天';
             if(empty($v['name'])){
                 $data_list[$key]['name'] = $v['nickname'];
             }
-            $data_list[$key]['amount'] = 1;
+            $data_list[$key]['amount'] = 1;*/
         }
         //print_r($data_list);
         $cell = array(

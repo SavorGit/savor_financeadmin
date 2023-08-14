@@ -48,7 +48,7 @@ class SaleModel extends BaseModel{
     }
     public function getAllList($fileds,$where, $orders, $start,$size){
         $list = $this->alias('a')
-        ->join('savor_finance_sale_payment_record spr on a.id=spr.sale_id','left')
+        //->join('savor_finance_sale_payment_record spr on a.id=spr.sale_id','left')
         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
         ->join('savor_finance_goods goods on a.goods_id   = goods.id','left')
         
