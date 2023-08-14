@@ -299,7 +299,6 @@ class SaleissueController extends BaseController {
             $sale_user_id =0;
             if($type==2){//团购售卖
                 $sale_user_id = I('post.sale_user_id',0,'intval');  //销售人员id
-                
             }
             $idcode = I('post.idcode','','trim');
             $all_idcodes = explode("\n",$idcode);
@@ -314,15 +313,10 @@ class SaleissueController extends BaseController {
             //酒楼信息
             $hotel_id = I('post.hotel_id',0,'intval');
             $sale_openid = I('post.sale_openid','','trim');
-            $maintainer_id = 0;
-            if(!empty($hotel_id) && in_array($type,array(2,3))){
-                $m_hotel = new \Admin\Model\HotelModel();
-                $hotel_info = $m_hotel->getHotelById('ext.maintainer_id',array('hotel.id'=>$hotel_id));
-                $maintainer_id = $hotel_info['maintainer_id'];
+            $settlement_price = I('post.settlement_price');
+            if(empty($settlement_price) && in_array($type,array(2,3))){
                 $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
-                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($hotel_id,$goods_info['goods_id'],0);
-            }else {
-                $settlement_price = 0.0;
+                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice(0,$goods_info['goods_id'],0);
             }
             //客人信息
             $guest_openid = I('post.guest_openid','','trim');
@@ -349,17 +343,12 @@ class SaleissueController extends BaseController {
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
             if($type==2){
-                $data['residenter_id']     = $sale_user_id;                     //团购销售 关联销售人员
-                
-                $s_price = I('post.settlement_price');
-                $data['settlement_price']  = $s_price;
-            }else{
-                $s_price = I('post.settlement_price');
-                
-                $data['settlement_price']  = $s_price;                          //商品成交价
+                $data['maintainer_id'] = $sale_user_id;
             }
-            
-            $data['maintainer_id']     = $maintainer_id;                       //合作维护人id
+            if(!empty($settlement_price)){
+                $data['settlement_price'] = $settlement_price;
+            }
+
             $data['guest_openid']      = $guest_openid;                         //客人openid
             $data['guest_mobile']      = $guest_mobile;                         //客人手机号
             $data['invoice_time ']     = !empty($invoice_time) ?$invoice_time : '0000-00-00 00:00:00'; //开票时间
@@ -372,6 +361,11 @@ class SaleissueController extends BaseController {
             $data['express_number']    = $express_number;                       //快递编号
             $data['edit_time']         = date('Y-m-d H:i:s');
             $m_sale = new \Admin\Model\SaleModel();
+            $res_sale = $m_sale->getInfo(array('id'=>$id));
+            if(in_array($res_sale['ptype'],array(1,2))){
+                $this->error('当前出库单已收款，无法修改');
+            }
+
             $ret = $m_sale->updateData(array('id'=>$id), $data);
             if($ret){
                 $this->output('编辑成功!', 'saleissue/index');
