@@ -154,7 +154,7 @@ class SaleissueController extends BaseController {
         $where = [];
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         $orders = 'a.id desc';
-        $fields = "a.add_time,a.id,case a.type when 1 then '餐厅销售' when 2 then '团购售卖' when 3 then '其他售卖' end as type,
+        $fields = "a.add_time,a.type,record.wo_reason_type,
                    a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,
                    goods.name goods_name,unit.name unit_name,spe.name spe_name,a.settlement_price,
                    a.cost_price,a.settlement_price-a.cost_price as profit ,
@@ -164,7 +164,6 @@ class SaleissueController extends BaseController {
         $data_list = $m_sale->alias('a')
         ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
         ->join('savor_finance_goods goods on a.goods_id   = goods.id','left')
-        
         ->join('savor_finance_specification spe on goods.specification_id= spe.id','left')
         ->join('savor_finance_stock_record record on a.stock_record_id=record.id','left')
         ->join('savor_finance_unit unit on unit.id =record.unit_id','left')
@@ -176,45 +175,35 @@ class SaleissueController extends BaseController {
         ->order($orders)
         ->select();
         $m_sale_payment_record = new \Admin\Model\SalePaymentRecordModel();
+        $all_sale_types = C('SALE_TYPES');
+        $all_stock_types = C('STOCK_USE_TYPE');
         foreach($data_list as $key=>$v){
-            
-            $map = [];
-            $map['sale_id'] = $v['id'];
-            $rts = $m_sale_payment_record->where($map)->field('add_time as  pay_time,pay_money')->order('add_time desc')->select();
-            
+            if($v['type']==1){
+                $type = $all_stock_types[$v['wo_reason_type']];
+            }else{
+                $type = $all_sale_types[$v['type']];
+            }
+            $data_list[$key]['type'] = $type;
+            $rts = $m_sale_payment_record->where(array('sale_id'=>$v['id']))->field('add_time as  pay_time,pay_money')->order('add_time desc')->select();
             if(empty($v['name'])){
                 $data_list[$key]['name'] = $v['nickname'];
             }
             $v['amount'] = 1;
             if(empty($rts)){
                 $account_days =  ceil((time() - strtotime($v['add_time'])) / 86400) ;
-                
                 $data_list[$key]['account'] = $account_days.'天';
                 $data_list[$key]['uncollected_money'] = $v['settlement_price'];
-                
-                
-                
-                
             }else {
                 $t_money = 0;
                 foreach($rts as $kk=>$vv){
-                    
                     $t_money += $vv['pay_money'];
-                    
                 }
-                
                 $account_days = ceil((strtotime($rts[0]['pay_time']) - strtotime($v['add_time'])) / 86400) ;
                 $data_list[$key]['uncollected_money'] = $v['settlement_price'] - $t_money;
                 $data_list[$key]['pay_money'] = $t_money;
                 $data_list[$key]['pay_time']  = $rts[0]['pay_time'];
                 $data_list[$key]['account']   = $account_days.'天';
-               
-                
-                
             }
-            
-            
-            
             /*if($v['uncollected_money']==0 && $v['pay_time']!=''){
                 $account_days =  ceil((strtotime($v['pay_time']) - strtotime($v['add_time'])) / 86400) ;
             }else {
@@ -227,7 +216,6 @@ class SaleissueController extends BaseController {
             }
             $data_list[$key]['amount'] = 1;*/
         }
-        //print_r($data_list);
         $cell = array(
             array('add_time','核销日期'),
             array('id','核销单据编号'),

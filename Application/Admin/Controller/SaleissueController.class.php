@@ -41,6 +41,7 @@ class SaleissueController extends BaseController {
             $where['a.idcode'] = $idcode;
         }
         $all_types = C('SALE_TYPES');
+        $all_stock_types = C('STOCK_USE_TYPE');
         $all_status = C('PAY_STATUS');
         $all_wo_status = C('STOCK_WRITEOFF_STATUS');
         $all_ptype = C('PAY_TYPE');
@@ -57,7 +58,11 @@ class SaleissueController extends BaseController {
             if(isset($all_ptype[$v['ptype']])){
                 $pay_type_str = $all_ptype[$v['ptype']];
             }
-            $type_str = $all_types[$v['type']];
+            if($v['type']==1){
+                $type_str = $all_stock_types[$v['type']];
+            }else{
+                $type_str = $all_types[$v['type']];
+            }
             $wo_status_str = $all_wo_status[$v['wo_status']];
             $datalist[$k]['status_str'] = $status_str;
             $datalist[$k]['type_str'] = $type_str;
