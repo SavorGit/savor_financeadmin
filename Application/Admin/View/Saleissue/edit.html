@@ -80,7 +80,6 @@
               </label>
               <div class="col-xs-2 col-sm-4">
                 <select id="sale_openid_list"  name="sale_openid"  class="form-control" title="请选择餐厅销售经理" >
-                  <option >请选择餐厅销售经理</option>
                   <volist name="staff_list" id="vo">
                   	<option value="{$vo.openid}" <if condition="$vo.openid eq $vinfo['sale_openid']">selected</if>> {$vo.nickname}</option>
                   </volist>
