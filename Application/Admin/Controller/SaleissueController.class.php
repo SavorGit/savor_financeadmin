@@ -133,7 +133,7 @@ class SaleissueController extends BaseController {
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
-                      unit.convert_type,a.wo_status,a.dstatus,a.add_time';
+                      stock.area_id,unit.convert_type,a.wo_status,a.dstatus,a.add_time';
             $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($all_idcodes[0]),'a.dstatus'=>1),'a.id desc','0,1','');
             if(empty($res_list)){
                 $this->error('商品识别码异常');
@@ -195,6 +195,7 @@ class SaleissueController extends BaseController {
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
             if($type==2){
                 $data['maintainer_id'] = $sale_user_id;
+                $data['area_id'] = $goods_info['area_id'];
             }
             if(!empty($settlement_price)){
                 $data['settlement_price'] = $settlement_price;
@@ -311,7 +312,7 @@ class SaleissueController extends BaseController {
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
-                      unit.convert_type,a.wo_status,a.dstatus,a.add_time';
+                      stock.area_id,unit.convert_type,a.wo_status,a.dstatus,a.add_time';
             $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($all_idcodes[0]),'a.dstatus'=>1),'a.id desc','0,1','');
             if(empty($res_list)){
                 $this->error('商品识别码异常');
@@ -375,6 +376,7 @@ class SaleissueController extends BaseController {
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
             if($type==2){
                 $data['maintainer_id'] = $sale_user_id;
+                $data['area_id'] = $goods_info['area_id'];
             }
             if(!empty($settlement_price)){
                 $data['settlement_price'] = $settlement_price;
