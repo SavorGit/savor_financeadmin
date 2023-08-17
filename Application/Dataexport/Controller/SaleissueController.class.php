@@ -261,12 +261,13 @@ class SaleissueController extends BaseController {
         $where = [];
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
          
-        $fields = "a.hotel_id,hotel.name hotel_name,area.region_name";
+        $fields = "a.hotel_id,hotel.name hotel_name,area.region_name,ar.region_name tg_region_name";
         $group  = "a.hotel_id";
         $m_sale = new \Admin\Model\SaleModel();
         $list =   $m_sale->alias('a')
                          ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
                          ->join('savor_area_info area on hotel.area_id= area.id','left')
+                         ->join('savor_area_info ar on a.area_id=ar.id ','left')
                          ->field($fields)
                          ->where($where)
                          ->order($orders)
@@ -317,7 +318,12 @@ class SaleissueController extends BaseController {
                         $rate_settlement_total    = $settlement_total - $no_rate_settlement_total;
                         $info = [];
                         $info['type'] = $vv;
-                        $info['region_name'] = $v['region_name'];
+                        if($kk==1){
+                            $info['region_name'] = $v['region_name'];
+                        }else {
+                            $info['region_name'] = $v['tg_region_name'];
+                        }
+                        //$info['region_name'] = $v['region_name'];
                         $info['hotel_id']    = $v['hotel_id'];
                         $info['hotel_name']  = $v['hotel_name'];
                         $info['barcode']     = $vvv['barcode'];
