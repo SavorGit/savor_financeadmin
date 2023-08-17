@@ -27,11 +27,13 @@ class SalepaymentController extends BaseController {
         $res_list = $m_salepayment->getList('a.*,hotel.name as hotel_name',$where,'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $all_types = array('1'=>'核销','2'=>'团购');
             $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
             $data_list = $res_list['list'];
             foreach ($data_list as $k=>$v){
                 $res_linknum = $m_paymentrecord->getAllData('count(id) as num',array('sale_payment_id'=>$v['id']));
                 $data_list[$k]['link_sale_num'] = intval($res_linknum[0]['num']);
+                $data_list[$k]['type_str'] = $all_types[$v['type']];
             }
         }
         $this->assign('keyword',$keyword);

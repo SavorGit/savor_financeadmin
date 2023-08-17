@@ -133,10 +133,13 @@ class SaleissueController extends BaseController {
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
-                      a.wo_status,a.dstatus,a.add_time';
+                      stock.area_id,unit.convert_type,a.wo_status,a.dstatus,a.add_time';
             $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($all_idcodes[0]),'a.dstatus'=>1),'a.id desc','0,1','');
             if(empty($res_list)){
                 $this->error('商品识别码异常');
+            }
+            if($res_list[0]['convert_type']>1){
+                $this->error('商品识别码异常,请录入瓶码');
             }
             $sale_user_id =0;
             if($type==2){//团购售卖
@@ -147,6 +150,9 @@ class SaleissueController extends BaseController {
                             $res_info = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($v),'a.dstatus'=>1),'a.id desc','0,1','');
                             if(empty($res_info)){
                                 $this->error("商品识别码{$v}异常");
+                            }
+                            if($res_info[0]['convert_type']>1){
+                                $this->error('商品识别码异常,请录入瓶码');
                             }
                             if($res_list[0]['goods_name']!=$res_info[0]['goods_name']){
                                 $this->error("团购商品识别码,必须是同一种商品");
@@ -189,6 +195,7 @@ class SaleissueController extends BaseController {
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
             if($type==2){
                 $data['maintainer_id'] = $sale_user_id;
+                $data['area_id'] = $goods_info['area_id'];
             }
             if(!empty($settlement_price)){
                 $data['settlement_price'] = $settlement_price;
@@ -301,19 +308,39 @@ class SaleissueController extends BaseController {
                 }
             }
             $type   = I('post.type',0,'intval');
-            $sale_user_id =0;
-            if($type==2){//团购售卖
-                $sale_user_id = I('post.sale_user_id',0,'intval');  //销售人员id
-            }
             $idcode = I('post.idcode','','trim');
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
-                      a.wo_status,a.dstatus,a.add_time';
+                      stock.area_id,unit.convert_type,a.wo_status,a.dstatus,a.add_time';
             $res_list = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($all_idcodes[0]),'a.dstatus'=>1),'a.id desc','0,1','');
             if(empty($res_list)){
                 $this->error('商品识别码异常');
             }
+            if($res_list[0]['convert_type']>1){
+                $this->error('商品识别码异常,请录入瓶码');
+            }
+            $sale_user_id =0;
+            if($type==2){//团购售卖
+                $sale_user_id = I('post.sale_user_id',0,'intval');//销售人员id
+                if(count($all_idcodes)>1){
+                    foreach ($all_idcodes as $v){
+                        if(!empty($v)){
+                            $res_info = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>trim($v),'a.dstatus'=>1),'a.id desc','0,1','');
+                            if(empty($res_info)){
+                                $this->error("商品识别码{$v}异常");
+                            }
+                            if($res_info[0]['convert_type']>1){
+                                $this->error('商品识别码异常,请录入瓶码');
+                            }
+                            if($res_list[0]['goods_name']!=$res_info[0]['goods_name']){
+                                $this->error("团购商品识别码,必须是同一种商品");
+                            }
+                        }
+                    }
+                }
+            }
+
             $goods_info  = $res_list[0];
             //酒楼信息
             $hotel_id = I('post.hotel_id',0,'intval');
@@ -349,6 +376,7 @@ class SaleissueController extends BaseController {
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
             if($type==2){
                 $data['maintainer_id'] = $sale_user_id;
+                $data['area_id'] = $goods_info['area_id'];
             }
             if(!empty($settlement_price)){
                 $data['settlement_price'] = $settlement_price;

@@ -53,7 +53,7 @@
               <div class="col-xs-2 col-sm-2">
                 <select id="sale_user_id"  name="sale_user_id"  class="form-control" title="请选择公司销售人员" >
                   <volist name="sale_user_list" id="vo">
-                    <option value="{$vo.sale_user_id}" <if condition="$vinfo['residenter_id'] eq $vo['sale_user_id']">selected</if> > {$vo.user_name}</option>
+                    <option value="{$vo.sale_user_id}" <if condition="$vinfo['maintainer_id'] eq $vo['sale_user_id']">selected</if> > {$vo.user_name}</option>
                   </volist>
                 </select>
               </div>
@@ -80,7 +80,6 @@
               </label>
               <div class="col-xs-2 col-sm-4">
                 <select id="sale_openid_list"  name="sale_openid"  class="form-control" title="请选择餐厅销售经理" >
-                  <option >请选择餐厅销售经理</option>
                   <volist name="staff_list" id="vo">
                   	<option value="{$vo.openid}" <if condition="$vo.openid eq $vinfo['sale_openid']">selected</if>> {$vo.nickname}</option>
                   </volist>
