@@ -154,11 +154,11 @@ class SaleissueController extends BaseController {
         $where = [];
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         $orders = 'a.id desc';
-        $fields = "a.add_time,a.type,record.wo_reason_type,
+        $fields = "a.add_time,a.id,a.type,record.wo_reason_type,
                    a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,
                    goods.name goods_name,unit.name unit_name,spe.name spe_name,a.settlement_price,
                    a.cost_price,a.settlement_price-a.cost_price as profit ,
-                   a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";
+                   a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name,ar.region_name tg_region_name";
         
         $m_sale = new \Admin\Model\SaleModel();
         $data_list = $m_sale->alias('a')
@@ -170,6 +170,7 @@ class SaleissueController extends BaseController {
         ->join('savor_sysuser sysuser on a.maintainer_id= sysuser.id ','left')
         ->join('savor_area_info area on  area.id=hotel.area_id','left')
         ->join('savor_smallapp_user user on a.sale_openid=user.openid','left')
+        ->join('savor_area_info ar on ar.id= a.area_id','left')
         ->field($fields)
         ->where($where)
         ->order($orders)
@@ -181,6 +182,8 @@ class SaleissueController extends BaseController {
             if($v['type']==1){
                 $type = $all_stock_types[$v['wo_reason_type']];
             }else{
+                $data_list[$key]['region_name'] = $v['tg_region_name'];
+                $data_list[$key]['unit_name']   = '瓶';
                 $type = $all_sale_types[$v['type']];
             }
             $data_list[$key]['type'] = $type;
@@ -360,9 +363,9 @@ class SaleissueController extends BaseController {
         $orders = "a.id desc";
         $where = [];
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
-        $where['a.hotel_id'] = array(array('not in',C('TEST_HOTEL')));
+        //$where['a.hotel_id'] = array(array('not in',C('TEST_HOTEL')));
         
-        $fields = "a.hotel_id,hotel.name hotel_name,area.region_name,user.remark";
+        $fields = "a.type,a.hotel_id,hotel.name hotel_name,area.region_name,user.remark,ar.region_name tg_region_name";
         $group  = "a.hotel_id";
         $m_sale = new \Admin\Model\SaleModel();
         $m_sale_paymeng_record = new \Admin\Model\SalePaymentRecordModel();
@@ -370,6 +373,7 @@ class SaleissueController extends BaseController {
                          ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
                          ->join('savor_sysuser user on a.maintainer_id=user.id','left')
                          ->join('savor_area_info area on hotel.area_id= area.id','left')
+                         ->join('savor_area_info ar on a.area_id= ar.id','left')
                          ->field($fields)
                          ->where($where)
                          ->order($orders)
@@ -406,7 +410,12 @@ class SaleissueController extends BaseController {
                   
                   if(!empty($rts)){
                       $info = [];
-                      $info['region_name'] = $v['region_name'];
+                      if($v['type']==1){
+                          $info['region_name'] = $v['region_name'];
+                      }else{
+                          $info['region_name'] = $v['tg_region_name'];
+                      }
+                      
                       $info['hotel_id']    = $v['hotel_id'];
                       $info['hotel_name']  = $v['hotel_name'];
                       $info['goods_id']    = $vvv['goods_id'];
@@ -433,6 +442,7 @@ class SaleissueController extends BaseController {
                           $receivable_money += $rv['settlement_price'] - $pay_money;
                       }
                       $info['receivable_money'] = $receivable_money;
+                      
                       
                       $data_list[] = $info;
                   }
@@ -462,13 +472,14 @@ class SaleissueController extends BaseController {
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
         
         
-        $fields = "a.hotel_id,hotel.name hotel_name,area.region_name,user.remark";
+        $fields = "a.type,a.hotel_id,hotel.name hotel_name,area.region_name,user.remark,ar.region_name tg_region_name";
         $group  = "a.hotel_id";
         $m_sale = new \Admin\Model\SaleModel();
         $list =   $m_sale->alias('a')
                          ->join('savor_hotel hotel on a.hotel_id = hotel.id','left')
                          ->join('savor_sysuser user on a.maintainer_id=user.id','left')
                          ->join('savor_area_info area on hotel.area_id= area.id','left')
+                         ->join('savor_area_info ar on a.area_id=ar.id','left')
                          ->field($fields)
                          ->where($where)
                          ->order($orders)
@@ -508,6 +519,11 @@ class SaleissueController extends BaseController {
            }
            foreach($days_range_arr as $dk=>$dv){
                $list[$key][$days_range_arr[$dk]['name']] = $days_range_arr[$dk]['money'];
+           }
+           if($v['type']==1){
+               $list[$key]['region_name'] = $v['region_name'];
+           }else {
+               $list[$key]['region_name'] = $v['tg_region_name'];
            }
           
        }

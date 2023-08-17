@@ -30,7 +30,7 @@ class SaleissueController extends BaseController {
                    a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,
                    goods.name goods_name,unit.name unit_name,spe.name spe_name,a.settlement_price,
                    a.cost_price,a.settlement_price-a.cost_price as profit ,
-                   a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name";
+                   a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name,ar.region_name tg_region_name";
         $m_sale = new \Admin\Model\SaleModel();
         $result = $m_sale->getAllList($fields, $where, $orders, $start, $size);
         $all_sale_types = C('SALE_TYPES');
@@ -41,6 +41,8 @@ class SaleissueController extends BaseController {
                 $type = $all_stock_types[$v['wo_reason_type']];
             }else{
                 $type = $all_sale_types[$v['type']];
+                $result['list'][$key]['unit_name'] = '瓶';
+                $result['list'][$key]['region_name'] = $v['tg_region_name'];
             }
             $result['list'][$key]['type'] = $type;
             $rts = $m_sale_payment_record->where(array('sale_id'=>$v['id']))->field('add_time as  pay_time,pay_money')->order('add_time desc')->select();

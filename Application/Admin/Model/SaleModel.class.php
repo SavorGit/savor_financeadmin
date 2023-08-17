@@ -58,6 +58,7 @@ class SaleModel extends BaseModel{
         ->join('savor_sysuser sysuser on a.maintainer_id= sysuser.id ','left')
         ->join('savor_area_info area on  area.id=hotel.area_id','left')
         ->join('savor_smallapp_user user on a.sale_openid=user.openid','left')
+        ->join('savor_area_info ar on ar.id= a.area_id','left')
         ->field($fileds)
         ->where($where)
         ->order($orders)
