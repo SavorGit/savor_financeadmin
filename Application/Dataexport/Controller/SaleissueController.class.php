@@ -367,9 +367,9 @@ class SaleissueController extends BaseController {
         $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
         $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
         $orders = "a.id desc";
-        $where = [];
+        $where = array('a.type'=>1);
         $where['a.add_time'] = array(array('EGT',$start_date.' 00:00:00'),array('ELT',$end_date.' 23:59:59'));
-        //$where['a.hotel_id'] = array(array('not in',C('TEST_HOTEL')));
+        $where['a.hotel_id'] = array(array('not in',C('TEST_HOTEL')));
         
         $fields = "a.type,a.hotel_id,hotel.name hotel_name,area.region_name,user.remark,ar.region_name tg_region_name";
         $group  = "a.hotel_id";
@@ -428,9 +428,7 @@ class SaleissueController extends BaseController {
                       $info['goods_name']  = $vvv['goods_name'];
                       $info['remark']      = $v['remark'];
                       $receivable_money = 0;
-                      //print_r($rts);exit;
                       foreach($rts as $rk=>$rv){
-                          
                           $payment_result = $m_sale_paymeng_record->alias('a')
                                                                   ->join('savor_finance_sale sale on a.sale_id=sale.id','left')
                                                                   ->join('savor_finance_stock_record record on sale.stock_record_id=record.id','left')
@@ -441,10 +439,7 @@ class SaleissueController extends BaseController {
                               foreach($payment_result as $pk=>$pv){
                                   $pay_money +=$pv['pay_money'];
                               }
-                          }else {
-                              
                           }
-                          
                           $receivable_money += $rv['settlement_price'] - $pay_money;
                       }
                       $info['receivable_money'] = $receivable_money;
@@ -453,7 +448,7 @@ class SaleissueController extends BaseController {
                       $data_list[] = $info;
                   }
             }
-        }//end list
+        }
         $cell = array(
             
             array('region_name','城市'),
