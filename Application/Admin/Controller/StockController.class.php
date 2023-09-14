@@ -487,10 +487,12 @@ class StockController extends BaseController {
                 }
             }
             if($id){
+                /*
                 $stock_info = $m_stock->getInfo(array('id'=>$id));
                 if($stock_info['status']>=2 && $stock_info['io_type']!=$io_type){
                     $this->output('请勿修改出库类型', 'stock/addoutstock',2,0);
                 }
+                */
                 $result = $m_stock->updateData(array('id'=>$id),$data);
             }else{
                 $nowdate = date('Ymd');
@@ -549,6 +551,24 @@ class StockController extends BaseController {
             $this->assign('vinfo',$vinfo);
             $this->display();
         }
+    }
+
+    public function outstockdel(){
+        $stock_id = I('get.stock_id',0,'intval');
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $res_data = $m_stock_detail->getAllData('count(id) as num', array('stock_id'=>$stock_id));
+        $out_detail_num = intval($res_data[0]['num']);
+        if($out_detail_num>0){
+            $this->output('已有出库记录,无法删除', 'stock/outlist',2,0);
+        }
+        $m_stock = new \Admin\Model\StockModel();
+        $result = $m_stock->delData(array('id'=>$stock_id));
+        if($result){
+            $this->output('操作成功!', 'stock/outlist',2);
+        }else{
+            $this->output('操作失败', 'stock/outlist',2,0);
+        }
+
     }
 
     public function outstockgoodslist(){
@@ -1010,7 +1030,7 @@ class StockController extends BaseController {
                 $goods_id = $v['goods_id'];
                 $unit_id = $v['unit_id'];
                 $rfileds = 'sum(a.total_amount) as total_amount,sum(a.total_fee) as total_fee,a.type';
-                $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1);
+                $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'stock.type'=>20,'stock.io_type'=>22,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1);
                 $rwhere['a.type'] = array('in',array(2,3));
                 $rgroup = 'a.type';
                 $res_record = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','',$rgroup);
