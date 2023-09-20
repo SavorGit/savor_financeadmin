@@ -505,19 +505,14 @@ class StockController extends BaseController {
         $order = 'stock.id desc';
         
         $where = [];
-        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        $where['stock.io_date'] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
         $where['sd.status']       = 1;
-        //$where['stock.io_type']   = array('in','11,12,13');
-        
         $fields = "a.idcode,stock.id stock_id,a.stock_detail_id,a.goods_id,goods.barcode,goods.name goods_name,
                    unit.name u_name,brand.name brand_name,stock.type,
                    case stock.type
 				   when 10 then '入库'
                    when 20 then '出库' END AS type_str,
                    stock.io_date,area.id area_id,area.region_name,hotel.id hotel_id, hotel.name hotel_name,unit.name unit_name";
-        
-        //$group = 'a.goods_id';
-        $m_stock_detail = new \Admin\Model\StockDetailModel();
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $result = $m_stock_record->alias('a')
         ->join('savor_finance_stock_detail sd on a.stock_detail_id=sd.id','left')
@@ -533,23 +528,18 @@ class StockController extends BaseController {
         ->order($order)
         ->select();
         $data_list = [];
-        //print_r($result);exit;
         foreach($result as $key=>$v){
-            
             $map = [];
-            
             $map['stock_id']        = $v['stock_id'];
             $map['stock_detail_id'] = $v['stock_detail_id'];
             $map['goods_id']        = $v['goods_id'];
             if($v['type']==10){
                 $map['type'] = 1;
-            }else if($v['type']==11){
+            }elseif($v['20']==11){
                 $map['type'] = 2;
             }
             $map['dstatus']         = 1;
-            //print_r($map);exit;
             $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')->where($map)->find();
-            //print_r($rt);exit;
             $v['total_amount'] = $rt['total_amount'];
             $v['total_fee']    = $rt['total_fee'];
             if($v['hotel_id']){
@@ -562,7 +552,6 @@ class StockController extends BaseController {
                 $v['storage_type'] = '周转仓';
             }
             $data_list[] = $v;
-            
         }
         $cell = array(
             array('idcode','唯一识别码'),
@@ -591,12 +580,9 @@ class StockController extends BaseController {
         $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
         
         $where = [];
-        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
-        
-        $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+        $where['stock.io_date'] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
         $where['a.status']       = 1;
         $where['stock.type']     = 20;
-        
         $fields = 'a.goods_id,goods.barcode,goods.name goods_name,unit.name u_name';
         $group = 'a.goods_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
@@ -614,11 +600,10 @@ class StockController extends BaseController {
         $data_list = [];
         foreach($result as $key=>$v){
             $where = [];
-            $where['stock.io_date '] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
-            $where['a.status']       = 1;
-            $where['stock.type']     = 20;
-            $where['a.goods_id']     = $v['goods_id'];
-            
+            $where['stock.io_date'] = array(array('EGT',$start_date),array('ELT',$end_date)) ;
+            $where['a.status'] = 1;
+            $where['stock.type'] = 20;
+            $where['a.goods_id'] = $v['goods_id'];
             $fields = 'stock.id stock_id,a.id stock_detail_id,a.goods_id,area.id area_id,area.region_name,
                        stock.serial_number,hotel.id hotel_id,hotel.name hotel_name,unit.name unit_name';
             $rts =  $m_stock_detail->alias('a')
@@ -632,28 +617,29 @@ class StockController extends BaseController {
                                    ->order($order)
                                    ->select();
             foreach($rts as $kk=>$vv){
-                //数量
-                
-                //成本
-                
-                $map = [];
-                $map['stock_id']        = $vv['stock_id'];
-                $map['stock_detail_id'] = $vv['stock_detail_id'];
-                $map['goods_id']        = $vv['goods_id'];
-                $map['type']            = 2;
-                $map['dstatus']         = 1;
-                $rt = $m_stock_record->field('sum(abs(total_amount)) as total_amount,sum(abs(total_fee)) as total_fee')->where($map)->find();
-                //print_r($rt);exit;
                 $res_price = $m_avg_price->getAll('price',array('goods_id'=>$vv['goods_id']),0,1,'id desc');
                 $avg_price = $res_price[0]['price'];
-                $vv['total_amount'] = !empty($rt['total_amount']) ?$rt['total_amount']:0  ;
-                //$vv['total_fee']    = $rt['total_fee'];
-                $vv['total_fee']    = $rt['total_amount'] * $avg_price;
+
+                $rwhere = array('a.stock_id'=>$vv['stock_id'],'a.stock_detail_id'=>$vv['stock_detail_id'],'a.goods_id'=>$vv['goods_id'],
+                    'a.type'=>2,'a.dstatus'=>1);
+                $rfields = 'sum(abs(a.total_amount)) as total_amount,sum(abs(a.total_fee)) as total_fee,stock.io_type';
+                $rt_out = $m_stock_record->alias('a')
+                    ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
+                    ->field($rfields)->where($rwhere)->select();
+                $total_amount = intval($rt_out[0]['total_amount']);
+                if($rt_out[0]['io_type']==26){
+                    $total_fee = $rt_out[0]['total_fee'];
+                }else{
+                    $total_fee = $total_amount*$avg_price;
+                }
+
+                $vv['total_amount'] = $total_amount;
+                $vv['total_fee']    = $total_fee;
                 if($vv['hotel_id']){
                     $vv['storage_id'] = $vv['hotel_id'];
                     $vv['storage_name'] = $vv['hotel_name'];
                     $vv['storage_type'] = '前置仓';
-                }else {
+                }else{
                     $vv['storage_id'] = $vv['area_id'];
                     $vv['storage_name'] = $vv['region_name'];
                     $vv['storage_type'] = '周转仓';
