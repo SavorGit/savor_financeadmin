@@ -104,7 +104,7 @@ $config['MANGER_STATE'] = array(
     '3'=>'审核不通过',
 );
 $config['STOCK_IN_TYPES'] = array('11'=>'采购入库','12'=>'调拨入库','13'=>'餐厅退回');
-$config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23'=>'赠送餐厅','24'=>'销售','25'=>'其他消耗');
+$config['STOCK_OUT_TYPES'] = array('21'=>'内部调拨','22'=>'餐厅配货','23'=>'赠送餐厅','24'=>'销售','25'=>'其他消耗','26'=>'退货');
 $config['STOCK_USE_TYPE'] = array('1'=>'餐厅售卖','2'=>'品鉴酒','3'=>'活动');
 $config['STOCK_REASON'] = array(
     '1'=>array('id'=>1,'name'=>'售卖(照片)'),

@@ -1097,7 +1097,7 @@ class StockController extends BaseController {
 //        $all_types = array('2'=>'出库','3'=>'拆箱','6'=>'报损','7'=>'核销');
         $all_types = array('2'=>'出库','6'=>'报损','7'=>'核销');
 
-        $where = array('stock.hotel_id'=>$hotel_id,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1);
+        $where = array('stock.hotel_id'=>$hotel_id,'stock.type'=>20,'stock.io_type'=>22,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1);
         if($type){
             $where['a.type'] = $type;
         }else{
