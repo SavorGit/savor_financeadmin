@@ -48,7 +48,8 @@
                 	公司销售人员：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <select id="sale_user_id"  name="sale_user_id"  class="form-control" title="请选择公司销售人员" >
+                <select id="sale_user_id"  name="sale_user_id"  class="form-control" >
+					<option value="0" >请选择</option>
                   <volist name="sale_user_list" id="vo">
                     <option value="{$vo.sale_user_id}" > {$vo.user_name}</option>
                   </volist>
