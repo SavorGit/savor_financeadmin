@@ -300,7 +300,7 @@ class SaleissueController extends BaseController {
              $data_list[] = $info;
          }
 
-        $where = array('a.type'=>2);
+        $where['a.type'] = 2;
         $fields = "a.area_id,a.goods_id,goods.name as goods_name,goods.barcode,area.region_name,a.type,
         sum(a.settlement_price) as total_settlement_price,GROUP_CONCAT(a.id) as sale_ids";
         $group  = "a.goods_id";
@@ -336,7 +336,7 @@ class SaleissueController extends BaseController {
             $info = array('type'=>2,'type_str'=>$all_sale_types[2],'region_name'=>$v['region_name'],'hotel_id'=>'',
                 'hotel_name'=>'','barcode'=>$v['barcode'],'goods_id'=>$v['goods_id'],
                 'goods_name'=>$v['goods_name'],'total_amount'=>$total_amount,'cost_total'=>$cost_total,
-                'settlement_total'=>$v['settlement_total'],'no_rate_settlement_total'=>$no_rate_settlement_total,
+                'settlement_total'=>$settlement_total,'no_rate_settlement_total'=>$no_rate_settlement_total,
                 'rate_settlement_total'=>$rate_settlement_total,'sale_profit'=>$sale_profit
             );
             $data_list[] = $info;
