@@ -1,14 +1,14 @@
 <include file="Public/script"/>
 <!--显示列表样式1 start-->
 <div class="pageHeader">
-  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/hotelBlacklist/datalist" method="post">
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/hotelblacklist/datalist" method="post">
       <input type="hidden" name="pageNum" value="{$pageNum}"/>
       <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
     <div class="searchBar">
       <div class="clearfix">
         <div class="col-xs-12 col-sm-8 col-md-8 col-lg-98">
           <div class="tools-group">
-            <a class="btn btn-success btn-sm add" href="{$host_name}/hotelBlacklist/addhotel" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i>新增</a>
+            <a class="btn btn-success btn-sm add" href="{$host_name}/hotelblacklist/addhotel" title="新增" target="dialog" mask="true"><i class="fa fa-plus"></i>新增</a>
           </div>
         </div>
         
@@ -45,7 +45,7 @@
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
 
-                  <a warn="警告" data-tip="删除" title="你确定要删除吗？" target="ajaxTodo" href="{$host_name}/hotelBlacklist/delhotel?id={$dinfo.id}" calback="navTabAjaxDone" class="btn btn-danger btn-icon"><span><i class="fa fa-trash"></i></span></a>
+                  <a warn="警告" data-tip="删除" title="你确定要删除吗？" target="ajaxTodo" href="{$host_name}/hotelblacklist/delhotel?id={$dinfo.id}" calback="navTabAjaxDone" class="btn btn-danger btn-icon"><span><i class="fa fa-trash"></i></span></a>
 
                 </div>
               </td>

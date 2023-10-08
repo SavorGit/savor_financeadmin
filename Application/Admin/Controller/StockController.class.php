@@ -1379,6 +1379,13 @@ class StockController extends BaseController {
                     $integral_status = 1;
                     $is_recycle = 0;
                     $res_goodsrecycle = $m_goodsconfig->getInfo(array('goods_id'=>$goods_id,'type'=>20,'status'=>1));
+
+                    $auto_audit_start_time = '2023-10-08 00:00:00';
+                    if($res_record['add_time']>=$auto_audit_start_time){
+                        $res_goodsrecycle = '';
+                        $m_stock_record->updateData($condition, array('recycle_status'=>2,'recycle_time'=>date('Y-m-d H:i:s')));
+                    }
+
                     if(!empty($res_goodsrecycle)){
                         $is_recycle = 1;
                         $integral_status = 2;

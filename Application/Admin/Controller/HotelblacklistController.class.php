@@ -1,12 +1,12 @@
 <?php
 namespace Admin\Controller;
 
-class HotelBlacklistController extends BaseController {
-    
+class HotelblacklistController extends BaseController {
+
     public function __construct() {
         parent::__construct();
     }
-    
+
     public function datalist() {
     	$keyword = I('keyword','','trim');
         $page = I('pageNum',1);
@@ -27,7 +27,7 @@ class HotelBlacklistController extends BaseController {
         $this->assign('numPerPage',$size);
         $this->display('datalist');
     }
-    
+
     public function addhotel(){
         $m_hotel = new \Admin\Model\HotelModel();
         if(IS_GET){
@@ -42,16 +42,16 @@ class HotelBlacklistController extends BaseController {
             $m_blacklist  = new \Admin\Model\HotelBlacklistModel();
             $res_blacklist = $m_blacklist->getInfo(array('hotel_id'=>$hotel_id));
             if(!empty($res_blacklist)){
-                $this->output('酒楼不能重复添加', 'hotelBlacklist/addhotel', 2, 0);
+                $this->output('酒楼不能重复添加', 'hotelblacklist/addhotel', 2, 0);
             }
 
             $res_hotel = $m_hotel->getInfo(array('id'=>$hotel_id));
             $data = array('hotel_id'=>$hotel_id,'hotel_name'=>$res_hotel['name']);
             $result = $m_blacklist->add($data);
             if($result){
-                $this->output('操作成功', 'hotelBlacklist/datalist');
+                $this->output('操作成功', 'hotelblacklist/datalist');
             }else{
-                $this->output('操作失败', 'hotelBlacklist/addhotel',2,0);
+                $this->output('操作失败', 'hotelblacklist/addhotel',2,0);
             }
         }
     }
