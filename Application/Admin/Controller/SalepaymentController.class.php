@@ -192,7 +192,7 @@ class SalepaymentController extends BaseController {
                 $where = array('a.hotel_id'=>$res_salepayment['hotel_id'],'a.ptype'=>array('in','0,2'),'record.wo_reason_type'=>1,'record.wo_status'=>2);
                 $res_all_sales = $m_sale->getList($fileds,$where,'a.id desc', 0,0);
             }else{
-                $where = array('type'=>2,'ptype'=>array('in','0,2'));
+                $where = array('type'=>array('in','2,5'),'ptype'=>array('in','0,2'));
                 $res_all_sales = $m_sale->getAllData('*',$where,'id desc');
             }
 

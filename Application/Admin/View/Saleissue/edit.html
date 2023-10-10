@@ -23,12 +23,10 @@
 					售卖类型：
                 </label>
 			<div class="col-xs-2 col-sm-2">
-                <select id="type" name="type" class="form-control bs-select" title="请选择售卖类型">
-                	<if condition="$vinfo['stock_record_id'] gt 0">
-                	<option value="1" <if condition="$vinfo['type'] eq 1">selected</if>> 餐厅售卖</option>
-                	</if>
-                    <option value="2" <if condition="$vinfo['type'] eq 2">selected</if>> 团购售卖</option>
-                  	<option value="3" <if condition="$vinfo['type'] eq 3">selected</if>> 其它售卖</option>
+                <select id="type" name="type" class="form-control bs-select">
+					<volist name="sale_types" id="stname">
+						<option value="{$key}" >{$stname}</option>
+					</volist>
                 </select>
               </div>
               <label class="col-xs-2 col-sm-2 control-label">
@@ -45,8 +43,8 @@
                 <input name="settlement_price" type="text" value="{$vinfo.settlement_price}"  minlength="1" maxlength="50" class="form-control" />
               </div>
             </div>
-            
-            <div id="sale_user_id" class="form-group row" style="display:none;">
+		  <div class="form-group row">
+            <div id="sale_user_id" style="display:none;">
               <label class="col-xs-2 col-sm-2 control-label">
                 	公司销售人员：
               </label>
@@ -58,9 +56,21 @@
                   </volist>
                 </select>
               </div>
-              
-              
             </div>
+
+			  <div id="sale_gift_idcode" style="display:none;">
+				  <label class="col-xs-2 col-sm-2 control-label">
+					  赠品商品识别码：
+				  </label>
+				  <div class="col-xs-5 col-sm-5">
+					  <textarea name="gift_idcode" value="{$vinfo.gift_idcode}" type="textInput" class="form-control">{$vinfo.gift_idcode}</textarea>
+				  </div>
+
+			  </div>
+
+		  </div>
+
+
           </div>
           <div id="tab2" class="tab-pane fade">
 			<div class="form-group row">
@@ -256,21 +266,24 @@
 <script type="text/javascript">
   var honame = $('#honame').val();
   var s_type = $('#s_type').val();
-  if(s_type==2){
-	  $('#select_hotel').hide()
-	  $('#sale_user_id').show();
-  }
+
   $('#type').change(function () {
 		var type  = $('#type').val();
-		
-		if(type==2){
-			$('#select_hotel').hide()
-			$('#sale_user_id').show();
-		}else {
-			$('#select_hotel').show();
-			$('#sale_user_id').hide();
-		}
-	  });
+	  if(type==2 || type==4 || type==5){
+		  $('#select_hotel').hide()
+		  $('#sale_user_id').show();
+		  if(type==5){
+			  $('#sale_gift_idcode').show();
+		  }else{
+			  $('#sale_gift_idcode').hide();
+		  }
+	  }else {
+		  $('#select_hotel').show();
+		  $('#sale_user_id').hide();
+		  $('#sale_gift_idcode').hide();
+	  }
+  });
+  $('#type').trigger('change');
   $('.date-reset').click(function(){
     $(this).parent().prev().val('')
   });

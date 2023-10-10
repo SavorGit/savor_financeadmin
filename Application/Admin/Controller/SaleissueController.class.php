@@ -86,7 +86,6 @@ class SaleissueController extends BaseController {
         $this->display();
     }
     public function add(){
-        
         $m_opuser_role = new \Admin\Model\OpuserroleModel(); 
         $fields = 'a.user_id sale_user_id,user.remark user_name';
         
@@ -96,14 +95,7 @@ class SaleissueController extends BaseController {
         $mps['a.role_id'] = array('in',array(1,3));
         $mps['user.id'] = array('gt',0);
         $sale_user_list = $m_opuser_role->getAllRole($fields,$mps,'' );
-        
-        /*$l_c = count($user_info);
-        $user_info[$l_c] = array(
-            'main_id'=>0,
-            'remark'=>'无',
-        );*/
-        
-        
+
         //售酒餐厅
         $m_hotel = new \Admin\Model\HotelModel();
         $fields = "a.id hotel_id,a.name hotel_name";
@@ -112,6 +104,9 @@ class SaleissueController extends BaseController {
                               ->join('savor_hotel_ext ext on a.id = ext.hotel_id','left')
                               ->field($fields)->where($where)->select();
         $host_name = get_host_name();
+        $sale_types = C('SALE_TYPES');
+        unset($sale_types[1],$sale_types[4]);
+        $this->assign('sale_types',$sale_types);
         $this->assign('honame',$host_name);
         $this->assign('hotel_list',$hotel_list);
         $this->assign('sale_user_list',$sale_user_list);
@@ -130,6 +125,7 @@ class SaleissueController extends BaseController {
             $settlement_price = I('post.settlement_price',0,'intval');
             $type   = I('post.type',0,'intval');
             $idcode = I('post.idcode','','trim');
+            $gift_idcode = I('post.gift_idcode','','trim');
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
@@ -142,7 +138,7 @@ class SaleissueController extends BaseController {
                 $this->error('商品识别码异常,请录入瓶码');
             }
             $sale_user_id =0;
-            if($type==2){//团购售卖
+            if($type==2 || $type==5){//团购售卖
                 $sale_user_id = I('post.sale_user_id',0,'intval');//销售人员id
                 if(count($all_idcodes)>1){
                     foreach ($all_idcodes as $v){
@@ -190,10 +186,11 @@ class SaleissueController extends BaseController {
             $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
+            $data['gift_idcode']       = $gift_idcode;                          //商品唯一识别码
             $data['cost_price']        = abs($goods_info['cost_price']);        //商品成本价
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
-            if($type==2){
+            if($type==2 || $type==5){
                 $data['maintainer_id'] = $sale_user_id;
                 $data['area_id'] = $goods_info['area_id'];
             }
@@ -287,8 +284,13 @@ class SaleissueController extends BaseController {
         $mps['a.role_id'] = array('in',array(1,3));
         $mps['user.id'] = array('gt',0);
         $sale_user_list = $m_opuser_role->getAllRole($fields,$mps,'' );
-        
-        
+        $sale_types = C('SALE_TYPES');
+        foreach ($sale_types as $k=>$v){
+            if($k!=$info['type']){
+                unset($sale_types[$k]);
+            }
+        }
+        $this->assign('sale_types',$sale_types);
         $this->assign('honame',$host_name);
         $this->assign('hotel_list',$hotel_list);
         $this->assign('staff_list',$staff_list);
@@ -309,6 +311,7 @@ class SaleissueController extends BaseController {
             }
             $type   = I('post.type',0,'intval');
             $idcode = I('post.idcode','','trim');
+            $gift_idcode = I('post.gift_idcode','','trim');
             $all_idcodes = explode("\n",$idcode);
             $m_stock_record = new \Admin\Model\StockRecordModel();
             $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,goods.id goods_id,a.price as cost_price,unit.name as unit_name,
@@ -321,7 +324,7 @@ class SaleissueController extends BaseController {
                 $this->error('商品识别码异常,请录入瓶码');
             }
             $sale_user_id =0;
-            if($type==2){//团购售卖
+            if($type==2 || $type==5){//团购售卖
                 $sale_user_id = I('post.sale_user_id',0,'intval');//销售人员id
                 if(count($all_idcodes)>1){
                     foreach ($all_idcodes as $v){
@@ -370,11 +373,12 @@ class SaleissueController extends BaseController {
             $data['type']              = $type;                                 //售卖类型
             $data['goods_id']          = $goods_info['goods_id'];               //商品id
             $data['idcode']            = $idcode;                               //商品唯一识别码
+            $data['gift_idcode']       = $gift_idcode;
             $data['cost_price']        = abs($goods_info['cost_price']);        //商品成本价
             
             $data['hotel_id']          = $hotel_id;                             //酒楼id
             $data['sale_openid']       = $sale_openid;                          //销售经理openid
-            if($type==2){
+            if($type==2 || $type==5){
                 $data['maintainer_id'] = $sale_user_id;
                 $data['area_id'] = $goods_info['area_id'];
             }
