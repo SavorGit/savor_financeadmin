@@ -92,7 +92,7 @@ class GoodsController extends BaseController {
             $week_time = "第{$v['week_number']}周({$v['week_start_date']}-{$v['week_end_date']})";
             $info = array('goods_id'=>$v['goods_id'],'goods_name'=>$v['goods_name'],'week_time'=>$week_time,'purchase_num'=>$v['purchase_num'],
                 'zzc_stock_allnum'=>$v['zzc_stock_allnum'],'qzc_stock_allnum'=>$v['qzc_stock_allnum'],
-                'qzc_hotel_allnum'=>$v['qzc_hotel_allnum'],'qzc_wo_allnum'=>$v['qzc_wo_allnum']
+                'qzc_hotel_allnum'=>$v['qzc_hotel_allnum'],'qzc_wo_allnum'=>$v['qzc_wo_allnum'],'groupby_num'=>$v['groupby_num']
             );
             $goodstrend_id = $v['id'];
             $res_area_detail = $m_static_goodstrend_area->getDataList('*',array('goodstrend_id'=>$goodstrend_id),'area_id asc');
@@ -119,6 +119,7 @@ class GoodsController extends BaseController {
             array('qzc_stock_allnum','前置仓总库存'),
             array('qzc_hotel_allnum','前置仓总数'),
             array('qzc_wo_allnum','前置仓总销量'),
+            array('groupby_num','团购总销量'),
         );
         foreach ($res_area as $v){
             $area_id = $v['area_id'];
