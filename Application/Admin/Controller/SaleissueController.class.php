@@ -158,6 +158,9 @@ class SaleissueController extends BaseController {
                     }
                 }
                 $all_idcodes = $now_idcodes;
+                if(count($all_idcodes)>90){
+                    $this->error("请输入90个以下的码");
+                }
                 $idcode = join("\n",$now_idcodes);
             }
 
