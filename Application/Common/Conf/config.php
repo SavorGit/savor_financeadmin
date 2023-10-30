@@ -114,7 +114,7 @@ $config['STOCK_REASON'] = array(
 );
 $config['STOCK_RECORD_TYPE']=array('1'=>'入库','2'=>'出库','3'=>'拆箱','4'=>'领取','5'=>'验收','6'=>'报损','7'=>'核销');
 $config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过','4'=>'待补充资料');
-$config['STOCK_RECYLE_STATUS']=array('1'=>'待收回物料','2'=>'已收回物料');
+$config['STOCK_RECYLE_STATUS']=array('1'=>'待收回物料','2'=>'已收回物料','3'=>'无法回收物料');
 $config['SALE_TYPES']=array('1'=>'餐厅售卖','2'=>'团购售卖','3'=>'其它售卖','4'=>'线上团购','5'=>'买赠售卖');
 $config['PAY_STATUS']=array('1'=>'未收款','2'=>'已收款');
 $config['PAY_TYPE']=array('1'=>'完全收款','2'=>'部分收款','0'=>'未收款');
