@@ -494,10 +494,47 @@ class StockController extends BaseController {
         $filename = '唯一识别码跟踪表';
         $this->exportToExcel($cell,$data_list,$filename,1);
     }
+
+    public function goodsiolist(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+
+        $cache_key = 'cronscript:finance:goodsiolist'.$start_date.$end_date;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $res = $redis->get($cache_key);
+        if(!empty($res)){
+            if(is_numeric($res)){
+                $now_time = time();
+                $diff_time = $now_time - $res;
+                $this->success("数据正在生成中(已执行{$diff_time}秒),请稍后点击下载");
+            }else{
+                //下载
+                $file_name = $res;
+                $file_path = SITE_TP_PATH.$file_name;
+                $file_size = filesize($file_path);
+                header("Content-type:application/octet-tream");
+                header('Content-Transfer-Encoding: binary');
+                header("Content-Length:$file_size");
+                header("Content-Disposition:attachment;filename=".$file_name);
+                @readfile($file_path);
+            }
+        }else{
+            $shell = "/opt/install/php/bin/php /application_data/web/php/savor_financeadmin/cli.php dataexport/stock/goodsiolistscript/start_date/$start_date/end_date/$end_date > /tmp/null &";
+            system($shell);
+            $now_time = time();
+            $redis->set($cache_key,$now_time,3600);
+            $this->success('数据正在生成中,请稍后点击下载');
+        }
+    }
+
     /**
      * @desc 数据查询-商品收发明细表
      */
-    public function goodsiolist(){
+    public function goodsiolistscript(){
+        ini_set("memory_limit","512M");
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
@@ -570,8 +607,14 @@ class StockController extends BaseController {
             array('total_fee','成本'),
         );
         $filename = '商品收发明细表';
-        $this->exportToExcel($cell,$data_list,$filename,1);
+        $path = $this->exportToExcel($cell,$data_list,$filename,2);
+        $cache_key = 'cronscript:finance:goodsiolist'.$start_date.$end_date;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $redis->set($cache_key,$path,3600);
     }
+
+
     public function outlistcost(){
         $order = 'stock.id desc';
         $start_date = I('start_date','');
