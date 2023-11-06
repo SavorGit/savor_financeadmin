@@ -141,10 +141,47 @@ class SaleissueController extends BaseController {
         $filename = '系统导出金蝶唯一识别码';
         $this->exportToExcel($cell,$datalist,$filename,1,'Excel5');
     }
+
+    public function datalist(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
+        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+
+        $cache_key = 'cronscript:finance:saledatalist'.$start_date.$end_date;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $res = $redis->get($cache_key);
+        if(!empty($res)){
+            if(is_numeric($res)){
+                $now_time = time();
+                $diff_time = $now_time - $res;
+                $this->success("数据正在生成中(已执行{$diff_time}秒),请稍后点击下载");
+            }else{
+                //下载
+                $file_name = $res;
+                $file_path = SITE_TP_PATH.$file_name;
+                $file_size = filesize($file_path);
+                header("Content-type:application/octet-tream");
+                header('Content-Transfer-Encoding: binary');
+                header("Content-Length:$file_size");
+                header("Content-Disposition:attachment;filename=".$file_name);
+                @readfile($file_path);
+            }
+        }else{
+            $shell = "/opt/install/php/bin/php /application_data/web/php/savor_financeadmin/cli.php dataexport/saleissue/datalistscript/start_date/$start_date/end_date/$end_date > /tmp/null &";
+            system($shell);
+            $now_time = time();
+            $redis->set($cache_key,$now_time,3600);
+            $this->success('数据正在生成中,请稍后点击下载');
+        }
+    }
+
     /**
      * @desc 数据查询  销售出库单列表
      */
-    public function datalist() {
+    public function datalistscript() {
+        ini_set("memory_limit","256M");
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
@@ -156,7 +193,7 @@ class SaleissueController extends BaseController {
         $fields = "a.add_time,a.id,a.type,record.wo_reason_type,
                    a.idcode,area.region_name,a.hotel_id,hotel.name hotel_name,goods.barcode,
                    goods.name goods_name,unit.name unit_name,spe.name spe_name,a.settlement_price,
-                   a.cost_price,a.settlement_price-a.cost_price as profit ,
+                   a.cost_price,a.settlement_price-a.cost_price as profit,a.num,
                    a.invoice_time,a.invoice_money,sysuser.remark,user.nickName,user.name,ar.region_name tg_region_name";
         
         $m_sale = new \Admin\Model\SaleModel();
@@ -182,8 +219,11 @@ class SaleissueController extends BaseController {
                 $type = $all_stock_types[$v['wo_reason_type']];
                 $amount = 1;
             }else{
-                $all_idcodes = explode("\n",$v['idcode']);
-                $amount = count($all_idcodes);
+                if($v['num']){
+                    $amount = $v['num'];
+                }else{
+                    $amount = 1;
+                }
                 $data_list[$key]['region_name'] = $v['tg_region_name'];
                 $data_list[$key]['unit_name']   = '瓶';
                 $type = $all_sale_types[$v['type']];
@@ -252,8 +292,14 @@ class SaleissueController extends BaseController {
             array('name','销售经理'),
         );
         $filename = '销售出库单列表';
-        $this->exportToExcel($cell,$data_list,$filename,1);
+        $path = $this->exportToExcel($cell,$data_list,$filename,2);
+        $cache_key = 'cronscript:finance:saledatalist'.$start_date.$end_date;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $redis->set($cache_key,$path,3600);
     }
+
+
     /**
      * @desc 数据查询 销售出库单汇总表
      */
