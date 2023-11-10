@@ -1223,6 +1223,7 @@ class StockController extends BaseController {
         $wo_reason_type = I('wo_reason_type',0,'intval');
         $area_id = I('area_id',0,'intval');
         $recycle_status = I('recycle_status',0,'intval');
+        $idcode = I('idcode','','trim');
         $hotel_name = I('hotel_name','','trim');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
@@ -1254,6 +1255,9 @@ class StockController extends BaseController {
         }
         if($area_id){
             $where['hotel.area_id'] = $area_id;
+        }
+        if(!empty($idcode)){
+            $where['a.idcode'] = $idcode;
         }
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
@@ -1326,6 +1330,7 @@ class StockController extends BaseController {
         $this->assign('area', $area_arr);
         $this->assign('start_time',$start_time);
         $this->assign('end_time',$end_time);
+        $this->assign('idcode',$idcode);
         $this->assign('hotel_name',$hotel_name);
         $this->assign('wo_reason_type',$wo_reason_type);
         $this->assign('wo_status',$wo_status);
