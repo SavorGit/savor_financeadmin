@@ -46,7 +46,7 @@ class SaleissueController extends BaseController {
         $all_wo_status = C('STOCK_WRITEOFF_STATUS');
         $all_ptype = C('PAY_TYPE');
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.id as hotel_id,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.status,record.wo_status";
+        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.id as hotel_id,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.num,a.status,record.wo_status";
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
         $datalist = $result['list'];
         foreach ($datalist as $k=>$v){
@@ -64,6 +64,9 @@ class SaleissueController extends BaseController {
                 $type_str = $all_types[$v['type']];
             }
             $wo_status_str = $all_wo_status[$v['wo_status']];
+            if($v['num']>0 && empty($v['idcode'])){
+                $datalist[$k]['idcode'] = '第三方发货';
+            }
             $datalist[$k]['status_str'] = $status_str;
             $datalist[$k]['type_str'] = $type_str;
             $datalist[$k]['pay_type_str'] = $pay_type_str;
