@@ -169,6 +169,8 @@ class SalepaymentController extends BaseController {
                     foreach ($pay_record as $v){
                         if($v['pay_money']>0){
                             $m_sale->updateData(array('id'=>$v['sale_id']),array('status'=>2,'sale_payment_id'=>$sale_payment_id,'ptype'=>$v['ptype']));
+                            $m_sale->where(array('id'=>$v['sale_id']))->setInc('pay_money',$v['pay_money']);
+
                             $m_paymentrecord->add(array('sale_id'=>$v['sale_id'],'sale_payment_id'=>$sale_payment_id,'pay_money'=>$v['pay_money']));
                         }
                     }
@@ -277,7 +279,11 @@ class SalepaymentController extends BaseController {
             $ptype = 2;
         }
         $m_sale = new \Admin\Model\SaleModel();
-        $m_sale->updateData(array('id'=>$res_info['sale_id']),array('status'=>$status,'sale_payment_id'=>$sale_payment_id,'ptype'=>$ptype));
+        $res_sale = $m_sale->getInfo(array('id'=>$res_info['sale_id']));
+        $now_pay_money = sprintf("%.2f",$res_sale['pay_money']-$res_info['pay_money']);
+
+        $m_sale->updateData(array('id'=>$res_info['sale_id']),array('status'=>$status,'sale_payment_id'=>$sale_payment_id,
+            'ptype'=>$ptype,'pay_money'=>$now_pay_money));
 
         $this->output('操作成功!', 'salepayment/linksalelist',2);
     }
