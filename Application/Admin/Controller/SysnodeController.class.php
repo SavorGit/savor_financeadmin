@@ -49,7 +49,7 @@ class SysnodeController extends BaseController {
         //处理提交数据
         if(IS_POST) {
             //获取参数
-            $id          = I('post.id', '', 'int');
+            $node_id          = I('post.id', '', 'int');
             $nodekey     = I('post.nodekey');
             $modulename  = I('post.modulename','','trim');
             $menulevel   = I('post.menulevel');
@@ -86,9 +86,8 @@ class SysnodeController extends BaseController {
                     }
                 } else {
                     $nodeparm['isenable'] = $isenable;
-                    if ($nodeinfo) {
-                        $nid = $nodeinfo['id'];
-                        $result = $sysNode->where("id={$nid}")->save($nodeparm);
+                    if ($node_id) {
+                        $sysNode->where(array('id'=>$node_id))->save($nodeparm);
                         $result = true;
                     } else {
                         $result = $sysNode->add($nodeparm);
@@ -134,9 +133,9 @@ class SysnodeController extends BaseController {
                 if($media_id) $nodeparm['media_id'] = $media_id;
 
                 if($select_media_id) $nodeparm['select_media_id'] = $select_media_id;
-                if ($nodeinfo) {
+                if ($node_id) {
                     $nid = $nodeinfo['id'];
-                    $result = $sysNode->where("id={$nid}")->save($nodeparm);
+                    $result = $sysNode->where(array('id'=>$node_id))->save($nodeparm);
                     $result = true;
                 } else {
                     //二级节点
