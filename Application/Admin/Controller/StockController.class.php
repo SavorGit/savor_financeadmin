@@ -1007,8 +1007,14 @@ class StockController extends BaseController {
         foreach ($res_area as $v){
             $area_arr[$v['id']]=$v;
         }
-
         $where = array('stock.hotel_id'=>array('gt',0),'stock.type'=>20);
+        $sysuserInfo = session('sysUserInfo');
+        if(!in_array($sysuserInfo['id'],array(344,345,361,362,363,364))){
+            $test_hotels = C('TEST_HOTEL');
+            $test_hotels[]=0;
+            $where['stock.hotel_id'] = array('not in',$test_hotels);
+        }
+
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
         }

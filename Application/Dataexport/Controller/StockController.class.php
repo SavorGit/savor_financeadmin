@@ -75,6 +75,134 @@ class StockController extends BaseController {
         $this->exportToExcel($cell,$data_list,$filename,1);
     }
 
+    public function hotelstocklist(){
+        $area_id = I('area_id',0,'intval');
+        $cache_key = 'cronscript:finance:hotelstocklist'.$area_id;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $res = $redis->get($cache_key);
+        if(!empty($res)){
+            if(is_numeric($res)){
+                $now_time = time();
+                $diff_time = $now_time - $res;
+                $http = check_http();
+                $jumpUrl = $http.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+                $this->success("数据正在生成中(已执行{$diff_time}秒),请稍后点击下载",$jumpUrl);
+            }else{
+                //下载
+                $file_name = $res;
+                $file_path = SITE_TP_PATH.$file_name;
+                $file_size = filesize($file_path);
+                header("Content-type:application/octet-tream");
+                header('Content-Transfer-Encoding: binary');
+                header("Content-Length:$file_size");
+                header("Content-Disposition:attachment;filename=".$file_name);
+                @readfile($file_path);
+            }
+        }else{
+            $shell = "/opt/install/php/bin/php /application_data/web/php/savor_financeadmin/cli.php dataexport/stock/hotelstocklistscript/area_id/$area_id > /tmp/null &";
+            system($shell);
+            $now_time = time();
+            $redis->set($cache_key,$now_time,3600);
+            $this->success('数据正在生成中,请稍后点击下载');
+        }
+    }
+
+    public function hotelstocklistscript(){
+        $area_id = I('area_id',0,'intval');
+
+        $area_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
+        $where = array('stock.hotel_id'=>array('gt',0),'stock.type'=>20);
+        $sysuserInfo = session('sysUserInfo');
+        if(!in_array($sysuserInfo['id'],array(344,345,361,362,363,364))){
+            $test_hotels = C('TEST_HOTEL');
+            $test_hotels[]=0;
+            $where['stock.hotel_id'] = array('not in',$test_hotels);
+        }
+
+        if($area_id){
+            $where['stock.area_id'] = $area_id;
+        }
+        $fileds = 'a.goods_id,stock.area_id,goods.name,goods.barcode,cate.name as cate_name,spec.name as sepc_name,a.unit_id,unit.name as unit_name,hotel.id as hotel_id,hotel.name as hotel_name';
+        $group = 'stock.hotel_id,a.goods_id,a.unit_id';
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $res_list = $m_stock_detail->getHotelStockGoods($fileds,$where,$group,0,0);
+        $data_list = array();
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
+        foreach ($res_list as $v){
+            $out_num = $unpack_num = $wo_num = $report_num = 0;
+            $price = 0;
+            $goods_id = $v['goods_id'];
+            $unit_id = $v['unit_id'];
+            $rfileds = 'sum(a.total_amount) as total_amount,sum(a.total_fee) as total_fee,a.type';
+            $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'stock.type'=>20,'stock.io_type'=>22,'a.goods_id'=>$goods_id,'a.unit_id'=>$unit_id,'a.dstatus'=>1);
+            $rwhere['a.type'] = array('in',array(2,3));
+            $rgroup = 'a.type';
+            $res_record = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','',$rgroup);
+            foreach ($res_record as $rv){
+                switch ($rv['type']){
+                    case 2:
+                        $out_num = abs($rv['total_amount']);
+                        $total_fee = abs($rv['total_fee']);
+                        $price = intval($total_fee/$out_num);
+                        break;
+                    case 3:
+                        $unpack_num = $rv['total_amount'];
+                        break;
+                }
+            }
+            $rwhere['a.type']=7;
+            $rwhere['a.wo_status']= array('in',array(1,2,4));
+            $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
+            if(!empty($res_worecord[0]['total_amount'])){
+                $wo_num = $res_worecord[0]['total_amount'];
+            }
+
+            $rwhere['a.type']=6;
+            unset($rwhere['a.wo_status']);
+            $rwhere['a.status']= array('in',array(1,2));
+            $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
+            if(!empty($res_worecord[0]['total_amount'])){
+                $report_num = $res_worecord[0]['total_amount'];
+            }
+
+//            $stock_num = $out_num+$unpack_num+$wo_num+$report_num;
+            $stock_num = $out_num+$wo_num+$report_num;
+            $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$goods_id,1);
+            $v['settlement_price'] = $settlement_price;
+            $v['price'] = $price;
+            $v['stock_num'] = $stock_num;
+            $v['total_fee'] = $price*$stock_num;
+            $v['area_name'] = $area_arr[$v['area_id']]['region_name'];
+            $data_list[] = $v;
+        }
+        $cell = array(
+            array('goods_id','商品ID'),
+            array('area_name','城市'),
+            array('hotel_id','酒楼ID'),
+            array('hotel_name','酒楼名称'),
+            array('name','商品名称'),
+            array('barcode','商品条码'),
+            array('cate_name','商品类型'),
+            array('sepc_name','商品规格'),
+            array('unit_name','单位'),
+            array('stock_num','当前库存'),
+            array('settlement_price','结算价'),
+        );
+        $filename = '酒楼库存';
+        $path = $this->exportToExcel($cell,$data_list,$filename,2);
+        $cache_key = 'cronscript:finance:hotelstocklist'.$area_id;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $redis->set($cache_key,$path,3600);
+    }
+
     public function allidcodeinfo(){
         $area_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
