@@ -47,9 +47,48 @@ class SalepaymentController extends BaseController {
     public function residentage(){
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
+        $cache_key = 'cronscript:finance:residentage'.$start_date.$end_date;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $res = $redis->get($cache_key);
+        if(!empty($res)){
+            if(is_numeric($res)){
+                $now_time = time();
+                $diff_time = $now_time - $res;
+                $http = check_http();
+                $jumpUrl = $http.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+                $this->success("数据正在生成中(已执行{$diff_time}秒),请稍后点击下载",$jumpUrl);
+            }else{
+                //下载
+                $file_name = $res;
+                $file_path = SITE_TP_PATH.$file_name;
+                $file_size = filesize($file_path);
+                header("Content-type:application/octet-tream");
+                header('Content-Transfer-Encoding: binary');
+                header("Content-Length:$file_size");
+                header("Content-Disposition:attachment;filename=".$file_name);
+                @readfile($file_path);
+            }
+        }else{
+            $shell = "/opt/install/php/bin/php /application_data/web/php/savor_financeadmin/cli.php dataexport/salepayment/residentagescript/start_date/$start_date/end_date/$end_date > /tmp/null &";
+            system($shell);
+            $now_time = time();
+            $redis->set($cache_key,$now_time,3600);
+            $this->success('数据正在生成中,请稍后点击下载');
+        }
+    }
+
+    public function residentagescript(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
         $start_time = "$start_date 00:00:00";
         $end_time = "$end_date 23:59:59";
-        $all_citys = array('1'=>'北京','9'=>'上海','236'=>'广州','246'=>'深圳','248'=>'佛山');
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        $all_citys = array();
+        foreach ($res_area as $v){
+            $all_citys[$v['id']]=$v;
+        }
 
         $m_opuser_role = new \Admin\Model\OpuserroleModel();
         $fields = 'a.manage_city,user.id as residenter_id,user.remark as residenter_name';
@@ -111,7 +150,7 @@ class SalepaymentController extends BaseController {
             $yszl = round($ar_day_money/$ar_money,2);
             $fx_yszl = round($fx_ar_day_money/$ar_money,2);
 
-            $datalist[]=array('area_id'=>$area_id,'area_name'=>$all_citys[$area_id],'residenter_id'=>$v['residenter_id'],'residenter_name'=>$v['residenter_name'],
+            $datalist[]=array('area_id'=>$area_id,'area_name'=>$all_citys[$area_id]['region_name'],'residenter_id'=>$v['residenter_id'],'residenter_name'=>$v['residenter_name'],
                 'pjhk_day'=>$pjhk_day,'ar_money'=>$ar_money,'yszl'=>$yszl,'fx_yszl'=>$fx_yszl
             );
         }
@@ -125,16 +164,59 @@ class SalepaymentController extends BaseController {
             array('fx_yszl','有风险的平均账龄'),
         );
         $filename = '驻店回款账龄表';
-        $this->exportToExcel($cell,$datalist,$filename,1);
+        $path = $this->exportToExcel($cell,$datalist,$filename,2);
+        $cache_key = 'cronscript:finance:residentage'.$start_date.$end_date;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $redis->set($cache_key,$path,3600);
     }
 
     public function hotelage(){
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
+        $cache_key = 'cronscript:finance:hotelage'.$start_date.$end_date;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $res = $redis->get($cache_key);
+        if(!empty($res)){
+            if(is_numeric($res)){
+                $now_time = time();
+                $diff_time = $now_time - $res;
+                $http = check_http();
+                $jumpUrl = $http.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+                $this->success("数据正在生成中(已执行{$diff_time}秒),请稍后点击下载",$jumpUrl);
+            }else{
+                //下载
+                $file_name = $res;
+                $file_path = SITE_TP_PATH.$file_name;
+                $file_size = filesize($file_path);
+                header("Content-type:application/octet-tream");
+                header('Content-Transfer-Encoding: binary');
+                header("Content-Length:$file_size");
+                header("Content-Disposition:attachment;filename=".$file_name);
+                @readfile($file_path);
+            }
+        }else{
+            $shell = "/opt/install/php/bin/php /application_data/web/php/savor_financeadmin/cli.php dataexport/salepayment/hotelagescript/start_date/$start_date/end_date/$end_date > /tmp/null &";
+            system($shell);
+            $now_time = time();
+            $redis->set($cache_key,$now_time,3600);
+            $this->success('数据正在生成中,请稍后点击下载');
+        }
+    }
+
+    public function hotelagescript(){
+        $start_date = I('start_date','');
+        $end_date   = I('end_date','');
         $start_time = "$start_date 00:00:00";
         $end_time = "$end_date 23:59:59";
 
-        $all_citys = array('1'=>'北京','9'=>'上海','236'=>'广州','246'=>'深圳','248'=>'佛山');
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        $all_citys = array();
+        foreach ($res_area as $v){
+            $all_citys[$v['id']]=$v;
+        }
         $m_hotel = new \Admin\Model\HotelModel();
         $fields = 'hotel.id as hotel_id,hotel.name as hotel_name,hotel.area_id';
         $where = array('hotel.state'=>1,'hotel.flag'=>0,'ext.is_salehotel'=>1);
@@ -196,7 +278,7 @@ class SalepaymentController extends BaseController {
             $yszl = round($ar_day_money/$ar_money,2);
             $fx_yszl = round($fx_ar_day_money/$ar_money,2);
 
-            $datalist[]=array('area_id'=>$area_id,'area_name'=>$all_citys[$area_id],'hotel_id'=>$v['hotel_id'],'hotel_name'=>$v['hotel_name'],
+            $datalist[]=array('area_id'=>$area_id,'area_name'=>$all_citys[$area_id]['region_name'],'hotel_id'=>$v['hotel_id'],'hotel_name'=>$v['hotel_name'],
                 'pjhk_day'=>$pjhk_day,'ar_money'=>$ar_money,'yszl'=>$yszl,'fx_yszl'=>$fx_yszl
             );
         }
@@ -211,6 +293,10 @@ class SalepaymentController extends BaseController {
             array('fx_yszl','有风险的平均账龄'),
         );
         $filename = '酒楼回款账龄表';
-        $this->exportToExcel($cell,$datalist,$filename,1);
+        $path = $this->exportToExcel($cell,$datalist,$filename,2);
+        $cache_key = 'cronscript:finance:hotelage'.$start_date.$end_date;
+        $redis  =  \Common\Lib\SavorRedis::getInstance();
+        $redis->select(1);
+        $redis->set($cache_key,$path,3600);
     }
 }
