@@ -3,39 +3,6 @@ use Common\Lib\Crypt3Des;
 use Common\Lib\AliyunMsn;
 use Common\Lib\SavorRedis;
 
-function u8Api($api,$method,$params){
-        $u8_conf = array('api_host'=>'http://8.147.113.178:8080','system'=>'utf8',
-            'usercode'=>'redian','password'=>'6c39695cb6d07a026531025541fcc05b');
-        $api_host = $u8_conf['api_host'];
-        $system = $u8_conf['system'];
-        $usercode = $u8_conf['usercode'];
-        $password = $u8_conf['password'];
-
-        $header_info = array(
-            "Content-Type: application/json",
-            "usercode: $usercode",
-            "password: $password",
-            "system: $system",
-        );
-        $GLOBALS['HEADERINFO'] = $header_info;
-        $api_url = $api_host.$api;
-        $res = '';
-        $curl = new \Common\Lib\Curl();
-        switch ($method){
-            case 'get':
-                $params_query = '';
-                $url = $api_url.'?'.$params_query;
-                $curl::get($url,$res,10);
-                break;
-            case 'post':
-                $url = $api_url;
-                $params = json_encode($params);
-                $curl::post($url,$params,$res);
-                break;
-        }
-        return array('url'=>$api_url,'result'=>$res);
-    }
-
 function getCombinationToString($val)
 {
     // 保存上一个的值
