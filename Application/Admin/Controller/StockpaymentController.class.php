@@ -218,8 +218,13 @@ class StockpaymentController extends BaseController {
         $updata = array('pay_status'=>$pay_status,'pay_money'=>$now_pay_money);
         if($now_key!==false){
             unset($all_stock_payment_ids[$now_key]);
-            $nowstock_payment_ids = join(',',$all_stock_payment_ids);
-            $updata['stock_payment_ids'] = $nowstock_payment_ids.',';
+            if(!empty($all_stock_payment_ids)){
+                $nowstock_payment_ids = join(',',$all_stock_payment_ids);
+                $nowstock_payment_ids = $nowstock_payment_ids.',';
+            }else{
+                $nowstock_payment_ids = '';
+            }
+            $updata['stock_payment_ids'] = $nowstock_payment_ids;
         }
         $m_stock->updateData(array('id'=>$res_info['stock_id']),$updata);
 
