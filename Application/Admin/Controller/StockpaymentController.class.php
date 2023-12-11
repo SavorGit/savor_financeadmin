@@ -54,6 +54,17 @@ class StockpaymentController extends BaseController {
                 $data['update_time'] = date('Y-m-d H:i:s');
                 $m_stock_payment->updateData(array('id'=>$id),$data);
             }else{
+                $nowdate = date('Ymd');
+                $where = array('DATE_FORMAT(add_time, "%Y%m%d")'=>$nowdate);
+                $res_payment = $m_stock_payment->getAllData('count(id) as num',$where);
+                if($res_payment[0]['num']>0){
+                    $number = $res_payment[0]['num']+1;
+                }else{
+                    $number = 1;
+                }
+                $num_str = str_pad($number,4,'0',STR_PAD_LEFT);
+                $serial_number = "FKD-$nowdate-$num_str";
+                $data['serial_number']=$serial_number;
                 $m_stock_payment->add($data);
             }
             $this->output('操作成功', 'stockpayment/datalist');
