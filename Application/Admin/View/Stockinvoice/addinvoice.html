@@ -1,0 +1,71 @@
+<div class="pageContent">
+    <form method="post" action="{$host_name}/stockinvoice/addinvoice" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <input name="id" type="hidden" value="{$vinfo.id}"/>
+        <div class="pageFormContent modal-body">
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">发票编号：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input  name="serial_number"  type="text" value="{$vinfo.serial_number}" class="form-control" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">发票类型：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <select id="invoice_type" name="invoice_type" class="form-control bs-select" title="请选择发票类型">
+                        <volist name="invoice_type_arr" id="vo">
+                            <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['invoice_type']">selected</if>> {$vo.name}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">发票金额：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input  name="invoice_money"  type="text" value="{$vinfo.invoice_money}"  minlength="1" maxlength="50" class="form-control" required/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">税率(%)：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input  name="tax_rate"  type="text" value="{$vinfo.tax_rate}"  minlength="1" maxlength="2" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">收票时间：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <div class="input-group date form_datetime" data-date="{$vinfo.invoice_time}" data-ymd="true">
+                        <input name="invoice_time" type="text" size="16" class="form-control date" placeholder="收票时间" value="{$vinfo.invoice_time}">
+                        <span class="input-group-btn">
+								<button class="btn default date-reset" type="button"><i class="fa fa-times"></i></button>
+								<button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+							</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">采购数量：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input  name="purchase_num"  type="number" value="{$vinfo.purchase_num}" class="form-control"/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">采购单价：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input  name="purchase_unit_price"  type="number" value="{$vinfo.purchase_unit_price}" class="form-control"/>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default close-m" type="button">取消</button>
+            <button class="btn btn-primary" type="submit">保存</button>
+        </div>
+    </form>
+</div>

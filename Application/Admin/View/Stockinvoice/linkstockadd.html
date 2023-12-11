@@ -1,0 +1,94 @@
+<div class="pageContent">
+    <form method="post" action="{$host_name}/stockinvoice/linkstockadd" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+        <input name="stock_invoice_id" type="hidden" id="stock_invoice_id" value="{$stock_invoice_id}"/>
+        <input name="source" type="hidden" value="{$source}"/>
+        <input name="stock_ids" type="hidden" id="stock_ids" value=""/>
+        <div class="pageFormContent modal-body">
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">剩余金额：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input name="remain_money"  id="remain_money" type="text" value="{$remain_money}"  class="form-control" readonly/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">当前所选总金额：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input id="sale_total_money" type="text" value="0"  class="form-control" readonly/>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">
+                    关联采购入库单:
+                </label>
+                <div class="col-xs-12 col-sm-10">
+                    <select class="form-control bs-select class-filter" data-live-search="true" title="请选择入库单" data-container="body" multiple="multiple" required>
+                        <volist name="stock_list" id="asinfo" data-saleid="{$asinfo.id}">
+                            <option value="{$asinfo.id}" data-saleid="{$asinfo.id}" data-salemoney="{$asinfo.money}">{$asinfo.name}</option>
+                        </volist>
+                    </select>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default close-m" type="button">取消</button>
+            <button class="btn btn-primary" type="submit">保存</button>
+        </div>
+    </form>
+</div>
+<script>
+$(document).ready(function(){
+  $.fn.selectpicker.Constructor.prototype.setSelected = function(a, b, c) {
+  	c || (this.togglePlaceholder(),
+  	c = this.findLis().eq(this.liObj[a])),
+  	c.toggleClass("selected", b);
+    
+  	let itemHTML = $(c).find('span').get(0).innerHTML;
+  	let itemSplitArray = itemHTML.split('--');
+  	if(typeof(itemSplitArray) !== 'object' || !(itemSplitArray instanceof Array)){
+    	console.err('itemSplitArray not a Array');
+    	return ;
+    }
+  	let showTotalAmountObject = $('#sale_total_money');
+  	let showTotalAmount = parseFloat(showTotalAmountObject.val());
+  	if(b === true){
+    	showTotalAmount += parseFloat(itemSplitArray[3]);
+    } else {
+    	showTotalAmount -= parseFloat(itemSplitArray[3]);
+    }
+  	if(showTotalAmount < 0){
+    	showTotalAmount = 0;
+    }
+  	showTotalAmountObject.val(showTotalAmount);
+    
+    
+  	let saleIdsObject = $('#stock_ids');
+  	let saleIdsValue = saleIdsObject.val() + "";
+  	let saleIdsArray = saleIdsValue.split(',');
+  	let idsString = '';
+  	if(typeof(saleIdsArray) === 'object' && saleIdsArray instanceof Array && saleIdsArray.length > 0){
+    	saleIdsArray.forEach(function(saleId){
+      	if(saleId !== itemSplitArray[0]){
+        	if (idsString === ''){
+          	idsString = saleId;
+          } else {
+          	idsString = idsString + ',' + saleId;
+          }
+        }
+      });
+    }
+  	if(b === true){
+    	if (idsString === ''){
+      	idsString = itemSplitArray[0];
+      } else {
+      	idsString = idsString + ',' + itemSplitArray[0];
+      }
+    }
+  	console.log('idsString='+idsString);
+  	saleIdsObject.val(idsString);
+  };
+});
+</script>
