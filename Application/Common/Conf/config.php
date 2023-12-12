@@ -200,10 +200,10 @@ $config['HEART_LOSS_HOURS'] = 48;
 $config['FINACE_CONTRACT'] = array(
 	'company_property' => array( 
 								array('id'=>1,'name'=>'一般纳税人'),
-								array('id'=>'2','name'=>'小规模纳税人')),
+								array('id'=>2,'name'=>'小规模纳税人')),
 	'invoice_type'     => array( 
-								array('id'=>1,'name'=>'专票'),
-								array('id'=>'2','name'=>'普票')),
+								'1'=>array('id'=>1,'name'=>'专票'),
+								'2'=>array('id'=>2,'name'=>'普票')),
 	'contract_ctype'   => array(
 								'proxysale'=>array(
 									array('id'=>21,'name'=>'酒水'),

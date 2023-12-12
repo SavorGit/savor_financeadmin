@@ -1,0 +1,105 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_name}/stockinvoice/datalist" method="post">
+        <input type="hidden" name="pageNum" value="{$pageNum}"/>
+        <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+        <div class="searchBar">
+            <div class="clearfix">
+
+                <div class="form-inline">
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">发票时间：</div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$start_time}" data-ymd="true">
+                            <input name="start_time" type="text" size="16" class="form-control date" placeholder="开始日期" value="{$start_time}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$end_time}" data-ymd="true">
+                            <input name="end_time" type="text" size="16" class="form-control date" placeholder="结束日期" value="{$end_time}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-btn">
+                             <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-group-sm pull-right">
+                        <a class="btn btn-success btn-sm add" href="{$host_name}/stockinvoice/addinvoice" title="新增发票" target="dialog" mask="true"><i class="fa fa-plus"></i> 新增发票</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="pageContent" id="pagecontent">
+    <div id="w_list_print">
+        <div class="no-more-tables">
+            <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+                <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+                    <thead>
+                    <tr id="post">
+                        <th>ID</th>
+                        <th>发票编号</th>
+                        <th>发票类型</th>
+                        <th>发票金额</th>
+                        <th>税率(%)</th>
+                        <th>税额</th>
+                        <th>收票时间</th>
+                        <th>采购数量</th>
+                        <th>添加时间</th>
+                        <th>关联入库单</th>
+                        <th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody data-check="list" data-parent=".table">
+                    <foreach name="datalist" item="dinfo">
+                        <tr target="sid_user">
+                            <td data-title="ID"><a class="click-able-title">{$dinfo.id}</a></td>
+                            <td data-title="发票编号">{$dinfo.serial_number}</td>
+                            <td data-title="发票类型">{$dinfo.invoice_type_str}</td>
+                            <td data-title="发票金额">{$dinfo.invoice_money}</td>
+                            <td data-title="税率">{$dinfo.tax_rate}</td>
+                            <td data-title="税额">{$dinfo.tax_money}</td>
+                            <td data-title="收票时间">{$dinfo.invoice_time}</td>
+                            <td data-title="采购数量">{$dinfo.purchase_num}</td>
+                            <td data-title="添加时间">{$dinfo.add_time}</td>
+                            <td data-title="关联入库单">
+                                <a data-tip="关联入库单" title="关联入库单" target="navTab" mask="true" rel="stockinvoice/linkstocklist" href="{$host_name}/stockinvoice/linkstocklist?stock_invoice_id={$dinfo.id}" class="btn btn-success btn-icon">
+                                    {$dinfo.link_num}
+                                </a>
+                            </td>
+                            <td class="table-tool" data-title="操作">
+                                <div class="tools-edit">
+                                    <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/stockinvoice/addinvoice?id={$dinfo.id}" class="btn btn-success btn-icon">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+
+                                    <a title="关联入库单" data-tip="关联入库单" target="dialog" mask="true" href="{$host_name}/stockinvoice/linkstockadd?stock_invoice_id={$dinfo.id}&source=1" class="btn btn-success btn-icon">
+                                        <i class="fa fa-rebel"></i>
+                                    </a>
+
+                                </div>
+                            </td>
+                        </tr>
+                    </foreach>
+                    </tbody>
+                </table>
+            </form>
+
+        </div>
+    </div>
+    {$page}
+</div>

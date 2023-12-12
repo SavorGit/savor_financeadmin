@@ -30,10 +30,10 @@ class StockController extends BaseController {
         if($department_id){
             $where['a.department_id'] = $department_id;
         }
+        $io_types = C('STOCK_IN_TYPES');
         if($io_type){
             $where['a.io_type'] = $io_type;
         }else{
-            $io_types = C('STOCK_IN_TYPES');
             $where['a.io_type'] = array('in',array_keys($io_types));
         }
         if($supplier_id){
@@ -86,6 +86,7 @@ class StockController extends BaseController {
                 }
                 $v['now_total_fee'] = $now_total_fee;
                 $v['now_amount'] = $now_amount;
+                $v['io_type_str'] = $io_types[$v['io_type']];
                 $data_list[] = $v;
             }
         }
@@ -117,6 +118,7 @@ class StockController extends BaseController {
             $department_user_id = I('post.department_user_id',0,'intval');
             $purchase_id = I('post.purchase_id',0,'intval');
             $area_id = I('post.area_id',0,'intval');
+            $total_money = I('post.total_money',0,'intval');
 
             if($io_type==11){
                 if($purchase_id==0){
@@ -127,7 +129,7 @@ class StockController extends BaseController {
             $sysuser_id = $userinfo['id'];
             $data = array('serial_number'=>$serial_number,'name'=>$name,'io_type'=>$io_type,'io_date'=>$io_date,'area_id'=>$area_id,
                 'department_id'=>$department_id,'department_user_id'=>$department_user_id,'purchase_id'=>$purchase_id,'type'=>10,
-                'sysuser_id'=>$sysuser_id
+                'sysuser_id'=>$sysuser_id,'total_money'=>$total_money
             );
             if($id){
                 $result = $m_stock->updateData(array('id'=>$id),$data);
