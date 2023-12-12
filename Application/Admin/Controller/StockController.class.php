@@ -45,11 +45,21 @@ class StockController extends BaseController {
         foreach ($res_area as $v){
             $area_arr[$v['id']]=$v;
         }
-        $m_department = new \Admin\Model\DepartmentModel();
+        /* $m_department = new \Admin\Model\DepartmentModel();
         $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
         foreach ($res_departments as $v){
             $department_arr[$v['id']]=$v;
+        } */
+        $res_departments = $this->getDepartmentTree(2);
+        foreach ($res_departments as $v){
+            $department_arr[$v['id']]=$v;
         }
+        $m_department = new \Admin\Model\DepartmentModel();
+        $rp_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        foreach ($rp_departments as $v){
+            $department_list[$v['id']]=$v;
+        }
+        
         $m_supplier = new \Admin\Model\SupplierModel();
         $res_supplier = $m_supplier->getAll('id,name',array('status'=>1),0,1000,'id asc');
         foreach ($res_supplier as $v){
@@ -71,7 +81,7 @@ class StockController extends BaseController {
             foreach ($res_list['list'] as $v){
                 $v['supplier'] = $supplier_arr[$v['supplier_id']]['name'];
                 $v['area'] = $area_arr[$v['area_id']]['region_name'];
-                $v['department'] = $department_arr[$v['department_id']]['name'];
+                $v['department'] = $department_list[$v['department_id']]['name'];
                 $v['purchase_department_username'] = $departmentuser_arr[$v['purchase_department_user_id']]['name'];
                 $v['department_username'] = $departmentuser_arr[$v['department_user_id']]['name'];
                 $now_amount = 0;
@@ -161,17 +171,19 @@ class StockController extends BaseController {
             foreach ($res_area as $v){
                 $area_arr[$v['id']]=$v;
             }
-            $m_department = new \Admin\Model\DepartmentModel();
-            $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+            //$m_department = new \Admin\Model\DepartmentModel();
+            //$res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+            $res_departments = $this->getDepartmentTree(2);
             foreach ($res_departments as $v){
                 $department_arr[$v['id']]=$v;
             }
-            $m_department_user = new \Admin\Model\DepartmentUserModel();
+            /* $m_department_user = new \Admin\Model\DepartmentUserModel();
             $res_department_users = $m_department_user->getAll('id,name,department_id',array('status'=>1),0,10000,'id asc');
             foreach ($res_department_users as $v){
                 $v['name'] = $department_arr[$v['department_id']]['name'].'-'.$v['name'];
                 $departmentuser_arr[$v['id']]=$v;
-            }
+            } */
+            $departmentuser_arr = [];
             $m_purchase = new \Admin\Model\PurchaseModel();
             $res_purchase  = $m_purchase->getAll('id,name,serial_number',array(),0,1000000,'id asc');
             foreach ($res_purchase as $v){
@@ -409,11 +421,16 @@ class StockController extends BaseController {
             $area_arr[$v['id']]=$v;
         }
 
-        $m_department = new \Admin\Model\DepartmentModel();
-        $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        $res_departments = $this->getDepartmentTree(2);
         foreach ($res_departments as $v){
             $department_arr[$v['id']]=$v;
         }
+        $m_department = new \Admin\Model\DepartmentModel();
+        $rp_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        foreach ($rp_departments as $v){
+            $department_list[$v['id']]=$v;
+        }
+        
         $m_department_user = new \Admin\Model\DepartmentUserModel();
         $res_department_users = $m_department_user->getAll('id,name',array('status'=>1),0,10000,'id asc');
         foreach ($res_department_users as $v){
@@ -427,7 +444,7 @@ class StockController extends BaseController {
         if(!empty($res_list['list'])){
             $m_user = new \Admin\Model\SmallappUserModel();
             foreach ($res_list['list'] as $v){
-                $v['department'] = $department_arr[$v['department_id']]['name'];
+                $v['department'] = $department_list[$v['department_id']]['name'];
                 $v['department_user'] = $departmentuser_arr[$v['department_user_id']]['name'];
                 $v['io_type_str'] = $io_types[$v['io_type']];
                 $receive_username = '';
@@ -525,8 +542,12 @@ class StockController extends BaseController {
             foreach ($res_area as $v){
                 $area_arr[$v['id']]=$v;
             }
-            $m_department = new \Admin\Model\DepartmentModel();
+            /* $m_department = new \Admin\Model\DepartmentModel();
             $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
+            foreach ($res_departments as $v){
+                $department_arr[$v['id']]=$v;
+            } */
+            $res_departments = $this->getDepartmentTree(2);
             foreach ($res_departments as $v){
                 $department_arr[$v['id']]=$v;
             }
