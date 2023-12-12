@@ -32,6 +32,7 @@
 
           <tr id="post">
             <th>ID</th>
+            <th>银行类别</th>
             <th>公司名称</th>
             <th>开户银行</th>
             <th>支行</th>
@@ -46,6 +47,7 @@
           <volist name="data" id="dinfo">
             <tr target="sid_user">
               <td data-title="ID">{$dinfo.id}</td>
+              <td data-title="银行类别">{$dinfo.bank_type_str}</td>
               <td data-title="公司名称">{$dinfo.company_name}</td>
               <td data-title="开户银行">{$dinfo.bank_name}</td>
               <td data-title="支行">{$dinfo.bank_branch_name}</td>

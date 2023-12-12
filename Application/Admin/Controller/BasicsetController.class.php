@@ -581,9 +581,23 @@ class BasicsetController extends BaseController {
         $orderby = 'id asc';
         $res_list = $m_company_bank->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
+        $m_bank_type = new \Admin\Model\BankTypeModel();
+        if(!empty($res_list['list'])){
+            foreach ($res_list['list'] as $v){
+                $map = [];
+                $map['id'] = $v['bank_type_id'];
+                $bank_type_info = $m_bank_type->getInfo($map);
+                
+                $v['bank_type_str'] = $bank_type_info['banktypename'];
+                $data_list[] = $v;
+            }
+        }
+        
+       
+        
         
         $this->assign('keyword',$keyword);
-        $this->assign('data',$res_list['list']);
+        $this->assign('data',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
         $this->assign('pageNum',$pageNum);
@@ -600,12 +614,13 @@ class BasicsetController extends BaseController {
             $id = I('id',0,'intval');
             
             $company_name = I('post.company_name','','trim');
-            $sort = I('post.bank_name','','trim');
+            $bank_type_id = I('post.bank_type_id',0,'intval');
+            $bank_name    = I('post.bank_name','','trim');
             $bank_branch_name = I('post.bank_branch_name','','trim');
             $account_number   = I('post.account_number','','trim');
             $status = I('post.status',1,'intval');
             
-            $data = array('company_name'=>$company_name,'bank_name'=>$sort,'bank_branch_name'=>$bank_branch_name, 
+            $data = array('company_name'=>$company_name,'bank_type_id'=>$bank_type_id,'bank_name'=>$bank_name,'bank_branch_name'=>$bank_branch_name, 
                           'account_number'=>$account_number,'status'=>$status);
             if($id){
                 $result = $m_company_bank->updateData(array('id'=>$id),$data);
@@ -622,8 +637,11 @@ class BasicsetController extends BaseController {
             if($id){
                 $vinfo = $m_company_bank->getInfo(array('id'=>$id));
             }
+            $m_bank_type = new \Admin\Model\BankTypeModel();
+            $bank_type_arr = [];
+            $bank_type_arr = $m_bank_type->getAll('id,banktypename as name');
             
-            
+            $this->assign('bank_type_arr',$bank_type_arr);
             $this->assign('vinfo',$vinfo);
             $this->display();
         }
