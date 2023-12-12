@@ -6,11 +6,11 @@ use Think\Controller;
  *
  */
 class U8cloudController extends Controller {
-
+    
     public function __construct() {
         parent::__construct();
     }
-
+    
     public function accsubjquery(){
         $u8 = new \Common\Lib\U8cloud();
         $api = '/u8cloud/api/uapbd/accsubj/query';
@@ -20,6 +20,6 @@ class U8cloudController extends Controller {
         print_r($res);
         exit;
     }
-
-
+    
+    
 }
