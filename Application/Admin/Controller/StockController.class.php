@@ -19,6 +19,8 @@ class StockController extends BaseController {
         $io_type = I('io_type',0,'intval');
         $department_id = I('department_id',0,'intval');
         $supplier_id = I('supplier_id',0,'intval');
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
 
         $where = array('type'=>10);
         if(!empty($keyword)){
@@ -39,21 +41,21 @@ class StockController extends BaseController {
         if($supplier_id){
             $where['p.supplier_id'] = $supplier_id;
         }
-        $area_arr = $department_arr = $supplier_arr = $departmentuser_arr = array();
+        if(empty($start_time) || empty($end_time)){
+            $start_time = date('Y-m-d',strtotime('-1 month'));
+            $end_time = date('Y-m-d');
+        }
+        $now_start_time = date('Y-m-d',strtotime($start_time));
+        $now_end_time = date('Y-m-d',strtotime($end_time));
+        $where['a.io_date'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+
+        $area_arr = $department_list = $supplier_arr = $departmentuser_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
         foreach ($res_area as $v){
             $area_arr[$v['id']]=$v;
         }
-        /* $m_department = new \Admin\Model\DepartmentModel();
-        $res_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
-        foreach ($res_departments as $v){
-            $department_arr[$v['id']]=$v;
-        } */
         $res_departments = $this->getDepartmentTree(2);
-        foreach ($res_departments as $v){
-            $department_arr[$v['id']]=$v;
-        }
         $m_department = new \Admin\Model\DepartmentModel();
         $rp_departments = $m_department->getAll('id,name',array('status'=>1),0,1000,'id asc');
         foreach ($rp_departments as $v){
@@ -78,6 +80,7 @@ class StockController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             $m_stock_record = new \Admin\Model\StockRecordModel();
+
             foreach ($res_list['list'] as $v){
                 $v['supplier'] = $supplier_arr[$v['supplier_id']]['name'];
                 $v['area'] = $area_arr[$v['area_id']]['region_name'];
@@ -109,6 +112,8 @@ class StockController extends BaseController {
         $this->assign('departments', $res_departments);
         $this->assign('area', $area_arr);
         $this->assign('keyword',$keyword);
+        $this->assign('start_time',$start_time);
+        $this->assign('end_time',$end_time);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);

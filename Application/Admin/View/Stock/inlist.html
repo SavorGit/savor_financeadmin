@@ -32,19 +32,6 @@
                         </div>
                     </div>
 
-
-                    <div class="form-group">
-                        <div class="input-group input-group-sm">采购组织：</div>
-                        <div class="input-group">
-                            <select name="department_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
-                                <option value=0>全部</option>
-                                <volist name="departments" id="dmtinfo">
-                                    <option value="{$dmtinfo.id}" <if condition="$dmtinfo.id eq $department_id">selected</if> >{$dmtinfo.name}</option>
-                                </volist>
-                            </select>
-                        </div>
-                    </div>
-
                     <div class="form-group">
                         <div class="input-group input-group-sm">供应商：</div>
                         <div class="input-group">
@@ -72,9 +59,41 @@
                         </div>
                     </div>
 
+                </div>
+                <div class="form-inline">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">入库时间：</div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$start_time}" data-ymd="true">
+                            <input name="start_time" type="text" size="16" class="form-control date" placeholder="开始日期" value="{$start_time}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$end_time}" data-ymd="true">
+                            <input name="end_time" type="text" size="16" class="form-control date" placeholder="结束日期" value="{$end_time}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">采购组织：</div>
+                        <div class="input-group">
+                            <select name="department_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0>全部</option>
+                                <volist name="departments" id="dmtinfo">
+                                    <option value="{$dmtinfo.id}" <if condition="$dmtinfo.id eq $department_id">selected</if> >{$dmtinfo.name}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="input-group input-group-sm pull-right">
                         <a class="btn btn-success btn-sm add" href="{$host_name}/stock/addinstock" title="新增入库" target="dialog" mask="true"><i class="fa fa-plus"></i>新增入库</a>
-                        &nbsp;&nbsp;
+                        &nbsp;&nbsp;&nbsp;
                     </div>
 
                 </div>
