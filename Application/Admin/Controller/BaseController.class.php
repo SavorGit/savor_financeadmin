@@ -489,4 +489,46 @@ class BaseController extends Controller {
         }
         return $parent_id;
     }
+    public function getDepartmentTree($add_type=1){//$add_type 1添加部门   2添加人员
+        $department_list_tree = [];
+        $m_department = new \Admin\Model\DepartmentModel();
+        $where = [];
+        $where['status'] = 1;
+        $where['parent_id'] = 0;
+        $department_list = $m_department->where($where)->select();
+        foreach($department_list as $key=>$v){
+            $department_list_tree[] = $v;
+            $map = [];
+            $map['status'] = 1;
+            $map['parent_id'] = $v['id'];
+            $f_department_list = $m_department->where($map)->select();
+            if(!empty($f_department_list)){
+                foreach($f_department_list as $kk=>$vv){
+                    
+                    $vv['name'] = '&nbsp;&nbsp;&nbsp;&nbsp;|-'.$vv['name'];
+                    $department_list_tree[] = $vv;
+                    
+                    if($add_type ==2){
+                        $tps = [];
+                        $tps['status'] = 1;
+                        $tps['parent_id'] = $vv['id'];
+                        $s_department_list = $m_department->where($tps)->select();
+                        
+                        if(!empty($s_department_list)){
+                            foreach($s_department_list as $kkk=>$vvv){
+                                
+                                $vvv['name'] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-".$vvv['name'];
+                                
+                                $department_list_tree[] = $vvv;
+                                
+                            }
+                        }
+                    }
+                    
+                }
+                
+            }
+        }
+        return $department_list_tree;
+    }
 }

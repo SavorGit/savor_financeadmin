@@ -232,6 +232,7 @@ class BasicsetController extends BaseController {
 
         $m_department = new \Admin\Model\DepartmentModel();
         $where = array();
+        $where['parent_id'] = 0;
         if(!empty($keyword)){
             $where['name'] = array('like',"$keyword");
         }
@@ -239,15 +240,49 @@ class BasicsetController extends BaseController {
         $orderby = 'sort asc';
         $res_list = $m_department->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
+        $department_list_tree = [];
         $all_status = C('MANGER_STATUS');
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
                 $v['status_str'] = $all_status[$v['status']];
                 $data_list[] = $v;
+                
+                
+                $department_list_tree[] = $v;
+                $map = [];
+                $map['status'] = 1;
+                $map['parent_id'] = $v['id'];
+                $f_department_list = $m_department->where($map)->select();
+                if(!empty($f_department_list)){
+                    foreach($f_department_list as $kk=>$vv){
+                        
+                        $vv['name'] = '&nbsp;&nbsp;&nbsp;&nbsp;|-'.$vv['name'];
+                        $vv['status_str'] = $all_status[$vv['status']];
+                        $department_list_tree[] = $vv;
+                        
+                        $tps = [];
+                        $tps['status'] = 1;
+                        $tps['parent_id'] = $vv['id'];
+                        $s_department_list = $m_department->where($tps)->select();
+                        
+                        if(!empty($s_department_list)){
+                            foreach($s_department_list as $kkk=>$vvv){
+                                
+                                $vvv['name'] = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|-".$vvv['name'];
+                                $vvv['status_str'] = $all_status[$vvv['status']];
+                                $department_list_tree[] = $vvv;
+                                
+                            }
+                        }
+                    }
+                    
+                }
             }
         }
+        //print_r($department_list_tree);exit;
         $this->assign('keyword',$keyword);
-        $this->assign('data',$data_list);
+        $this->assign('data',$department_list_tree);
+        //$this->assign('data',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
         $this->assign('pageNum',$pageNum);
@@ -256,13 +291,19 @@ class BasicsetController extends BaseController {
 
     public function departmentadd(){
         $id = I('id',0,'intval');
+        
+        
         $m_department = new \Admin\Model\DepartmentModel();
+        $department_list_tree = [];
         if(IS_POST){
+            
+            $department_id = I('department_id',0,'intval');
+            
             $name = I('post.name','','trim');
             $sort = I('post.sort',0,'intval');
             $status = I('post.status',0,'intval');
 
-            $data = array('name'=>$name,'sort'=>$sort,'status'=>$status);
+            $data = array('name'=>$name,'sort'=>$sort,'status'=>$status,'parent_id'=>$department_id);
             if($id){
                 $result = $m_department->updateData(array('id'=>$id),$data);
             }else{
@@ -278,6 +319,10 @@ class BasicsetController extends BaseController {
             if($id){
                 $vinfo = $m_department->getInfo(array('id'=>$id));
             }
+            $department_list_tree = $this->getDepartmentTree(1);    
+            
+            
+            $this->assign('department_list_tree',$department_list_tree);
             $this->assign('vinfo',$vinfo);
             $this->display();
         }
@@ -338,6 +383,10 @@ class BasicsetController extends BaseController {
             if($id){
                 $vinfo = $m_departmentuser->getInfo(array('id'=>$id));
             }
+            $department_list_tree = $this->getDepartmentTree(2);
+            
+            
+            $this->assign('department_list_tree',$department_list_tree);
             $this->assign('vinfo',$vinfo);
             $this->display();
         }
@@ -518,5 +567,77 @@ class BasicsetController extends BaseController {
         $data = array('datalist'=>$all_sales);
         die(json_encode($data));
     }
+    public function companybank(){
+        $size = I('numPerPage',50,'intval');//显示每页记录数
+        $pageNum = I('pageNum',1,'intval');//当前页码
+        
+        $keyword = I('keyword','','trim');
+        $m_company_bank = new \Admin\Model\CompanyBankModel();
+        $where = array();
+        if(!empty($keyword)){
+            $where['company_name'] = array('like',"%$keyword%");
+        }
+        $start = ($pageNum-1)*$size;
+        $orderby = 'id asc';
+        $res_list = $m_company_bank->getDataList('*',$where,$orderby,$start,$size);
+        $data_list = array();
+        
+        $this->assign('keyword',$keyword);
+        $this->assign('data',$res_list['list']);
+        $this->assign('page',$res_list['page']);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$pageNum);
+        $this->display();
+    }
+    public function companybankadd(){
+        $id = I('id',0,'intval');
+        
+        
+        $m_company_bank = new \Admin\Model\CompanyBankModel();
+        $department_list_tree = [];
+        if(IS_POST){
+            
+            $id = I('id',0,'intval');
+            
+            $company_name = I('post.company_name','','trim');
+            $sort = I('post.bank_name','','trim');
+            $bank_branch_name = I('post.bank_branch_name','','trim');
+            $account_number   = I('post.account_number','','trim');
+            $status = I('post.status',0,'intval');
+            
+            $data = array('company_name'=>$company_name,'bank_name'=>$sort,'bank_branch_name'=>$bank_branch_name, 
+                          'account_number'=>$account_number,'status'=>$status);
+            if($id){
+                $result = $m_company_bank->updateData(array('id'=>$id),$data);
+            }else{
+                $result = $m_company_bank->addData($data);
+            }
+            if($result){
+                $this->output('操作成功!', 'basicset/companybank');
+            }else{
+                $this->output('操作失败', 'basicset/companybankadd',2,0);
+            }
+        }else{
+            $vinfo = array('status'=>1);
+            if($id){
+                $vinfo = $m_company_bank->getInfo(array('id'=>$id));
+            }
+            
+            
+            $this->assign('vinfo',$vinfo);
+            $this->display();
+        }
+    }
+    public function getAjaxDepartmentUsers(){
+        $department_id = I('post.department_id');
+        $m_department_user = new \Admin\Model\DepartmentUserModel();
+        $where = [];
+        $where['department_id'] = $department_id;
+        $where['status'] =1;
+        $user_list = $m_department_user->getAllData('id,name',$where,'sort asc,id asc');
+        $res_data = array('user_list'=>$user_list);
+        echo json_encode($res_data);
+    }
+    
 
 }

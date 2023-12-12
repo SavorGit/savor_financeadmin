@@ -46,13 +46,18 @@
                 	签约部门：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <input name="sign_department" type="text" value="{$vinfo.sign_department}"  minlength="1" maxlength="50" class="form-control" />
+                <!-- <input name="sign_department" type="text" value="{$vinfo.sign_department}"  minlength="1" maxlength="50" class="form-control" /> -->
+              	<select id=department_id name="department_id" class="form-control bs-select" title="请选择组织"  >
+                  <volist name="department_list_tree" id="vo">
+                    <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['department_id']">selected</if> > {$vo.name}</option>
+                  </volist>
+                </select>
               </div>
               <label class="col-xs-2 col-sm-1 control-label">
                 	签约人：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <select id="sign_user_id" name="sign_user_id" class="form-control bs-select" title="请选择签约人" >
+                <select id="sign_user_id" name="sign_user_id" class="form-control" title="请选择签约人" >
                   <volist name="sign_user_arr" id="vo">
                     <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['sign_user_id']">selected</if>> {$vo.uname}</option>
                   </volist>
@@ -594,6 +599,37 @@
 </div>
 <script type="text/javascript">
 
+	$('#department_id').change(function() {
+	    
+	    
+	    var department_id = $(this).val()
+	    console.log(department_id);
+	    $.ajax({
+	        type: 'POST',
+	        dataType: 'json',
+	        url: '{$host_name}/basicset/getAjaxDepartmentUsers',
+	        data: 'department_id='+department_id,
+	        success: function(msg) {
+	        	
+	        	var all_users = msg.user_list;
+	        	var users_option_str = '';
+	            for (var i=0; i < all_users.length; i++) {
+	            	users_option_str+='<option value="'+all_users[i].id+'">'+all_users[i].name+'</option>';
+	            }
+	            console.log(users_option_str);
+	            	$("#sign_user_id").empty()
+	            	$("#sign_user_id").append(users_option_str);
+	            // if (all_unit!=null) {
+	            //     var unit_option_str = '';
+	            //     for (var i=0; i < all_unit.length; i++) {
+	            //         unit_option_str+='<option value="'+all_unit[i].id+'"'+all_unit[i].is_select+'>'+all_unit[i].name+'</option>';
+	            //     }
+	            //     $("#unit_id").empty()
+	            //     $("#unit_id").append(unit_option_str);
+	            // }
+	        }
+	    })
+	})
   $('.date-reset').click(function(){
     $(this).parent().prev().val('')
   });

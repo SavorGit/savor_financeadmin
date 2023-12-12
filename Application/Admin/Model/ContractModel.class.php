@@ -8,6 +8,7 @@ class ContractModel extends BaseModel{
     public function getList($fields,$where, $order='a.id desc', $start=0,$size=5){
 		$list = $this->alias('a')
 			->join('savor_finance_signuser b on a.sign_user_id= b.id','left')
+			->join('savor_finance_department_user d on a.sign_user_id=d.id','left')
 			->field($fields)
 			->where($where)
 			->order($order)
@@ -25,6 +26,7 @@ class ContractModel extends BaseModel{
 	public function getAllList($fields,$where, $order='a.id desc'){
 	    $list = $this->alias('a')
             	     ->join('savor_finance_signuser b on a.sign_user_id= b.id','left')
+            	     ->join('savor_finance_department_user d on a.sign_user_id=d.id','left')
             	     ->field($fields)
             	     ->where($where)
             	     ->order($order)

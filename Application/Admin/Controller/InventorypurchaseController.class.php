@@ -67,10 +67,11 @@ class InventorypurchaseController extends BaseController {
         
         
         //获取采购组织
-        $m_department = new \Admin\Model\DepartmentModel();
+        /* $m_department = new \Admin\Model\DepartmentModel();
         $where = [];
         $where['status'] = 1;
-        $department_arr = $m_department->where($where)->select();
+        $department_arr = $m_department->where($where)->select(); */
+        $department_arr = $this->getDepartmentTree(2);
         
         //供应商
         $m_supplier   = new \Admin\Model\SupplierModel();
@@ -94,10 +95,11 @@ class InventorypurchaseController extends BaseController {
         $where['status'] = array('in',array(1,2));
         $pcontract_arr  = $m_contract->field('id,serial_number')->where($where)->select();
         //获取采购组织
-        $m_department = new \Admin\Model\DepartmentModel();
+        /* $m_department = new \Admin\Model\DepartmentModel();
         $where = [];
         $where['status'] = 1;
-        $department_arr = $m_department->where($where)->select();
+        $department_arr = $m_department->where($where)->select(); */
+        $department_arr = $this->getDepartmentTree(2);
         
         //供应商
         $m_supplier   = new \Admin\Model\SupplierModel();
@@ -203,10 +205,11 @@ class InventorypurchaseController extends BaseController {
         $pcontract_arr  = $m_contract->field('id,serial_number')->where($where)->select();
         
         //获取采购组织
-        $m_department = new \Admin\Model\DepartmentModel();
+        /* $m_department = new \Admin\Model\DepartmentModel();
         $where = [];
         $where['status'] = 1;
-        $department_arr = $m_department->where($where)->select();
+        $department_arr = $m_department->where($where)->select(); */
+        $department_arr = $this->getDepartmentTree(2);
         
         //供应商
         $m_supplier   = new \Admin\Model\SupplierModel();

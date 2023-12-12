@@ -17,7 +17,9 @@ class ProxysaleController extends BaseController{
 	private $check_cycle_arr = [];
 	private $closed_circle_arr   = [];
 	private $required_arr = array('serial_number'=>'请填写合同编号','name'=>'请填写合同名称','company_id'=>'请选择签约公司',
-								  'sign_department'=>'请选择签约部门','sign_user_id'=>'请填写签约人','ctype'=>'请选择合同类型',
+								  //'sign_department'=>'请选择签约部门',
+	                              'sign_user_id'=>'请填写签约人',
+	                              'ctype'=>'请选择合同类型',
 								  'area_id'=>'请选择签约城市','sign_time'=>'请选择签署日期','archive_time'=>'请选择归档日期',
 								  'hotel_signer'=>'请填写合同签约人',
 								  'hotel_signer_phone1'=>'请填写合同签约人电话1',
@@ -62,6 +64,7 @@ class ProxysaleController extends BaseController{
 		$area_id    = I('area_id',0,'intval');
 		$ctype      = I('ctype',0,'intval');
 		$status     = I('status',0,'intval');
+		$department_id = I('department_id',0,'intval');
 		$sign_user_id = I('sign_user_id',0,'intval');
 		$name       = I('name','','trim');
 		
@@ -102,17 +105,28 @@ class ProxysaleController extends BaseController{
 			}
 			$this->assign('status',$status);
 		}
+		$sign_user_arr = [];
+		
+		if($department_id){   
+		    $this->assign('department_id',$department_id);
+		}
 		if($sign_user_id){
+		    
 			$where['a.sign_user_id'] = $sign_user_id;
 			$this->assign('sign_user_id',$sign_user_id);
+			$m_department_user = new \Admin\Model\DepartmentUserModel();
+			$sign_user_arr = $m_department_user->getAllData('id,name',array('department_id'=>$department_id,'status'=>1),'sort asc,id asc');
 		}
+		
+		 
+		
 		if($name){
 			$where['a.name'] = array('like',"%".$name."%");
 			$this->assign('name',$name);
 		}
 		$where['a.type'] = 20;
 		$m_contract = new \Admin\Model\ContractModel();
-		$fileds = "a.*,b.uname";
+		$fileds = "a.*,b.uname,d.name sign_name";
 		
 		$result = $m_contract->getList($fileds,$where, $orders, $start,$size);
 		
@@ -129,8 +143,9 @@ class ProxysaleController extends BaseController{
 		$m_area = new \Admin\Model\AreaModel();
 		$city_arr = $m_area->getHotelAreaList();
 		
-		$m_signuser = new \Admin\Model\SignuserModel();
-		$sign_user_arr = $m_signuser->field('id,uname')->where('status=1')->select();
+		$department_list_tree = $this->getDepartmentTree(2);
+		
+		$this->assign('department_list_tree',$department_list_tree);
 		$this->assign('sign_user_arr',$sign_user_arr);
 		$this->assign('city_arr',$city_arr);
 		$this->assign('status_arr',$this->status_arr);
@@ -146,8 +161,10 @@ class ProxysaleController extends BaseController{
 		$m_signuser = new \Admin\Model\SignuserModel();
 		$sign_user_arr = $m_signuser->field('id,uname')->where('status=1')->select();
 		
+		$department_list_tree = $this->getDepartmentTree(2);
 		//print_r($this->contract_ctype_arr);exit;
 		
+		$this->assign('department_list_tree',$department_list_tree);
 		$this->assign('city_arr',$city_arr);
 		$this->assign('sign_user_arr',$sign_user_arr);
 		$this->assign('company_property_arr',$this->company_property_arr);
@@ -209,6 +226,15 @@ class ProxysaleController extends BaseController{
 			$data['company_id']      	 = I('post.company_id',0,'intval');       		//签约公司          
 			$data['sign_department'] 	 = I('post.sign_department','','trim');   		//签约部门
 			$data['sign_user_id']    	 = I('post.sign_user_id',0,'intval');     		//签约人
+			if(!empty($data['sign_user_id'])){
+			    $m_department_user = new \Admin\Model\DepartmentUserModel();
+			    $department_user_info = $m_department_user->alias('a')
+			                                         ->join('savor_finance_department d on a.department_id=d.id','left')
+			                                         ->field('d.name department_name')
+			                                         ->where(array('a.id'=>$data['sign_user_id']))
+			                                         ->find();
+			    $data['sign_department'] 	 = $department_user_info['department_name'];
+			}
 			$data['ctype']           	 = I('post.ctype',0,'intval');                  //合同类型
 			$data['area_id']         	 = I('post.area_id',0,'intval');            	//签约城市
 			$data['sign_time']       	 = I('post.sign_time','','trim');               //签署日期
@@ -316,8 +342,10 @@ class ProxysaleController extends BaseController{
 				}else{
 					$this->error('添加失败');
 				}
-			}else{$
+			}else{
+			    
 				$ret  = $m_contract->addData($data);
+			    
 				if($ret){
 					$m_contract_history = new \Admin\Model\ContracthistoryModel();
 					$data['contract_id'] = $ret;
@@ -336,9 +364,9 @@ class ProxysaleController extends BaseController{
 		
 		$m_area = new \Admin\Model\AreaModel();
 		$city_arr = $m_area->getHotelAreaList();
-		$m_signuser = new \Admin\Model\SignuserModel();
-		$sign_user_arr = $m_signuser->field('id,uname')->where('status=1')->select();
-		
+		//$m_signuser = new \Admin\Model\SignuserModel();
+		//$sign_user_arr = $m_signuser->field('id,uname')->where('status=1')->select();
+		$sign_user_arr = [];
 		
 		$m_contract = new \Admin\Model\ContractModel();
 		$vinfo = $m_contract->where('id='.$id)->find();
@@ -358,9 +386,29 @@ class ProxysaleController extends BaseController{
 		}
 		$vinfo['media_id'] = $media_id;
 		
+		if(!empty($vinfo['sign_user_id'])){
+		    $m_department_user = new \Admin\Model\DepartmentUserModel();
+		    $department_info = $m_department_user->alias('a')
+                		 ->join('savor_finance_department d on a.department_id=d.id','left')
+                		 ->field('a.department_id,d.name department_name')
+                		 ->where(array('a.id'=>$vinfo['sign_user_id']))
+                		 ->find();
+		    $vinfo['sign_department'] = $department_info['department_name'];
+		    $vinfo['department_id']   = $department_info['department_id'];
+		    
+		    $sign_user_arr = $m_department_user->getAllData('id,name uname',array('department_id'=>$department_info['department_id'],'status'=>1),'sort asc,id asc');
+		    
+		    
+		}
+		
+		
+		
 		$info_goods = json_decode($vinfo['info_goods'],true);
 		$this->assign('vinfo',$vinfo);
-		//print_r($info_goods);exit;
+		
+		$department_list_tree = $this->getDepartmentTree(2);
+		
+		$this->assign('department_list_tree',$department_list_tree);
 		$this->assign('info_goods',$info_goods);
 		$this->assign('city_arr',$city_arr);
 		$this->assign('sign_user_arr',$sign_user_arr);
@@ -431,6 +479,16 @@ class ProxysaleController extends BaseController{
 			$data['company_id']      	 = I('post.company_id',0,'intval');       		//签约公司          
 			$data['sign_department'] 	 = I('post.sign_department','','trim');   		//签约部门
 			$data['sign_user_id']    	 = I('post.sign_user_id',0,'intval');     		//签约人
+			if(!empty($data['sign_user_id'])){
+			    $m_department_user = new \Admin\Model\DepartmentUserModel();
+			    $department_user_info = $m_department_user->alias('a')
+			    ->join('savor_finance_department d on a.department_id=d.id','left')
+			    ->field('d.name department_name')
+			    ->where(array('a.id'=>$data['sign_user_id']))
+			    ->find();
+			    $data['sign_department'] 	 = $department_user_info['department_name'];
+			}
+			
 			$data['ctype']           	 = I('post.ctype',0,'intval');                  //合同类型
 			$data['area_id']         	 = I('post.area_id',0,'intval');            	//签约城市
 			$data['sign_time']       	 = I('post.sign_time','','trim');               //签署日期
@@ -642,8 +700,8 @@ class ProxysaleController extends BaseController{
 		
 		$m_area = new \Admin\Model\AreaModel();
 		$city_arr = $m_area->getHotelAreaList();
-		$m_signuser = new \Admin\Model\SignuserModel();
-		$sign_user_arr = $m_signuser->field('id,uname')->where('status=1')->select();
+		$sign_user_arr = [];
+		
 		
 		
 		$m_contract = new \Admin\Model\ContracthistoryModel();
@@ -656,7 +714,20 @@ class ProxysaleController extends BaseController{
 		if($vinfo['statement_time']=='0000-00-00')  $vinfo['statement_time'] = '';
 		if($vinfo['settlement_time']=='0000-00-00') $vinfo['settlement_time'] = '';
 		
-		
+		if(!empty($vinfo['sign_user_id'])){
+		    $m_department_user = new \Admin\Model\DepartmentUserModel();
+		    $department_info = $m_department_user->alias('a')
+		    ->join('savor_finance_department d on a.department_id=d.id','left')
+		    ->field('a.department_id,d.name department_name')
+		    ->where(array('a.id'=>$vinfo['sign_user_id']))
+		    ->find();
+		    $vinfo['sign_department'] = $department_info['department_name'];
+		    $vinfo['department_id']   = $department_info['department_id'];
+		    
+		    $sign_user_arr = $m_department_user->getAllData('id,name uname',array('department_id'=>$department_info['department_id'],'status'=>1),'sort asc,id asc');
+		    
+		    
+		}
 		
 		$info_goods = json_decode($vinfo['info_goods'],true);
 		
