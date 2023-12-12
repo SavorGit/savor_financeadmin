@@ -603,7 +603,7 @@ class BasicsetController extends BaseController {
             $sort = I('post.bank_name','','trim');
             $bank_branch_name = I('post.bank_branch_name','','trim');
             $account_number   = I('post.account_number','','trim');
-            $status = I('post.status',0,'intval');
+            $status = I('post.status',1,'intval');
             
             $data = array('company_name'=>$company_name,'bank_name'=>$sort,'bank_branch_name'=>$bank_branch_name, 
                           'account_number'=>$account_number,'status'=>$status);

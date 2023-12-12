@@ -38,8 +38,8 @@
             <th>账户</th>
             <th>创建时间</th>
             
-            <th>状态</th>
-            <th>操作</th>
+            
+            
           </tr>
           </thead>
           <tbody data-check="list" data-parent=".table">
@@ -52,14 +52,14 @@
               <td data-title="账户">{$dinfo.account_number}</td>
               <td data-title="创建时间">{$dinfo.add_time}</td>
               
-              <td data-title="状态"><php> echo C('MANGER_STATUS')[$dinfo['status']];  </php></td>
-              <td class="table-tool" data-title="操作">
+              <!-- <td data-title="状态"><php> echo C('MANGER_STATUS')[$dinfo['status']];  </php></td> -->
+              <!-- <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
                   <a data-tip="修改" target="dialog" mask="true" href="{$host_name}/basicset/companybankadd?id={$dinfo.id}" class="btn btn-success btn-icon">
                     <i class="fa fa-pencil"></i>
                   </a>
                 </div>
-              </td>
+              </td> -->
             </tr>
           </volist>
           </tbody>
