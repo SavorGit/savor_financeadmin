@@ -581,7 +581,7 @@ class BasicsetController extends BaseController {
         $orderby = 'id asc';
         $res_list = $m_company_bank->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
-        $m_bank_type = new \Admin\Model\BankTypeModel();
+        $m_bank_type = new \Admin\Model\U8BankTypeModel();
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
                 $map = [];
@@ -637,7 +637,7 @@ class BasicsetController extends BaseController {
             if($id){
                 $vinfo = $m_company_bank->getInfo(array('id'=>$id));
             }
-            $m_bank_type = new \Admin\Model\BankTypeModel();
+            $m_bank_type = new \Admin\Model\U8BankTypeModel();
             $bank_type_arr = [];
             $bank_type_arr = $m_bank_type->getAll('id,banktypename as name');
             
