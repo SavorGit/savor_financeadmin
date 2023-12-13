@@ -33,5 +33,12 @@ class U8cloud {
         }
         return array('url'=>$api_url,'result'=>$res);
     }
+    //银行账户添加
+    public function addBankAccountInfo($params){
+        $api = '/u8cloud/api/uapbd/bankaccount/insert';
+        $method = 'post';
+        $res = $this->apiquery($api,$method,$params);
+        return $res;
+    }
 }
 ?>

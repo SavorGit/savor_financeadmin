@@ -581,11 +581,11 @@ class BasicsetController extends BaseController {
         $orderby = 'id asc';
         $res_list = $m_company_bank->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
-        $m_bank_type = new \Admin\Model\U8BankTypeModel();
+        $m_bank_type = new \Admin\Model\U8\BankTypeModel();
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
                 $map = [];
-                $map['id'] = $v['bank_type_id'];
+                $map['pk_banktype'] = $v['bank_type_id'];
                 $bank_type_info = $m_bank_type->getInfo($map);
                 
                 $v['bank_type_str'] = $bank_type_info['banktypename'];
@@ -637,7 +637,7 @@ class BasicsetController extends BaseController {
             if($id){
                 $vinfo = $m_company_bank->getInfo(array('id'=>$id));
             }
-            $m_bank_type = new \Admin\Model\U8BankTypeModel();
+            $m_bank_type = new \Admin\Model\U8\BankTypeModel();
             $bank_type_arr = [];
             $bank_type_arr = $m_bank_type->getAll('id,banktypename as name');
             
@@ -655,6 +655,43 @@ class BasicsetController extends BaseController {
         $user_list = $m_department_user->getAllData('id,name',$where,'sort asc,id asc');
         $res_data = array('user_list'=>$user_list);
         echo json_encode($res_data);
+    }
+    
+    public function companybanksyncU8(){
+        
+        $id = I('get.id', 0, 'int');
+        $userinfo = session('sysUserInfo');
+        if(!empty($id)){
+            $field = 'a.*,b.banktypecode';
+            $where = [];
+            $where['a.id'] = $id;
+            $m_company_bank = new \Admin\Model\CompanyBankModel();
+            $bank_info = $m_company_bank->alias('a')
+                           ->join('savor_u8_banktype b on a.bank_type_id=b.id','left')
+                           ->field($field)
+                           ->where($where)
+                           ->find();
+            
+           $u8 = new \Common\Lib\U8cloud();
+           $params = [];
+           $data = [];
+           $data['account'] = $bank_info['account_number'];
+           $data['accountcode'] = $bank_info['id'];
+           $data['accountname'] = $bank_info['company_name'];
+           
+           $data['acctype']     = '0';  //账户类型： 0活期     1协定 2定期 3通知 4保证金户
+           $data['arapprop']    = '0';  //收付属性： 0收入     1支出 2收支
+           $data['genebranprop']= '0';  //总分属性： 0总账户 1分账户 2独立账户 
+           $data['groupaccount']= 'N';  //集团账户： N否         Y是
+           
+           $data['creator'] = $userinfo['id'];  //系统账号id
+           $data['ownercorp'] = '1005';
+           $data['pk_banktype'] = $bank_info['pk_banktype'];
+           $data['pk_currtype'] = 'CNY';
+           
+           $params['bankaccbasvo'][]= $data;
+           $u8->addBankAccountInfo($data);
+        }
     }
     
 

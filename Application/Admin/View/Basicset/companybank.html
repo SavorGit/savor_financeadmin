@@ -39,7 +39,7 @@
             <th>账户</th>
             <th>创建时间</th>
             
-            
+            <th>操作</th>
             
           </tr>
           </thead>
@@ -55,13 +55,15 @@
               <td data-title="创建时间">{$dinfo.add_time}</td>
               
               <!-- <td data-title="状态"><php> echo C('MANGER_STATUS')[$dinfo['status']];  </php></td> -->
-              <!-- <td class="table-tool" data-title="操作">
+              <if condition="$dinfo.u8_pk_id eq ''">
+              <td class="table-tool" data-title="同步u8" >
                 <div class="tools-edit">
-                  <a data-tip="修改" target="dialog" mask="true" href="{$host_name}/basicset/companybankadd?id={$dinfo.id}" class="btn btn-success btn-icon">
-                    <i class="fa fa-pencil"></i>
+                  <a data-tip="同步u8" target="ajaxTodo"  mask="true" href="{$host_name}/basicset/companybanksyncU8?id={$dinfo.id}" class="btn btn-success btn-icon">
+                    <i class="fa fa-upload"></i>
                   </a>
                 </div>
-              </td> -->
+              </td>
+              </if>
             </tr>
           </volist>
           </tbody>
