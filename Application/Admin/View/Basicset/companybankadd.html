@@ -6,9 +6,14 @@
         	
             
             <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">公司名称：</label>
+                <label class="col-xs-12 col-sm-2 control-label">公司：</label>
                 <div class="col-xs-12 col-sm-10">
-                    <input name="company_name" type="text" value="{$vinfo.company_name}" class="form-control" required/>
+                    <!-- <input name="company_name" type="text" value="{$vinfo.company_name}" class="form-control" required/> -->
+                    <select  name="company_name" class="form-control bs-select" title="请选择公司"  required>
+	                  <volist name="corp_list" id="vo">
+	                    <option value="{$vo.pk_corp}"  > {$vo.unitname}</option>
+	                  </volist>
+	                </select>
                 </div>
             </div>
             

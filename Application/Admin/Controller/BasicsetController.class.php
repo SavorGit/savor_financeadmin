@@ -582,19 +582,21 @@ class BasicsetController extends BaseController {
         $res_list = $m_company_bank->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
         $m_bank_type = new \Admin\Model\U8\BankTypeModel();
+        $m_corp      = new \Admin\Model\U8\CorpModel();
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
                 $map = [];
-                $map['pk_banktype'] = $v['bank_type_id'];
+                $map['pk_banktype'] = $v['u8_pk_banktype'];
                 $bank_type_info = $m_bank_type->getInfo($map);
                 
+                $map = [];
+                $map['pk_corp'] = $v['company_name'];
+                $corp_info      = $m_corp->getInfo($map);
                 $v['bank_type_str'] = $bank_type_info['banktypename'];
+                $v['company_name']  = $corp_info['unitname'];
                 $data_list[] = $v;
             }
         }
-        
-       
-        
         
         $this->assign('keyword',$keyword);
         $this->assign('data',$data_list);
@@ -614,14 +616,15 @@ class BasicsetController extends BaseController {
             $id = I('id',0,'intval');
             
             $company_name = I('post.company_name','','trim');
-            $bank_type_id = I('post.bank_type_id',0,'intval');
+            $bank_type_id = I('post.bank_type_id','','trim');
             $bank_name    = I('post.bank_name','','trim');
             $bank_branch_name = I('post.bank_branch_name','','trim');
             $account_number   = I('post.account_number','','trim');
             $status = I('post.status',1,'intval');
             
-            $data = array('company_name'=>$company_name,'bank_type_id'=>$bank_type_id,'bank_name'=>$bank_name,'bank_branch_name'=>$bank_branch_name, 
+            $data = array('company_name'=>$company_name,'u8_pk_banktype'=>$bank_type_id,'bank_name'=>$bank_name,'bank_branch_name'=>$bank_branch_name, 
                           'account_number'=>$account_number,'status'=>$status);
+            
             if($id){
                 $result = $m_company_bank->updateData(array('id'=>$id),$data);
             }else{
@@ -637,9 +640,17 @@ class BasicsetController extends BaseController {
             if($id){
                 $vinfo = $m_company_bank->getInfo(array('id'=>$id));
             }
+            //银行类别
             $m_bank_type = new \Admin\Model\U8\BankTypeModel();
             $bank_type_arr = [];
-            $bank_type_arr = $m_bank_type->getAll('id,banktypename as name');
+            $bank_type_arr = $m_bank_type->getAll('pk_banktype id,banktypename as name');
+            
+            //公司列表
+            $m_corp = new \Admin\Model\U8\CorpModel();
+            //select pk_corp,unitcode,unitname from bd_corp
+            $corp_list = $m_corp->getAllData('pk_corp,unitcode,unitname');   
+            
+            $this->assign('corp_list',$corp_list);
             
             $this->assign('bank_type_arr',$bank_type_arr);
             $this->assign('vinfo',$vinfo);
@@ -662,35 +673,53 @@ class BasicsetController extends BaseController {
         $id = I('get.id', 0, 'int');
         $userinfo = session('sysUserInfo');
         if(!empty($id)){
-            $field = 'a.*,b.banktypecode';
-            $where = [];
-            $where['a.id'] = $id;
-            $m_company_bank = new \Admin\Model\CompanyBankModel();
-            $bank_info = $m_company_bank->alias('a')
-                           ->join('savor_u8_banktype b on a.bank_type_id=b.id','left')
-                           ->field($field)
-                           ->where($where)
-                           ->find();
             
-           $u8 = new \Common\Lib\U8cloud();
-           $params = [];
-           $data = [];
-           $data['account'] = $bank_info['account_number'];
-           $data['accountcode'] = $bank_info['id'];
-           $data['accountname'] = $bank_info['company_name'];
+            $where = [];
+            $where['id'] = $id;
+            $m_company_bank = new \Admin\Model\CompanyBankModel();
+            $bank_info = $m_company_bank->getInfo($where);
+            
+            
+            
+                           
+            $u8 = new \Common\Lib\U8cloud();
+            $params = [];
+            $data = [];
+            $data['account'] = $bank_info['account_number'];
+            $data['accountcode'] = $bank_info['id'];
+            $data['accountname'] = $bank_info['company_name'];
            
-           $data['acctype']     = '0';  //账户类型： 0活期     1协定 2定期 3通知 4保证金户
-           $data['arapprop']    = '0';  //收付属性： 0收入     1支出 2收支
-           $data['genebranprop']= '0';  //总分属性： 0总账户 1分账户 2独立账户 
-           $data['groupaccount']= 'N';  //集团账户： N否         Y是
+            $data['acctype']     = '0';  //账户类型： 0活期     1协定 2定期 3通知 4保证金户
+            $data['arapprop']    = '0';  //收付属性： 0收入     1支出 2收支
+            $data['genebranprop']= '0';  //总分属性： 0总账户 1分账户 2独立账户 
+            $data['groupaccount']= 'Y';  //集团账户： N否         Y是
            
-           $data['creator'] = $userinfo['id'];  //系统账号id
-           $data['ownercorp'] = '1005';
-           $data['pk_banktype'] = $bank_info['pk_banktype'];
-           $data['pk_currtype'] = 'CNY';
+            $data['creator'] = $userinfo['id'];  //系统账号id
+            $data['ownercorp'] = '1005';
+            $data['pk_banktype'] = $bank_info['u8_pk_banktype'];
+            $data['pk_currtype'] = 'CNY';
            
-           $params['bankaccbasvo'][]= $data;
-           $u8->addBankAccountInfo($data);
+            $params['bankaccbasvo'][]= $data;
+            
+            $ret = $u8->addBankAccountInfo($data);
+            
+            $result = json_decode($ret['result'],true);
+            $status = $result['status'];
+            if($status=='success'){
+                
+                //更新id
+                $data = [] ;
+                $map  = [];
+                $map['id'] = $id;
+                $data['u8_pk_id'] = $result['data'][0]['pk_bankaccbas'];
+                $m_company_bank->save($data,$map);
+                
+                $this->output('同步成功', 'basicset/companybank',2);
+                
+                
+            }else if($status=='falied'){
+                $this->output('同步失败', 'basicset/companybank',2);
+            }
         }
     }
     
