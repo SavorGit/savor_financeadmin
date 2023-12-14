@@ -369,6 +369,12 @@ class BasicsetController extends BaseController {
 
             $data = array('name'=>$name,'department_id'=>$department_id,'status'=>$status);
             if($id){
+                $user_info = $m_departmentuser->getInfo(array('id'=>$id));
+                
+                if(($user_info['status']!=$status) && $status==1){
+                    $data['u8_pk_id'] = '';
+                }
+                
                 $result = $m_departmentuser->updateData(array('id'=>$id),$data);
             }else{
                 $result = $m_departmentuser->addData($data);
