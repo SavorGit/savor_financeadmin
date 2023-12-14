@@ -669,7 +669,7 @@ class BasicsetController extends BaseController {
         $where = [];
         $where['department_id'] = $department_id;
         $where['status'] =1;
-        $user_list = $m_department_user->getAllData('id,name',$where,'sort asc,id asc');
+        $user_list = $m_department_user->getAllData('id,name,company_name',$where,'sort asc,id asc');
         $res_data = array('user_list'=>$user_list);
         echo json_encode($res_data);
     }
@@ -685,25 +685,29 @@ class BasicsetController extends BaseController {
             $m_company_bank = new \Admin\Model\CompanyBankModel();
             $bank_info = $m_company_bank->getInfo($where);
             
-            
+            $m_corp = new \Admin\Model\U8\CorpModel();
+            $corp_info = $m_corp->field('pk_corp,unitcode,unitname')
+                                     ->where(array('pk_corp'=>$bank_info['company_name']))
+                                     ->find();
             
                            
             $u8 = new \Common\Lib\U8cloud();
             $params = [];
             $data = [];
-            $data['account'] = $bank_info['account_number'];
-            $data['accountcode'] = $bank_info['id'];
-            $data['accountname'] = $bank_info['company_name'];
+            $data['account'] = $bank_info['account_number'];      //账号
+            $data['accountcode'] = $bank_info['account_number'];              //账户编码
+            $data['accountname'] = $bank_info['company_name'];    //账户名称
            
-            $data['acctype']     = '0';  //账户类型： 0活期     1协定 2定期 3通知 4保证金户
-            $data['arapprop']    = '0';  //收付属性： 0收入     1支出 2收支
-            $data['genebranprop']= '0';  //总分属性： 0总账户 1分账户 2独立账户 
-            $data['groupaccount']= 'Y';  //集团账户： N否         Y是
+            $data['acctype']     = '0';                           //账户类型： 0活期     1协定 2定期 3通知 4保证金户
+            $data['arapprop']    = '0';                           //收付属性： 0收入     1支出 2收支
+            $data['genebranprop']= '0';                           //总分属性： 0总账户 1分账户 2独立账户 
+            $data['groupaccount']= 'Y';                           //集团账户： N否         Y是
            
-            $data['creator'] = $userinfo['id'];  //系统账号id
-            $data['ownercorp'] = '1005';
-            $data['pk_banktype'] = $bank_info['u8_pk_banktype'];
-            $data['pk_currtype'] = 'CNY';
+            $data['creator'] = $userinfo['id'];                   //系统账号id
+            $data['ownercorp'] = $corp_info['unitcode'];          //开户公司
+            $data['pk_banktype'] = $bank_info['u8_pk_banktype'];  //银行类别
+            $data['pk_corp']     = '0001';                        //公司
+            $data['pk_currtype'] = 'CNY';                         //币种
            
             $params['bankaccbasvo'][]= $data;
             
