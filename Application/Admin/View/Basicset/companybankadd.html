@@ -4,23 +4,28 @@
         <input name="company_bank_id" type="hidden" value="{$vinfo.company_bank_id}"/>
         <div class="pageFormContent modal-body">
         	
-            
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">账户名称：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <input name="account_name" type="text" value="{$vinfo.account_name}" class="form-control" required/>
+                </div>
+            </div>
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">公司：</label>
                 <div class="col-xs-12 col-sm-10">
                     <!-- <input name="company_name" type="text" value="{$vinfo.company_name}" class="form-control" required/> -->
-                    <select  name="company_name" class="form-control bs-select" title="请选择公司"  required>
+                    <select  name="u8_innercode" class="form-control bs-select" title="请选择公司"  required>
 	                  <volist name="corp_list" id="vo">
-	                    <option value="{$vo.pk_corp}"  > {$vo.unitname}</option>
+	                    <option value="{$vo.innercode}"  > {$vo.unitname}</option>
 	                  </volist>
 	                </select>
                 </div>
             </div>
             
             <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">银行类别：</label>
+                <label class="col-xs-12 col-sm-2 control-label">开户银行：</label>
                 <div class="col-xs-12 col-sm-10">
-                    <select  name="bank_type_id" class="form-control bs-select" title="请选择银行类别"  required>
+                    <select  name="bank_type_id" class="form-control bs-select" title="请选择开户银行"  required>
                   <volist name="bank_type_arr" id="vo">
                     <option value="{$vo.id}"  > {$vo.name}</option>
                   </volist>
@@ -29,18 +34,29 @@
             </div>
             
             
-            <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">开户银行：</label>
-                <div class="col-xs-12 col-sm-10">
-                    <input name="bank_name" type="text" value="{$vinfo.bank_name}" class="form-control" required/>
-                </div>
-            </div>
+            
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">支行：</label>
                 <div class="col-xs-12 col-sm-10">
                     <input name="bank_branch_name" type="text" value="{$vinfo.bank_branch_name}" class="form-control" required/>
                 </div>
             </div>
+            
+            <div class="form-group row">
+              <label class="col-xs-12 col-sm-2 control-label">
+                开户日期：
+              </label>
+              <div class="col-xs-2 col-sm-2">
+                <div class="input-group date form_date" data-ymd="true" data-date="{$vinfo.open_account_date}">
+                  <input name="open_account_date" type="text" size="16" class="form-control date" placeholder="开户日期" value="{$vinfo.sign_time}" >
+                  <span class="input-group-btn">
+                    <button class="btn btn-success date-set" type="button"><i class="fa fa-calendar"></i></button>
+                  </span>
+                </div> 
+              </div>
+              
+             </div>
+            
             <div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">账号：</label>
                 <div class="col-xs-12 col-sm-10">
@@ -66,3 +82,18 @@
         </div>
     </form>
 </div>
+<script type="text/javascript">
+
+  $('.date-reset').click(function(){
+    $(this).parent().prev().val('')
+  });
+  $(function(){
+    $(".form-control.date").datetimepicker({
+      minView: "month", //选择日期后，不会再跳转去选择时分秒
+      language:  'zh-CN',
+      format: 'yyyy-mm-dd',
+      todayBtn:  1,
+      autoclose: 1,
+    });
+  })
+</script>

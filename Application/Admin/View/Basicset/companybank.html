@@ -32,11 +32,12 @@
 
           <tr id="post">
             <th>ID</th>
-            <th>银行类别</th>
-            <th>公司名称</th>
+            <th>账户名称</th>
             <th>开户银行</th>
+            <th>公司名称</th>
             <th>支行</th>
             <th>账户</th>
+            <th>开户日期</th>
             <th>创建时间</th>
             
             <th>操作</th>
@@ -47,11 +48,13 @@
           <volist name="data" id="dinfo">
             <tr target="sid_user">
               <td data-title="ID">{$dinfo.id}</td>
+              <td data-title="账户名称">{$dinfo.account_name}</td>
               <td data-title="银行类别">{$dinfo.bank_type_str}</td>
               <td data-title="公司名称">{$dinfo.company_name}</td>
-              <td data-title="开户银行">{$dinfo.bank_name}</td>
+              
               <td data-title="支行">{$dinfo.bank_branch_name}</td>
               <td data-title="账户">{$dinfo.account_number}</td>
+              <td data-title="开户日期">{$dinfo.open_account_date}</td>
               <td data-title="创建时间">{$dinfo.add_time}</td>
               
               <!-- <td data-title="状态"><php> echo C('MANGER_STATUS')[$dinfo['status']];  </php></td> -->

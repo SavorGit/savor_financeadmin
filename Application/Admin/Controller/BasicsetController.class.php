@@ -592,11 +592,11 @@ class BasicsetController extends BaseController {
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
                 $map = [];
-                $map['pk_banktype'] = $v['u8_pk_banktype'];
+                $map['banktypecode'] = $v['u8_pk_banktype'];
                 $bank_type_info = $m_bank_type->getInfo($map);
                 
                 $map = [];
-                $map['pk_corp'] = $v['company_name'];
+                $map['innercode'] = $v['u8_innercode'];
                 $corp_info      = $m_corp->getInfo($map);
                 $v['bank_type_str'] = $bank_type_info['banktypename'];
                 $v['company_name']  = $corp_info['unitname'];
@@ -621,15 +621,16 @@ class BasicsetController extends BaseController {
             
             $id = I('id',0,'intval');
             
-            $company_name = I('post.company_name','','trim');
+            $u8_innercode = I('post.u8_innercode','','trim');
             $bank_type_id = I('post.bank_type_id','','trim');
-            $bank_name    = I('post.bank_name','','trim');
+            $account_name    = I('post.account_name','','trim');
+            $open_account_date = I('post.open_account_date');
             $bank_branch_name = I('post.bank_branch_name','','trim');
             $account_number   = I('post.account_number','','trim');
             $status = I('post.status',1,'intval');
             
-            $data = array('company_name'=>$company_name,'u8_pk_banktype'=>$bank_type_id,'bank_name'=>$bank_name,'bank_branch_name'=>$bank_branch_name, 
-                          'account_number'=>$account_number,'status'=>$status);
+            $data = array('u8_innercode'=>$u8_innercode,'account_name'=>$account_name,'u8_pk_banktype'=>$bank_type_id,'bank_branch_name'=>$bank_branch_name, 
+                'account_number'=>$account_number,'open_account_date'=>$open_account_date,'status'=>$status);
             
             if($id){
                 $result = $m_company_bank->updateData(array('id'=>$id),$data);
@@ -649,12 +650,12 @@ class BasicsetController extends BaseController {
             //银行类别
             $m_bank_type = new \Admin\Model\U8\BankTypeModel();
             $bank_type_arr = [];
-            $bank_type_arr = $m_bank_type->getAll('pk_banktype id,banktypename as name');
+            $bank_type_arr = $m_bank_type->getAll('banktypecode id,banktypename as name');
             
             //公司列表
             $m_corp = new \Admin\Model\U8\CorpModel();
             //select pk_corp,unitcode,unitname from bd_corp
-            $corp_list = $m_corp->getAllData('pk_corp,unitcode,unitname');   
+            $corp_list = $m_corp->getAllData('pk_corp,innercode,unitcode,unitname');   
             
             $this->assign('corp_list',$corp_list);
             
@@ -687,16 +688,16 @@ class BasicsetController extends BaseController {
             
             $m_corp = new \Admin\Model\U8\CorpModel();
             $corp_info = $m_corp->field('pk_corp,unitcode,unitname')
-                                     ->where(array('pk_corp'=>$bank_info['company_name']))
+                                     ->where(array('innercode'=>$bank_info['u8_innercode']))
                                      ->find();
-            
-                           
+                          
             $u8 = new \Common\Lib\U8cloud();
             $params = [];
             $data = [];
-            $data['account'] = $bank_info['account_number'];      //账号
-            $data['accountcode'] = $bank_info['account_number'];              //账户编码
-            $data['accountname'] = $bank_info['company_name'];    //账户名称
+            $data['accopendate'] = $bank_info['open_account_date'];  //开户日期 
+            $data['account']     = $bank_info['account_number'];      //账号
+            $data['accountcode'] = $bank_info['id'];              //账户编码
+            $data['accountname'] = $bank_info['account_name'];    //账户名称
            
             $data['acctype']     = '0';                           //账户类型： 0活期     1协定 2定期 3通知 4保证金户
             $data['arapprop']    = '0';                           //收付属性： 0收入     1支出 2收支
@@ -706,23 +707,25 @@ class BasicsetController extends BaseController {
             $data['creator'] = $userinfo['id'];                   //系统账号id
             $data['ownercorp'] = $corp_info['unitcode'];          //开户公司
             $data['pk_banktype'] = $bank_info['u8_pk_banktype'];  //银行类别
-            $data['pk_corp']     = '0001';                        //公司
+            $data['pk_corp']     = $bank_info['u8_innercode'];    //公司编码
             $data['pk_currtype'] = 'CNY';                         //币种
            
             $params['bankaccbasvo'][]= $data;
-            
-            $ret = $u8->addBankAccountInfo($data);
+            $ret = $u8->addBankAccountInfo($params);
             
             $result = json_decode($ret['result'],true);
             $status = $result['status'];
             if($status=='success'){
                 
+                $ret_data = json_decode($result['data'],true);
+                
                 //更新id
-                $data = [] ;
+                $info = [] ;
                 $map  = [];
                 $map['id'] = $id;
-                $data['u8_pk_id'] = $result['data'][0]['pk_bankaccbas'];
-                $m_company_bank->save($data,$map);
+                $info['u8_pk_id'] = $ret_data[0]['pk_bankaccbas'];
+                
+                $m_company_bank->updateData($map, $info);
                 
                 $this->output('同步成功', 'basicset/companybank',2);
                 
