@@ -19,8 +19,15 @@ class SupplierController extends BaseController {
         $data_list = array();
         $all_status = C('MANGER_STATUS');
         if(!empty($res_list['list'])){
+            $m_area_info = new \Admin\Model\AreaModel();
             foreach ($res_list['list'] as $v){
                 $v['status_str'] = $all_status[$v['status']];
+                $city = '';
+                if($v['city_id']){
+                    $res_city = $m_area_info->getInfo(array('id'=>$v['city_id']));
+                    $city = $res_city['region_name'];
+                }
+                $v['city'] = $city;
                 $data_list[] = $v;
             }
         }
@@ -35,17 +42,29 @@ class SupplierController extends BaseController {
     public function supplieradd(){
         $id = I('id',0,'intval');
         $m_supplier = new \Admin\Model\SupplierModel();
+        $m_area_info = new \Admin\Model\AreaModel();
         if(IS_POST){
             $name = I('post.name','','trim');
             $contacts = I('post.contacts','','trim');
             $addr = I('post.addr','','trim');
             $mobile = I('post.mobile','','trim');
             $desc = I('post.desc','','trim');
+            $province_id = I('post.province_id',0,'intval');
+            $city_id = I('post.city_id',0,'intval');
             $media_id = I('post.media_id',0,'intval');
             $status = I('post.status',0,'intval');
-
-            $data = array('name'=>$name,'contacts'=>$contacts,'addr'=>$addr,'mobile'=>$mobile,
-                'desc'=>$desc,'media_id'=>$media_id,'status'=>$status);
+            $center_city = array();
+            if($province_id && $city_id){
+                $res_city = $m_area_info->getDataList('id,region_name',array('parent_id'=>0,'region_name'=>array("like","%市")),'id asc');
+                foreach ($res_city as $v){
+                    $center_city[$v['id']]=$v;
+                }
+                if(isset($center_city[$province_id])){
+                    $city_id = $province_id;
+                }
+            }
+            $data = array('name'=>$name,'contacts'=>$contacts,'addr'=>$addr,'mobile'=>$mobile,'status'=>$status,
+                'province_id'=>$province_id,'city_id'=>$city_id,'desc'=>$desc,'media_id'=>$media_id,'update_time'=>date('Y-m-d H:i:s'));
             if($id){
                 $result = $m_supplier->updateData(array('id'=>$id),$data);
             }else{
@@ -66,6 +85,9 @@ class SupplierController extends BaseController {
                     $vinfo['oss_addr'] = $res_media['oss_addr'];
                 }
             }
+            $province_list = $m_area_info->getDataList('id,region_name',array('parent_id'=>0),'id asc');
+
+            $this->assign('province_list',$province_list);
             $this->assign('vinfo',$vinfo);
             $this->display();
         }
