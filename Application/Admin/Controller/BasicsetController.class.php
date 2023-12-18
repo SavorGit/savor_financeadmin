@@ -670,7 +670,7 @@ class BasicsetController extends BaseController {
         $where = [];
         $where['department_id'] = $department_id;
         $where['status'] =1;
-        $user_list = $m_department_user->getAllData('id,name,company_name',$where,'sort asc,id asc');
+        $user_list = $m_department_user->getAllData('id,name',$where,'sort asc,id asc');
         $res_data = array('user_list'=>$user_list);
         echo json_encode($res_data);
     }
