@@ -58,7 +58,7 @@
               <td data-title="创建时间">{$dinfo.add_time}</td>
               
               <!-- <td data-title="状态"><php> echo C('MANGER_STATUS')[$dinfo['status']];  </php></td> -->
-              <!-- <if condition="$dinfo.u8_pk_id eq ''">
+              <if condition="$dinfo.u8_pk_id eq ''">
               <td class="table-tool" data-title="同步u8" >
                 <div class="tools-edit">
                   <a data-tip="同步u8" target="ajaxTodo"  mask="true" href="{$host_name}/basicset/companybanksyncU8?id={$dinfo.id}" class="btn btn-success btn-icon">
@@ -66,7 +66,7 @@
                   </a>
                 </div>
               </td>
-              </if> -->
+              </if>
             </tr>
           </volist>
           </tbody>
