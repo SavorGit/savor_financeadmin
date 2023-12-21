@@ -1783,10 +1783,20 @@ class StockController extends BaseController {
             $qr_id = intval($qrcontent);
             $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
             $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            if(empty($res_qrcontent)){
+                $res_vintner_code = $m_stock_record->getAll('idcode',array('vintner_code'=>$idcode),0,1,'id asc');
+                if(!empty($res_vintner_code[0]['idcode'])){
+                    $idcode = $res_vintner_code[0]['idcode'];
+                    $qrcontent = decrypt_data($idcode);
+                    $qr_id = intval($qrcontent);
+                    $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
+                }
+            }
             if(!empty($res_qrcontent)){
                 $all_type = C('STOCK_RECORD_TYPE');
                 $wo_status = C('STOCK_WRITEOFF_STATUS');
-                $m_stock_record = new \Admin\Model\StockRecordModel();
+
                 $fileds = 'a.id,a.type,a.idcode,goods.name as goods_name,unit.name as unit_name,a.wo_status,a.dstatus,a.add_time';
                 if($res_qrcontent['type']==1){
                     $parent_id = $qr_id;
