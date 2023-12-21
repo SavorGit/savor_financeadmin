@@ -56,12 +56,14 @@ class SysuserController extends BaseController {
         //处理提交数据
         if(IS_POST) {
             //获取参数
-            $groupId= I('group', 0, 'int');
-            $userId  = I('id', 0, 'int');
-            $remark  = I('remark');
-            $username= I('username');
-            $userpwd = I('userpwd');
-            $status  = I('status', 1, 'int');
+            $groupId   = I('group', 0, 'int');
+            $userId    = I('id', 0, 'int');
+            $remark    = I('remark');
+            $username  = I('username');
+            $userpwd   = I('userpwd');
+            $status    = I('status', 1, 'int');
+            $telephone = I('telephone','','trim');
+            
             $count = $user->getUserCount(array('username'=>$username));
             if($count > 0){
                 $this->error('用户登录名称已经存在');
@@ -72,11 +74,13 @@ class SysuserController extends BaseController {
             }
             //判断添加
             if($remark && $username && $userpwd) {
-                $data['id']   = $userId;
-                $data['remark']   = $remark;
-                $data['username'] = $username;
-                $data['groupId'] = $groupId;
-                $data['status'] = $status;
+                $data['id']        = $userId;
+                $data['remark']    = $remark;
+                $data['username']  = $username;
+                $data['groupId']   = $groupId;
+                $data['status']    = $status;
+                $data['telephone'] = $telephone;
+                
                 $pwdpre = C('PWDPRE');
                 $userpwd = $userpwd.$pwdpre;
                 $data['password'] = md5($userpwd);
@@ -122,6 +126,7 @@ class SysuserController extends BaseController {
             $remark  = I('remark');
             $newuserpwd = I('newuserpwd');
             $status  = I('status', 1, 'int');
+            $telephone = I('telephone','','trim');
             //判断昆成
             $user = new \Admin\Model\SysuserModel();
             $map['remark'] = trim($remark);
@@ -131,10 +136,11 @@ class SysuserController extends BaseController {
                 $this->error('用户昵称已经存在');
             }
             if($userId && $remark) {
-                $data['id']   = $userId;
+                $data['id']       = $userId;
                 $data['remark']   = $remark;
-                $data['status'] = $status;
-                $data['groupId'] = $groupId;
+                $data['status']   = $status;
+                $data['groupId']  = $groupId;
+                $data['telephone']= $telephone;
                 if($newuserpwd){
                     $pwdpre = C('PWDPRE');
                     $newuserpwd = $newuserpwd.$pwdpre;

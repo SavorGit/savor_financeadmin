@@ -340,7 +340,7 @@ class BasicsetController extends BaseController {
             $where['name'] = array('like',"$keyword");
         }
         $start = ($pageNum-1)*$size;
-        $orderby = 'sort asc';
+        $orderby = 'status asc,sort asc';
         $res_list = $m_departmentuser->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
         $all_status = C('MANGER_STATUS');
@@ -366,8 +366,9 @@ class BasicsetController extends BaseController {
         if(IS_POST){
             $name = I('post.name','','trim');
             $status = I('post.status',0,'intval');
+            $sys_user_id = I('post.sys_user_id',0,'intval');
 
-            $data = array('name'=>$name,'department_id'=>$department_id,'status'=>$status);
+            $data = array('name'=>$name,'department_id'=>$department_id,'sys_user_id'=>$sys_user_id,'status'=>$status);
             if($id){
                 $user_info = $m_departmentuser->getInfo(array('id'=>$id));
                 
@@ -391,6 +392,37 @@ class BasicsetController extends BaseController {
             }
             $department_list_tree = $this->getDepartmentTree(2);
             
+            
+            $m_area = new \Admin\Model\AreaModel();
+            $result =$m_area->getHotelAreaList();
+            foreach($result as $key=>$v){
+                $area_info[$v['id']] = $v;
+            }
+            
+            $m_opuser_role = new \Admin\Model\OpuserroleModel();
+            
+            $where = [];
+            $where['a.state']  = 1;
+            $where['b.status'] = 1;
+            $opuser_list = $m_opuser_role->alias('a')
+                          ->join('savor_sysuser b on a.user_id=b.id','left')
+                          ->field('a.manage_city,a.user_id,b.remark as username')
+                          ->order('a.manage_city asc')
+                          ->where($where)
+                          ->select();
+            foreach($opuser_list as $key=>$v){
+                if($v['manage_city'] ==9999){
+                    $opuser_list[$key]['view_info'] = '全国-'.$v['user_id'].'-'.$v['username'];
+                }else {
+                    $manage_city_arr = explode(',', $v['manage_city']);
+                    foreach($manage_city_arr as $mv){
+                        $opuser_list[$key]['manage_city_str'] .= $area_info[$mv]['region_name'];
+                    }
+                    $opuser_list[$key]['view_info'] = $opuser_list[$key]['manage_city_str'].'-'.$v['user_id'].'-'.$v['username'];
+                }
+            }
+            
+            $this->assign('opuser_list',$opuser_list);
             
             $this->assign('department_list_tree',$department_list_tree);
             $this->assign('vinfo',$vinfo);
