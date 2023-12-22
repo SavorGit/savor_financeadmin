@@ -327,7 +327,7 @@ class StockController extends BaseController {
                 $total_fee = $res_info['price'];
                 $price = sprintf("%.2f",$total_fee/$total_amount);//单瓶价格
             }else{
-                $hwhere = array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'unit_id'=>$unit_id);
+                $hwhere = array('stock_id'=>$stock_id,'goods_id'=>$goods_id);
                 $m_stock_record = new \Admin\Model\StockRecordModel();
                 $res_record = $m_stock_record->getAll('price,total_fee',array('goods_id'=>$goods_id,'unit_id'=>$unit_id,'type'=>1),0,1,'id asc','');
                 if(!empty($res_record)){
