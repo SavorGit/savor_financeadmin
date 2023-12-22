@@ -45,6 +45,7 @@ class SupplierController extends BaseController {
         $m_area_info = new \Admin\Model\AreaModel();
         if(IS_POST){
             $name = I('post.name','','trim');
+            $short_name = I('post.short_name','','trim');
             $contacts = I('post.contacts','','trim');
             $addr = I('post.addr','','trim');
             $mobile = I('post.mobile','','trim');
@@ -63,7 +64,7 @@ class SupplierController extends BaseController {
                     $city_id = $province_id;
                 }
             }
-            $data = array('name'=>$name,'contacts'=>$contacts,'addr'=>$addr,'mobile'=>$mobile,'status'=>$status,
+            $data = array('name'=>$name,'short_name'=>$short_name,'contacts'=>$contacts,'addr'=>$addr,'mobile'=>$mobile,'status'=>$status,
                 'province_id'=>$province_id,'city_id'=>$city_id,'desc'=>$desc,'media_id'=>$media_id,'update_time'=>date('Y-m-d H:i:s'));
             if($id){
                 $result = $m_supplier->updateData(array('id'=>$id),$data);
