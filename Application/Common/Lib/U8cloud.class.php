@@ -34,6 +34,13 @@ class U8cloud {
                 $curl::post($url,$params,$res);
                 break;
         }
+        $res_decode = json_decode($res,true);
+        if($res_decode['status']!='success'){
+            $m_u8log = new \Admin\Model\U8logModel();
+            $m_u8log->add(array('host'=>$api_host,'api'=>$api,'method'=>$method,
+                'params'=>$params,'res_data'=>$res
+                ));
+        }
         return array('url'=>$api_url,'result'=>$res);
     }
     //部门档案添加
@@ -123,6 +130,14 @@ class U8cloud {
         $res = $this->apiquery($api,$method,$params,$trantype);
         return $res;
     }
+    //客商基本档案分配
+    public function assignCustdoc($params){
+        $api = '/u8cloud/api/uapbd/custdoc/assign';
+        $method = 'post';
+        $trantype = '';
+        $res = $this->apiquery($api,$method,$params,$trantype);
+        return $res;
+    }
     //凭证新增
     public function addVoucher($params){
         $api = '/u8cloud/api/gl/voucher/insert';
@@ -131,5 +146,6 @@ class U8cloud {
         $res = $this->apiquery($api,$method,$params,$trantype);
         return $res;
     }
+
 }
 ?>
