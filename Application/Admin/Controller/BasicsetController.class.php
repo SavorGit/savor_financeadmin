@@ -340,7 +340,7 @@ class BasicsetController extends BaseController {
             $where['name'] = array('like',"$keyword");
         }
         $start = ($pageNum-1)*$size;
-        $orderby = 'status asc,sort asc';
+        $orderby = 'status asc';
         $res_list = $m_departmentuser->getDataList('*',$where,$orderby,$start,$size);
         $data_list = array();
         $all_status = C('MANGER_STATUS');
