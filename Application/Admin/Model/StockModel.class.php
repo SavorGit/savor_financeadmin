@@ -59,4 +59,13 @@ class StockModel extends BaseModel{
         return $is_out;
     }
 
+    public function getStockInfo($fields,$where){
+        $data = $this->alias('a')
+            ->join('savor_finance_purchase p on a.purchase_id=p.id','left')
+            ->join('savor_finance_supplier s on p.supplier_id=s.id','left')
+            ->field($fields)
+            ->where($where)
+            ->find();
+        return $data;
+    }
 }

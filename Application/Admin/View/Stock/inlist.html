@@ -145,12 +145,49 @@
                             <td data-title="供应商">{$dinfo.supplier}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
+
                                     <a title="修改" data-tip="修改" target="dialog" mask="true" href="{$host_name}/stock/addinstock?id={$dinfo.id}" class="btn btn-success btn-icon">
                                         <i class="fa fa-pencil"></i>
                                     </a>
-                                    <a title="入库商品列表" data-tip="{$dinfo.name}-入库商品列表" target="navTab" mask="true" rel="stock/instockgoodslist" href="{$host_name}/stock/instockgoodslist?stock_id={$dinfo.id}" class="btn btn-default btn-icon">
+                                    <a title="入库商品列表" data-tip="{$dinfo.name}-入库商品列表" target="navTab" mask="true" rel="stock/instockgoodslist" href="{$host_name}/stock/instockgoodslist?stock_id={$dinfo.id}" class="btn btn-success btn-icon">
                                         <i class="fa fa-list"></i>
                                     </a>
+
+                                    <if condition="$dinfo.status egt 2">
+                                        <if condition="$dinfo.push_u8_status1 eq 1">
+                                            <a onclick="alertMsg.error('用友入库单凭证已完成')" href="#" class="btn btn-default btn-icon">
+                                                <i class="fa fa-send"></i>
+                                            </a>
+                                        <else />
+                                            <a data-tip="推送入库单" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/u8cloud/instockvoucher1?stock_id={$dinfo.id}"  class="btn btn-success btn-icon">
+                                                <i class="fa fa-send"></i>
+                                            </a>
+                                        </if>
+
+                                        <if condition="$dinfo.invoice_status eq 2">
+                                            <if condition="$dinfo.push_u8_status2 eq 1">
+                                                <a onclick="alertMsg.error('用友发票凭证已完成')" href="#" class="btn btn-default btn-icon">
+                                                    <i class="fa fa-paypal"></i>
+                                                </a>
+                                            <else />
+                                                <a data-tip="推送发票" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/u8cloud/instockvoucher2?stock_id={$dinfo.id}"  class="btn btn-success btn-icon">
+                                                    <i class="fa fa-paypal"></i>
+                                                </a>
+                                            </if>
+                                        </if>
+
+                                        <if condition="$dinfo.pay_status eq 2">
+                                            <if condition="$dinfo.push_u8_status3 eq 1">
+                                                <a onclick="alertMsg.error('用友账款凭证已完成')" href="#" class="btn btn-default btn-icon">
+                                                    <i class="fa fa-money"></i>
+                                                </a>
+                                            <else />
+                                                <a data-tip="推送账款" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/u8cloud/instockvoucher3?stock_id={$dinfo.id}"  class="btn btn-success btn-icon">
+                                                    <i class="fa fa-money"></i>
+                                                </a>
+                                            </if>
+                                        </if>
+                                    </if>
 
                                 </div>
                             </td>
