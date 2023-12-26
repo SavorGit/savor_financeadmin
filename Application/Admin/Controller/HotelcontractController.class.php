@@ -60,7 +60,7 @@ class HotelcontractController extends BaseController {
             $where['name'] = array('like',"%$contractname%");
         }
         $m_signuser = new \Admin\Model\SignuserModel();
-        $result_signuser = $m_signuser->getDataList('id,uname as name',array('status'=>1),'id asc');
+        $result_signuser = $m_signuser->getDataList('id,uname as name',array(),'id asc');
         $sign_users = array();
         foreach ($result_signuser as $v){
             $sign_users[$v['id']] = $v;
