@@ -122,5 +122,44 @@ class StockRecordModel extends BaseModel{
         return $data;
     }
 
+    public function getRecordSaleList($fields,$where, $order='a.id desc', $start=0,$size=0){
+        if($start>=0 && $size>0){
+            $list = $this->alias('a')
+                ->join('savor_finance_sale sale on a.id=sale.stock_record_id', 'left')
+                ->join('savor_smallapp_user user on a.op_openid=user.openid', 'left')
+                ->join('savor_finance_goods goods on a.goods_id=goods.id', 'left')
+                ->join('savor_hotel hotel on sale.hotel_id=hotel.id', 'left')
+                ->join('savor_sysuser su on sale.residenter_id=su.id', 'left')
+                ->field($fields)
+                ->where($where)
+                ->order($order)
+                ->limit($start, $size)
+                ->select();
+            $count = $this->alias('a')
+                ->join('savor_finance_sale sale on a.id=sale.stock_record_id', 'left')
+                ->join('savor_smallapp_user user on a.op_openid=user.openid', 'left')
+                ->join('savor_finance_goods goods on a.goods_id=goods.id', 'left')
+                ->join('savor_hotel hotel on sale.hotel_id=hotel.id', 'left')
+                ->join('savor_sysuser su on sale.residenter_id=su.id', 'left')
+                ->where($where)
+                ->count();
+            $objPage = new Page($count, $size);
+            $show = $objPage->admin_page();
+            $data = array('list' => $list, 'page' => $show);
+        }else{
+            $data = $this->alias('a')
+                ->join('savor_finance_sale sale on a.id=sale.stock_record_id', 'left')
+                ->join('savor_smallapp_user user on a.op_openid=user.openid', 'left')
+                ->join('savor_finance_goods goods on a.goods_id=goods.id', 'left')
+                ->join('savor_hotel hotel on sale.hotel_id=hotel.id', 'left')
+                ->join('savor_sysuser su on sale.residenter_id=su.id', 'left')
+                ->field($fields)
+                ->where($where)
+                ->order($order)
+                ->select();
+        }
+        return $data;
+    }
+
 
 }

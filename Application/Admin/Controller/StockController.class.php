@@ -1417,19 +1417,19 @@ class StockController extends BaseController {
                     }
                     $integral_status = 1;
                     $is_recycle = 0;
+                    /*
                     $res_goodsrecycle = $m_goodsconfig->getInfo(array('goods_id'=>$goods_id,'type'=>20,'status'=>1));
-
                     $auto_audit_start_time = '2023-10-08 00:00:00';
                     if($res_record['add_time']>=$auto_audit_start_time){
                         $res_goodsrecycle = '';
                         $m_stock_record->updateData($condition, array('recycle_status'=>2,'recycle_time'=>date('Y-m-d H:i:s')));
                     }
-
                     if(!empty($res_goodsrecycle)){
                         $is_recycle = 1;
                         $integral_status = 2;
                         $m_stock_record->updateData($condition, array('recycle_status'=>1));
                     }
+                    */
                     $m_stock = new \Admin\Model\StockModel();
                     $res_stock = $m_stock->getInfo(array('id'=>$res_record['stock_id']));
                     if($res_stock['hotel_id']>0 && $wo_reason_type==1){
@@ -1583,6 +1583,7 @@ class StockController extends BaseController {
     }
 
     public function auditrecycle(){
+        $this->output('审核物料回收功能暂停使用', "stock/writeofflist", 2, 0);
         $id = I('id',0,'intval');
         $condition = array('id'=>$id);
         $m_stock_record = new \Admin\Model\StockRecordModel();

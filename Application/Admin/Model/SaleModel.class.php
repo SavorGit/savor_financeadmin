@@ -46,6 +46,19 @@ class SaleModel extends BaseModel{
             ->select();
         return $data;
     }
+
+    public function getSaleDatas($fileds,$where){
+        $data = $this->alias('a')
+            ->join('savor_finance_stock_record record on a.stock_record_id=record.id','left')
+            ->join('savor_hotel hotel on a.hotel_id=hotel.id','left')
+            ->join('savor_area_info area on a.area_id=area.id','left')
+            ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+            ->field($fileds)
+            ->where($where)
+            ->select();
+        return $data;
+    }
+
     public function getAllList($fileds,$where, $orders, $start,$size){
         $list = $this->alias('a')
         //->join('savor_finance_sale_payment_record spr on a.id=spr.sale_id','left')

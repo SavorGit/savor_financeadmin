@@ -43,11 +43,14 @@ class GoodsController extends BaseController {
                 $v['brand'] = $brands[$v['brand_id']]['name'];
                 $v['category'] = $categorys[$v['category_id']]['name'];
                 $integral = 0;
+                $open_integral = 0;
                 $res_integral = $m_goods_config->getInfo(array('goods_id'=>$v['id'],'type'=>10));
                 if(!empty($res_integral)){
                     $integral = intval($res_integral['integral']);
+                    $open_integral = intval($res_integral['open_integral']);
                 }
                 $v['integral'] = $integral;
+                $v['open_integral'] = $open_integral;
                 $data_list[] = $v;
             }
         }
@@ -207,8 +210,14 @@ class GoodsController extends BaseController {
         $res_integral = $m_goods_config->getInfo(array('goods_id'=>$goods_id,'type'=>10));
         if(IS_POST){
             $integral = I('post.integral',0,'intval');
+            $open_integral = I('post.open_integral',0,'intval');
+            $media_id = I('post.media_id',0,'intval');
 
-            $data = array('goods_id'=>$goods_id,'integral'=>$integral,'type'=>10);
+            if($open_integral>0 && $media_id==0){
+                $this->output('请上传实物图片', 'goods/goodsintegral',2,0);
+            }
+
+            $data = array('goods_id'=>$goods_id,'integral'=>$integral,'open_integral'=>$open_integral,'media_id'=>$media_id,'type'=>10,'status'=>1);
             if(!empty($res_integral)){
                 $result = $m_goods_config->updateData(array('id'=>$res_integral['id']),$data);
             }else{
@@ -220,11 +229,16 @@ class GoodsController extends BaseController {
                 $this->output('操作失败', 'goods/goodsadd',2,0);
             }
         }else{
-            $integral = '';
+            $vinfo = array('oss_addr'=>'','integral'=>'','open_integral'=>'');
             if(!empty($res_integral)){
-                $integral = $res_integral['integral'];
+                $vinfo = $res_integral;
+                if($res_integral['media_id']){
+                    $m_media = new \Admin\Model\MediaModel();
+                    $res_media = $m_media->getMediaInfoById($res_integral['media_id']);
+                    $vinfo['oss_addr'] = $res_media['oss_addr'];
+                }
             }
-            $this->assign('integral',$integral);
+            $this->assign('vinfo',$vinfo);
             $this->assign('goods_id',$goods_id);
             $this->display();
         }

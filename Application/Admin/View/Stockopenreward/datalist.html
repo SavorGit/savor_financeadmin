@@ -1,0 +1,84 @@
+<include file="Public/script"/>
+<!--显示列表样式1 start-->
+<div class="pageHeader">
+    <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/stockopenreward/datalist" method="post">
+        <input type="hidden" name="pageNum" value="{$pageNum}"/>
+        <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
+        <div class="searchBar">
+            <div class="clearfix">
+                <div class="form-inline">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">时间：</div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$start_date}" data-ymd="true">
+                            <input name="start_date" type="text" size="16" class="form-control date" placeholder="开始日期" value="{$start_date}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$end_date}" data-ymd="true">
+                            <input name="end_date" type="text" size="16" class="form-control date" placeholder="结束日期" value="{$end_date}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-btn">
+                             <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-group-sm pull-right">
+                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/stockopenreward/datalist?start_date={$start_date}&end_date={$end_date}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
+
+                        <a class="btn btn-success btn-sm add" href="{$host_name}/stockopenreward/dataimport" title="导入审核数据" target="dialog" mask="true"><i class="fa fa-upload"></i> 导入审核数据</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </form>
+</div>
+<div class="pageContent" id="pagecontent">
+    <div id="w_list_print">
+        <div class="no-more-tables">
+            <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+                <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
+                    <thead>
+                    <tr id="post">
+                        <th>核销ID</th>
+                        <th>唯一码</th>
+                        <th>物流码</th>
+                        <th>酒楼名称</th>
+                        <th>出库时间</th>
+                        <th>驻店人</th>
+                        <th>核销人</th>
+                        <th>核销时间</th>
+                    </tr>
+                    </thead>
+                    <tbody data-check="list" data-parent=".table">
+                    <foreach name="datalist" item="dinfo">
+                        <tr target="sid_user">
+                            <td data-title="核销ID">{$dinfo.id}</td>
+                            <td data-title="唯一码">{$dinfo.idcode}</td>
+                            <td data-title="物流码">{$dinfo.vintner_code}</td>
+                            <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
+                            <td data-title="出库时间">{$dinfo.out_time}</td>
+                            <td data-title="驻店人">{$dinfo.residenter_name}</td>
+                            <td data-title="核销人">{$dinfo.username}</td>
+                            <td data-title="核销时间">{$dinfo.add_time}</td>
+                        </tr>
+                    </foreach>
+                    </tbody>
+                </table>
+            </form>
+
+        </div>
+    </div>
+    {$page}
+</div>
