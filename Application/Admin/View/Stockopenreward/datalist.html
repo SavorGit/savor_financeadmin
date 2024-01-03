@@ -58,6 +58,9 @@
                         <th>出库时间</th>
                         <th>驻店人</th>
                         <th>核销人</th>
+                        <th>物料图片</th>
+                        <th>审核状态</th>
+                        <th>审核不通过原因</th>
                         <th>核销时间</th>
                     </tr>
                     </thead>
@@ -71,6 +74,9 @@
                             <td data-title="出库时间">{$dinfo.out_time}</td>
                             <td data-title="驻店人">{$dinfo.residenter_name}</td>
                             <td data-title="核销人">{$dinfo.username}</td>
+                            <td data-title="物料图片"><a href="{$dinfo.recycle_img}" target="_blank"><img src="{$dinfo.recycle_img}" ></a></td>
+                            <td data-title="审核状态">{$dinfo.recycle_status_str}</td>
+                            <td data-title="审核不通过原因">{$dinfo.reason}</td>
                             <td data-title="核销时间">{$dinfo.add_time}</td>
                         </tr>
                     </foreach>

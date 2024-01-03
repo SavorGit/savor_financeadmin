@@ -22,17 +22,28 @@ class StockopenrewardController extends BaseController {
             $this->output('请选择15天内的时间段', 'stockopenreward/datalist',2,0);
         }
 
-        $where = array('a.type'=>7,'a.wo_status'=>2,'a.recycle_status'=>5);
+        $all_recycle_status = C('STOCK_RECYLE_STATUS');
+        $where = array('a.type'=>7,'a.wo_status'=>2,'a.wo_reason_type'=>1,'a.recycle_status'=>array('in','1,2,3,5,6'));
         $now_start_time = date('Y-m-d 00:00:00',$stime);
         $now_end_time = date('Y-m-d 23:59:59',$etime);
         $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.id,a.idcode,a.vintner_code,a.out_time,a.add_time,
+        $fields = 'a.id,a.idcode,a.vintner_code,a.out_time,a.recycle_img,a.recycle_status,a.reason,a.add_time,
         hotel.id as hotel_id,hotel.name as hotel_name,su.remark as residenter_name,user.nickName as username,user.mobile';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordSaleList($fields,$where, 'a.id desc', $start,$size);
         $data_list = $res_list['list'];
+        $oss_host = get_oss_host();
+        foreach ($data_list as $k=>$v){
+            if(!empty($v['recycle_img'])){
+                $data_list[$k]['recycle_img'] = $oss_host.$v['recycle_img'];
+            }
+            $data_list[$k]['recycle_status_str'] = $all_recycle_status[$v['recycle_status']];
+            if($v['recycle_status']==3){
+                $data_list[$k]['reason'] = '未上传开瓶资料';
+            }
+        }
 
         $this->assign('start_date',$start_date);
         $this->assign('end_date',$end_date);
@@ -52,7 +63,7 @@ class StockopenrewardController extends BaseController {
             $now_time = time();
             $diff_time = $now_time - $res_data;
             $errMsg = "你上传的文件正在处理中，处理时间{$diff_time}秒，请稍后。";
-            $this->output($errMsg, 'stockopenreward/dataimport', 2,0);
+            $this->output($errMsg, 'stockopenreward/datalist', 3,0);
         }
         if(IS_POST){
             $upload = new \Think\Upload();
@@ -66,8 +77,10 @@ class StockopenrewardController extends BaseController {
                 $errMsg = $upload->getError();
                 $this->output($errMsg, 'stockopenreward/dataimport', 2,0);
             }else{
-                $file_name = $info['fileup']['savepath'].$info['fileup']['savename'];
-                $shell = "/opt/install/php/bin/php /application_data/web/php/savor_financeadmin/cli.php dataexport/stockopenreward/dataimportscript/fname/$file_name > /tmp/null &";
+                $userinfo = session('sysUserInfo');
+                $sysuser_id = $userinfo['id'];
+                $file_name = urlencode($info['fileup']['savepath'].$info['fileup']['savename']);
+                $shell = "/opt/install/php/bin/php /application_data/web/php/savor_financeadmin/cli.php dataexport/stockopenreward/dataimportscript/fname/$file_name/auid/$sysuser_id > /tmp/null &";
                 system($shell);
                 $now_time = time();
                 $redis->set($cache_key,$now_time,3600);

@@ -9,29 +9,34 @@ class StockopenrewardController extends BaseController {
 
         $stime = strtotime($start_date);
         $etime = strtotime($end_date);
-        $where = array('a.type'=>7,'a.wo_status'=>2,'a.recycle_status'=>5);
+        $where = array('a.type'=>7,'a.wo_status'=>2,'a.wo_reason_type'=>1,'a.recycle_status'=>5);
         $now_start_time = date('Y-m-d 00:00:00',$stime);
         $now_end_time = date('Y-m-d 23:59:59',$etime);
         $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
 
-        $fields = 'a.id,a.idcode,a.vintner_code,a.out_time,a.add_time,
+        $fields = 'a.id,a.idcode,a.vintner_code,a.out_time,a.recycle_img,a.add_time,
         hotel.id as hotel_id,hotel.name as hotel_name,su.remark as residenter_name,user.nickName as username,user.mobile';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $data_list = $m_stock_record->getRecordSaleList($fields,$where, 'a.id desc');
+        $oss_host = get_oss_host();
         foreach ($data_list as $k=>$v){
             $data_list[$k]['audit_status'] = '';
             $data_list[$k]['audit_reason'] = '';
+            if(!empty($v['recycle_img'])){
+                $data_list[$k]['recycle_img'] = $oss_host.$v['recycle_img'];
+            }
         }
         $cell = array(
             array('id','核销ID'),
             array('idcode','唯一码'),
-            array('audit_status','审核状态'),
+            array('audit_status','审核状态(审核通过/审核不通过)'),
             array('audit_reason','不通过原因'),
             array('vintner_code','物流码'),
             array('hotel_name','酒楼名称'),
             array('out_time','出库时间'),
             array('residenter_name','驻店人'),
             array('username','核销人'),
+            array('recycle_img','物料图片'),
             array('add_time','核销时间'),
         );
         $filename = '开瓶奖励审核表';
@@ -40,12 +45,12 @@ class StockopenrewardController extends BaseController {
 
     public function dataimportscript(){
         $file_name = I('fname','');
+        $sysuser_id = I('auid',0,'intval');
         if(empty($file_name)){
             echo 'file_name error';
             exit;
         }
-        $userinfo = session('sysUserInfo');
-        $sysuser_id = $userinfo['id'];
+        $file_name = urldecode($file_name);
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $m_userintegral = new \Admin\Model\UserIntegralModel();
         $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
@@ -64,9 +69,12 @@ class StockopenrewardController extends BaseController {
             $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
 
             $stock_record_id = intval($rowData[0][0]);
-            $audit_status_str = $rowData[0][2];
+            $audit_status_str = trim($rowData[0][2]);
+            if(empty($audit_status_str)){
+                continue;
+            }
             $reason = $rowData[0][3];
-            $up_record = array('recycle_audit_time'=>date('Y-m-d H:i:s'),'recycle_audit_user_id'=>$sysuser_id);
+            $up_record = array('recycle_audit_user_id'=>$sysuser_id,'recycle_audit_time'=>date('Y-m-d H:i:s'));
             if($audit_status_str=='审核通过'){
                 //发放解冻积分 增加用户积分
                 $rwhere = array('jdorder_id'=>$stock_record_id,'type'=>25,'status'=>2);
@@ -93,14 +101,18 @@ class StockopenrewardController extends BaseController {
                     }
                     $up_record['recycle_status']=2;
                 }
-            }else{
+            }elseif($audit_status_str=='审核不通过'){
+                $rwhere = array('jdorder_id'=>$stock_record_id,'type'=>25,'status'=>2);
+                $res_recordinfo = $m_integralrecord->getAll('id,openid,integral,hotel_id',$rwhere,0,1,'id desc');
+                if(!empty($res_recordinfo[0]['id'])){
+                    $m_integralrecord->delData(array('id'=>$res_recordinfo[0]['id']));
+                }
                 $up_record['recycle_status']=6;
                 if(!empty($reason)){
                     $up_record['reason']=$reason;
                 }
             }
             $m_stock_record->updateData(array('id'=>$stock_record_id),$up_record);
-            echo "stock_record_id:$stock_record_id ok \r\n";
         }
         $cache_key = 'cronscript:finance:openrewardexcel';
         $redis  =  \Common\Lib\SavorRedis::getInstance();
