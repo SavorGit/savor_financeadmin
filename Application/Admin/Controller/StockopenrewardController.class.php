@@ -12,7 +12,7 @@ class StockopenrewardController extends BaseController {
             $start_date = date('Y-m-d',strtotime("-14 day"));
             $end_date = date('Y-m-d');
         }
-        $open_date = '2023-12-27';
+        $open_date = '2024-01-03';
         if($start_date<$open_date){
             $start_date = $open_date;
         }
