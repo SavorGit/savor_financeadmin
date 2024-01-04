@@ -22,10 +22,21 @@ class StockopenrewardController extends BaseController {
         foreach ($data_list as $k=>$v){
             $data_list[$k]['audit_status'] = '';
             $data_list[$k]['audit_reason'] = '';
+            $recycle_img1 = $recycle_img2 = $recycle_img3 = '';
             if(!empty($v['recycle_img'])){
-                $data_list[$k]['recycle_img'] = $oss_host.$v['recycle_img'];
+                $arr_recycle_img = explode(',',$v['recycle_img']);
+                foreach ($arr_recycle_img as $aiv){
+                    $recycle_img_arr[]=$oss_host.$aiv;
+                }
+                if(!empty($recycle_img_arr[0])) $recycle_img1 = $recycle_img_arr[0];
+                if(!empty($recycle_img_arr[1])) $recycle_img2 = $recycle_img_arr[1];
+                if(!empty($recycle_img_arr[2])) $recycle_img3 = $recycle_img_arr[2];
             }
+            $data_list[$k]['recycle_img1'] = $recycle_img1;
+            $data_list[$k]['recycle_img2'] = $recycle_img2;
+            $data_list[$k]['recycle_img3'] = $recycle_img3;
         }
+
         $cell = array(
             array('id','核销ID'),
             array('idcode','唯一码'),
@@ -36,7 +47,9 @@ class StockopenrewardController extends BaseController {
             array('out_time','出库时间'),
             array('residenter_name','驻店人'),
             array('username','核销人'),
-            array('recycle_img','物料图片'),
+            array('recycle_img1','物料图片1'),
+            array('recycle_img2','物料图片2'),
+            array('recycle_img3','物料图片3'),
             array('add_time','核销时间'),
         );
         $filename = '开瓶奖励审核表';

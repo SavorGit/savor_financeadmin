@@ -36,8 +36,13 @@ class StockopenrewardController extends BaseController {
         $data_list = $res_list['list'];
         $oss_host = get_oss_host();
         foreach ($data_list as $k=>$v){
+            $recycle_img_arr = array();
             if(!empty($v['recycle_img'])){
-                $data_list[$k]['recycle_img'] = $oss_host.$v['recycle_img'];
+                $arr_recycle_img = explode(',',$v['recycle_img']);
+                foreach ($arr_recycle_img as $aiv){
+                    $recycle_img_arr[]=$oss_host.$aiv;
+                }
+                $data_list[$k]['recycle_img_arr'] = $recycle_img_arr;
             }
             $data_list[$k]['recycle_status_str'] = $all_recycle_status[$v['recycle_status']];
             if($v['recycle_status']==3){
