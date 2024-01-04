@@ -110,7 +110,8 @@ $config['STOCK_REASON'] = array(
     '1'=>array('id'=>1,'name'=>'售卖(照片)'),
     '2'=>array('id'=>2,'name'=>'品鉴酒(照片)'),
     '3'=>array('id'=>3,'name'=>'活动(照片)'),
-    '20'=>array('id'=>20,'name'=>'物料(实物)')
+    '20'=>array('id'=>20,'name'=>'物料(实物)'),
+    '21'=>array('id'=>21,'name'=>'开瓶奖励物料(照片)')
 );
 $config['STOCK_RECORD_TYPE']=array('1'=>'入库','2'=>'出库','3'=>'拆箱','4'=>'领取','5'=>'验收','6'=>'报损','7'=>'核销');
 $config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过','4'=>'待补充资料');

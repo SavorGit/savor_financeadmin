@@ -10,7 +10,7 @@
             </div>
 
             <div class="form-group row">
-                <label class="col-xs-12 col-sm-2 control-label">开瓶奖励积分：</label>
+                <label class="col-xs-12 col-sm-2 control-label">开瓶奖励-积分：</label>
                 <div class="col-xs-12 col-sm-10">
                     <input name="open_integral" type="number" value="{$vinfo.open_integral}" class="form-control" min="0" max="200000" required/>
                 </div>
@@ -18,7 +18,7 @@
 
             <div class="form-group row" id="defaultpic">
                 <label class="col-xs-12 col-sm-2 control-label">
-                    开瓶实物图片：
+                    开瓶奖励-示例图片：
                 </label>
                 <div class="col-xs-12 col-sm-10">
                     <div class="fileinput fileinput-new" data-fileinput>
@@ -42,6 +42,17 @@
                     </div>
                 </div>
             </div>
+
+            <div class="form-group row" >
+            <label class="col-xs-12 col-sm-2 control-label">开瓶奖励-城市：</label>
+            <div class="col-xs-12 col-sm-10">
+                <select name="area_ids[]" class="form-control bs-select class-filter" data-live-search="true" data-container="body" multiple="multiple">
+                    <volist name="areas" id="ainfo">
+                        <option value="{$ainfo.id}" {$ainfo.is_select} >{$ainfo.region_name}</option>
+                    </volist>
+                </select>
+            </div>
+        </div>
 
         </div>
         <div class="modal-footer">
