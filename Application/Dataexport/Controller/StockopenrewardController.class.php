@@ -20,6 +20,9 @@ class StockopenrewardController extends BaseController {
         $data_list = $m_stock_record->getRecordSaleList($fields,$where, 'a.id desc');
         $oss_host = get_oss_host();
         foreach ($data_list as $k=>$v){
+            if(!empty($v['vintner_code'])){
+                $data_list[$k]['vintner_code'] = "'{$v['vintner_code']}";
+            }
             $data_list[$k]['audit_status'] = '';
             $data_list[$k]['audit_reason'] = '';
             $recycle_img1 = $recycle_img2 = $recycle_img3 = '';
