@@ -32,4 +32,15 @@ class SalePaymentRecordModel extends BaseModel{
         }
         return $data;
     }
+
+    public function getPaymentRecords($fields,$where,$orderby,$limit=''){
+        $data = $this->alias('a')
+            ->join('savor_finance_sale_payment p on a.sale_payment_id=p.id','left')
+            ->field($fields)
+            ->where($where)
+            ->order($orderby)
+            ->limit($limit)
+            ->select();
+        return $data;
+    }
 }
