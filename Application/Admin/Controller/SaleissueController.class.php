@@ -45,8 +45,10 @@ class SaleissueController extends BaseController {
         $all_status = C('PAY_STATUS');
         $all_wo_status = C('STOCK_WRITEOFF_STATUS');
         $all_ptype = C('PAY_TYPE');
+        $u8_start_date = C('U8_START_DATE');
+        $m_pushu8_record = new \Admin\Model\Pushu8RecordModel();
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.id as hotel_id,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.num,a.status,record.wo_status";
+        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.id as hotel_id,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.num,a.status,record.wo_status,record.wo_reason_type";
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
         $datalist = $result['list'];
         foreach ($datalist as $k=>$v){
@@ -67,6 +69,16 @@ class SaleissueController extends BaseController {
             if($v['num']>0 && empty($v['idcode'])){
                 $datalist[$k]['idcode'] = '第三方发货';
             }
+            $push_status = -1;
+            $push_u8_url = '';
+            if($v['add_time']>="$u8_start_date 00:00:00"  && $v['ptype']==1 && $v['wo_reason_type']==1){
+                $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>22));
+                $push_status = intval($res_pushu8['status']);
+                $push_u8_url = 'u8cloud/sellvoucher2';
+            }
+
+            $datalist[$k]['push_status'] = $push_status;
+            $datalist[$k]['push_u8_url'] = $push_u8_url;
             $datalist[$k]['status_str'] = $status_str;
             $datalist[$k]['type_str'] = $type_str;
             $datalist[$k]['pay_type_str'] = $pay_type_str;
