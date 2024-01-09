@@ -80,7 +80,7 @@ class StockController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             $m_stock_record = new \Admin\Model\StockRecordModel();
-
+            $u8_start_date = C('U8_START_DATE');
             foreach ($res_list['list'] as $v){
                 $v['supplier'] = $supplier_arr[$v['supplier_id']]['name'];
                 $v['area'] = $area_arr[$v['area_id']]['region_name'];
@@ -97,6 +97,11 @@ class StockController extends BaseController {
                 if(!empty($res_stock_record['total_fee'])){
                     $now_total_fee = intval($res_stock_record['total_fee']);
                 }
+                $u8_start = 0;
+                if($u8_start_date>=$v['io_date']){
+                    $u8_start = 1;
+                }
+                $v['u8_start'] = $u8_start;
                 $v['now_total_fee'] = $now_total_fee;
                 $v['now_amount'] = $now_amount;
                 $v['io_type_str'] = $io_types[$v['io_type']];

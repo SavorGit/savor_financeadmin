@@ -153,7 +153,7 @@
                                         <i class="fa fa-list"></i>
                                     </a>
 
-                                    <if condition="$dinfo.status egt 2">
+                                    <if condition="($dinfo.status egt 2) AND ($dinfo.u8_start eq 1)">
                                         <if condition="$dinfo.push_u8_status1 eq 1">
                                             <a onclick="alertMsg.error('用友入库单凭证已完成')" href="#" class="btn btn-default btn-icon">
                                                 <i class="fa fa-send"></i>
