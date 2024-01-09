@@ -1303,21 +1303,36 @@ class StockController extends BaseController {
         }
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,
+        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,sale.id as sale_id,
         stock.area_id,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price,su.remark as residenter_name';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $u8_start_date = C('U8_START_DATE');
             $all_op_user = C('STOCK_MANAGER');
             $oss_host = get_oss_host();
             $m_user = new \Admin\Model\SmallappUserModel();
-            $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
+            $m_pushu8_record = new \Admin\Model\Pushu8RecordModel();
             foreach ($res_list['list'] as $v){
-                $imgs = array();
-                $v['department_user']=$departmentuser_arr[$v['department_user_id']]['name'];
+                $push_status = -1;
+                $push_u8_url = '';
+                if($v['add_time']>="$u8_start_date 00:00:00"  && $v['wo_status']==2 && in_array($v['wo_reason_type'],array(1,2))){
+                    $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['sale_id'],'type'=>21));
+                    $push_status = intval($res_pushu8['status']);
+                    if($v['wo_reason_type']==1){
+                        $push_u8_url = 'u8cloud/sellvoucher1';
+                    }else{
+                        $push_u8_url = 'u8cloud/sellvoucher3';
+                    }
+                }
+
+                $v['push_status'] = $push_status;
+                $v['push_u8_url'] = $push_u8_url;
+                $v['department_user'] = $departmentuser_arr[$v['department_user_id']]['name'];
                 $v['op_user'] = $all_op_user[$v['op_openid']];
                 $v['wo_reason_type_str'] = $all_reason[$v['wo_reason_type']];
+                $imgs = array();
                 if(!empty($v['wo_data_imgs'])){
                     $tmp_imgs = explode(',',$v['wo_data_imgs']);
                     foreach ($tmp_imgs as $iv){
@@ -1353,7 +1368,6 @@ class StockController extends BaseController {
                 }
                 $price = abs($price);
                 $total_amount = abs($v['total_amount']);
-//                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$v['goods_id'],1);
                 $settlement_price = $v['settlement_price'];
                 $v['price'] = sprintf("%.2f",$price*$total_amount);
                 $v['settlement_price'] = sprintf("%.2f",$settlement_price*$total_amount);

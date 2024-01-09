@@ -175,6 +175,20 @@
                                     </a>
                                 </if>
 
+                                <if condition="$dinfo['push_status'] egt 0">
+
+                                    <if condition="$dinfo['push_status'] eq 1">
+                                        <a onclick="alertMsg.error('用友酒楼核销凭证已完成')" href="#" class="btn btn-default btn-icon">
+                                            <i class="fa fa-send"></i>
+                                        </a>
+                                        <else/>
+                                        <a data-tip="推送酒楼核销" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/{$dinfo.push_u8_url}?sale_id={$dinfo.sale_id}"  class="btn btn-success btn-icon">
+                                            <i class="fa fa-send"></i>
+                                        </a>
+                                    </if>
+
+                                </if>
+
 <!--                                <if condition="($dinfo['wo_status'] eq 2) AND ($dinfo['recycle_status'] eq 1)">-->
 <!--                                    <if condition="$dinfo['recycle_status'] eq 1">-->
 <!--                                        <a title="审核回收状态" data-tip="审核回收状态" target="dialog" mask="true" href="{$host_name}/stock/auditrecycle?id={$dinfo.id}" class="btn btn-success btn-icon">-->
