@@ -283,6 +283,7 @@ $config['JD_SUBJECT_CODE'] = array(
     '600108'=>array('name'=>'主营业务收入_销售商品收入-','type'=>'df','rate'=>1.13),
     '22210102'=>array('name'=>'应交税费_应交增值税_销项税额','type'=>'jf-df','rate'=>1.13),
 );
+$config['U8_START_DATE'] = '2024-01-09';
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
     'o9GS-4oZfWgjT0lySkJskdlflNrw'=>'黄勇',
