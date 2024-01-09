@@ -557,6 +557,27 @@ class U8cloudController extends Controller {
         $this->output($message,'saleissue/index',3);
     }
 
+    public function abandonvoucher(){
+        $pk_voucher = I('pk_voucher','');
+        $userinfo = session('sysUserInfo');
+        if(!empty($userinfo['telephone'])){
+            $pk_prepared = $userinfo['telephone'];
+        }else{
+            $pk_prepared = $this->voucher_params['pk_prepared'];
+        }
+
+        $params = array('bills'=>array(array('abandoner_code'=>$pk_prepared,'pk_voucher'=>$pk_voucher)));
+        $u8 = new \Common\Lib\U8cloud();
+        $resp_apidata = $u8->abandonVoucher($params);
+        $res_data = json_decode($resp_apidata['result'],true);
+        if($res_data['status']=='success'){
+            $message = '作废凭证成功';
+        }else{
+            $message = '作废凭证失败'.$resp_apidata['result'];
+        }
+        $this->output($message,'saleissue/index',3);
+    }
+
     private function output($message,$navTab,$type=1,$status=1,$callback="",$del){
         switch ($type){
             case 1://关闭
