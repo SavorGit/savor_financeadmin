@@ -285,16 +285,16 @@ class U8cloudController extends Controller {
             $pk_prepared = $this->voucher_params['pk_prepared'];
         }
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = 'a.id,a.idcode,a.residenter_id,a.goods_settlement_price,a.settlement_price,a.add_time,record.avg_price,record.pidcode,
+        $fileds = 'a.id,a.idcode,a.residenter_id,a.goods_settlement_price,a.settlement_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
         hotel.id as hotel_id,hotel.name as hotel_name,hotel.short_name,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
         $res_sale = $m_sale->getSaleDatas($fileds,array('a.id'=>$sale_id));
         if(empty($res_sale[0]['residenter_id'])){
-            $this->output('发起核销时,无酒楼驻店人','saleissue/index',2,0);
+            $this->output('发起核销时,无酒楼驻店人','stock/writeofflist',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
         $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
         if(empty($res_duser[0]['department_id'])){
-            $this->output('酒楼驻店人无对应采购组织部门','saleissue/index',2,0);
+            $this->output('酒楼驻店人无对应采购组织部门','stock/writeofflist',2,0);
         }
         $department_id = $res_duser[0]['department_id'];
         $hotel_name = $res_sale[0]['hotel_name'];
@@ -363,24 +363,23 @@ class U8cloudController extends Controller {
         $res_data = json_decode($resp_apidata['result'],true);
         $res_u8data = json_decode($res_data['data'],true);
         if(empty($res_u8data[0]['pk_voucher'])){
-            $this->output('调用凭证接口出错','saleissue/index',2,0);
+            $this->output('调用凭证接口出错','stock/writeofflist',2,0);
         }
-        $push_data=array('sale_id'=>$sale_id,'type'=>21,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
+        $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>21,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $m_pushu8->add($push_data);
-        $this->output('同步酒楼核销用友凭证成功','saleissue/index',3);
+        $this->output('同步酒楼核销用友凭证成功','stock/writeofflist',3);
     }
 
     public function sellvoucher2(){
         $sale_id = I('get.sale_id',0,'intval');
         $userinfo = session('sysUserInfo');
-        if(!empty($userinfo['telephone'])){
-            $pk_prepared = $userinfo['telephone'];
-        }else{
-            $pk_prepared = $this->voucher_params['pk_prepared'];
+        if(empty($userinfo['telephone'])){
+            $this->output('请使用用友账号进行同步','saleissue/index',2,0);
         }
+        $pk_prepared = $userinfo['telephone'];
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = 'a.id,a.idcode,a.residenter_id,a.ptype,a.settlement_price,a.add_time,record.avg_price,record.pidcode,
+        $fileds = 'a.id,a.idcode,a.residenter_id,a.ptype,a.settlement_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
         hotel.id as hotel_id,hotel.name as hotel_name,hotel.short_name,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
         $res_sale = $m_sale->getSaleDatas($fileds,array('a.id'=>$sale_id));
         if(empty($res_sale[0]['residenter_id'])){
@@ -441,7 +440,7 @@ class U8cloudController extends Controller {
         if(empty($res_u8data[0]['pk_voucher'])){
             $this->output('调用凭证接口出错','saleissue/index',2,0);
         }
-        $push_data=array('sale_id'=>$sale_id,'type'=>22,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
+        $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>22,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $m_pushu8->add($push_data);
         $this->output('同步酒楼回款用友凭证成功','saleissue/index',3);
@@ -456,16 +455,16 @@ class U8cloudController extends Controller {
             $pk_prepared = $this->voucher_params['pk_prepared'];
         }
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = 'a.id,a.idcode,a.residenter_id,a.goods_settlement_price,a.settlement_price,a.add_time,record.avg_price,record.pidcode,
+        $fileds = 'a.id,a.idcode,a.residenter_id,a.goods_settlement_price,a.settlement_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
         hotel.id as hotel_id,hotel.name as hotel_name,hotel.short_name,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
         $res_sale = $m_sale->getSaleDatas($fileds,array('a.id'=>$sale_id));
         if(empty($res_sale[0]['residenter_id'])){
-            $this->output('发起核销时,无酒楼驻店人','saleissue/index',2,0);
+            $this->output('发起核销时,无酒楼驻店人','stock/writeofflist',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
         $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
         if(empty($res_duser[0]['department_id'])){
-            $this->output('酒楼驻店人无对应采购组织部门','saleissue/index',2,0);
+            $this->output('酒楼驻店人无对应采购组织部门','stock/writeofflist',2,0);
         }
         $department_id = $res_duser[0]['department_id'];
         $hotel_name = $res_sale[0]['hotel_name'];
@@ -533,12 +532,29 @@ class U8cloudController extends Controller {
         $res_data = json_decode($resp_apidata['result'],true);
         $res_u8data = json_decode($res_data['data'],true);
         if(empty($res_u8data[0]['pk_voucher'])){
-            $this->output('调用凭证接口出错','saleissue/index',2,0);
+            $this->output('调用凭证接口出错','stock/writeofflist',2,0);
         }
-        $push_data=array('sale_id'=>$sale_id,'type'=>31,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
+        $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>21,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $m_pushu8->add($push_data);
-        $this->output('同步品鉴酒用友凭证成功','saleissue/index',3);
+        $this->output('同步品鉴酒用友凭证成功','stock/writeofflist',3);
+    }
+
+    public function delvoucher(){
+        //'0001F81000000000318C','0001F81000000000318S'
+        $pk_voucher = I('pk_voucher','');
+
+        $params = array('page_now'=>1,'page_size'=>5,'pk_glorgbook'=>$this->voucher_params['pk_glorgbook'],'pk_voucher'=>$pk_voucher);
+
+        $u8 = new \Common\Lib\U8cloud();
+        $resp_apidata = $u8->delVoucher($params);
+        $res_data = json_decode($resp_apidata['result'],true);
+        if($res_data['status']=='success'){
+            $message = '删除凭证成功';
+        }else{
+            $message = '删除凭证失败'.$resp_apidata['result'];
+        }
+        $this->output($message,'saleissue/index',3);
     }
 
     private function output($message,$navTab,$type=1,$status=1,$callback="",$del){
