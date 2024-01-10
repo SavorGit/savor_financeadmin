@@ -81,6 +81,8 @@ class StockpaymentController extends BaseController {
     public function linkstockadd(){
         $stock_payment_id = I('stock_payment_id',0,'intval');
         $source = I('source',0,'intval');
+        $m_payment = new \Admin\Model\StockPaymentModel();
+        $res_payment = $m_payment->getInfo(array('id'=>$stock_payment_id));
 
         $m_paymentrecord = new \Admin\Model\StockPaymentRecordModel();
         $m_stock = new \Admin\Model\StockModel();
@@ -142,7 +144,8 @@ class StockpaymentController extends BaseController {
                                 $stock_payment_ids = ",$stock_payment_id,";
                             }
                             $now_pay_money = $res_stock['pay_money']+$v['pay_money'];
-                            $updata = array('pay_status'=>$v['pay_status'],'pay_money'=>$now_pay_money,'stock_payment_ids'=>$stock_payment_ids);
+                            $updata = array('pay_status'=>$v['pay_status'],'pay_money'=>$now_pay_money,
+                                'stock_payment_ids'=>$stock_payment_ids,'pay_time'=>$res_payment['pay_time']);
                             $m_stock->updateData(array('id'=>$v['stock_id']),$updata);
 
                             $m_paymentrecord->add(array('stock_id'=>$v['stock_id'],'stock_payment_id'=>$stock_payment_id,'pay_money'=>$v['pay_money']));
@@ -157,9 +160,6 @@ class StockpaymentController extends BaseController {
             }
             $this->output('操作成功', $jump_url);
         }else{
-            $m_payment = new \Admin\Model\StockPaymentModel();
-            $res_payment = $m_payment->getInfo(array('id'=>$stock_payment_id));
-
             $res_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('stock_payment_id'=>$stock_payment_id));
             $remain_money = $res_payment['pay_money']-intval($res_money[0]['all_pay_money']);
 
@@ -234,6 +234,7 @@ class StockpaymentController extends BaseController {
                 $nowstock_payment_ids = $nowstock_payment_ids.',';
             }else{
                 $nowstock_payment_ids = '';
+                $updata['pay_time'] = '0000-00-00';
             }
             $updata['stock_payment_ids'] = $nowstock_payment_ids;
         }

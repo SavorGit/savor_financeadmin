@@ -122,6 +122,7 @@
                         <th>酒楼ID</th>
                         <th>酒楼名称</th>
                         <th>唯一识别码</th>
+                        <th>酒商码</th>
                         <th>商品名称</th>
                         <th>商品编号</th>
                         <th>单位</th>
@@ -145,6 +146,7 @@
                             <td data-title="酒楼ID">{$dinfo.hotel_id}</td>
                             <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
                             <td data-title="唯一识别码">{$dinfo.idcode}</td>
+                            <td data-title="酒商码">{$dinfo.vintner_code}</td>
                             <td data-title="商品名称">{$dinfo.name}</td>
                             <td data-title="商品编号">{$dinfo.goods_id}</td>
                             <td data-title="单位">{$dinfo.unit_name}</td>
@@ -173,20 +175,31 @@
                                     </a>
                                 </if>
 
-                                <if condition="($dinfo['wo_status'] eq 2) AND ($dinfo['recycle_status'] eq 1)">
+                                <if condition="$dinfo['push_status'] egt 0">
 
-                                    <if condition="$dinfo['recycle_status'] eq 1">
-                                        <a title="审核回收状态" data-tip="审核回收状态" target="dialog" mask="true" href="{$host_name}/stock/auditrecycle?id={$dinfo.id}" class="btn btn-success btn-icon">
-                                            <i class="fa fa-recycle"></i>
+                                    <if condition="$dinfo['push_status'] eq 1">
+                                        <a onclick="alertMsg.error('用友酒楼核销凭证已完成')" href="#" class="btn btn-default btn-icon">
+                                            <i class="fa fa-send"></i>
                                         </a>
                                         <else/>
-                                        <a onclick="alertMsg.error('请勿重复进行回收')" href="#" class="btn btn-default btn-icon">
-                                            <i class="fa fa-recycle"></i>
+                                        <a data-tip="推送酒楼核销" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/{$dinfo.push_u8_url}?sale_id={$dinfo.sale_id}"  class="btn btn-success btn-icon">
+                                            <i class="fa fa-send"></i>
                                         </a>
                                     </if>
 
-
                                 </if>
+
+<!--                                <if condition="($dinfo['wo_status'] eq 2) AND ($dinfo['recycle_status'] eq 1)">-->
+<!--                                    <if condition="$dinfo['recycle_status'] eq 1">-->
+<!--                                        <a title="审核回收状态" data-tip="审核回收状态" target="dialog" mask="true" href="{$host_name}/stock/auditrecycle?id={$dinfo.id}" class="btn btn-success btn-icon">-->
+<!--                                            <i class="fa fa-recycle"></i>-->
+<!--                                        </a>-->
+<!--                                        <else/>-->
+<!--                                        <a onclick="alertMsg.error('请勿重复进行回收')" href="#" class="btn btn-default btn-icon">-->
+<!--                                            <i class="fa fa-recycle"></i>-->
+<!--                                        </a>-->
+<!--                                    </if>-->
+<!--                                </if>-->
 
                             </td>
                         </tr>

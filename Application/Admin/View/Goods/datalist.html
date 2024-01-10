@@ -48,7 +48,8 @@
             <th>品牌</th>
             <th>添加时间</th>
             <th>状态</th>
-            <th>开瓶积分</th>
+            <th>售酒奖励积分</th>
+            <th>开瓶奖励积分</th>
             <th>操作</th>
           </tr>
           </thead>
@@ -62,7 +63,8 @@
               <td data-title="品牌">{$dinfo.brand}</td>
               <td data-title="添加时间">{$dinfo.add_time}</td>
               <td data-title="状态">{$dinfo.status_str}</td>
-              <td data-title="开瓶积分">{$dinfo.integral}</td>
+              <td data-title="售酒奖励积分">{$dinfo.integral}</td>
+              <td data-title="开瓶奖励积分">{$dinfo.open_integral}</td>
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
                   <a data-tip="修改" target="dialog" mask="true" href="{$host_name}/goods/goodsadd?id={$dinfo.id}" class="btn btn-success btn-icon">

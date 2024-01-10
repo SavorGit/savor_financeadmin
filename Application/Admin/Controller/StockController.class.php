@@ -80,7 +80,7 @@ class StockController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             $m_stock_record = new \Admin\Model\StockRecordModel();
-
+            $u8_start_date = C('U8_START_DATE');
             foreach ($res_list['list'] as $v){
                 $v['supplier'] = $supplier_arr[$v['supplier_id']]['name'];
                 $v['area'] = $area_arr[$v['area_id']]['region_name'];
@@ -97,6 +97,11 @@ class StockController extends BaseController {
                 if(!empty($res_stock_record['total_fee'])){
                     $now_total_fee = intval($res_stock_record['total_fee']);
                 }
+                $u8_start = 0;
+                if($v['io_date']>=$u8_start_date){
+                    $u8_start = 1;
+                }
+                $v['u8_start'] = $u8_start;
                 $v['now_total_fee'] = $now_total_fee;
                 $v['now_amount'] = $now_amount;
                 $v['io_type_str'] = $io_types[$v['io_type']];
@@ -1303,21 +1308,36 @@ class StockController extends BaseController {
         }
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,
+        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,sale.id as sale_id,
         stock.area_id,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price,su.remark as residenter_name';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
+            $u8_start_date = C('U8_START_DATE');
             $all_op_user = C('STOCK_MANAGER');
             $oss_host = get_oss_host();
             $m_user = new \Admin\Model\SmallappUserModel();
-            $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
+            $m_pushu8_record = new \Admin\Model\Pushu8RecordModel();
             foreach ($res_list['list'] as $v){
-                $imgs = array();
-                $v['department_user']=$departmentuser_arr[$v['department_user_id']]['name'];
+                $push_status = -1;
+                $push_u8_url = '';
+                if($v['add_time']>="$u8_start_date 00:00:00"  && $v['wo_status']==2 && in_array($v['wo_reason_type'],array(1,2))){
+                    $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['sale_id'],'type'=>21));
+                    $push_status = intval($res_pushu8['status']);
+                    if($v['wo_reason_type']==1){
+                        $push_u8_url = 'u8cloud/sellvoucher1';
+                    }else{
+                        $push_u8_url = 'u8cloud/sellvoucher3';
+                    }
+                }
+
+                $v['push_status'] = $push_status;
+                $v['push_u8_url'] = $push_u8_url;
+                $v['department_user'] = $departmentuser_arr[$v['department_user_id']]['name'];
                 $v['op_user'] = $all_op_user[$v['op_openid']];
                 $v['wo_reason_type_str'] = $all_reason[$v['wo_reason_type']];
+                $imgs = array();
                 if(!empty($v['wo_data_imgs'])){
                     $tmp_imgs = explode(',',$v['wo_data_imgs']);
                     foreach ($tmp_imgs as $iv){
@@ -1353,7 +1373,6 @@ class StockController extends BaseController {
                 }
                 $price = abs($price);
                 $total_amount = abs($v['total_amount']);
-//                $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$v['goods_id'],1);
                 $settlement_price = $v['settlement_price'];
                 $v['price'] = sprintf("%.2f",$price*$total_amount);
                 $v['settlement_price'] = sprintf("%.2f",$settlement_price*$total_amount);
@@ -1417,19 +1436,19 @@ class StockController extends BaseController {
                     }
                     $integral_status = 1;
                     $is_recycle = 0;
+                    /*
                     $res_goodsrecycle = $m_goodsconfig->getInfo(array('goods_id'=>$goods_id,'type'=>20,'status'=>1));
-
                     $auto_audit_start_time = '2023-10-08 00:00:00';
                     if($res_record['add_time']>=$auto_audit_start_time){
                         $res_goodsrecycle = '';
                         $m_stock_record->updateData($condition, array('recycle_status'=>2,'recycle_time'=>date('Y-m-d H:i:s')));
                     }
-
                     if(!empty($res_goodsrecycle)){
                         $is_recycle = 1;
                         $integral_status = 2;
                         $m_stock_record->updateData($condition, array('recycle_status'=>1));
                     }
+                    */
                     $m_stock = new \Admin\Model\StockModel();
                     $res_stock = $m_stock->getInfo(array('id'=>$res_record['stock_id']));
                     if($res_stock['hotel_id']>0 && $wo_reason_type==1){
@@ -1583,6 +1602,7 @@ class StockController extends BaseController {
     }
 
     public function auditrecycle(){
+        $this->output('审核物料回收功能暂停使用', "stock/writeofflist", 2, 0);
         $id = I('id',0,'intval');
         $condition = array('id'=>$id);
         $m_stock_record = new \Admin\Model\StockRecordModel();

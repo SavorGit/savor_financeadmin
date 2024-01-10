@@ -146,6 +146,21 @@ class U8cloud {
         $res = $this->apiquery($api,$method,$params,$trantype);
         return $res;
     }
-
+    //凭证删除
+    public function delVoucher($params){
+        $api = '/u8cloud/api/gl/voucher/delete';
+        $method = 'post';
+        $trantype = '';
+        $res = $this->apiquery($api,$method,$params,$trantype);
+        return $res;
+    }
+    //凭证作废
+    public function abandonVoucher($params){
+        $api = '/u8cloud/api/gl/voucher/abandon';
+        $method = 'post';
+        $trantype = 'code';
+        $res = $this->apiquery($api,$method,$params,$trantype);
+        return $res;
+    }
 }
 ?>

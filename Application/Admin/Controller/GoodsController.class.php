@@ -43,11 +43,14 @@ class GoodsController extends BaseController {
                 $v['brand'] = $brands[$v['brand_id']]['name'];
                 $v['category'] = $categorys[$v['category_id']]['name'];
                 $integral = 0;
+                $open_integral = 0;
                 $res_integral = $m_goods_config->getInfo(array('goods_id'=>$v['id'],'type'=>10));
                 if(!empty($res_integral)){
                     $integral = intval($res_integral['integral']);
+                    $open_integral = intval($res_integral['open_integral']);
                 }
                 $v['integral'] = $integral;
+                $v['open_integral'] = $open_integral;
                 $data_list[] = $v;
             }
         }
@@ -73,7 +76,7 @@ class GoodsController extends BaseController {
         if($type){
             $where['type'] = $type;
         }else{
-            $where['type'] = array('in',array(1,2,3,20));
+            $where['type'] = array('in',array(1,2,3,20,21));
         }
         $all_types = C('STOCK_REASON');
         $start = ($pageNum-1)*$size;
@@ -207,8 +210,24 @@ class GoodsController extends BaseController {
         $res_integral = $m_goods_config->getInfo(array('goods_id'=>$goods_id,'type'=>10));
         if(IS_POST){
             $integral = I('post.integral',0,'intval');
+            $open_integral = I('post.open_integral',0,'intval');
+            $media_id = I('post.media_id',0,'intval');
+            $area_ids = I('post.area_ids','');
 
-            $data = array('goods_id'=>$goods_id,'integral'=>$integral,'type'=>10);
+            if($open_integral>0){
+                if($media_id==0){
+                    $this->output('请上传实物图片', 'goods/goodsintegral',2,0);
+                }
+                if(empty($area_ids)){
+                    $this->output('请选择城市', 'goods/goodsintegral',2,0);
+                }
+            }
+            $data = array('goods_id'=>$goods_id,'integral'=>$integral,'open_integral'=>$open_integral,'media_id'=>$media_id,'type'=>10,'status'=>1);
+            $open_area_ids = '';
+            if(!empty($area_ids)){
+                $open_area_ids = join(',',$area_ids);
+            }
+            $data['open_area_ids'] = $open_area_ids;
             if(!empty($res_integral)){
                 $result = $m_goods_config->updateData(array('id'=>$res_integral['id']),$data);
             }else{
@@ -220,11 +239,30 @@ class GoodsController extends BaseController {
                 $this->output('操作失败', 'goods/goodsadd',2,0);
             }
         }else{
-            $integral = '';
+            $vinfo = array('oss_addr'=>'','integral'=>'','open_integral'=>'');
+            $m_area  = new \Admin\Model\AreaModel();
+            $area_arr = $m_area->getHotelAreaList();
+            $area_ids = array();
             if(!empty($res_integral)){
-                $integral = $res_integral['integral'];
+                $vinfo = $res_integral;
+                if(!empty($res_integral['open_area_ids'])){
+                    $area_ids = explode(',',$res_integral['open_area_ids']);
+                }
+                if($res_integral['media_id']){
+                    $m_media = new \Admin\Model\MediaModel();
+                    $res_media = $m_media->getMediaInfoById($res_integral['media_id']);
+                    $vinfo['oss_addr'] = $res_media['oss_addr'];
+                }
             }
-            $this->assign('integral',$integral);
+            foreach ($area_arr as $k=>$v){
+                $select_str = '';
+                if(in_array($v['id'],$area_ids)){
+                    $select_str = 'selected';
+                }
+                $area_arr[$k]['is_select'] = $select_str;
+            }
+            $this->assign('areas',$area_arr);
+            $this->assign('vinfo',$vinfo);
             $this->assign('goods_id',$goods_id);
             $this->display();
         }

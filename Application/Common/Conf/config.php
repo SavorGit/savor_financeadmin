@@ -110,11 +110,12 @@ $config['STOCK_REASON'] = array(
     '1'=>array('id'=>1,'name'=>'售卖(照片)'),
     '2'=>array('id'=>2,'name'=>'品鉴酒(照片)'),
     '3'=>array('id'=>3,'name'=>'活动(照片)'),
-    '20'=>array('id'=>20,'name'=>'物料(实物)')
+    '20'=>array('id'=>20,'name'=>'物料(实物)'),
+    '21'=>array('id'=>21,'name'=>'开瓶奖励物料(照片)')
 );
 $config['STOCK_RECORD_TYPE']=array('1'=>'入库','2'=>'出库','3'=>'拆箱','4'=>'领取','5'=>'验收','6'=>'报损','7'=>'核销');
 $config['STOCK_WRITEOFF_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'审核不通过','4'=>'待补充资料');
-$config['STOCK_RECYLE_STATUS']=array('1'=>'待收回物料','2'=>'已收回物料','3'=>'无法回收物料');
+$config['STOCK_RECYLE_STATUS']=array('1'=>'待审核','2'=>'审核通过','3'=>'无法收回','4'=>'无需回收','5'=>'审核中','6'=>'审核不通过');
 $config['SALE_TYPES']=array('1'=>'餐厅售卖','2'=>'团购售卖','3'=>'其它售卖','4'=>'线上团购','5'=>'买赠售卖');
 $config['PAY_STATUS']=array('1'=>'未收款','2'=>'已收款');
 $config['PAY_TYPE']=array('1'=>'完全收款','2'=>'部分收款','0'=>'未收款');
@@ -282,6 +283,7 @@ $config['JD_SUBJECT_CODE'] = array(
     '600108'=>array('name'=>'主营业务收入_销售商品收入-','type'=>'df','rate'=>1.13),
     '22210102'=>array('name'=>'应交税费_应交增值税_销项税额','type'=>'jf-df','rate'=>1.13),
 );
+$config['U8_START_DATE'] = '2024-01-09';
 $config['STOCK_MANAGER']=array(
     'o9GS-4reX0MCJbXvGamZghvmPk6U'=>'郑伟',
     'o9GS-4oZfWgjT0lySkJskdlflNrw'=>'黄勇',

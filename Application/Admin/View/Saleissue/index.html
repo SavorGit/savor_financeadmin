@@ -106,7 +106,7 @@
           <tbody data-check="list" data-parent=".table">
           <volist name="list" id="vlist">
             <tr target="sid_user">
-              <td data-title="合同ID">{$vlist.id}</td>
+              <td data-title="ID">{$vlist.id}</td>
               <td data-title="售卖类型">{$vlist.type_str}</td>
               <td data-title="商品名称">{$vlist.goods_name}</td>
               <td data-title="唯一识别码">{$vlist.idcode}</td>
@@ -116,14 +116,28 @@
               <td data-title="收款类型">{$vlist.pay_type_str}</td>
               <td data-title="收款状态">{$vlist.status_str}</td>
               <td data-title="核销状态">{$vlist.wo_status_str}</td>
-              <td data-title="采购日期">{$vlist.add_time}</td>
+              <td data-title="添加日期">{$vlist.add_time}</td>
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
                   
                   <a data-tip="修改详情" title="销售出库单-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="edit" href="{$host_name}/saleissue/edit?id={$vlist.id}" class="btn btn-success btn-icon">
-                    <i class="fa fa-tag"></i>
+                    <i class="fa fa-pencil"></i>
                   </a>
-				  
+
+                <if condition="$vlist['push_status'] egt 0">
+
+                    <if condition="$vlist['push_status'] eq 1">
+                        <a onclick="alertMsg.error('用友酒楼回款凭证已完成')" href="#" class="btn btn-default btn-icon">
+                            <i class="fa fa-send"></i>
+                        </a>
+                        <else/>
+                        <a data-tip="推送酒楼核销" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/{$vlist.push_u8_url}?sale_id={$vlist.id}"  class="btn btn-success btn-icon">
+                            <i class="fa fa-send"></i>
+                        </a>
+                    </if>
+
+                </if>
+
                 </div>
               </td>
 
