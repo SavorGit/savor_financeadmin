@@ -63,8 +63,8 @@ class U8cloudController extends Controller {
             $freevalue1 = $res_stock['serial_number'];
             $voucher[]=array(
                 'details'=>array(
-                    array('explanation'=>$explanation,'pk_accsubj'=>$goods_pk_accsubj,'pk_currtype'=>$pk_currtype,'debitamount'=>$now_money,'creditamount'=>0,'freevalue1'=>$freevalue1),
-                    array('explanation'=>$explanation,'pk_accsubj'=>'222103','pk_currtype'=>$pk_currtype,'debitamount'=>$rate_money,'creditamount'=>0,'freevalue1'=>$freevalue1),
+                    array('explanation'=>$explanation,'pk_accsubj'=>$goods_pk_accsubj,'pk_currtype'=>$pk_currtype,'debitamount'=>$rate_money,'creditamount'=>0,'freevalue1'=>$freevalue1),
+                    array('explanation'=>$explanation,'pk_accsubj'=>'222103','pk_currtype'=>$pk_currtype,'debitamount'=>$now_money,'creditamount'=>0,'freevalue1'=>$freevalue1),
                     array('explanation'=>$explanation,'pk_accsubj'=>'22020203','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$total_fee,'freevalue1'=>$freevalue1,
                         'ass'=>array(array('checktypecode'=>'73','checkvaluecode'=>"GYSJ{$res_stock['gysj_id']}"))
                     ),
@@ -296,6 +296,12 @@ class U8cloudController extends Controller {
         if(empty($res_duser[0]['department_id'])){
             $this->output('酒楼驻店人无对应采购组织部门','stock/writeofflist',2,0);
         }
+        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
+        $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>21));
+        if(!empty($res_push)){
+            $this->output('请勿重复推送用友凭证','stock/writeofflist',2,0);
+        }
+
         $department_id = $res_duser[0]['department_id'];
         $hotel_name = $res_sale[0]['hotel_name'];
         if(!empty($res_sale[0]['short_name'])){
@@ -312,11 +318,11 @@ class U8cloudController extends Controller {
         $rate_money = round($total_fee/$this->voucher_params['rate'],2);
         $now_money = $total_fee-$rate_money;
         $pk_currtype = $this->voucher_params['pk_currtype'];
+        $avg_rate_money = 0;
         if(!empty($res_sale[0]['avg_price'])){
             $avg_price = $res_sale[0]['avg_price'];
             $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         }else{
-            $avg_rate_money = 0;
             if(!empty($res_sale[0]['pidcode'])){
                 $m_stock_record = new \Admin\Model\StockRecordModel();
                 $rwhere = array('idcode'=>$res_sale[0]['pidcode']);
@@ -328,24 +334,31 @@ class U8cloudController extends Controller {
                 }
             }
         }
+        if($avg_rate_money==0){
+            $this->output('移动平均价为0','stock/writeofflist',2,0);
+        }
 
         $voucher[]=array(
             'details'=>array(
-                array('explanation'=>$explanation1,'pk_accsubj'=>'11220201','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation1,'pk_accsubj'=>'11220201','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
                     'ass'=>array(
                         array('checktypecode'=>'73','checkvaluecode'=>"HZCT{$res_sale[0]['hotel_id']}"),
                         array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
                     ),
                 ),
-                array('explanation'=>$explanation1,'pk_accsubj'=>'600101','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$rate_money,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation1,'pk_accsubj'=>'60010101','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$rate_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
                     'ass'=>array(
                         array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
                     ),
                 ),
-                array('explanation'=>$explanation1,'pk_accsubj'=>'22210108','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$now_money,'freevalue5'=>$idcode,),
+                array('explanation'=>$explanation1,'pk_accsubj'=>'22210108','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$now_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,),
 
-                array('explanation'=>$explanation2,'pk_accsubj'=>'640101','pk_currtype'=>$pk_currtype,'debitamount'=>$avg_rate_money,'creditamount'=>0,'freevalue5'=>$idcode,),
-                array('explanation'=>$explanation2,'pk_accsubj'=>"{$res_sale[0]['u8_pk_accsubj']}",'pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$avg_rate_money,'freevalue5'=>$idcode,),
+                array('explanation'=>$explanation2,'pk_accsubj'=>'64010101','pk_currtype'=>$pk_currtype,'debitamount'=>$avg_rate_money,'creditamount'=>0,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
+                    'ass'=>array(
+                        array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
+                    ),
+                ),
+                array('explanation'=>$explanation2,'pk_accsubj'=>"{$res_sale[0]['u8_pk_accsubj']}",'pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$avg_rate_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,),
 
             ),
             'pk_corp'=>$this->voucher_params['pk_corp'],
@@ -366,7 +379,6 @@ class U8cloudController extends Controller {
             $this->output('调用凭证接口出错','stock/writeofflist',2,0);
         }
         $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>21,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
-        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $m_pushu8->add($push_data);
         $this->output('同步酒楼核销用友凭证成功','stock/writeofflist',3);
     }
@@ -393,6 +405,11 @@ class U8cloudController extends Controller {
         if($res_sale[0]['ptype']!=1){
             $this->output('请先完成收款动作','saleissue/index',2,0);
         }
+        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
+        $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>22));
+        if(!empty($res_push)){
+            $this->output('请勿重复推送用友凭证','saleissue/index',2,0);
+        }
 
         $department_id = $res_duser[0]['department_id'];
         $hotel_name = $res_sale[0]['hotel_name'];
@@ -411,12 +428,12 @@ class U8cloudController extends Controller {
         $voucher = array();
         $voucher[]=array(
             'details'=>array(
-                array('explanation'=>$explanation,'pk_accsubj'=>'100201','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation,'pk_accsubj'=>'100201','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
                     'cashflow'=>array(
                         array('money'=>$total_fee,'pk_cashflow'=>'1111','pk_currtype'=>$pk_currtype)
                     )
                 ),
-                array('explanation'=>$explanation,'pk_accsubj'=>'11220201','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$total_fee,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation,'pk_accsubj'=>'11220201','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$total_fee,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
                     'ass'=>array(
                         array('checktypecode'=>'73','checkvaluecode'=>"HZCT{$res_sale[0]['hotel_id']}"),
                         array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
@@ -441,7 +458,6 @@ class U8cloudController extends Controller {
             $this->output('调用凭证接口出错','saleissue/index',2,0);
         }
         $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>22,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
-        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $m_pushu8->add($push_data);
         $this->output('同步酒楼回款用友凭证成功','saleissue/index',3);
     }
@@ -466,6 +482,12 @@ class U8cloudController extends Controller {
         if(empty($res_duser[0]['department_id'])){
             $this->output('酒楼驻店人无对应采购组织部门','stock/writeofflist',2,0);
         }
+        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
+        $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>21));
+        if(!empty($res_push)){
+            $this->output('请勿重复推送用友凭证','stock/writeofflist',2,0);
+        }
+
         $department_id = $res_duser[0]['department_id'];
         $hotel_name = $res_sale[0]['hotel_name'];
         if(!empty($res_sale[0]['short_name'])){
@@ -482,11 +504,11 @@ class U8cloudController extends Controller {
         $rate_money = round($total_fee/$this->voucher_params['rate'],2);
         $now_money = $total_fee-$rate_money;
         $pk_currtype = $this->voucher_params['pk_currtype'];
+        $avg_rate_money = 0;
         if(!empty($res_sale[0]['avg_price'])){
             $avg_price = $res_sale[0]['avg_price'];
             $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         }else{
-            $avg_rate_money = 0;
             if(!empty($res_sale[0]['pidcode'])){
                 $m_stock_record = new \Admin\Model\StockRecordModel();
                 $rwhere = array('idcode'=>$res_sale[0]['pidcode']);
@@ -498,23 +520,26 @@ class U8cloudController extends Controller {
                 }
             }
         }
+        if($avg_rate_money==0){
+            $this->output('移动平均价为0','stock/writeofflist',2,0);
+        }
 
         $voucher[]=array(
             'details'=>array(
-                array('explanation'=>$explanation1,'pk_accsubj'=>'80010803','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation1,'pk_accsubj'=>'80010803','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
                     'ass'=>array(
                         array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
                     ),
                 ),
-                array('explanation'=>$explanation1,'pk_accsubj'=>'600101','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$rate_money,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation1,'pk_accsubj'=>'600101','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$rate_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
                     'ass'=>array(
                         array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
                     ),
                 ),
-                array('explanation'=>$explanation1,'pk_accsubj'=>'22210108','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$now_money,'freevalue5'=>$idcode,),
+                array('explanation'=>$explanation1,'pk_accsubj'=>'22210108','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$now_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,),
 
-                array('explanation'=>$explanation2,'pk_accsubj'=>'640101','pk_currtype'=>$pk_currtype,'debitamount'=>$avg_rate_money,'creditamount'=>0,'freevalue5'=>$idcode,),
-                array('explanation'=>$explanation2,'pk_accsubj'=>"{$res_sale[0]['u8_pk_accsubj']}",'pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$avg_rate_money,'freevalue5'=>$idcode,),
+                array('explanation'=>$explanation2,'pk_accsubj'=>'640101','pk_currtype'=>$pk_currtype,'debitamount'=>$avg_rate_money,'creditamount'=>0,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,),
+                array('explanation'=>$explanation2,'pk_accsubj'=>"{$res_sale[0]['u8_pk_accsubj']}",'pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$avg_rate_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,),
 
             ),
             'pk_corp'=>$this->voucher_params['pk_corp'],
@@ -535,9 +560,162 @@ class U8cloudController extends Controller {
             $this->output('调用凭证接口出错','stock/writeofflist',2,0);
         }
         $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>21,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
-        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $m_pushu8->add($push_data);
         $this->output('同步品鉴酒用友凭证成功','stock/writeofflist',3);
+    }
+
+    public function groupbuyvoucher(){
+        $sale_id = I('get.sale_id',0,'intval');
+        $userinfo = session('sysUserInfo');
+        if(!empty($userinfo['telephone'])){
+            $pk_prepared = $userinfo['telephone'];
+        }else{
+            $pk_prepared = $this->voucher_params['pk_prepared'];
+        }
+        $m_sale = new \Admin\Model\SaleModel();
+        $fileds = 'a.id,a.idcode,a.num,a.maintainer_id,a.settlement_price,a.ptype,a.add_time,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
+        $res_sale = $m_sale->getGroupbySaleDatas($fileds,array('a.id'=>$sale_id));
+        if(empty($res_sale[0]['maintainer_id'])){
+            $this->output('发起核销时,无酒楼驻店人','saleissue/index',2,0);
+        }
+        $m_department_user = new \Admin\Model\DepartmentUserModel();
+        $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['maintainer_id']),0,1,'id desc');
+        if(empty($res_duser[0]['department_id'])){
+            $this->output('酒楼驻店人无对应采购组织部门','saleissue/index',2,0);
+        }
+        if($res_sale[0]['ptype']!=1){
+            $this->output('请先完成收款动作','saleissue/index',2,0);
+        }
+        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
+        $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>31));
+        if(!empty($res_push)){
+            $this->output('请勿重复推送用友凭证','saleissue/index',2,0);
+        }
+
+        $department_id = $res_duser[0]['department_id'];
+        $wo_date = date('m月d日',strtotime($res_sale[0]['add_time']));
+        $prepareddate = date('Y-m-d',strtotime($res_sale[0]['add_time']));
+
+        $explanation1 = $wo_date.'-'.$res_sale[0]['area_name'].'-团购-'.$res_sale[0]['goods_name'];
+        $explanation2 = $explanation1.'-成本结转';
+
+        $voucher = array();
+        $total_fee = $res_sale[0]['settlement_price'];
+        $rate_money = round($total_fee/$this->voucher_params['rate'],2);
+        $now_money = $total_fee-$rate_money;
+        $pk_currtype = $this->voucher_params['pk_currtype'];
+        $all_idcodes_arr = explode("\n",$res_sale[0]['idcode']);
+        $m_stock_record = new \Admin\Model\FinanceStockRecordModel();
+        $srwhere = array('idcode'=>$all_idcodes_arr[0],'avg_price'=>array('gt',0));
+        $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
+        $avg_rate_money = 0;
+        if(!empty($res_recordinfo[0]['avg_price'])){
+            $avg_price = $res_recordinfo[0]['avg_price'];
+            $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
+        }else{
+            $qrcontent = decrypt_data($all_idcodes_arr[0]);
+            $qr_id = intval($qrcontent);
+            $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
+            $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
+            $parent_id = $res_qrcontent['parent_id'];
+            $parent_idcode = encrypt_data($parent_id);
+            $srwhere = array('idcode'=>$parent_idcode,'avg_price'=>array('gt',0));
+            $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
+            if(!empty($res_recordinfo[0]['avg_price'])){
+                $avg_price = $res_recordinfo[0]['avg_price'];
+                $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
+            }
+        }
+        $avg_rate_money = $avg_rate_money*$res_sale[0]['num'];
+        if($avg_rate_money==0){
+            $this->output('移动平均价为0','saleissue/index',2,0);
+        }
+
+        $voucher[]=array(
+            'details'=>array(
+                array('explanation'=>$explanation1,'pk_accsubj'=>'11220201','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue1'=>$sale_id,
+                    'ass'=>array(
+                        array('checktypecode'=>'73','checkvaluecode'=>"XSTG1"),
+                        array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
+                    ),
+                ),
+                array('explanation'=>$explanation1,'pk_accsubj'=>'60010102','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$rate_money,'freevalue1'=>$sale_id,
+                    'ass'=>array(
+                        array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
+                    ),
+                ),
+                array('explanation'=>$explanation1,'pk_accsubj'=>'22210108','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$now_money,'freevalue1'=>$sale_id,),
+
+                array('explanation'=>$explanation2,'pk_accsubj'=>'64010102','pk_currtype'=>$pk_currtype,'debitamount'=>$avg_rate_money,'creditamount'=>0,'freevalue1'=>$sale_id,
+                    'ass'=>array(
+                        array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
+                    ),
+                ),
+                array('explanation'=>$explanation2,'pk_accsubj'=>"{$res_sale[0]['u8_pk_accsubj']}",'pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$avg_rate_money,'freevalue1'=>$sale_id,),
+
+            ),
+            'pk_corp'=>$this->voucher_params['pk_corp'],
+            'pk_glorgbook'=>$this->voucher_params['pk_glorgbook'],
+            'pk_prepared'=>$pk_prepared,
+            'pk_vouchertype'=>'收入成本确认',
+            'prepareddate'=>$prepareddate
+        );
+        $params = array(
+            'voucher'=>$voucher
+        );
+        $u8 = new \Common\Lib\U8cloud();
+        $resp_apidata = $u8->addVoucher($params);
+        $res_data = json_decode($resp_apidata['result'],true);
+        $res_u8data = json_decode($res_data['data'],true);
+        if(empty($res_u8data[0]['pk_voucher'])){
+            $this->output('调用凭证接口出错','saleissue/index',2,0);
+        }
+        $push_data=array('sale_id'=>$sale_id,'type'=>31,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
+        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
+        $m_pushu8->add($push_data);
+
+        $explanation = '收到-'.$wo_date.'-'.$res_sale[0]['area_name'].'-团购-'.$res_sale[0]['goods_name'].'-货款';
+        $total_fee = $res_sale[0]['settlement_price'];
+        $m_payment_record = new \Admin\Model\SalePaymentRecordModel();
+        $res_precord = $m_payment_record->getPaymentRecords('a.id,p.pay_time',array('a.sale_id'=>$sale_id),'p.pay_time desc','0,1');
+        $prepareddate = $res_precord[0]['pay_time'];
+
+        $voucher = array();
+        $voucher[]=array(
+            'details'=>array(
+                array('explanation'=>$explanation,'pk_accsubj'=>'101201','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue5'=>$idcode,
+                    'cashflow'=>array(
+                        array('money'=>$total_fee,'pk_cashflow'=>'1111','pk_currtype'=>$pk_currtype)
+                    )
+                ),
+                array('explanation'=>$explanation,'pk_accsubj'=>'11220201','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$total_fee,'freevalue5'=>$idcode,
+                    'ass'=>array(
+                        array('checktypecode'=>'73','checkvaluecode'=>"XSTG1"),
+                        array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
+                    ),
+                ),
+            ),
+            'pk_corp'=>$this->voucher_params['pk_corp'],
+            'pk_glorgbook'=>$this->voucher_params['pk_glorgbook'],
+            'pk_prepared'=>$pk_prepared,
+            'pk_vouchertype'=>'销售回款',
+            'prepareddate'=>$prepareddate
+        );
+
+        $params = array(
+            'voucher'=>$voucher
+        );
+        $u8 = new \Common\Lib\U8cloud();
+        $resp_apidata = $u8->addVoucher($params);
+        $res_data = json_decode($resp_apidata['result'],true);
+        $res_u8data = json_decode($res_data['data'],true);
+        if(empty($res_u8data[0]['pk_voucher'])){
+            $this->output('调用凭证接口出错(回款)','saleissue/index',2,0);
+        }
+        $push_data=array('sale_id'=>$sale_id,'type'=>22,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
+        $m_pushu8->add($push_data);
+
+        $this->output('同步团购用友凭证成功','saleissue/index',3);
     }
 
     public function delvoucher(){

@@ -71,10 +71,16 @@ class SaleissueController extends BaseController {
             }
             $push_status = -1;
             $push_u8_url = '';
-            if($v['add_time']>="$u8_start_date 00:00:00"  && $v['ptype']==1 && $v['wo_reason_type']==1){
-                $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>22));
-                $push_status = intval($res_pushu8['status']);
-                $push_u8_url = 'u8cloud/sellvoucher2';
+            if($v['add_time']>="$u8_start_date 00:00:00"  && $v['ptype']==1){
+                if($v['wo_reason_type']==1){
+                    $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>22));
+                    $push_status = intval($res_pushu8['status']);
+                    $push_u8_url = 'u8cloud/sellvoucher2';
+                }elseif($v['type']==4){
+                    $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>31));
+                    $push_status = intval($res_pushu8['status']);
+                    $push_u8_url = 'u8cloud/groupbuyvoucher';
+                }
             }
 
             $datalist[$k]['push_status'] = $push_status;
