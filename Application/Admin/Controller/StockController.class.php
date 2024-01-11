@@ -98,7 +98,7 @@ class StockController extends BaseController {
                     $now_total_fee = intval($res_stock_record['total_fee']);
                 }
                 $u8_start = 0;
-                if($v['io_date']>=$u8_start_date){
+                if($v['io_date']>=$u8_start_date && $v['io_type']==11){
                     $u8_start = 1;
                 }
                 $v['u8_start'] = $u8_start;
