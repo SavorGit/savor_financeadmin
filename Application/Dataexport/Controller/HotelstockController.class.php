@@ -1,17 +1,17 @@
 <?php
 namespace Dataexport\Controller;
 class HotelstockController extends BaseController {
-
+    
     public function datalist(){
         $area_id = I('area_id',0,'intval');
-
+        
         $area_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
         foreach ($res_area as $v){
             $area_arr[$v['id']]=$v;
         }
-
+        
         $where = array('stock.type'=>20);
         $where['stock.hotel_id'] = array(array('gt',0),array('not in',C('TEST_HOTEL')));
         if($area_id){
@@ -33,7 +33,7 @@ class HotelstockController extends BaseController {
                 $in_total_fee = $out_total_fee = $price = 0;
                 $goods_id = $v['goods_id'];
                 $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$goods_id,1);
-
+                
                 $rfileds = 'sum(a.total_amount) as total_amount,sum(a.total_fee) as total_fee,a.type';
                 $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.dstatus'=>1);
                 $rwhere['a.type'] = 2;
@@ -42,7 +42,7 @@ class HotelstockController extends BaseController {
                     $in_num = abs($res_record[0]['total_amount']);
                     $in_total_fee = $in_num*$settlement_price;
                 }
-
+                
                 $rwhere['a.type']=7;
                 $rwhere['a.wo_status']= array('in',array(1,2,4));
                 $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
@@ -60,13 +60,13 @@ class HotelstockController extends BaseController {
                 }
                 $out_num = $wo_num+$report_num;
                 $out_total_fee = $out_num*$settlement_price;
-
+                
                 $surplus_num = $surplus_total_fee = 0;
                 if($in_num-$out_num>0){
                     $surplus_num = $in_num-$out_num;
                     $surplus_total_fee = $surplus_num*$settlement_price;
                 }
-
+                
                 $v['begin_num'] = 0;
                 $v['begin_total_fee'] = 0;
                 $v['in_num'] = $in_num;
@@ -75,7 +75,7 @@ class HotelstockController extends BaseController {
                 $v['out_total_fee'] = $out_total_fee;
                 $v['surplus_num'] = $surplus_num;
                 $v['surplus_total_fee'] = $surplus_total_fee;
-
+                
                 $v['settlement_price'] = $settlement_price;
                 $v['area_name'] = $area_arr[$v['area_id']]['region_name'];
                 $datalist[] = $v;
@@ -96,24 +96,24 @@ class HotelstockController extends BaseController {
             array('in_total_fee','入库金额'),
             array('out_num','出库数量'),
             array('out_total_fee','出库金额'),
-
+            
         );
         $filename = '酒楼库存管理';
         $this->exportToExcel($cell,$datalist,$filename,1);
-
+        
     }
-
+    
     public function checklist(){
         $area_id = I('area_id',0,'intval');
         $stat_date = I('stat_date','');
-
+        
         $area_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
         foreach ($res_area as $v){
             $area_arr[$v['id']]=$v;
         }
-
+        
         $where = array('stock.hotel_id'=>array('gt',0),'stock.type'=>20);
         if($area_id){
             $where['stock.area_id'] = $area_id;
@@ -156,7 +156,7 @@ class HotelstockController extends BaseController {
                     $report_num = $res_worecord[0]['total_amount'];
                 }
                 $stock_num = $out_num+$wo_num+$report_num;
-
+                
                 $sale_fields = 'record.id,record.add_time,record.stock_check_status,staff.id as staff_id,staff.job,sysuser.remark as staff_name';
                 $salewhere = array('record.signin_hotel_id'=>$v['hotel_id'],'record.type'=>2);
                 $salewhere["date_format(record.add_time,'%Y-%m')"] = $now_stat_date;
@@ -201,7 +201,7 @@ class HotelstockController extends BaseController {
         );
         $filename = '酒楼盘点记录';
         $this->exportToExcel($cell,$data_list,$filename,1);
-
+        
     }
-
+    
 }
