@@ -237,11 +237,11 @@ class U8cloudController extends Controller {
                             array('checktypecode'=>'73','checkvaluecode'=>"GYSJ{$res_stock['gysj_id']}"),
                             array('checktypecode'=>'2','checkvaluecode'=>"{$res_stock['department_id']}"),
                         ),
+                    ),
+                    array('explanation'=>$explanation,'pk_accsubj'=>'100201','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$total_fee,'freevalue1'=>$freevalue1,
                         'cashflow'=>array(
                             array('money'=>$total_fee,'pk_cashflow'=>'1121','pk_currtype'=>$pk_currtype)
                         )
-                    ),
-                    array('explanation'=>$explanation,'pk_accsubj'=>'100201','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$total_fee,'freevalue1'=>$freevalue1,
                     ),
                 ),
                 'pk_corp'=>$this->voucher_params['pk_corp'],
