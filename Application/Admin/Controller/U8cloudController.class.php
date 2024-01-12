@@ -531,14 +531,18 @@ class U8cloudController extends Controller {
                         array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
                     ),
                 ),
-                array('explanation'=>$explanation1,'pk_accsubj'=>'600101','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$rate_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation1,'pk_accsubj'=>'60010101','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$rate_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
                     'ass'=>array(
                         array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
                     ),
                 ),
                 array('explanation'=>$explanation1,'pk_accsubj'=>'22210108','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$now_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,),
 
-                array('explanation'=>$explanation2,'pk_accsubj'=>'640101','pk_currtype'=>$pk_currtype,'debitamount'=>$avg_rate_money,'creditamount'=>0,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,),
+                array('explanation'=>$explanation2,'pk_accsubj'=>'64010101','pk_currtype'=>$pk_currtype,'debitamount'=>$avg_rate_money,'creditamount'=>0,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,
+                    'ass'=>array(
+                        array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
+                    ),
+                ),
                 array('explanation'=>$explanation2,'pk_accsubj'=>"{$res_sale[0]['u8_pk_accsubj']}",'pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$avg_rate_money,'freevalue1'=>$sale_id,'freevalue5'=>$idcode,),
 
             ),
@@ -552,6 +556,7 @@ class U8cloudController extends Controller {
         $params = array(
             'voucher'=>$voucher
         );
+
         $u8 = new \Common\Lib\U8cloud();
         $resp_apidata = $u8->addVoucher($params);
         $res_data = json_decode($resp_apidata['result'],true);
@@ -567,11 +572,11 @@ class U8cloudController extends Controller {
     public function groupbuyvoucher(){
         $sale_id = I('get.sale_id',0,'intval');
         $userinfo = session('sysUserInfo');
-        if(!empty($userinfo['telephone'])){
-            $pk_prepared = $userinfo['telephone'];
-        }else{
-            $pk_prepared = $this->voucher_params['pk_prepared'];
+        if(empty($userinfo['telephone'])){
+            $this->output('请使用用友账号进行同步','saleissue/index',2,0);
         }
+        $pk_prepared = $userinfo['telephone'];
+
         $m_sale = new \Admin\Model\SaleModel();
         $fileds = 'a.id,a.idcode,a.num,a.maintainer_id,a.settlement_price,a.ptype,a.add_time,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
         $res_sale = $m_sale->getGroupbySaleDatas($fileds,array('a.id'=>$sale_id));
@@ -605,7 +610,7 @@ class U8cloudController extends Controller {
         $now_money = $total_fee-$rate_money;
         $pk_currtype = $this->voucher_params['pk_currtype'];
         $all_idcodes_arr = explode("\n",$res_sale[0]['idcode']);
-        $m_stock_record = new \Admin\Model\FinanceStockRecordModel();
+        $m_stock_record = new \Admin\Model\StockRecordModel();
         $srwhere = array('idcode'=>$all_idcodes_arr[0],'avg_price'=>array('gt',0));
         $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
         $avg_rate_money = 0;
@@ -683,12 +688,12 @@ class U8cloudController extends Controller {
         $voucher = array();
         $voucher[]=array(
             'details'=>array(
-                array('explanation'=>$explanation,'pk_accsubj'=>'101201','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation,'pk_accsubj'=>'101201','pk_currtype'=>$pk_currtype,'debitamount'=>$total_fee,'creditamount'=>0,'freevalue1'=>$sale_id,
                     'cashflow'=>array(
                         array('money'=>$total_fee,'pk_cashflow'=>'1111','pk_currtype'=>$pk_currtype)
                     )
                 ),
-                array('explanation'=>$explanation,'pk_accsubj'=>'11220201','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$total_fee,'freevalue5'=>$idcode,
+                array('explanation'=>$explanation,'pk_accsubj'=>'11220201','pk_currtype'=>$pk_currtype,'debitamount'=>0,'creditamount'=>$total_fee,'freevalue1'=>$sale_id,
                     'ass'=>array(
                         array('checktypecode'=>'73','checkvaluecode'=>"XSTG1"),
                         array('checktypecode'=>'2','checkvaluecode'=>"{$department_id}"),
