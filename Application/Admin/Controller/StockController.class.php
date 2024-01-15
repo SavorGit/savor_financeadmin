@@ -347,6 +347,12 @@ class StockController extends BaseController {
             if(!empty($res_has)){
                 $this->output('商品不能重复', "stock/instockgoodsadd", 2, 0);
             }
+            $m_stock = new \Admin\Model\StockModel();
+            $res_stock = $m_stock->getInfo(array('id'=>$stock_id));
+            $res_detail_num = $m_stock_detail->getDataList('count(id) as num',array('stock_id'=>$stock_id),'id desc');
+            if($res_stock['io_type']==11 && $res_detail_num[0]['num']>1){
+                $this->output('采购入库单下入库商品只能添加1个', "stock/instockgoodsadd", 2, 0);
+            }
 
             $data = array('stock_id'=>$stock_id,'purchase_detail_id'=>$purchase_detail_id,
                 'goods_id'=>$goods_id,'rate'=>$rate,'price'=>$price,'unit_id'=>$unit_id,'stock_amount'=>$stock_amount,

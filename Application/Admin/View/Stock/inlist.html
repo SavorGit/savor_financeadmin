@@ -129,8 +129,8 @@
                     <tbody data-check="list" data-parent=".table">
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
-                            <td data-title="ID"><a class="click-able-title">{$dinfo.id}</a></td>
-                            <td data-title="入库单号"><a class="click-able-title">{$dinfo.serial_number}</a></td>
+                            <td data-title="ID">{$dinfo.id}</td>
+                            <td data-title="入库单号">{$dinfo.serial_number}</td>
                             <td data-title="名称">{$dinfo.name}</td>
                             <td data-title="入库类型">{$dinfo.io_type_str}</td>
                             <td data-title="库房">{$dinfo.area}</td>
@@ -176,7 +176,7 @@
                                             </if>
                                         </if>
 
-                                        <if condition="$dinfo.pay_status eq 2">
+                                        <if condition="($dinfo.pay_status eq 2) OR ($dinfo.pay_status eq 3)">
                                             <if condition="$dinfo.push_u8_status3 eq 1">
                                                 <a onclick="alertMsg.error('用友账款凭证已完成')" href="#" class="btn btn-default btn-icon">
                                                     <i class="fa fa-money"></i>
