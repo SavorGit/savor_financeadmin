@@ -198,7 +198,7 @@ class StockpaymentController extends BaseController {
         $start = ($page-1)*$size;
 
         $m_paymentrecord = new \Admin\Model\StockPaymentRecordModel();
-        $fields = 'a.*,stock.id as stock_id,stock.total_money,stock.pay_money,stock.serial_number';
+        $fields = 'a.*,stock.id as stock_id,stock.total_money,stock.serial_number';
         $result = $m_paymentrecord->getList($fields,array('a.stock_payment_id'=>$stock_payment_id),'a.id desc',$start,$size);
         $datalist = $result['list'];
 
