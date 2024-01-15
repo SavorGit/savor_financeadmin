@@ -97,11 +97,11 @@ class U8cloudController extends Controller {
         $m_stock->updateData(array('id'=>$stock_id),array('push_u8_status1'=>1,'push_u8_time1'=>date('Y-m-d H:i:s')));
 
         $m_stock_detail = new \Admin\Model\StockDetailModel();
-        $res_detail = $m_stock_detail->getList('a.id as stock_detail_id,goods.u8_pk_accsubj',array('a.stock_id'=>$stock_id,'a.status'=>1), 'a.id desc',0,0);
+        $res_detail = $m_stock_detail->getList('a.id as stock_detail_id,a.goods_id,goods.u8_pk_accsubj',array('a.stock_id'=>$stock_id,'a.status'=>1), 'a.id desc',0,0);
         $push_data = array();
         foreach ($res_detail as $v){
             if(isset($goods_voucher[$v['u8_pk_accsubj']])){
-                $push_data[]=array('stock_id'=>$stock_id,'stock_detail_id'=>$v['stock_detail_id'],'type'=>11,
+                $push_data[]=array('stock_id'=>$stock_id,'goods_id'=>$v['goods_id'],'type'=>11,
                     'u8_pk_id'=>$goods_voucher[$v['u8_pk_accsubj']],'status'=>1);
             }
         }
@@ -182,9 +182,10 @@ class U8cloudController extends Controller {
         $m_stock->updateData(array('id'=>$stock_id),array('push_u8_status2'=>1,'push_u8_time2'=>date('Y-m-d H:i:s')));
 
         $push_data = array();
-        foreach ($res_u8data as $v){
+        foreach ($res_u8data as $k=>$v){
+            $goods_id = intval($res_record[$k]['goods_id']);
             $pk_voucher = $v['pk_voucher'];
-            $push_data[]=array('stock_id'=>$stock_id,'type'=>12,'u8_pk_id'=>$pk_voucher,'status'=>1);
+            $push_data[]=array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'type'=>12,'u8_pk_id'=>$pk_voucher,'status'=>1);
         }
 
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
@@ -208,8 +209,17 @@ class U8cloudController extends Controller {
         if($res_stock['io_type']!=11){
             $this->output('请选择入库类型为采购入库','stock/inlist',2,0);
         }
-        if($res_stock['pay_status']!=2){
-            $this->output('请先完成支付账款','stock/inlist',2,0);
+        $m_stock_detail = new \Admin\Model\StockDetailModel();
+        $res_detail_num = $m_stock_detail->getDataList('count(id) as num',array('stock_id'=>$stock_id),'id desc');
+        $stock_detail_goods_num = intval($res_detail_num[0]['num']);
+        if($stock_detail_goods_num>1){
+            if($res_stock['pay_status']!=2){
+                $this->output('请先完成完全支付账款','stock/inlist',2,0);
+            }
+        }else{
+            if($res_stock['pay_status']==1){
+                $this->output('请先完成支付账款','stock/inlist',2,0);
+            }
         }
         if($res_stock['push_u8_status3']==1){
             $this->output('支付账款凭证已完成','stock/inlist',2,0);
@@ -223,9 +233,33 @@ class U8cloudController extends Controller {
         $where = array('a.stock_id'=>$stock_id,'a.type'=>1);
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_record = $m_stock_record->getStockRecordList($fileds,$where,'','','a.goods_id');
+        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
+        $pay_record = array();
+        if($stock_detail_goods_num==1){
+            $res_push = $m_pushu8->getAllData('sum(pay_money) as all_pay_money',array('stock_id'=>$stock_id,'type'=>13));
+            if(!empty($res_push[0]['all_pay_money']) && $res_push[0]['all_pay_money']>=$res_record[0]['total_fee']){
+                $this->output('请勿重复推送用友凭证','stock/inlist',2,0);
+            }
+            $m_stock_payment = new \Admin\Model\StockPaymentRecordModel();
+            $res_precord = $m_stock_payment->getPaymentRecords('a.id,a.pay_money,p.pay_time,pushu8.status',array('a.stock_id'=>$stock_id),'a.id asc','');
+            foreach ($res_precord as $v){
+                $push_status = intval($v['status']);
+                if($push_status!=1){
+                    $pay_record = $v;
+                    break;
+                }
+            }
+            if(empty($pay_record)){
+                $this->output('暂无付款记录','stock/inlist',2,0);
+            }
+        }
+
         $voucher = array();
         foreach ($res_record as $v){
             $total_fee = $v['total_fee'];
+            if($stock_detail_goods_num==1){
+                $total_fee = $pay_record['pay_money'];
+            }
 
             $explanation = '付-'.$supplier_name.'-'.$v['goods_name'].'-'.$v['total_num'].'瓶-款';
             $pk_currtype = $this->voucher_params['pk_currtype'];
@@ -263,16 +297,31 @@ class U8cloudController extends Controller {
         if(empty($res_u8data[0]['pk_voucher'])){
             $this->output('调用凭证接口出错','stock/inlist',2,0);
         }
-        $m_stock->updateData(array('id'=>$stock_id),array('push_u8_status3'=>1,'push_u8_time3'=>date('Y-m-d H:i:s')));
+        if($stock_detail_goods_num>1){
+            $m_stock->updateData(array('id'=>$stock_id),array('push_u8_status3'=>1,'push_u8_time3'=>date('Y-m-d H:i:s')));
+            $push_data = array();
+            foreach ($res_u8data as $k=>$v){
+                $goods_id = intval($res_record[$k]['goods_id']);
+                $pk_voucher = $v['pk_voucher'];
+                $push_data[]=array('stock_id'=>$stock_id,'goods_id'=>$goods_id,'type'=>13,'u8_pk_id'=>$pk_voucher,'status'=>1);
+            }
+            $m_pushu8->addAll($push_data);
+        }else{
+            $updata = array('push_u8_time3'=>date('Y-m-d H:i:s'));
+            $res_push = $m_pushu8->getAllData('sum(pay_money) as all_pay_money',array('stock_id'=>$stock_id,'type'=>13));
+            $all_pay_money = !empty($res_push[0]['all_pay_money'])?$res_push[0]['all_pay_money']:0;
+            $all_pay_money = $all_pay_money+$pay_record['pay_money'];
+            if($all_pay_money>=$res_record[0]['total_fee']){
+                $updata['push_u8_status3'] = 1;
+            }
+            $m_stock->updateData(array('id'=>$stock_id),$updata);
 
-        $push_data = array();
-        foreach ($res_u8data as $v){
-            $pk_voucher = $v['pk_voucher'];
-            $push_data[]=array('stock_id'=>$stock_id,'type'=>13,'u8_pk_id'=>$pk_voucher,'status'=>1);
+            $push_data =array('stock_id'=>$stock_id,'goods_id'=>$res_record[0]['goods_id'],'type'=>13,
+                'payment_record_id'=>$pay_record['id'],'pay_money'=>$pay_record['pay_money'],'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1
+            );
+            $m_pushu8->add($push_data);
         }
 
-        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
-        $m_pushu8->addAll($push_data);
         $this->output('同步支付账款用友凭证成功','stock/inlist',3);
     }
 
@@ -402,12 +451,13 @@ class U8cloudController extends Controller {
         if(empty($res_duser[0]['department_id'])){
             $this->output('酒楼驻店人无对应采购组织部门','saleissue/index',2,0);
         }
-        if($res_sale[0]['ptype']!=1){
+        if($res_sale[0]['ptype']==0){
             $this->output('请先完成收款动作','saleissue/index',2,0);
         }
+        $total_fee = $res_sale[0]['settlement_price'];
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
-        $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>22));
-        if(!empty($res_push)){
+        $res_push = $m_pushu8->getAllData('sum(pay_money) as all_pay_money',array('sale_id'=>$sale_id,'type'=>22));
+        if(!empty($res_push[0]['all_pay_money']) && $res_push[0]['all_pay_money']>=$total_fee){
             $this->output('请勿重复推送用友凭证','saleissue/index',2,0);
         }
 
@@ -420,11 +470,21 @@ class U8cloudController extends Controller {
         $idcode = $res_sale[0]['idcode'];
         $pk_currtype = $this->voucher_params['pk_currtype'];
         $explanation = '收到-'.$wo_date.'-'.$res_sale[0]['area_name'].'-'.$hotel_name.'-'.$res_sale[0]['goods_name'].'-货款';
-        $total_fee = $res_sale[0]['settlement_price'];
         $m_payment_record = new \Admin\Model\SalePaymentRecordModel();
-        $res_precord = $m_payment_record->getPaymentRecords('a.id,p.pay_time',array('a.sale_id'=>$sale_id),'p.pay_time desc','0,1');
-        $prepareddate = $res_precord[0]['pay_time'];
-
+        $res_precord = $m_payment_record->getPaymentRecords('a.id,a.pay_money,p.pay_time,pushu8.status',array('a.sale_id'=>$sale_id),'a.id asc','');
+        $pay_record = array();
+        foreach ($res_precord as $v){
+            $push_status = intval($v['status']);
+            if($push_status!=1){
+                $pay_record = $v;
+                break;
+            }
+        }
+        if(empty($pay_record)){
+            $this->output('暂无收款记录','saleissue/index',2,0);
+        }
+        $prepareddate = $pay_record['pay_time'];
+        $total_fee = $pay_record['pay_money'];
         $voucher = array();
         $voucher[]=array(
             'details'=>array(
@@ -457,7 +517,8 @@ class U8cloudController extends Controller {
         if(empty($res_u8data[0]['pk_voucher'])){
             $this->output('调用凭证接口出错','saleissue/index',2,0);
         }
-        $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>22,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
+        $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'payment_record_id'=>$pay_record['id'],
+            'pay_money'=>$total_fee,'type'=>22,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
         $m_pushu8->add($push_data);
         $this->output('同步酒楼回款用友凭证成功','saleissue/index',3);
     }

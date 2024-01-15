@@ -36,6 +36,7 @@ class SalePaymentRecordModel extends BaseModel{
     public function getPaymentRecords($fields,$where,$orderby,$limit=''){
         $data = $this->alias('a')
             ->join('savor_finance_sale_payment p on a.sale_payment_id=p.id','left')
+            ->join('savor_finance_pushu8_record pushu8 on a.id=pushu8.payment_record_id','left')
             ->field($fields)
             ->where($where)
             ->order($orderby)
