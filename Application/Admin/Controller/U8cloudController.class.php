@@ -327,6 +327,21 @@ class U8cloudController extends Controller {
 
     public function sellvoucher1(){
         $sale_id = I('get.sale_id',0,'intval');
+        if($sale_id==0){
+            $content = file_get_contents('php://input');
+            $orders = array();
+            if(!empty($content)) {
+                $res = json_decode($content, true);
+                if (!empty($res['Message'])) {
+                    $message = base64_decode($res['Message']);
+                    $orders = json_decode($message,true);
+                }
+            }
+            $sale_id = intval($orders[0]['order_id']);
+        }
+        if(empty($sale_id)){
+            $this->output('销售出库单ID错误','stock/writeofflist',2,0);
+        }
         $userinfo = session('sysUserInfo');
         if(!empty($userinfo['telephone'])){
             $pk_prepared = $userinfo['telephone'];
@@ -525,6 +540,21 @@ class U8cloudController extends Controller {
 
     public function sellvoucher3(){
         $sale_id = I('get.sale_id',0,'intval');
+        if($sale_id==0){
+            $content = file_get_contents('php://input');
+            $orders = array();
+            if(!empty($content)) {
+                $res = json_decode($content, true);
+                if (!empty($res['Message'])) {
+                    $message = base64_decode($res['Message']);
+                    $orders = json_decode($message,true);
+                }
+            }
+            $sale_id = intval($orders[0]['order_id']);
+        }
+        if(empty($sale_id)){
+            $this->output('销售出库单ID错误','stock/writeofflist',2,0);
+        }
         $userinfo = session('sysUserInfo');
         if(!empty($userinfo['telephone'])){
             $pk_prepared = $userinfo['telephone'];
