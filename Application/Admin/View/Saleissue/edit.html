@@ -39,8 +39,7 @@
                 	结算价：
               </label>
               <div class="col-xs-2 col-sm-2">
-                
-                <input name="settlement_price" type="text" value="{$vinfo.settlement_price}"  minlength="1" maxlength="50" class="form-control" />
+				  <input name="settlement_price" type="text" value="{$vinfo.settlement_price}"  minlength="1" maxlength="50" class="form-control" <if condition="$vinfo.push_status gt 0">readonly</if> />
               </div>
             </div>
 		  <div class="form-group row">

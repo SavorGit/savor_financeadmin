@@ -71,15 +71,23 @@ class SaleissueController extends BaseController {
             }
             $push_status = -1;
             $push_u8_url = '';
-            if($v['add_time']>="$u8_start_date 00:00:00"  && $v['ptype']==1){
-                if($v['wo_reason_type']==1){
-                    $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>22));
-                    $push_status = intval($res_pushu8['status']);
-                    $push_u8_url = 'u8cloud/sellvoucher2';
+            if($v['add_time']>="$u8_start_date 00:00:00"){
+                if($v['type']==1){
+                    if($v['wo_reason_type']==1 && $v['ptype']>0){
+                        $res_pushu8 = $m_pushu8_record->getAllData('sum(pay_money) as all_pay_money,status',array('sale_id'=>$v['id'],'type'=>22));
+                        if($res_pushu8[0]['all_pay_money']>=$v['settlement_price']){
+                            $push_status = 1;
+                        }else{
+                            $push_status = 0;
+                        }
+                        $push_u8_url = 'u8cloud/sellvoucher2';
+                    }
                 }elseif($v['type']==4){
-                    $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>31));
-                    $push_status = intval($res_pushu8['status']);
-                    $push_u8_url = 'u8cloud/groupbuyvoucher';
+                    if($v['ptype']==1){
+                        $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>31));
+                        $push_status = intval($res_pushu8['status']);
+                        $push_u8_url = 'u8cloud/groupbuyvoucher';
+                    }
                 }
             }
 
@@ -275,6 +283,18 @@ class SaleissueController extends BaseController {
         $m_sale = new \Admin\Model\SaleModel();
         
         $info = $m_sale->where(array('id'=>$id))->find();
+
+        $push_status = -1;
+        $u8_start_date = C('U8_START_DATE');
+        if($info['add_time']>="$u8_start_date 00:00:00"){
+            $m_pushu8_record = new \Admin\Model\Pushu8RecordModel();
+            $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$id,'type'=>array('in','22,31')));
+            if(!empty($res_pushu8)){
+                $push_status = intval($res_pushu8['status']);
+            }
+        }
+        $info['push_status'] = $push_status;
+
         if($info['invoice_time']=='0000-00-00 00:00:00'){
             $info['invoice_time'] = '';
         }
