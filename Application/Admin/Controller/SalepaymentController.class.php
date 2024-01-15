@@ -262,6 +262,12 @@ class SalepaymentController extends BaseController {
 
     public function linksaledel(){
         $id = I('get.id',0,'intval');
+        $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
+        $res_push = $m_pushu8->getInfo(array('payment_record_id'=>$id,'type'=>22));
+        if(!empty($res_push)){
+            $this->output('当前出库单已推送用友【销售回款凭证】,不能删除', 'salepayment/linksalelist',2,0);
+        }
+
         $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
         $res_info = $m_paymentrecord->getInfo(array('id'=>$id));
         $m_paymentrecord->delData(array('id'=>$id));
