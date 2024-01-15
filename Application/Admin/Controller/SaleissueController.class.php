@@ -84,9 +84,11 @@ class SaleissueController extends BaseController {
                     }
                 }elseif($v['type']==4){
                     if($v['ptype']==1){
-                        $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>31));
-                        $push_status = intval($res_pushu8['status']);
-                        $push_u8_url = 'u8cloud/groupbuyvoucher';
+                        if($v['num']>0 && !empty($v['idcode'])){
+                            $res_pushu8 = $m_pushu8_record->getInfo(array('sale_id'=>$v['id'],'type'=>31));
+                            $push_status = intval($res_pushu8['status']);
+                            $push_u8_url = 'u8cloud/groupbuyvoucher';
+                        }
                     }
                 }
             }
