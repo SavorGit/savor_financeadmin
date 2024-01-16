@@ -48,7 +48,7 @@
                 	签约人：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <select id="sign_user_id" name="sign_user_id" class="form-control bs-select" title="请选择签约人" >
+                <select id="sign_user_id" name="sign_user_id" class="form-control bs-select" data-live-search="true" title="请选择签约人" >
                   <volist name="sign_user_arr" id="vo">
                     <option value="{$vo.id}" <if condition="$vo.id eq $vinfo['sign_user_id']">selected</if> > {$vo.uname}</option>
                   </volist>
