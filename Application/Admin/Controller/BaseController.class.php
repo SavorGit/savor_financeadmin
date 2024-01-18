@@ -425,7 +425,7 @@ class BaseController extends Controller {
             'admin.menu.get_se_left','admin.clean.cache','admin.resource.uploadresource',
             'admin.resource.uploadresourcenew','admin.sysuser.chagepwd','admin.stock.getajaxstockunit',
             'admin.inventorypurchase.getusers','admin.basicset.getuserbydepartmentid','admin.goods.getajaxotherinfo','admin.inventorypurchase.getgoodsinfo',
-			'admin.saleissue.getsalelist','admin.pricetemplate.getsalehotel','admin.basicset.getajaxdepartmentusers'
+			'admin.saleissue.getsalelist','admin.pricetemplate.getsalehotel','admin.basicset.getajaxdepartmentusers','admin.hotel.getcitylist'
         );
         $model_name      = strtolower(MODULE_NAME);
         $controller_name = strtolower(CONTROLLER_NAME);
