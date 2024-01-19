@@ -357,11 +357,28 @@ class U8cloudController extends Controller {
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
         $res_duser = $m_department_user->getAll('id,department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $m_sysuser = new \Admin\Model\SysuserModel();
         if(empty($res_duser[0]['id'])){
-            $this->output("酒楼驻店人[{$res_sale[0]['residenter_id']}]不存在于采购组织部门成员中",'stock/writeofflist',2,0);
+            $residenter_id = $res_sale[0]['residenter_id'];
+            $res_sysuser = $m_sysuser->getSysUser($residenter_id);
+            $residenter_name = $res_sysuser[0]['remark'];
+            $redis = new \Common\Lib\SavorRedis();
+            $redis->select(1);
+            $key = 'finance_department_user_not_exist';
+            $res_duser = $redis->get($key);
+            $duser = array();
+            if(!empty($res_duser)){
+                $duser = json_decode($res_duser,true);
+            }
+            $duser[$residenter_id] = array('name'=>$residenter_name,'city'=>$res_sale[0]['area_name']);
+            $redis->set($key,json_encode($duser));
+
+            $this->output("酒楼驻店人[{$residenter_id}-{$residenter_name}]不存在于采购组织部门成员中",'stock/writeofflist',2,0);
         }
         if(empty($res_duser[0]['department_id'])){
-            $this->output("酒楼驻店人[{$res_sale[0]['residenter_id']}]无对应采购组织部门",'stock/writeofflist',2,0);
+            $res_sysuser = $m_sysuser->getSysUser($res_sale[0]['residenter_id']);
+            $residenter_name = $res_sysuser[0]['remark'];
+            $this->output("酒楼驻店人[{$res_sale[0]['residenter_id']}-{$residenter_name}]无对应采购组织部门",'stock/writeofflist',2,0);
         }
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>21));
@@ -592,9 +609,29 @@ class U8cloudController extends Controller {
             $this->output('发起核销时,无酒楼驻店人','stock/writeofflist',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
-        $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $res_duser = $m_department_user->getAll('id,department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $m_sysuser = new \Admin\Model\SysuserModel();
+        if(empty($res_duser[0]['id'])){
+            $residenter_id = $res_sale[0]['residenter_id'];
+            $res_sysuser = $m_sysuser->getSysUser($residenter_id);
+            $residenter_name = $res_sysuser[0]['remark'];
+            $redis = new \Common\Lib\SavorRedis();
+            $redis->select(1);
+            $key = 'finance_department_user_not_exist';
+            $res_duser = $redis->get($key);
+            $duser = array();
+            if(!empty($res_duser)){
+                $duser = json_decode($res_duser,true);
+            }
+            $duser[$residenter_id] = array('name'=>$residenter_name,'city'=>$res_sale[0]['area_name']);
+            $redis->set($key,json_encode($duser));
+
+            $this->output("酒楼驻店人[{$residenter_id}-{$residenter_name}]不存在于采购组织部门成员中",'stock/writeofflist',2,0);
+        }
         if(empty($res_duser[0]['department_id'])){
-            $this->output('酒楼驻店人无对应采购组织部门','stock/writeofflist',2,0);
+            $res_sysuser = $m_sysuser->getSysUser($res_sale[0]['residenter_id']);
+            $residenter_name = $res_sysuser[0]['remark'];
+            $this->output("酒楼驻店人[{$res_sale[0]['residenter_id']}-{$residenter_name}]无对应采购组织部门",'stock/writeofflist',2,0);
         }
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>21));
