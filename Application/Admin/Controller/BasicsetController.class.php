@@ -403,6 +403,7 @@ class BasicsetController extends BaseController {
             
             $where = [];
             $where['a.state']  = 1;
+            $where['a.manage_city'] =array('neq',9999);
             //$where['b.status'] = 1;
             $opuser_list = $m_opuser_role->alias('a')
                           ->join('savor_sysuser b on a.user_id=b.id','left')
