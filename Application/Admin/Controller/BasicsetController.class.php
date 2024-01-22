@@ -399,7 +399,7 @@ class BasicsetController extends BaseController {
                 $area_info[$v['id']] = $v;
             }
             
-            $m_opuser_role = new \Admin\Model\OpuserroleModel();
+            /*$m_opuser_role = new \Admin\Model\OpuserroleModel();
             
             $where = [];
             $where['a.state']  = 1;
@@ -421,7 +421,18 @@ class BasicsetController extends BaseController {
                     }
                     $opuser_list[$key]['view_info'] = $opuser_list[$key]['manage_city_str'].'-'.$v['user_id'].'-'.$v['username'].'-'.$v['state_str'];
                 }
+            }*/
+            $m_user = new \Admin\Model\UserModel();
+            
+            $opuser_list = $m_user->getGourpList('case a.status when 2 then "删除" when 1 then "正常" END AS state_str,a.id user_id,a.remark username,b.name group_name');
+            
+            foreach($opuser_list as $key=>$v){
+                
+                    
+                $opuser_list[$key]['view_info'] = $v['user_id'].'-'.$v['username'].'-'.$v['state_str'];
+                
             }
+            
             
             $this->assign('opuser_list',$opuser_list);
             
