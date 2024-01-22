@@ -356,7 +356,7 @@ class U8cloudController extends Controller {
             $this->output('发起核销时,无酒楼驻店人','stock/writeofflist',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
-        $res_duser = $m_department_user->getAll('id,department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $res_duser = $m_department_user->getAll('id,department_id',array('sys_user_id'=>$res_sale[0]['residenter_id'],'status'=>1),0,1,'id desc');
         $m_sysuser = new \Admin\Model\SysuserModel();
         if(empty($res_duser[0]['id'])){
             $residenter_id = $res_sale[0]['residenter_id'];
@@ -493,6 +493,31 @@ class U8cloudController extends Controller {
             $this->output('请使用用友账号进行同步','saleissue/index',2,0);
         }
         $pk_prepared = $userinfo['telephone'];
+        /*
+        $sale_id = I('get.sale_id',0,'intval');
+        if($sale_id==0){
+            $content = file_get_contents('php://input');
+            $orders = array();
+            if(!empty($content)) {
+                $res = json_decode($content, true);
+                if (!empty($res['Message'])) {
+                    $message = base64_decode($res['Message']);
+                    $orders = json_decode($message,true);
+                }
+            }
+            $sale_id = intval($orders[0]['order_id']);
+        }
+        if(empty($sale_id)){
+            $this->output('销售出库单ID错误','saleissue/index',2,0);
+        }
+        $userinfo = session('sysUserInfo');
+        if(!empty($userinfo['telephone'])){
+            $pk_prepared = $userinfo['telephone'];
+        }else{
+            $pk_prepared = $this->voucher_params['pk_prepared'];
+        }
+        */
+
         $m_sale = new \Admin\Model\SaleModel();
         $fileds = 'a.id,a.idcode,a.residenter_id,a.ptype,a.settlement_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
         hotel.id as hotel_id,hotel.name as hotel_name,hotel.short_name,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
@@ -501,7 +526,7 @@ class U8cloudController extends Controller {
             $this->output('发起核销时,无酒楼驻店人','saleissue/index',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
-        $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['residenter_id'],'status'=>1),0,1,'id desc');
         if(empty($res_duser[0]['department_id'])){
             $this->output('酒楼驻店人无对应采购组织部门','saleissue/index',2,0);
         }
@@ -609,7 +634,7 @@ class U8cloudController extends Controller {
             $this->output('发起核销时,无酒楼驻店人','stock/writeofflist',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
-        $res_duser = $m_department_user->getAll('id,department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $res_duser = $m_department_user->getAll('id,department_id',array('sys_user_id'=>$res_sale[0]['residenter_id'],'status'=>1),0,1,'id desc');
         $m_sysuser = new \Admin\Model\SysuserModel();
         if(empty($res_duser[0]['id'])){
             $residenter_id = $res_sale[0]['residenter_id'];
@@ -746,6 +771,30 @@ class U8cloudController extends Controller {
             $this->output('请使用用友账号进行同步','saleissue/index',2,0);
         }
         $pk_prepared = $userinfo['telephone'];
+        /*
+        $sale_id = I('get.sale_id',0,'intval');
+        if($sale_id==0){
+            $content = file_get_contents('php://input');
+            $orders = array();
+            if(!empty($content)) {
+                $res = json_decode($content, true);
+                if (!empty($res['Message'])) {
+                    $message = base64_decode($res['Message']);
+                    $orders = json_decode($message,true);
+                }
+            }
+            $sale_id = intval($orders[0]['order_id']);
+        }
+        if(empty($sale_id)){
+            $this->output('销售出库单ID错误','saleissue/index',2,0);
+        }
+        $userinfo = session('sysUserInfo');
+        if(!empty($userinfo['telephone'])){
+            $pk_prepared = $userinfo['telephone'];
+        }else{
+            $pk_prepared = $this->voucher_params['pk_prepared'];
+        }
+        */
 
         $m_sale = new \Admin\Model\SaleModel();
         $fileds = 'a.id,a.idcode,a.num,a.maintainer_id,a.settlement_price,a.ptype,a.add_time,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
@@ -754,7 +803,7 @@ class U8cloudController extends Controller {
             $this->output('发起核销时,无酒楼驻店人','saleissue/index',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
-        $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['maintainer_id']),0,1,'id desc');
+        $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['maintainer_id'],'status'=>1),0,1,'id desc');
         if(empty($res_duser[0]['department_id'])){
             $this->output('酒楼驻店人无对应采购组织部门','saleissue/index',2,0);
         }
