@@ -144,6 +144,11 @@ class StockController extends BaseController {
                 if($purchase_id==0){
                     $this->output('请关联采购单', 'stock/addinstock',2,0);
                 }
+            }else{
+                if($purchase_id>0){
+                    $in_types = C('STOCK_IN_TYPES');
+                    $this->output("入库类型【{$in_types['io_type']}】不能关联采购单", 'stock/addinstock',2,0);
+                }
             }
             $userinfo = session('sysUserInfo');
             $sysuser_id = $userinfo['id'];
