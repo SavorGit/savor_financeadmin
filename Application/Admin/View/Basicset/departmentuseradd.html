@@ -30,7 +30,7 @@
 			<div class="form-group row">
                 <label class="col-xs-12 col-sm-2 control-label">关联用户：</label>
                 <div class="col-xs-2 col-sm-5">
-                <select  name="sys_user_id" class="form-control bs-select" title="请选择关联用户"  >
+                <select  name="sys_user_id" class="form-control bs-select" title="请选择关联用户" data-live-search="true"  >
                   <volist name="opuser_list" id="vo">
                     <option value="{$vo.user_id}" <if condition="$vo.user_id eq $vinfo['sys_user_id']">selected</if> > {$vo.view_info}</option>
                   </volist>
