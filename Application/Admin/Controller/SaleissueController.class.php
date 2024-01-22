@@ -19,6 +19,7 @@ class SaleissueController extends BaseController {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
+        $push_u8_status2 = I('push_u8_status2',99,'intval');
         $ptype       = I('ptype',99,'intval');
         $idcode     = I('idcode','','trim');
 
@@ -36,6 +37,9 @@ class SaleissueController extends BaseController {
         }
         if($ptype!=99){
             $where['a.ptype'] = $ptype;
+        }
+        if($push_u8_status2<99){
+            $where['a.push_u8_status2'] = $push_u8_status2;
         }
         if(!empty($idcode)){
             $where['a.idcode'] = $idcode;
@@ -112,6 +116,7 @@ class SaleissueController extends BaseController {
         $this->assign('all_ptype',$all_ptype);
         $this->assign('all_types',$all_types);
         $this->assign('type',$type);
+        $this->assign('push_u8_status2',$push_u8_status2);
         $this->assign('start_date',$start_date);
         $this->assign('end_date',$end_date);
         $this->display();

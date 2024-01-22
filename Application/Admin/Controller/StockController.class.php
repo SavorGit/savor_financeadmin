@@ -1268,6 +1268,7 @@ class StockController extends BaseController {
         $wo_reason_type = I('wo_reason_type',0,'intval');
         $area_id = I('area_id',0,'intval');
         $recycle_status = I('recycle_status',0,'intval');
+        $push_u8_status13 = I('push_u8_status13',99,'intval');
         $idcode = I('idcode','','trim');
         $hotel_name = I('hotel_name','','trim');
         $start_time = I('start_time','');
@@ -1311,6 +1312,9 @@ class StockController extends BaseController {
             $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
             $now_end_time = date('Y-m-d 23:59:59',strtotime($end_time));
             $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+        }
+        if($push_u8_status13<99){
+            $where['sale.push_u8_status13'] = $push_u8_status13;
         }
 
         $start = ($pageNum-1)*$size;
@@ -1385,6 +1389,7 @@ class StockController extends BaseController {
                 $data_list[] = $v;
             }
         }
+        $this->assign('push_u8_status13', $push_u8_status13);
         $this->assign('area_id', $area_id);
         $this->assign('area', $area_arr);
         $this->assign('start_time',$start_time);

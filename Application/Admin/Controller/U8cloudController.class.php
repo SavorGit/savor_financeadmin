@@ -356,9 +356,29 @@ class U8cloudController extends Controller {
             $this->output('发起核销时,无酒楼驻店人','stock/writeofflist',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
-        $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $res_duser = $m_department_user->getAll('id,department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $m_sysuser = new \Admin\Model\SysuserModel();
+        if(empty($res_duser[0]['id'])){
+            $residenter_id = $res_sale[0]['residenter_id'];
+            $res_sysuser = $m_sysuser->getSysUser($residenter_id);
+            $residenter_name = $res_sysuser[0]['remark'];
+            $redis = new \Common\Lib\SavorRedis();
+            $redis->select(1);
+            $key = 'finance_department_user_not_exist';
+            $res_duser = $redis->get($key);
+            $duser = array();
+            if(!empty($res_duser)){
+                $duser = json_decode($res_duser,true);
+            }
+            $duser[$residenter_id] = array('name'=>$residenter_name,'city'=>$res_sale[0]['area_name']);
+            $redis->set($key,json_encode($duser));
+
+            $this->output("酒楼驻店人[{$residenter_id}-{$residenter_name}]不存在于采购组织部门成员中",'stock/writeofflist',2,0);
+        }
         if(empty($res_duser[0]['department_id'])){
-            $this->output('酒楼驻店人无对应采购组织部门','stock/writeofflist',2,0);
+            $res_sysuser = $m_sysuser->getSysUser($res_sale[0]['residenter_id']);
+            $residenter_name = $res_sysuser[0]['remark'];
+            $this->output("酒楼驻店人[{$res_sale[0]['residenter_id']}-{$residenter_name}]无对应采购组织部门",'stock/writeofflist',2,0);
         }
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>21));
@@ -383,20 +403,38 @@ class U8cloudController extends Controller {
         $now_money = $total_fee-$rate_money;
         $pk_currtype = $this->voucher_params['pk_currtype'];
         $avg_rate_money = 0;
-        if(!empty($res_sale[0]['avg_price'])){
+        if($res_sale[0]['avg_price']>0){
             $avg_price = $res_sale[0]['avg_price'];
             $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         }else{
+            $m_stock_record = new \Admin\Model\StockRecordModel();
             if(!empty($res_sale[0]['pidcode'])){
-                $m_stock_record = new \Admin\Model\StockRecordModel();
                 $rwhere = array('idcode'=>$res_sale[0]['pidcode']);
                 $rwhere['avg_price'] = array('gt',0);
-                $res_record = $m_stock_record->getAll('avg_price',$rwhere,0,1,'id desc');
-                if(!empty($res_record[0]['avg_price'])){
-                    $avg_price = $res_record[0]['avg_price'];
-                    $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
+            }else{
+                $rwhere = array('idcode'=>$res_sale[0]['idcode']);
+                $rwhere['avg_price'] = array('gt',0);
+            }
+            $res_record = $m_stock_record->getAll('avg_price',$rwhere,0,1,'id desc');
+            if($res_record[0]['avg_price']>0){
+                $avg_price = $res_record[0]['avg_price'];
+            }else{
+                $qrcontent = decrypt_data($res_sale[0]['idcode']);
+                $qr_id = intval($qrcontent);
+                $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
+                $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
+                $parent_id = $res_qrcontent['parent_id'];
+                $avg_price = 0;
+                if($parent_id>0){
+                    $parent_idcode = encrypt_data($parent_id);
+                    $srwhere = array('idcode'=>$parent_idcode,'avg_price'=>array('gt',0));
+                    $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
+                    if($res_recordinfo[0]['avg_price']>0){
+                        $avg_price = $res_recordinfo[0]['avg_price'];
+                    }
                 }
             }
+            $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         }
         if($avg_rate_money==0){
             $this->output('移动平均价为0','stock/writeofflist',2,0);
@@ -444,6 +482,7 @@ class U8cloudController extends Controller {
         }
         $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>21,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
         $m_pushu8->add($push_data);
+        $m_sale->updateData(array('id'=>$sale_id),array('push_u8_status13'=>1,'push_u8_time13'=>date('Y-m-d H:i:s')));
         $this->output('同步酒楼核销用友凭证成功','stock/writeofflist',3);
     }
 
@@ -535,6 +574,7 @@ class U8cloudController extends Controller {
         $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'payment_record_id'=>$pay_record['id'],
             'pay_money'=>$total_fee,'type'=>22,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
         $m_pushu8->add($push_data);
+        $m_sale->updateData(array('id'=>$sale_id),array('push_u8_status2'=>1,'push_u8_time2'=>date('Y-m-d H:i:s')));
         $this->output('同步酒楼回款用友凭证成功','saleissue/index',3);
     }
 
@@ -569,9 +609,29 @@ class U8cloudController extends Controller {
             $this->output('发起核销时,无酒楼驻店人','stock/writeofflist',2,0);
         }
         $m_department_user = new \Admin\Model\DepartmentUserModel();
-        $res_duser = $m_department_user->getAll('department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $res_duser = $m_department_user->getAll('id,department_id',array('sys_user_id'=>$res_sale[0]['residenter_id']),0,1,'id desc');
+        $m_sysuser = new \Admin\Model\SysuserModel();
+        if(empty($res_duser[0]['id'])){
+            $residenter_id = $res_sale[0]['residenter_id'];
+            $res_sysuser = $m_sysuser->getSysUser($residenter_id);
+            $residenter_name = $res_sysuser[0]['remark'];
+            $redis = new \Common\Lib\SavorRedis();
+            $redis->select(1);
+            $key = 'finance_department_user_not_exist';
+            $res_duser = $redis->get($key);
+            $duser = array();
+            if(!empty($res_duser)){
+                $duser = json_decode($res_duser,true);
+            }
+            $duser[$residenter_id] = array('name'=>$residenter_name,'city'=>$res_sale[0]['area_name']);
+            $redis->set($key,json_encode($duser));
+
+            $this->output("酒楼驻店人[{$residenter_id}-{$residenter_name}]不存在于采购组织部门成员中",'stock/writeofflist',2,0);
+        }
         if(empty($res_duser[0]['department_id'])){
-            $this->output('酒楼驻店人无对应采购组织部门','stock/writeofflist',2,0);
+            $res_sysuser = $m_sysuser->getSysUser($res_sale[0]['residenter_id']);
+            $residenter_name = $res_sysuser[0]['remark'];
+            $this->output("酒楼驻店人[{$res_sale[0]['residenter_id']}-{$residenter_name}]无对应采购组织部门",'stock/writeofflist',2,0);
         }
         $m_pushu8 = new \Admin\Model\Pushu8RecordModel();
         $res_push = $m_pushu8->getInfo(array('sale_id'=>$sale_id,'type'=>21));
@@ -596,20 +656,38 @@ class U8cloudController extends Controller {
         $now_money = $total_fee-$rate_money;
         $pk_currtype = $this->voucher_params['pk_currtype'];
         $avg_rate_money = 0;
-        if(!empty($res_sale[0]['avg_price'])){
+        if($res_sale[0]['avg_price']>0){
             $avg_price = $res_sale[0]['avg_price'];
             $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         }else{
+            $m_stock_record = new \Admin\Model\StockRecordModel();
             if(!empty($res_sale[0]['pidcode'])){
-                $m_stock_record = new \Admin\Model\StockRecordModel();
                 $rwhere = array('idcode'=>$res_sale[0]['pidcode']);
                 $rwhere['avg_price'] = array('gt',0);
-                $res_record = $m_stock_record->getAll('avg_price',$rwhere,0,1,'id desc');
-                if(!empty($res_record[0]['avg_price'])){
-                    $avg_price = $res_record[0]['avg_price'];
-                    $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
+            }else{
+                $rwhere = array('idcode'=>$res_sale[0]['idcode']);
+                $rwhere['avg_price'] = array('gt',0);
+            }
+            $res_record = $m_stock_record->getAll('avg_price',$rwhere,0,1,'id desc');
+            if($res_record[0]['avg_price']>0){
+                $avg_price = $res_record[0]['avg_price'];
+            }else{
+                $qrcontent = decrypt_data($res_sale[0]['idcode']);
+                $qr_id = intval($qrcontent);
+                $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
+                $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
+                $parent_id = $res_qrcontent['parent_id'];
+                $avg_price = 0;
+                if($parent_id>0){
+                    $parent_idcode = encrypt_data($parent_id);
+                    $srwhere = array('idcode'=>$parent_idcode,'avg_price'=>array('gt',0));
+                    $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
+                    if($res_recordinfo[0]['avg_price']>0){
+                        $avg_price = $res_recordinfo[0]['avg_price'];
+                    }
                 }
             }
+            $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         }
         if($avg_rate_money==0){
             $this->output('移动平均价为0','stock/writeofflist',2,0);
@@ -657,6 +735,7 @@ class U8cloudController extends Controller {
         }
         $push_data=array('sale_id'=>$sale_id,'stock_record_id'=>$res_sale[0]['stock_record_id'],'type'=>21,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
         $m_pushu8->add($push_data);
+        $m_sale->updateData(array('id'=>$sale_id),array('push_u8_status13'=>1,'push_u8_time13'=>date('Y-m-d H:i:s')));
         $this->output('同步品鉴酒用友凭证成功','stock/writeofflist',3);
     }
 
@@ -810,7 +889,7 @@ class U8cloudController extends Controller {
         }
         $push_data=array('sale_id'=>$sale_id,'type'=>22,'u8_pk_id'=>$res_u8data[0]['pk_voucher'],'status'=>1);
         $m_pushu8->add($push_data);
-
+        $m_sale->updateData(array('id'=>$sale_id),array('push_u8_status2'=>1,'push_u8_time2'=>date('Y-m-d H:i:s')));
         $this->output('同步团购用友凭证成功','saleissue/index',3);
     }
 

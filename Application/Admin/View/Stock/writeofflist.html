@@ -81,7 +81,16 @@
                 </div>
 
                 <div class="form-inline">
-
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">用友凭证状态：</div>
+                        <div class="input-group">
+                            <select name="push_u8_status13" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=99>全部</option>
+                                <option value=1 <if condition="$push_u8_status13 eq 1">selected</if> >已推送</option>
+                                <option value=0 <if condition="$push_u8_status13 eq 0">selected</if> >未推送</option>
+                            </select>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <div class="input-group input-group-sm">酒楼名称：</div>
                         <div class="input-group">
