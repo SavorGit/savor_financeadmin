@@ -403,22 +403,22 @@ class BasicsetController extends BaseController {
             
             $where = [];
             $where['a.state']  = 1;
-            $where['b.status'] = 1;
+            //$where['b.status'] = 1;
             $opuser_list = $m_opuser_role->alias('a')
                           ->join('savor_sysuser b on a.user_id=b.id','left')
-                          ->field('a.manage_city,a.user_id,b.remark as username')
+                          ->field('case b.status when 2 then "删除" when 1 then "正常" END AS state_str ,a.manage_city,a.user_id,b.remark as username')
                           ->order('a.manage_city asc')
                           ->where($where)
                           ->select();
             foreach($opuser_list as $key=>$v){
                 if($v['manage_city'] ==9999){
-                    $opuser_list[$key]['view_info'] = '全国-'.$v['user_id'].'-'.$v['username'];
+                    $opuser_list[$key]['view_info'] = '全国-'.$v['user_id'].'-'.$v['username'].'-'.$v['state_str'];
                 }else {
                     $manage_city_arr = explode(',', $v['manage_city']);
                     foreach($manage_city_arr as $mv){
                         $opuser_list[$key]['manage_city_str'] .= $area_info[$mv]['region_name'];
                     }
-                    $opuser_list[$key]['view_info'] = $opuser_list[$key]['manage_city_str'].'-'.$v['user_id'].'-'.$v['username'];
+                    $opuser_list[$key]['view_info'] = $opuser_list[$key]['manage_city_str'].'-'.$v['user_id'].'-'.$v['username'].'-'.$v['state_str'];
                 }
             }
             
