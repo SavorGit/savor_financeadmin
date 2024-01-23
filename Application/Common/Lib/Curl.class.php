@@ -15,7 +15,7 @@ class Curl {
 	* @return array or boolean 成功返回数组,失败返回false
 	*
 	*/
-	public static function get($url, &$re, $timeout = 20) {
+	public static function get($url, &$re, $timeout = 20,$is_log=false) {
         $start_time = microtime(true);
 		($timeout<10) && $timeout = 10;
 		$re = false;
@@ -42,14 +42,16 @@ class Curl {
 			if($re !== false) break;
 			$re = curl_exec($ch);
             $end_time = microtime(true);
-            RecordLog::add_curl_log($ch, $url, $start_time, $end_time,'get');
+            if($is_log){
+                RecordLog::add_curl_log($ch, $url, $start_time, $end_time,'get');
+            }
 			if ( is_string($re) && strlen($re) ) {
 				curl_close($ch);
 				$return = 'info';
 			} else {
 				if($i == $retry) {
 					$curl_error = curl_error($ch);
-					if (class_exists('RecordLog', false)) {
+					if ($is_log && class_exists('RecordLog', false)) {
 						RecordLog::addLog('请求接口：'.$url.',错误信息：'.$curl_error.serialize(curl_getinfo($ch)), '', 'error');
 					} 
 					curl_close($ch);
@@ -70,7 +72,7 @@ class Curl {
 	* @return array or boolean 成功返回数组,失败返回false
 	*
 	*/
-	public static function post($url, $data, &$result, $timeout = 20) {
+	public static function post($url, $data, &$result, $timeout = 20,$is_log=false) {
         $start_time = microtime(true);
 		($timeout<10) && $timeout = 10;
 		$ch = curl_init();
@@ -98,12 +100,14 @@ class Curl {
 		}
 		$result = curl_exec($ch);
         $end_time = microtime(true);
-        RecordLog::add_curl_log($ch, $url,$start_time, $end_time, $data, 'post');
+        if($is_log){
+            RecordLog::add_curl_log($ch, $url,$start_time, $end_time, $data, 'post');
+        }
 		if (is_string($result) && strlen($result)) {
 			$return = 'info';
 		} else {
 			$curl_error = curl_error($ch);
-			if (class_exists('RecordLog', false)) {
+			if ($is_log && class_exists('RecordLog', false)) {
 				RecordLog::addLog('请求接口：'.$url.',错误信息：'.$curl_error.serialize(curl_getinfo($ch)), '', 'error');
 			}
 			$return = 'error';
