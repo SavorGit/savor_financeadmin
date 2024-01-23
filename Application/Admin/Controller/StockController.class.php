@@ -2086,7 +2086,7 @@ class StockController extends BaseController {
     private function record_log($log_content){
         $log_file_name = C('REPORT_LOG_PATH').'cleanwriteoff_'.date("Ymd").".log";
         $now_time = date("Y-m-d H:i:s");
-        $log_content = "[time].$now_time.$log_content \n";
+        $log_content = "[time]$now_time{$log_content} \n";
         @file_put_contents($log_file_name, $log_content, FILE_APPEND);
         return true;
     }
