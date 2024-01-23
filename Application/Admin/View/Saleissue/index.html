@@ -130,10 +130,16 @@
               <td data-title="添加日期">{$vlist.add_time}</td>
               <td class="table-tool" data-title="操作">
                 <div class="tools-edit">
-                  
-                  <a data-tip="修改详情" title="销售出库单-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="edit" href="{$host_name}/saleissue/edit?id={$vlist.id}" class="btn btn-success btn-icon">
-                    <i class="fa fa-pencil"></i>
-                  </a>
+                  <if condition="$vlist['push_status'] eq 1">
+                      <a onclick="alertMsg.error('请勿修改，原因【已推送用友酒楼回款凭证】')" href="#" class="btn btn-default btn-icon">
+                          <i class="fa fa-pencil"></i>
+                      </a>
+                  <else />
+                      <a data-tip="修改详情" title="销售出库单-{$vlist.id}" target="dialog" data-placement="left" mask="true" rel="edit" href="{$host_name}/saleissue/edit?id={$vlist.id}" class="btn btn-success btn-icon">
+                          <i class="fa fa-pencil"></i>
+                      </a>
+                  </if>
+
 
                 <if condition="$vlist['push_status'] egt 0">
 
