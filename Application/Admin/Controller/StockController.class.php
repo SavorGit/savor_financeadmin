@@ -11,6 +11,8 @@ class StockController extends BaseController {
         '248'=>array('in'=>'FSRK','out'=>'FSCK'),
         );
 
+    public $clean_writeoff_uid = array(361);
+
     public function inlist(){
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
@@ -1321,6 +1323,9 @@ class StockController extends BaseController {
         if($push_u8_status13<99){
             $where['sale.push_u8_status13'] = $push_u8_status13;
         }
+        $userinfo = session('sysUserInfo');
+        $sysuser_id = $userinfo['id'];
+        $is_clean_writeoff = in_array($sysuser_id,$this->clean_writeoff_uid)?1:0;
 
         $start = ($pageNum-1)*$size;
         $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,sale.id as sale_id,
@@ -1406,6 +1411,7 @@ class StockController extends BaseController {
         $this->assign('recycle_status',$recycle_status);
         $this->assign('all_wo_status',$all_wo_status);
         $this->assign('all_wo_reason',$all_reason);
+        $this->assign('is_clean_writeoff',$is_clean_writeoff);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -1936,6 +1942,127 @@ class StockController extends BaseController {
         $this->display();
     }
 
+    public function cleanwriteoff(){
+        $stock_record_id = I('stock_record_id',0,'intval');
+
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
+        $m_userintegral = new \Admin\Model\UserIntegralModel();
+
+        $vinfo = $m_stock_record->getInfo(array('id'=>$stock_record_id));
+        $idcode = $vinfo['idcode'];
+        $openid = $vinfo['op_openid'];
+        $integral_where = array('jdorder_id'=>$stock_record_id,'type'=>array('in','17,25'));
+        if(IS_POST){
+            $is_delintegral = I('post.is_delintegral',0,'intval');
+            $m_sale = new \Admin\Model\SaleModel();
+            $res_salerecord = $m_sale->getInfo(array('stock_record_id'=>$stock_record_id));
+            if(in_array($res_salerecord['ptype'],array(1,2))){
+                $this->output("当前核销记录已收款,不能删除", 'stock/writeofflist');
+            }
+
+            $message = '';
+            if($is_delintegral==1){
+                $ifields = 'id,integral,status,openid,source';
+                $res_integral = $m_integralrecord->getDataList($ifields,$integral_where,'id asc');
+                if(!empty($res_integral)){
+                    $integral_record = array();
+                    $clean_record_ids = array();
+                    foreach ($res_integral as $v){
+                        if($v['status']==1){
+                            $integral_record[$v['openid']][] = array('id'=>$v['id'],'integral'=>$v['integral']);
+                        }
+                        $clean_record_ids[]=$v['id'];
+                    }
+                    $m_merchant = new \Admin\Model\MerchantModel();
+                    $clean_user_integral = array();
+                    foreach ($integral_record as $rk=>$rv){
+                        $integral_openid = $rk;
+                        $merchant_id=0;
+                        $user_integral_id=0;
+                        if(is_numeric($integral_openid)){
+                            $res_merchant = $m_merchant->getInfo(array('hotel_id'=>$integral_openid,'status'=>1));
+                            $now_integral = $res_merchant['integral'];
+                            $merchant_id = $res_merchant['id'];
+                        }else{
+                            $res_userintegral = $m_userintegral->getInfo(array('openid'=>$integral_openid));
+                            $now_integral = $res_userintegral['integral'];
+                            $user_integral_id = $res_userintegral['id'];
+                        }
+                        $record_integral = 0;
+                        foreach ($rv as $rrv){
+                            $record_integral+=$rrv['integral'];
+                        }
+                        if($record_integral>$now_integral){
+                            $this->output("用户:$integral_openid,积分不足。$now_integral<$record_integral", 'stock/writeofflist');
+                        }
+                        $clean_user_integral[]=array('now_integral'=>$now_integral,'record_integral'=>$record_integral,
+                            'merchant_id'=>$merchant_id,'user_integral_id'=>$user_integral_id);
+                    }
+                    foreach ($clean_user_integral as $uv){
+                        $last_integral = $uv['now_integral']-$uv['record_integral'];
+                        $updata = array('integral'=>$last_integral,'update_time'=>date('Y-m-d H:i:s'));
+                        if($uv['user_integral_id']>0){
+                            $m_userintegral->updateData(array('id'=>$uv['user_integral_id']),$updata);
+                            $log_content = "[idcode]{$idcode}[table]savor_smallapp_user_integral[content]id:{$uv['user_integral_id']},record_integral:{$uv['record_integral']},now_integral:{$uv['now_integral']},last_integral:$last_integral";
+                            $this->record_log($log_content);
+                        }
+                        if($uv['merchant_id']>0){
+                            $m_merchant->updateData(array('id'=>$uv['merchant_id']),$updata);
+                            $log_content = "[idcode]{$idcode}[table]savor_integral_merchant[content]id:{$uv['merchant_id']},record_integral:{$uv['record_integral']},now_integral:{$uv['now_integral']},last_integral:$last_integral";
+                            $this->record_log($log_content);
+                        }
+                    }
+
+                    $res_irecord = $m_integralrecord->getDataList('*',array('id'=>array('in',$clean_record_ids)),'id asc');
+                    $log_content = "[idcode]{$idcode}[table]savor_smallapp_user_integralrecord[content]".json_encode($res_irecord);
+                    $this->record_log($log_content);
+                    $m_integralrecord->delData(array('id'=>array('in',$clean_record_ids)));
+                    $message.='积分已清理';
+                }
+            }
+
+            $res_record = $m_stock_record->getInfo(array('id'=>$stock_record_id));
+            $log_content = "[idcode]{$idcode}[table]savor_finance_stock_record[content]".json_encode($res_record);
+            $this->record_log($log_content);
+            $m_stock_record->delData(array('id'=>$stock_record_id));
+            $message.=',核销记录已清理';
+
+            $log_content = "[idcode]{$idcode}[table]savor_finance_sale[content]".json_encode($res_salerecord);
+            $this->record_log($log_content);
+            $m_sale->delData(array('stock_record_id'=>$stock_record_id));
+            $message.=',销售出库单已清理';
+
+            $m_u8record = new \Admin\Model\Pushu8RecordModel();
+            $res_record = $m_u8record->getDataList('*',array('stock_record_id'=>$stock_record_id),'id asc');
+            $log_content = "[idcode]{$idcode}[table]savor_finance_pushu8_record[content]".json_encode($res_record);
+            $this->record_log($log_content);
+            $m_u8record->delData(array('stock_record_id'=>$stock_record_id));
+            $message.=',U8推送记录已清理';
+
+            $this->output($message, 'stock/writeofflist');
+
+        }else{
+            $res_userintegral = $m_userintegral->getInfo(array('openid'=>$openid));
+            $user_integral = $res_userintegral['integral'];
+
+            $ifields = 'sum(integral) as total_integral';
+            $integral_where['status'] = 1;
+            $res_integral = $m_integralrecord->getDataList($ifields,$integral_where,'id desc');
+            $integral = intval($res_integral[0]['total_integral']);
+
+            $integral_where['status'] = 2;
+            $res_integral = $m_integralrecord->getDataList($ifields,$integral_where,'id desc');
+            $freeze_integral = intval($res_integral[0]['total_integral']);
+
+            $this->assign('vinfo',$vinfo);
+            $this->assign('user_integral',$user_integral);
+            $this->assign('integral',$integral);
+            $this->assign('freeze_integral',$freeze_integral);
+            $this->display();
+        }
+    }
+
     public function getAjaxStockUnit(){
         $goods_id = I('goods_id',0,'intval');
         $unit_id = 0;
@@ -1955,5 +2082,14 @@ class StockController extends BaseController {
         $res_data = array('units'=>$units);
         die(json_encode($res_data));
     }
+
+    private function record_log($log_content){
+        $log_file_name = C('REPORT_LOG_PATH').'cleanwriteoff_'.date("Ymd").".log";
+        $now_time = date("Y-m-d H:i:s");
+        $log_content = "[time].$now_time.$log_content \n";
+        @file_put_contents($log_file_name, $log_content, FILE_APPEND);
+        return true;
+    }
+
 
 }

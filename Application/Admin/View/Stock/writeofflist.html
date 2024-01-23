@@ -197,6 +197,11 @@
                                     </if>
 
                                 </if>
+                                <if condition="$is_clean_writeoff eq 1">
+                                    <a title="清理核销数据" data-tip="清理核销数据" target="dialog" mask="true" href="{$host_name}/stock/cleanwriteoff?stock_record_id={$dinfo.id}" class="btn btn-success btn-icon">
+                                        <i class="fa fa-recycle"></i>
+                                    </a>
+                                </if>
 
 <!--                                <if condition="($dinfo['wo_status'] eq 2) AND ($dinfo['recycle_status'] eq 1)">-->
 <!--                                    <if condition="$dinfo['recycle_status'] eq 1">-->
