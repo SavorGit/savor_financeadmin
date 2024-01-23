@@ -11,7 +11,7 @@ class StockController extends BaseController {
         '248'=>array('in'=>'FSRK','out'=>'FSCK'),
         );
 
-    public $clean_writeoff_uid = array(361);
+    public $clean_writeoff_uid = array(361);//364 yingtao
 
     public function inlist(){
         $size = I('numPerPage',50,'intval');//显示每页记录数
