@@ -2035,10 +2035,12 @@ class StockController extends BaseController {
 
             $m_u8record = new \Admin\Model\Pushu8RecordModel();
             $res_record = $m_u8record->getDataList('*',array('stock_record_id'=>$stock_record_id),'id asc');
-            $log_content = "[idcode]{$idcode}[table]savor_finance_pushu8_record[content]".json_encode($res_record);
-            $this->record_log($log_content);
-            $m_u8record->delData(array('stock_record_id'=>$stock_record_id));
-            $message.=',U8推送记录已清理';
+            if(!empty($res_record)){
+                $log_content = "[idcode]{$idcode}[table]savor_finance_pushu8_record[content]".json_encode($res_record);
+                $this->record_log($log_content);
+                $m_u8record->delData(array('stock_record_id'=>$stock_record_id));
+                $message.=',U8推送记录已清理';
+            }
 
             $this->output($message, 'stock/writeofflist');
 
