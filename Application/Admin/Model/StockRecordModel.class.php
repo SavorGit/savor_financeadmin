@@ -85,7 +85,7 @@ class StockRecordModel extends BaseModel{
                 ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
                 ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
                 ->join('savor_hotel_ext ext on hotel.id=ext.hotel_id','left')
-                ->join('savor_sysuser su on ext.residenter_id=su.id','left')
+                ->join('savor_sysuser su on sale.residenter_id=su.id','left')
                 ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
                 ->field($fields)
                 ->where($where)
@@ -98,7 +98,7 @@ class StockRecordModel extends BaseModel{
                 ->join('savor_finance_stock stock on a.stock_id=stock.id','left')
                 ->join('savor_hotel hotel on stock.hotel_id=hotel.id','left')
                 ->join('savor_hotel_ext ext on hotel.id=ext.hotel_id','left')
-                ->join('savor_sysuser su on ext.residenter_id=su.id','left')
+                ->join('savor_sysuser su on sale.residenter_id=su.id','left')
                 ->join('savor_finance_unit unit on a.unit_id=unit.id','left')
                 ->where($where)
                 ->count();
