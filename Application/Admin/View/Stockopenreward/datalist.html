@@ -26,6 +26,41 @@
                     </div>
 
                     <div class="form-group">
+                        <div class="input-group input-group-sm">城市：</div>
+                        <div class="input-group">
+                            <select name="area_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0>全部</option>
+                                <volist name="area" id="vo">
+                                    <option value="{$vo.id}" <if condition="$vo.id eq $area_id">selected</if>>{$vo.region_name}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">审核状态：</div>
+                        <div class="input-group">
+                            <select name="recycle_status" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                                <option value=0>全部</option>
+                                <volist name="all_recycle_status" id="arinfo">
+                                    <option value="{$key}" <if condition="$key eq $recycle_status">selected</if> >{$arinfo}</option>
+                                </volist>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">商品名称：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="goods_name" value="{$goods_name}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">唯一识别码：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="idcode" value="{$idcode}">
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <div class="input-group input-group-sm">
                             <span class="input-group-btn">
                              <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
@@ -34,7 +69,7 @@
                     </div>
 
                     <div class="input-group input-group-sm pull-right">
-                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/stockopenreward/datalist?start_date={$start_date}&end_date={$end_date}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
+                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/stockopenreward/datalist?start_date={$start_date}&end_date={$end_date}&area_id={$area_id}&recycle_status={$recycle_status}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
 
                         <a class="btn btn-success btn-sm add" href="{$host_name}/stockopenreward/dataimport" title="导入审核数据" target="dialog" mask="true"><i class="fa fa-upload"></i> 导入审核数据</a>
                     </div>
@@ -55,6 +90,8 @@
                         <th>唯一码</th>
                         <th>物流码</th>
                         <th>酒楼名称</th>
+                        <th>城市</th>
+                        <th>商品名称</th>
                         <th>出库时间</th>
                         <th>驻店人</th>
                         <th>核销人</th>
@@ -62,6 +99,7 @@
                         <th>审核状态</th>
                         <th>审核不通过原因</th>
                         <th>核销时间</th>
+                        <th>操作</th>
                     </tr>
                     </thead>
                     <tbody data-check="list" data-parent=".table">
@@ -71,6 +109,8 @@
                             <td data-title="唯一码">{$dinfo.idcode}</td>
                             <td data-title="物流码">{$dinfo.vintner_code}</td>
                             <td data-title="酒楼名称">{$dinfo.hotel_name}</td>
+                            <td data-title="城市">{$dinfo.area_name}</td>
+                            <td data-title="商品名称">{$dinfo.goods_name}</td>
                             <td data-title="出库时间">{$dinfo.out_time}</td>
                             <td data-title="驻店人">{$dinfo.residenter_name}</td>
                             <td data-title="核销人">{$dinfo.username}</td>
@@ -82,6 +122,15 @@
                             <td data-title="审核状态">{$dinfo.recycle_status_str}</td>
                             <td data-title="审核不通过原因">{$dinfo.reason}</td>
                             <td data-title="核销时间">{$dinfo.add_time}</td>
+                            <td class="table-tool" data-title="操作">
+                                <div class="tools-edit">
+                                    <if condition="$dinfo.recycle_status eq 5">
+                                        <a warn="重置" data-tip="重置" title="你确定要重置【{$dinfo.idcode}】状态吗？" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/stockopenreward/resetrecyclestatus?stock_record_id={$dinfo.id}"  class="btn btn-danger btn-icon">
+                                            <i class="fa fa-remove"></i>
+                                        </a>
+                                    </if>
+                                </div>
+                            </td>
                         </tr>
                     </foreach>
                     </tbody>
