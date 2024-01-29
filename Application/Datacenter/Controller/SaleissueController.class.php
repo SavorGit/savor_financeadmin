@@ -156,23 +156,66 @@ class SaleissueController extends BaseController {
      * @desc 数据查询-应收账款汇总
      */
     public function receivables(){
-        $start_date = I('start_date','');
+        $page = I('pageNum',1);
+        $size   = I('numPerPage',50);
+        
+        
+        $start  = ($page-1) * $size;
+        $order = I('_order','a.id');
+        
+        $this->assign('_order',$order);
+        $sort = I('_sort','desc');
+        $this->assign('_sort',$sort);
+        $orders = $order.' '.$sort;
         $end_date   = I('end_date','');
-        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
-        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
-        $this->assign('start_date',$start_date);
+        
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d',strtotime('-1 day'));
+        
+        $where = [];
+        $where['static_date'] = $end_date;
+        $m_data_receivables = new \Admin\Model\DataReceivablesModel();
+        
+        $data = $m_data_receivables->getList('*',$where,$orders,$start,$size);
+        
         $this->assign('end_date',$end_date);
+        $this->assign('list',$data['list']);
+        $this->assign('page',$data['page']);
+        $this->assign('pageNum',$page);
+        $this->assign('numPerPage',$size);
         $this->display();
     }
     /**
      * @desc 数据查询-账龄分析表
      */
     public function accountage(){
-        $start_date = I('start_date','');
+        $page = I('pageNum',1);
+        $size   = I('numPerPage',50);
+        
+        
+        $start  = ($page-1) * $size;
+        $order = I('_order','a.id');
+        
+        $this->assign('_order',$order);
+        $sort = I('_sort','asc');
+        $this->assign('_sort',$sort);
+        $orders = $order.' '.$sort;
+        
+        
+        //$start_date = I('start_date','');
         $end_date   = I('end_date','');
-        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
-        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
-        $this->assign('start_date',$start_date);
+        //$start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d',strtotime('-1 day'));
+        
+        $where = [];
+        $where['static_date'] = $end_date;
+        $m_accountage = new \Admin\Model\DataAccountageModel();
+        $data = $m_accountage->getList('*', $where,$orders,$start,$size);
+        
+        
+        $this->assign('list',$data['list']);
+        $this->assign('page',$data['page']);
+        $this->assign('pageNum',$page);
+        $this->assign('numPerPage',$size);
         $this->assign('end_date',$end_date);
         $this->display();
     }

@@ -13,7 +13,6 @@ class StockModel extends BaseModel{
             ->order($order)
             ->limit($start,$size)
             ->select();
-
         $count = $this->alias('a')
             ->join('savor_finance_purchase p on a.purchase_id=p.id','left')
             ->where($where)

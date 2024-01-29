@@ -13,17 +13,11 @@
       <div class="clearfix">
         <div class="form-inline" style="margin-top:3px;">
         <div class="form-group">
-        	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$start_date}">
-          		<input style="margin-left: 6px;" name="start_date" type="text" size="16" class="form-control date" placeholder="入库开始日期" value="{$start_date}" readonly>
-                <span class="input-group-btn">
-                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
-                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
-                </span>
-       	 	</div>
+        	
 
         	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$end_date}" >
 
-          		<input    name="end_date" type="text" size="16" class="form-control date" placeholder="入库结束日期" value="{$end_date}" readonly>
+          		<input    name="end_date" type="text" size="16" class="form-control date" placeholder="统计日期" value="{$end_date}" readonly>
                 <span class="input-group-btn"  >
                   <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
                   <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
@@ -48,7 +42,7 @@
             
             <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
 				
-				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/saleissue/receivables?start_date={$start_date}&end_date={$end_date}" title="导出应收账款汇总表" target="_blank" mask="true"><i class="fa fa-plus"></i>导出应收账款汇总表</a>
+				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/saleissue/receivables?end_date={$end_date}" title="导出应收账款汇总表" target="_blank" mask="true"><i class="fa fa-plus"></i>导出应收账款汇总表</a>
           
 			</div>
 			
@@ -65,25 +59,31 @@
         <table class="table table-bordered table-striped" targetType="navTab" asc="asc" desc="desc">
           <thead>
           <tr id="post">
-          	<p style="text-align:center;color:red">请直接导出{$start_date}--{$end_date}的数据</p>
+          	<!-- <p style="text-align:center;color:red">请直接导出{$start_date}--{$end_date}的数据</p> -->
             <!-- <th class="table-checkbox">
               <input type="checkbox" data-check="all" data-parent=".table" />
-            </th> 
+            </th>  -->
             
             
-            <th>商品编码</th>
-            <th>商品名称</th>
-            <th>品牌</th>
-            <th>规格</th>
+            <th>城市</th>
+            <th>酒楼id</th>
+            <th>酒楼名称</th>
+            <th>业务员</th>
             
-            <th>数量</th>
-            <th>不含税总金额</th>
-            
-            <th>含税总金额</th>-->
+            <th>应收金额</th>
           </tr>
           </thead>
           <tbody data-check="list" data-parent=".table">
-          
+          	<volist name="list" id="vlist">
+            <tr target="sid_user">
+              <td data-title="城市">{$vlist.area_name}</td>
+              <td data-title="酒楼id">{$vlist.hotel_id}</td>
+              <td data-title="酒楼名称">{$vlist.hotel_name}</td>
+              <td data-title="业务员">{$vlist.business_man}</td>
+              <td data-title="应收金额">{$vlist.receivable_money}</td>
+              
+            </tr>
+          </volist>
           </tbody>
         </table>
       </form>

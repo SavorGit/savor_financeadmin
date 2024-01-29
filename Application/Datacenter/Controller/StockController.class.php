@@ -4,6 +4,10 @@ use Common\Lib\Page;
 use Admin\Controller\BaseController;
 class StockController extends BaseController {
     
+    private $store_type_arr = array(
+        array('id'=>1,'name'=>'中转仓'),
+        array('id'=>2,'name'=>'前置仓'),
+    );
     public function dinlist(){
         $page = I('pageNum',1);
         $size   = I('numPerPage',50);
@@ -368,16 +372,77 @@ class StockController extends BaseController {
         $this->display('outlistcost');
     }
     /**
-     * @desc 库龄分析表
+     * @desc 库龄明细表
      */
-    public function stockage(){
-        $start_date = I('start_date','');
-        $end_date   = I('end_date','');
-        $start_date =  !empty($start_date) ? $start_date: date('Y-m-d',strtotime('-7 days'));
-        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d');
+    public function stockageDetail(){
         
-        $this->assign('start_date',$start_date);
+        $page = I('pageNum',1);
+        $size   = I('numPerPage',50);
+        $start  = ($page-1) * $size;
+        $order = I('_order','id');
+        $this->assign('_order',$order);
+        $sort = I('_sort','desc');
+        $this->assign('_sort',$sort);
+        $orders = $order.' '.$sort;
+        
+        $where = [];
+        $area_id    = I('area_id',0,'intval');
+        $store_type = I('store_type',0,'intval');
+        if($area_id){
+            $where['area_id'] = $area_id;
+            $this->assign('area_id',$area_id);
+        }
+        if($store_type){
+            $where['store_type'] = $store_type;
+            $this->assign('store_type',$store_type);
+        }
+        $goods_name = I('goods_name','','trim');
+        
+        $goods_id_str = '';
+        if(!empty($goods_name)){
+            
+            $m_goods = new \Admin\Model\GoodsModel();
+            $map = [];
+            $map['name'] = array('like','%'.$goods_name.'%');
+            
+            $goods_list = $m_goods->field('id goods_id')->where($map)->select();
+            if(!empty($goods_list)){
+                $goods_id_arr = [];
+                
+                foreach($goods_list as $key=>$v){
+                    $goods_id_arr [] = $v['goods_id'];
+                    $goods_id_str .=$space.$v['goods_id'];
+                    $space = ',';
+                }
+                $where['goods_id'] = array('in',$goods_id_arr);
+            }
+            
+        }
+        
+        $end_date   = I('end_date','');
+        $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d',strtotime('-1 days'));
+        $where['static_date'] = $end_date;
+        
+        $m_accountage_detail = new \Admin\Model\DataAccountageDetailModel();
+        $data = $m_accountage_detail->getList('*', $where, $orders,$start,$size);
+        
+        //print_r($data['list']);
+        //仓库类型
+        $store_type_arr = $this->store_type_arr;
+        
+        //城市
+        $m_area = new \Admin\Model\AreaModel();
+        $city_arr = $m_area->getHotelAreaList();
+        
+        $this->assign('store_type_arr',$store_type_arr);
+        $this->assign('goods_id_str',$goods_id_str);
+        $this->assign('goods_name',$goods_name);
+        $this->assign('city_arr',$city_arr);
         $this->assign('end_date',$end_date);
+        $this->assign('list',$data['list']);
+        $this->assign('page',$data['page']);
+        $this->assign('pageNum',$page);
+        $this->assign('numPerPage',$size);
         $this->display();
     }
     /**

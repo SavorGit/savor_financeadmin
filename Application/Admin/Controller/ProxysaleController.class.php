@@ -21,7 +21,7 @@ class ProxysaleController extends BaseController{
 	                              'sign_user_id'=>'请填写签约人',
 	                              'ctype'=>'请选择合同类型',
 								  'area_id'=>'请选择签约城市','sign_time'=>'请选择签署日期','archive_time'=>'请选择归档日期',
-								  'hotel_signer'=>'请填写合同签约人',
+								  'bill_days'=>'请填写账期','hotel_signer'=>'请填写合同签约人',
 								  'hotel_signer_phone1'=>'请填写合同签约人电话1',
 								  'company_name'=>'请填写公司名称','company_short_name'=>'请填写公司简介','company_area_id'=>'请选择公司所属城市',
 								  'address'=>'请填写公司注册地址','account_name'=>'请填写公司开户名称','company_property'=>'请选择公司企业性质',
@@ -243,6 +243,7 @@ class ProxysaleController extends BaseController{
 			//$data['settlement_time'] 	 = I('post.settlement_time','','trim');         //结算日期
 			$data['check_cycle']         = I('post.check_cycle',0,'intval');            //对账周期
 			$data['closed_circle']       = I('post.closed_circle',0,'intval');          //结算周期
+			$data['bill_days']           = I('post.bill_days',0,'intval');              //账期
 			$data['contract_stime']  	 = I('post.contract_stime','','trim');          //合同开始日期
 			$data['contract_etime']      = I('post.contract_etime','','trim');          //合同结束日期
 			$data['hotel_signer']        = I('post.hotel_signer','','trim');            //合同签约人
@@ -497,6 +498,7 @@ class ProxysaleController extends BaseController{
 			//$data['settlement_time'] 	 = I('post.settlement_time','','trim');         //结算日期
 			$data['check_cycle']         = I('post.check_cycle',0,'intval');            //对账周期
 			$data['closed_circle']       = I('post.closed_circle',0,'intval');          //结算周期
+			$data['bill_days']           = I('post.bill_days',0,'intval');              //账单期
 			$data['contract_stime']  	 = I('post.contract_stime','','trim');          //合同开始日期
 			$data['contract_etime']      = I('post.contract_etime','','trim');          //合同结束日期
 			$data['hotel_signer']        = I('post.hotel_signer','','trim');            //合同签约人

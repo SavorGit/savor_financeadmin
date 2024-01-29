@@ -4,7 +4,7 @@
   
 </style>-->
 <div class="pageHeader">
-  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/saleissue/accountage" method="post" >
+  <form onsubmit="return navTabSearch(this);" id="pagerForm" action="{$host_url}/datacenter/stock/stockagedetail" method="post" >
     <input type="hidden" name="pageNum" value="{$pageNum}"/>
     <input type="hidden" name="numPerPage" value="{$numPerPage}"/>
     <input type="hidden" name="_order" value="{$_order}"/>
@@ -12,14 +12,10 @@
     <div class="searchBar">
       <div class="clearfix">
         <div class="form-inline" style="margin-top:3px;">
+        
+        
         <div class="form-group">
-        	<!-- <div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$start_date}">
-          		<input style="margin-left: 6px;" name="start_date" type="text" size="16" class="form-control date" placeholder="入库开始日期" value="{$start_date}" readonly>
-                <span class="input-group-btn">
-                  <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
-                  <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
-                </span>
-       	 	</div> -->
+        	
 
         	<div class="input-group input-group-sm date form_date" data-ymd="true" data-date="{$end_date}" >
 
@@ -30,6 +26,42 @@
                 </span>
         	</div>
         </div>
+        <div class="form-group">
+          <div class="input-group input-group-sm">
+            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
+              城市：
+            </label>
+                <span class="input-group-btn">
+               <select name="area_id" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                 <option value=0 >全部</option>
+                 <volist name="city_arr" id="vo">
+					<option value="{$vo.id}" <if condition="$vo.id eq $area_id">selected</if>>{$vo.region_name}</option>
+				 </volist>
+				 
+               </select>
+          </div>
+         </div>
+         <div class="form-group">
+          <div class="input-group input-group-sm">
+            <label style="margin-left: 3px;" class="col-xs-1 col-sm-1 control-label">
+              仓库类型：
+            </label>
+                <span class="input-group-btn">
+               <select name="store_type" style="width: 20px" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                 <option value=0 >全部</option>
+                 <volist name="store_type_arr" id="vo">
+					<option value="{$vo.id}" <if condition="$vo.id eq $store_type">selected</if>>{$vo.name}</option>
+				 </volist>
+				 
+               </select>
+          </div>
+         </div>
+        <div class="form-group" style="margin-top:10px; margin-left:6px;">
+				<div class="input-group input-group-sm pull-right">
+				<input type="text" class="form-control" name="goods_name" value="{$goods_name}" placeholder="商品名称">
+				
+				</div>
+			</div>
         
         <div class="form-group" style="margin-top:10px; margin-left:6px;">
 				<div class="input-group input-group-sm pull-right">
@@ -48,7 +80,7 @@
             
             <div class="input-group input-group-sm pull-right" style="margin-top:10px; margin-left:8px;">
 				
-				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/saleissue/accountage?start_date={$start_date}&end_date={$end_date}" title="导出账龄分析表" target="_blank" mask="true"><i class="fa fa-plus"></i>导出账龄分析表</a>
+				<a id="exportheartlistlog" class="btn btn-success btn-sm add" href="{$host_url}/Dataexport/stock/stockagedetail?end_date={$end_date}?goods_id_str={$goods_id_str}&area_id={$area_id}" title="导出库龄明细表" target="_blank" mask="true"><i class="fa fa-plus"></i>导出库龄明细表</a>
           
 			</div>
 			
@@ -71,51 +103,38 @@
             </th> -->
             
             
+            <th>商品编码</th>
+            <th>商品名称</th>
+            <th>商品唯一码</th>
             <th>城市</th>
-            <th>仓库编号</th>
-            <th>仓库名称</th>
-            <th>业务员</th>
             
-            <th>账期</th>
-            <th>应收余额1-7天</th>
-            <th>应收余额8-15天</th>
-            <th>应收余额16-30天</th>
-            <th>应收余额31-60天</th>
-            <th>应收余额61-90天</th>
-            <th>应收余额91-180天</th>
-            <th>应收余额181天以上</th>
-            <th>逾期1-7天</th>
-            <th>逾期8-15天</th>
-            <th>逾期16-30天</th>
-            <th>逾期31-60天</th>
-            <th>逾期61-90天</th>
-            <th>逾期91-180天</th>
-            <th>逾期181天以上</th>
+            <th>仓库类型</th>
+            <th>仓库ID</th>
+            
+            <th>仓库名称</th>
+            <th>持续时长(天)</th>
           </tr>
           </thead>
           <tbody data-check="list" data-parent=".table">
-          	<volist name="list" id="vlist">
+          <volist name="list" id="vlist">
             <tr target="sid_user">
+              <td data-title="商品编码">{$vlist.goods_id}</td>
+              <td data-title="商品名称">{$vlist.goods_name}</td>
+              <td data-title="商品唯一码">{$vlist.idcode}</td>
               <td data-title="城市">{$vlist.area_name}</td>
-              <td data-title="仓库编号">{$vlist.hotel_id}</td>
-              <td data-title="仓库名称">{$vlist.hotel_name}</td>
-              <td data-title="业务员">{$vlist.business_man_id}</td>
-              <td data-title="账期">{$vlist.bill_days}</td>
-              <td data-title="应收余额1-7天">{$vlist.accountage_1_7}</td>
-              <td data-title="应收余额8-15天">{$vlist.accountage_8_15}</td>
-              <td data-title="应收余额16-30天">{$vlist.accountage_16_30}</td>
-              <td data-title="应收余额31-60天">{$vlist.accountage_31_60}</td>
-              <td data-title="应收余额61-90天">{$vlist.accountage_61_90}</td>
-              <td data-title="应收余额91-180天">{$vlist.accountage_91_180}</td>
-              <td data-title="应收余额181天以上">{$vlist.accountage_181}</td>
-              <td data-title="逾期1-7天">{$vlist.overdue_1_7}</td>
-              <td data-title="逾期8-15天">{$vlist.overdue_8_15}</td>
-              <td data-title="逾期16-30天">{$vlist.overdue_16_30}</td>
-              <td data-title="逾期31-60天">{$vlist.overdue_31_60}</td>
-              <td data-title="逾期61-90天">{$vlist.overdue_61_90}</td>
+              <td data-title="仓库类型">
+              <php>
+              	if($vlist['store_type']==1){
+              		echo '中转仓';
+              	}else {
+              		echo "前置仓";
+              	}
+              </php>
+              </td>
+              <td data-title="仓库ID">{$vlist.store_id}</td>
+              <td data-title="仓库名称">{$vlist.store_name}</td>
+              <td data-title="持续时长">{$vlist.duration}</td>
               
-              <td data-title="逾期91-180天">{$vlist.overdue_91_180}</td>
-              <td data-title="逾期181天以上">{$vlist.overdue_181}</td>
               
             </tr>
           </volist>
