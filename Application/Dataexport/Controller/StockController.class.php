@@ -843,6 +843,7 @@ class StockController extends BaseController {
         $end_date   = I('end_date','');
         $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d',strtotime('-1 day'));
         $goods_id_str = I('goods_id_str','');
+        $store_type  = I('store_type',0,'intval');
         
         $area_id = I('area_id',0,'intval');
         $where = [];
@@ -851,6 +852,9 @@ class StockController extends BaseController {
         }
         if(!empty($goods_id_str)){
             $where['goods_id'] = array('in',$goods_id_str);
+        }
+        if(!empty($store_type)){
+            $where['store_type'] = $store_type;
         }
         
         $where['static_date']  = $end_date ;
