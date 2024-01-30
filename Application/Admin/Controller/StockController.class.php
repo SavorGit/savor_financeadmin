@@ -1872,7 +1872,8 @@ class StockController extends BaseController {
                         }else{
                             $dstatus_str = '正常';
                         }
-                        $res_list[0]['idcode'] = $res_list[0]['idcode'].'(箱码)';
+                        $res_list[0]['idcode'] = $res_list[0]['idcode'];
+                        $res_list[0]['unit_str'] = '(箱码)';
                         $res_list[0]['dstatus_str']= $dstatus_str;
                         $data_list = $res_list;
                     }
@@ -1893,6 +1894,7 @@ class StockController extends BaseController {
                             $dstatus_str = '正常';
                         }
                         $info['dstatus_str']= $dstatus_str;
+                        $info['unit_str']= '';
                         $info['type_str']= $type_str;
                         $data_list[] = $info;
                     }else{
