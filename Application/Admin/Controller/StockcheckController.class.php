@@ -43,7 +43,7 @@ class StockcheckController extends BaseController {
             $m_hotel_stock = new \Admin\Model\HotelStockModel();
             $hotel_ids = array();
             $hotel_salerecords = array();
-            foreach ($res_list as $v){
+            foreach ($res_list['list'] as $v){
                 $hotel_id = $v['hotel_id'];
 
                 $hotel_ids[]=$hotel_id;
