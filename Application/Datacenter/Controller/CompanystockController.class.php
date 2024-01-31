@@ -8,11 +8,9 @@ class CompanystockController extends BaseController {
         $pageNum = I('pageNum',1,'intval');//当前页码
         $area_id = I('area_id',0,'intval');
         $category_id = I('category_id',0,'intval');
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
 
-        $where = array('goods.brand_id'=>array('neq',11));
-        if($category_id){
-            $where['goods.category_id'] = $category_id;
-        }
         $area_arr = $category_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
@@ -23,70 +21,35 @@ class CompanystockController extends BaseController {
         }
         $m_category = new \Admin\Model\CategoryModel();
         $res_category = $m_category->getAll('id,name',array('status'=>1),0,1000,'id asc');
+        $category_arr = array();
         foreach ($res_category as $v){
             $category_arr[$v['id']]=$v;
         }
-        $start = ($pageNum-1)*$size;
-        $fields = 'goods.id as goods_id,goods.barcode,goods.name,cate.name as category';
-        $m_goods = new \Admin\Model\GoodsModel();
-        $res_list = $m_goods->getList($fields,$where, 'goods.id desc', $start,$size);
-        $data_list = array();
-        if(!empty($res_list['list'])){
-            $m_stock_record = new \Admin\Model\StockRecordModel();
-            $m_avg_price = new \Admin\Model\GoodsAvgpriceModel();
-            foreach ($res_list['list'] as $v){
-                $goods_id = $v['goods_id'];
-                $res_price = $m_avg_price->getAll('price',array('goods_id'=>$goods_id),0,1,'id desc');
-                $avg_price = $res_price[0]['price'];
-
-                $fields = 'sum(a.total_amount) as total_amount,a.type';
-                $swhere = array('a.goods_id'=>$goods_id,'a.type'=>array('in',array(1,2)),'a.dstatus'=>1);
-                if($area_id){
-                    $all_areas = array(array('id'=>$area_id));
-                }else{
-                    $all_areas = $area_arr;
-                }
-                foreach ($all_areas as $av){
-                    $in_num = $out_num = 0;
-                    $in_total_fee = $out_total_fee = $price = 0;
-                    $now_area_id = $av['id'];
-                    $swhere['stock.area_id'] = $now_area_id;
-                    $res_goods_record = $m_stock_record->getAllStock($fields,$swhere,'a.id desc','a.type');
-                    foreach ($res_goods_record as $rv){
-                        switch ($rv['type']){
-                            case 1:
-                                $in_num = abs($rv['total_amount']);
-                                $in_total_fee = $in_num*$avg_price;
-                                break;
-                            case 2:
-                                $out_num = abs($rv['total_amount']);
-                                $out_total_fee = $out_num*$avg_price;
-                                break;
-                        }
-                    }
-                    $surplus_num = $surplus_total_fee = 0;
-                    if($in_num-$out_num>0){
-                        $surplus_num = $in_num-$out_num;
-                        $surplus_total_fee = $surplus_num*$avg_price;
-                    }
-                    $v['avg_price'] = $avg_price;
-                    $v['in_num'] = $in_num;
-                    $v['in_total_fee'] = $in_total_fee;
-                    $v['out_num'] = $out_num;
-                    $v['out_total_fee'] = $out_total_fee;
-                    $v['surplus_num'] = $surplus_num;
-                    $v['surplus_total_fee'] = $surplus_total_fee;
-                    $v['area_id'] = $now_area_id;
-                    $v['area_name'] = $area_arr[$now_area_id]['region_name'];
-                    $data_list[] = $v;
-                }
-            }
+        $where = array();
+        if($area_id){
+            $where['area_id'] = $area_id;
         }
+        if($category_id){
+            $where['category_id'] = $category_id;
+        }
+        if(empty($start_time) || empty($end_time)){
+            $start_time = date('Y-m-d',strtotime("-1 month"));
+            $end_time = date('Y-m-d');
+        }
+        $start_time = $start_time>'2024-01-30'?$start_time:'2024-01-30';
+        $where['static_date']= array(array('EGT',$start_time),array('ELT',$end_time));
+
+        $start  = ($pageNum-1) * $size;
+        $m_companystock_archivedata = new \Admin\Model\CompanyStockArchivedataModel();
+        $res_list = $m_companystock_archivedata->getDataList('*',$where, 'id desc', $start,$size);
+        $data_list = $res_list['list'];
 
         $this->assign('area_id', $area_id);
         $this->assign('category_id', $category_id);
         $this->assign('area', $area_arr);
         $this->assign('category', $category_arr);
+        $this->assign('start_time', $start_time);
+        $this->assign('end_time', $end_time);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
