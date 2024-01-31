@@ -1318,8 +1318,13 @@ class StockController extends BaseController {
         if(!empty($start_time) && !empty($end_time)){
             $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
             $now_end_time = date('Y-m-d 23:59:59',strtotime($end_time));
-            $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+        }else{
+            $start_time = date('Y-m-d',strtotime("-1 month"));
+            $end_time = date('Y-m-d');
+            $now_start_time = "$start_time 00:00:00";
+            $now_end_time = "$end_time 00:00:00";
         }
+        $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
         if($push_u8_status13<99){
             $where['sale.push_u8_status13'] = $push_u8_status13;
         }
