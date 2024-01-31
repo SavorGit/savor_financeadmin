@@ -17,6 +17,7 @@ class StockcheckController extends BaseController {
         }
 
         $where = array('stock.hotel_id'=>array('gt',0),'stock.type'=>20);
+        $where['hotel.id'] = array('not in',C('TEST_HOTEL'));
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
         }
@@ -30,67 +31,84 @@ class StockcheckController extends BaseController {
             $now_stat_date = date('Y-m',strtotime($stat_date));
         }
         $start = ($pageNum-1)*$size;
-        $fileds = 'a.goods_id,stock.area_id,goods.name,goods.barcode,cate.name as cate_name,spec.name as sepc_name,a.unit_id,unit.name as unit_name,hotel.id as hotel_id,hotel.name as hotel_name';
+        $fileds = 'a.goods_id,stock.area_id,goods.name,goods.barcode,cate.name as cate_name,spec.name as sepc_name,a.unit_id,
+        unit.name as unit_name,hotel.id as hotel_id,hotel.name as hotel_name,sur.remark as residenter_name';
         $group = 'stock.hotel_id,a.goods_id';
         $m_stock_detail = new \Admin\Model\StockDetailModel();
         $res_list = $m_stock_detail->getHotelStockGoods($fileds,$where,$group,$start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
-            $m_stock_record = new \Admin\Model\StockRecordModel();
             $m_sale_record = new \Admin\Model\SaleRecordModel();
             $m_check_record = new \Admin\Model\StockCheckRecordModel();
-            foreach ($res_list['list'] as $v){
-                $out_num = $unpack_num = $wo_num = $report_num = 0;
-                $goods_id = $v['goods_id'];
-                $rfileds = 'sum(a.total_amount) as total_amount,sum(a.total_fee) as total_fee,a.type';
-                $rwhere = array('stock.hotel_id'=>$v['hotel_id'],'a.goods_id'=>$goods_id,'a.dstatus'=>1);
-                $rwhere['a.type'] = 2;
-                $res_record = $m_stock_record->getStockRecordList($rfileds,$rwhere,'','','');
-                if(!empty($res_record[0]['total_amount'])){
-                    $out_num = abs($res_record[0]['total_amount']);
-                }
-                $rwhere['a.type']=7;
-                $rwhere['a.wo_status']= array('in',array(1,2,4));
-                $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
-                if(!empty($res_worecord[0]['total_amount'])){
-                    $wo_num = $res_worecord[0]['total_amount'];
-                }
-                $rwhere['a.type']=6;
-                unset($rwhere['a.wo_status']);
-                $rwhere['a.status']= array('in',array(1,2));
-                $res_worecord = $m_stock_record->getStockRecordList($rfileds,$rwhere,'a.id desc','','');
-                if(!empty($res_worecord[0]['total_amount'])){
-                    $report_num = $res_worecord[0]['total_amount'];
-                }
-                $stock_num = $out_num+$wo_num+$report_num;
+            $m_hotel_stock = new \Admin\Model\HotelStockModel();
+            $hotel_ids = array();
+            $hotel_salerecords = array();
+            foreach ($res_list as $v){
+                $hotel_id = $v['hotel_id'];
 
-                $sale_fields = 'record.id,record.add_time,record.stock_check_status,staff.id as staff_id,staff.job,sysuser.remark as staff_name';
-                $salewhere = array('record.signin_hotel_id'=>$v['hotel_id'],'record.type'=>2);
-                $salewhere["date_format(record.add_time,'%Y-%m')"] = $now_stat_date;
-                $res_sale = $m_sale_record->getRecordList($sale_fields,$salewhere,'record.id desc','0,1');
-                $check_num=$diff_check_num=0;
+                $hotel_ids[]=$hotel_id;
+                $salerecord_id = 0;
                 $check_uname=$check_time='';
-                if(!empty($res_sale) && $res_sale[0]['stock_check_status']==2){
-                    $check_uname = $res_sale[0]['staff_name'];
-                    $check_time = $res_sale[0]['add_time'];
-                    $res_check = $m_check_record->getAllData('count(id) as num,is_check',array('salerecord_id'=>$res_sale[0]['id'],'goods_id'=>$goods_id,'type'=>1),'','is_check');
-                    if(!empty($res_check)){
-                        foreach ($res_check as $cv){
-                            $check_num+=$cv['num'];
-                            if($cv['is_check']==0){
-                                $diff_check_num=$cv['num'];
-                            }
+                if(isset($hotel_salerecords[$hotel_id])){
+                    $salerecord_id = $hotel_salerecords[$hotel_id]['id'];
+                    $check_uname = $hotel_salerecords[$hotel_id]['name'];
+                    $check_time = $hotel_salerecords[$hotel_id]['time'];
+                }else{
+                    $sale_fields = 'record.id,record.add_time,record.stock_check_status,staff.id as staff_id,staff.job,sysuser.remark as staff_name';
+                    $salewhere = array('record.signin_hotel_id'=>$v['hotel_id'],'record.type'=>2);
+                    $salewhere["date_format(record.add_time,'%Y-%m')"] = $now_stat_date;
+                    $res_salerecord = $m_sale_record->getRecordList($sale_fields,$salewhere,'record.id desc','0,1');
+                    if(!empty($res_salerecord) && $res_salerecord[0]['stock_check_status']==2){
+                        $salerecord_id = $res_salerecord[0]['id'];
+                        $check_uname = $res_salerecord[0]['staff_name'];
+                        $check_time = $res_salerecord[0]['add_time'];
+                        $hotel_salerecords[$hotel_id] = array('id'=>$salerecord_id,'name'=>$check_uname,'time'=>$check_time);
+                    }
+                }
+
+                $v['check_uname'] = $check_uname;
+                $v['check_time'] = $check_time;
+                $v['salerecord_id'] = $salerecord_id;
+                $v['area_name'] = $area_arr[$v['area_id']]['region_name'];
+                $data_list[] = $v;
+            }
+            $res_hotel_stock = $m_hotel_stock->getDataList('hotel_id,goods_id,num',array('hotel_id'=>array('in',$hotel_ids)),'id desc');
+            $hotel_stocks = array();
+            foreach ($res_hotel_stock as $v){
+                $hotel_stocks[$v['hotel_id'].$v['goods_id']]=$v['num'];
+            }
+            $check_stocks = array();
+            if(!empty($hotel_salerecords)){
+                $salerecord_ids = array();
+                foreach ($hotel_salerecords as $hsr){
+                    $salerecord_ids[]=$hsr['id'];
+                }
+                $checkfields = 'salerecord_id,goods_id,count(id) as num,is_check';
+                $res_check = $m_check_record->getAllData($checkfields,array('salerecord_id'=>array('in',$salerecord_ids),'type'=>1),'','salerecord_id,goods_id,is_check');
+                if(!empty($res_check)){
+                    foreach ($res_check as $v){
+                        $check_stocks[$v['salerecord_id'].$v['goods_id']][]=array('num'=>$v['num'],'is_check'=>$v['is_check']);
+                    }
+                }
+            }
+
+            foreach ($data_list as $k=>$v){
+                $stock_num = isset($hotel_stocks[$v['hotel_id'].$v['goods_id']])?$hotel_stocks[$v['hotel_id'].$v['goods_id']]:0;
+                $check_stock_num=$diff_check_num=0;
+                if(isset($check_stocks[$v['salerecord_id'].$v['goods_id']])){
+                    foreach ($check_stocks[$v['salerecord_id'].$v['goods_id']] as $ctv){
+                        $check_stock_num+=$ctv['num'];
+                        if($ctv['is_check']==0){
+                            $diff_check_num+=$ctv['num'];
                         }
                     }
                 }
-                $v['stock_num'] = $stock_num;
-                $v['area_name'] = $area_arr[$v['area_id']]['region_name'];
-                $v['check_num'] = $check_num;
-                $v['check_had_num'] = $check_num-$diff_check_num;
-                $v['diff_check_num'] = $diff_check_num;
-                $v['check_uname'] = $check_uname;
-                $v['check_time'] = $check_time;
-                $data_list[] = $v;
+                $check_had_num = $check_stock_num-$diff_check_num;
+
+                $data_list[$k]['stock_num'] = $stock_num;
+                $data_list[$k]['check_stock_num'] = $check_stock_num;
+                $data_list[$k]['check_had_num'] = $check_had_num;
+                $data_list[$k]['diff_check_num'] = $diff_check_num;
             }
         }
 
