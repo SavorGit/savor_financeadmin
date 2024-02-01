@@ -1046,6 +1046,7 @@ class StockController extends BaseController {
         $pageNum = I('pageNum',1,'intval');//当前页码
         $area_id = I('area_id',0,'intval');
         $hotel_name = I('hotel_name','','trim');
+        $goods_name = I('goods_name','','trim');
 
         $area_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
@@ -1066,6 +1067,9 @@ class StockController extends BaseController {
         }
         if($area_id){
             $where['stock.area_id'] = $area_id;
+        }
+        if(!empty($goods_name)){
+            $where['goods.name'] = array('like',"%$goods_name%");
         }
 
         $start = ($pageNum-1)*$size;
@@ -1129,6 +1133,7 @@ class StockController extends BaseController {
         $this->assign('area',$area_arr);
         $this->assign('area_id',$area_id);
         $this->assign('hotel_name',$hotel_name);
+        $this->assign('goods_name',$goods_name);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -1278,6 +1283,7 @@ class StockController extends BaseController {
         $push_u8_status13 = I('push_u8_status13',99,'intval');
         $idcode = I('idcode','','trim');
         $hotel_name = I('hotel_name','','trim');
+        $goods_name = I('goods_name','','trim');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
 
@@ -1314,6 +1320,9 @@ class StockController extends BaseController {
         }
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
+        }
+        if(!empty($goods_name)){
+            $where['goods.name'] = array('like',"%$goods_name%");
         }
         if(!empty($start_time) && !empty($end_time)){
             $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
@@ -1411,6 +1420,7 @@ class StockController extends BaseController {
         $this->assign('end_time',$end_time);
         $this->assign('idcode',$idcode);
         $this->assign('hotel_name',$hotel_name);
+        $this->assign('goods_name',$goods_name);
         $this->assign('wo_reason_type',$wo_reason_type);
         $this->assign('wo_status',$wo_status);
         $this->assign('recycle_status',$recycle_status);
