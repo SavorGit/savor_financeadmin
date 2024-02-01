@@ -26,67 +26,61 @@ class InventorypurchaseController extends BaseController {
         
     }
     public function index(){
-        $ajaxversion   = I('ajaxversion',0,'intval');//1 版本升级酒店列表
+        $page = I('pageNum',1);
         $size   = I('numPerPage',50);//显示每页记录数
-        $this->assign('numPerPage',$size);
-        $start = I('pageNum',1);
-        $this->assign('pageNum',$start);
         $order = I('_order','a.id');
-        
-        $this->assign('_order',$order);
         $sort = I('_sort','desc');
-        $this->assign('_sort',$sort);
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
+
         $orders = $order.' '.$sort;
-        $start  = ( $start-1 ) * $size;
+        $start  = ($page-1 ) * $size;
         $where  = [];
-        
         $department_id = I('department_id',0,'intval');
         if($department_id){
             $where['a.department_id'] = $department_id;
-            $this->assign('department_id',$department_id);
         }
         $supplier_id  = I('supplier_id',0,'intval');
         if($supplier_id){
             $where['a.supplier_id'] = $supplier_id;
-            $this->assign('supplier_id',$supplier_id);
         }
         $name = I('name','','trim');
         if(!empty($name)){
             $where['a.name'] = array("like","%".$name."%");
-            $this->assign('name',$name);
         }
-        
+        if(!empty($start_time) && !empty($end_time)){
+            $where['a.purchase_date'] = array(array('egt',$start_time),array('elt',$end_time));
+        }
+
+        $department_arr = $this->getDepartmentTree(2);
+        //供应商
+        $m_supplier   = new \Admin\Model\SupplierModel();
+        $supplier_arr = $m_supplier->where(array('status'=>1))->select();
+
         $m_puchase = new \Admin\Model\PurchaseModel();
         $fileds = "a.id,a.serial_number,a.name,d.name department_name,a.purchase_date,a.amount,a.total_fee,s.name supplier_name,
                    case a.status
 				   when 1 then '进行中'
 				   when 2 then '已完成' END AS status";
-        
         $result = $m_puchase->getList($fileds,$where, $orders, $start,$size);
-        
-        
-        
-        //获取采购组织
-        /* $m_department = new \Admin\Model\DepartmentModel();
-        $where = [];
-        $where['status'] = 1;
-        $department_arr = $m_department->where($where)->select(); */
-        $department_arr = $this->getDepartmentTree(2);
-        
-        //供应商
-        $m_supplier   = new \Admin\Model\SupplierModel();
-        $where = [];
-        $where['status'] = 1;
-        $supplier_arr = $m_supplier->where($where)->select();
         
         $this->assign('list',$result['list']);
         $this->assign('page',$result['page']);
         $this->assign('department_arr',$department_arr);
-        $this->assign('supplier_arr',  $supplier_arr);
+        $this->assign('supplier_arr',$supplier_arr);
+        $this->assign('name',$name);
+        $this->assign('supplier_id',$supplier_id);
+        $this->assign('department_id',$department_id);
+        $this->assign('start_time',$start_time);
+        $this->assign('end_time',$end_time);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$page);
+        $this->assign('_order',$order);
+        $this->assign('_sort',$sort);
         $this->display();
     }
+
     public function add(){
-        
         //采购合同
         //pcontract_arr
         $m_contract =  new \Admin\Model\ContractModel();
