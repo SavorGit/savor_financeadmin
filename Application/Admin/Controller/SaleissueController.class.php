@@ -444,6 +444,7 @@ class SaleissueController extends BaseController {
             }
             if(!empty($settlement_price)){
                 $data['settlement_price'] = $settlement_price;
+                $data['goods_settlement_price'] = $settlement_price;
             }
 
             $data['guest_openid']      = $guest_openid;                         //客人openid
