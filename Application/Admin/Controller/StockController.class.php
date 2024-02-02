@@ -97,7 +97,7 @@ class StockController extends BaseController {
                     $now_amount = intval($res_stock_record['total_amount']);
                 }
                 if(!empty($res_stock_record['total_fee'])){
-                    $now_total_fee = intval($res_stock_record['total_fee']);
+                    $now_total_fee = $res_stock_record['total_fee'];
                 }
                 $u8_start = 0;
                 if($v['io_date']>=$u8_start_date && $v['io_type']==11){
@@ -140,7 +140,7 @@ class StockController extends BaseController {
             $department_user_id = I('post.department_user_id',0,'intval');
             $purchase_id = I('post.purchase_id',0,'intval');
             $area_id = I('post.area_id',0,'intval');
-            $total_money = I('post.total_money',0,'intval');
+            $total_money = I('post.total_money',0);
 
             if($io_type==11){
                 if($purchase_id==0){
