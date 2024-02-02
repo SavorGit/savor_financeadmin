@@ -470,37 +470,35 @@ class InventorypurchaseController extends BaseController {
             $unit_info = $m_unit->field('convert_type')->where(array('id'=>$unit_id))->find();
             $total_amount = intval($unit_info['convert_type'] * $amount);  //总瓶数
             $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
-            if($id){
-                $sdwhere = array('purchase_detail_id'=>$id,'status'=>1);
-                $m_stock_detail = new \Admin\Model\StockDetailModel();
-                $ret_instock = $m_stock_detail->field('id')->where($sdwhere)->find();
+            $sdwhere = array('purchase_detail_id'=>$id,'status'=>1);
+            $m_stock_detail = new \Admin\Model\StockDetailModel();
+            $ret_instock = $m_stock_detail->field('id')->where($sdwhere)->find();
 
-                $detail_info = $m_purchase_detail->field('goods_id,unit_id,price')->where(array('id'=>$id))->find();
-                if($unit_id != $detail_info['unit_id'] || $goods_id!=$detail_info['goods_id']){
+            $detail_info = $m_purchase_detail->field('goods_id,unit_id,price')->where(array('id'=>$id))->find();
+            if($unit_id != $detail_info['unit_id'] || $goods_id!=$detail_info['goods_id']){
+                if(!empty($ret_instock)){
+                    $this->error('已有入库信息不可修改');
+                }
+            }
+            if($price!=$detail_info['price']){
+                $userinfo = session('sysUserInfo');
+                $sysuser_id = $userinfo['id'];
+                $is_in_changeprice = in_array($sysuser_id,$this->clean_writeoff_uid)?1:0;
+                if($is_in_changeprice==0){
                     if(!empty($ret_instock)){
-                        $this->error('已有入库信息不可修改');
+                        $this->error('已有入库信息不可修改，如需修改请发审批！');
                     }
                 }
-                if($price!=$detail_info['price']){
-                    $userinfo = session('sysUserInfo');
-                    $sysuser_id = $userinfo['id'];
-                    $is_in_changeprice = in_array($sysuser_id,$this->clean_writeoff_uid)?1:0;
-                    if($is_in_changeprice==0){
-                        if(!empty($ret_instock)){
-                            $this->error('已有入库信息不可修改，如需修改请发审批！');
-                        }
-                    }
-                    $m_changeprice = new \Admin\Model\ChangepriceRecordModel();
-                    $cwhere = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id);
-                    $cwhere["DATE_FORMAT(add_time,'%Y-%m-%d')"] = date('Y-m-d');
-                    $res_data = $m_changeprice->getInfo($cwhere);
-                    $cdata = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id,
-                        'price'=>$price,'old_price'=>$detail_info['price'],'sysuser_id'=>$userinfo['id']);
-                    if(empty($res_data)){
-                        $m_changeprice->add($cdata);
-                    }else{
-                        $m_changeprice->updateData(array('id'=>$res_data['id']),$cdata);
-                    }
+                $m_changeprice = new \Admin\Model\ChangepriceRecordModel();
+                $cwhere = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id);
+                $cwhere["DATE_FORMAT(add_time,'%Y-%m-%d')"] = date('Y-m-d');
+                $res_data = $m_changeprice->getInfo($cwhere);
+                $cdata = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id,
+                    'price'=>$price,'old_price'=>$detail_info['price'],'sysuser_id'=>$userinfo['id']);
+                if(empty($res_data)){
+                    $m_changeprice->add($cdata);
+                }else{
+                    $m_changeprice->updateData(array('id'=>$res_data['id']),$cdata);
                 }
             }
 
