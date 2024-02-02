@@ -349,7 +349,7 @@ class U8cloudController extends Controller {
             $pk_prepared = $this->voucher_params['pk_prepared'];
         }
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = 'a.id,a.idcode,a.residenter_id,a.goods_settlement_price,a.settlement_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
+        $fileds = 'a.id,a.idcode,a.residenter_id,a.goods_settlement_price,a.settlement_price,a.now_avg_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
         hotel.id as hotel_id,hotel.name as hotel_name,hotel.short_name,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
         $res_sale = $m_sale->getSaleDatas($fileds,array('a.id'=>$sale_id));
         if(empty($res_sale[0]['residenter_id'])){
@@ -402,40 +402,9 @@ class U8cloudController extends Controller {
         $rate_money = round($total_fee/$this->voucher_params['rate'],2);
         $now_money = $total_fee-$rate_money;
         $pk_currtype = $this->voucher_params['pk_currtype'];
-        $avg_rate_money = 0;
-        if($res_sale[0]['avg_price']>0){
-            $avg_price = $res_sale[0]['avg_price'];
-            $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
-        }else{
-            $m_stock_record = new \Admin\Model\StockRecordModel();
-            if(!empty($res_sale[0]['pidcode'])){
-                $rwhere = array('idcode'=>$res_sale[0]['pidcode']);
-                $rwhere['avg_price'] = array('gt',0);
-            }else{
-                $rwhere = array('idcode'=>$res_sale[0]['idcode']);
-                $rwhere['avg_price'] = array('gt',0);
-            }
-            $res_record = $m_stock_record->getAll('avg_price',$rwhere,0,1,'id desc');
-            if($res_record[0]['avg_price']>0){
-                $avg_price = $res_record[0]['avg_price'];
-            }else{
-                $qrcontent = decrypt_data($res_sale[0]['idcode']);
-                $qr_id = intval($qrcontent);
-                $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
-                $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
-                $parent_id = $res_qrcontent['parent_id'];
-                $avg_price = 0;
-                if($parent_id>0){
-                    $parent_idcode = encrypt_data($parent_id);
-                    $srwhere = array('idcode'=>$parent_idcode,'avg_price'=>array('gt',0));
-                    $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
-                    if($res_recordinfo[0]['avg_price']>0){
-                        $avg_price = $res_recordinfo[0]['avg_price'];
-                    }
-                }
-            }
-            $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
-        }
+        $avg_price = $res_sale[0]['now_avg_price'];
+
+        $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         if($avg_rate_money==0){
             $this->output('移动平均价为0','stock/writeofflist',2,0);
         }
@@ -493,30 +462,29 @@ class U8cloudController extends Controller {
             $this->output('请使用用友账号进行同步','saleissue/index',2,0);
         }
         $pk_prepared = $userinfo['telephone'];
-        /*
-        $sale_id = I('get.sale_id',0,'intval');
-        if($sale_id==0){
-            $content = file_get_contents('php://input');
-            $orders = array();
-            if(!empty($content)) {
-                $res = json_decode($content, true);
-                if (!empty($res['Message'])) {
-                    $message = base64_decode($res['Message']);
-                    $orders = json_decode($message,true);
-                }
-            }
-            $sale_id = intval($orders[0]['order_id']);
-        }
-        if(empty($sale_id)){
-            $this->output('销售出库单ID错误','saleissue/index',2,0);
-        }
-        $userinfo = session('sysUserInfo');
-        if(!empty($userinfo['telephone'])){
-            $pk_prepared = $userinfo['telephone'];
-        }else{
-            $pk_prepared = $this->voucher_params['pk_prepared'];
-        }
-        */
+
+//        $sale_id = I('get.sale_id',0,'intval');
+//        if($sale_id==0){
+//            $content = file_get_contents('php://input');
+//            $orders = array();
+//            if(!empty($content)) {
+//                $res = json_decode($content, true);
+//                if (!empty($res['Message'])) {
+//                    $message = base64_decode($res['Message']);
+//                    $orders = json_decode($message,true);
+//                }
+//            }
+//            $sale_id = intval($orders[0]['order_id']);
+//        }
+//        if(empty($sale_id)){
+//            $this->output('销售出库单ID错误','saleissue/index',2,0);
+//        }
+//        $userinfo = session('sysUserInfo');
+//        if(!empty($userinfo['telephone'])){
+//            $pk_prepared = $userinfo['telephone'];
+//        }else{
+//            $pk_prepared = $this->voucher_params['pk_prepared'];
+//        }
 
         $m_sale = new \Admin\Model\SaleModel();
         $fileds = 'a.id,a.idcode,a.residenter_id,a.ptype,a.settlement_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
@@ -627,7 +595,7 @@ class U8cloudController extends Controller {
             $pk_prepared = $this->voucher_params['pk_prepared'];
         }
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = 'a.id,a.idcode,a.residenter_id,a.goods_settlement_price,a.settlement_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
+        $fileds = 'a.id,a.idcode,a.residenter_id,a.goods_settlement_price,a.settlement_price,a.now_avg_price,a.add_time,record.avg_price,record.pidcode,record.id as stock_record_id,
         hotel.id as hotel_id,hotel.name as hotel_name,hotel.short_name,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
         $res_sale = $m_sale->getSaleDatas($fileds,array('a.id'=>$sale_id));
         if(empty($res_sale[0]['residenter_id'])){
@@ -680,40 +648,8 @@ class U8cloudController extends Controller {
         $rate_money = round($total_fee/$this->voucher_params['rate'],2);
         $now_money = $total_fee-$rate_money;
         $pk_currtype = $this->voucher_params['pk_currtype'];
-        $avg_rate_money = 0;
-        if($res_sale[0]['avg_price']>0){
-            $avg_price = $res_sale[0]['avg_price'];
-            $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
-        }else{
-            $m_stock_record = new \Admin\Model\StockRecordModel();
-            if(!empty($res_sale[0]['pidcode'])){
-                $rwhere = array('idcode'=>$res_sale[0]['pidcode']);
-                $rwhere['avg_price'] = array('gt',0);
-            }else{
-                $rwhere = array('idcode'=>$res_sale[0]['idcode']);
-                $rwhere['avg_price'] = array('gt',0);
-            }
-            $res_record = $m_stock_record->getAll('avg_price',$rwhere,0,1,'id desc');
-            if($res_record[0]['avg_price']>0){
-                $avg_price = $res_record[0]['avg_price'];
-            }else{
-                $qrcontent = decrypt_data($res_sale[0]['idcode']);
-                $qr_id = intval($qrcontent);
-                $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
-                $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
-                $parent_id = $res_qrcontent['parent_id'];
-                $avg_price = 0;
-                if($parent_id>0){
-                    $parent_idcode = encrypt_data($parent_id);
-                    $srwhere = array('idcode'=>$parent_idcode,'avg_price'=>array('gt',0));
-                    $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
-                    if($res_recordinfo[0]['avg_price']>0){
-                        $avg_price = $res_recordinfo[0]['avg_price'];
-                    }
-                }
-            }
-            $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
-        }
+        $avg_price = $res_sale[0]['now_avg_price'];
+        $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         if($avg_rate_money==0){
             $this->output('移动平均价为0','stock/writeofflist',2,0);
         }
@@ -771,33 +707,32 @@ class U8cloudController extends Controller {
             $this->output('请使用用友账号进行同步','saleissue/index',2,0);
         }
         $pk_prepared = $userinfo['telephone'];
-        /*
-        $sale_id = I('get.sale_id',0,'intval');
-        if($sale_id==0){
-            $content = file_get_contents('php://input');
-            $orders = array();
-            if(!empty($content)) {
-                $res = json_decode($content, true);
-                if (!empty($res['Message'])) {
-                    $message = base64_decode($res['Message']);
-                    $orders = json_decode($message,true);
-                }
-            }
-            $sale_id = intval($orders[0]['order_id']);
-        }
-        if(empty($sale_id)){
-            $this->output('销售出库单ID错误','saleissue/index',2,0);
-        }
-        $userinfo = session('sysUserInfo');
-        if(!empty($userinfo['telephone'])){
-            $pk_prepared = $userinfo['telephone'];
-        }else{
-            $pk_prepared = $this->voucher_params['pk_prepared'];
-        }
-        */
+
+//        $sale_id = I('get.sale_id',0,'intval');
+//        if($sale_id==0){
+//            $content = file_get_contents('php://input');
+//            $orders = array();
+//            if(!empty($content)) {
+//                $res = json_decode($content, true);
+//                if (!empty($res['Message'])) {
+//                    $message = base64_decode($res['Message']);
+//                    $orders = json_decode($message,true);
+//                }
+//            }
+//            $sale_id = intval($orders[0]['order_id']);
+//        }
+//        if(empty($sale_id)){
+//            $this->output('销售出库单ID错误','saleissue/index',2,0);
+//        }
+//        $userinfo = session('sysUserInfo');
+//        if(!empty($userinfo['telephone'])){
+//            $pk_prepared = $userinfo['telephone'];
+//        }else{
+//            $pk_prepared = $this->voucher_params['pk_prepared'];
+//        }
 
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = 'a.id,a.idcode,a.num,a.maintainer_id,a.settlement_price,a.ptype,a.add_time,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
+        $fileds = 'a.id,a.idcode,a.num,a.maintainer_id,a.settlement_price,a.now_avg_price,a.ptype,a.add_time,goods.name as goods_name,goods.u8_pk_accsubj,area.region_name as area_name';
         $res_sale = $m_sale->getGroupbySaleDatas($fileds,array('a.id'=>$sale_id));
         if(empty($res_sale[0]['maintainer_id'])){
             $this->output('发起核销时,无酒楼驻店人','saleissue/index',2,0);
@@ -828,28 +763,9 @@ class U8cloudController extends Controller {
         $rate_money = round($total_fee/$this->voucher_params['rate'],2);
         $now_money = $total_fee-$rate_money;
         $pk_currtype = $this->voucher_params['pk_currtype'];
-        $all_idcodes_arr = explode("\n",$res_sale[0]['idcode']);
-        $m_stock_record = new \Admin\Model\StockRecordModel();
-        $srwhere = array('idcode'=>$all_idcodes_arr[0],'avg_price'=>array('gt',0));
-        $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
-        $avg_rate_money = 0;
-        if(!empty($res_recordinfo[0]['avg_price'])){
-            $avg_price = $res_recordinfo[0]['avg_price'];
-            $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
-        }else{
-            $qrcontent = decrypt_data($all_idcodes_arr[0]);
-            $qr_id = intval($qrcontent);
-            $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
-            $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
-            $parent_id = $res_qrcontent['parent_id'];
-            $parent_idcode = encrypt_data($parent_id);
-            $srwhere = array('idcode'=>$parent_idcode,'avg_price'=>array('gt',0));
-            $res_recordinfo = $m_stock_record->getAll('id,avg_price',$srwhere,0,1,'id desc');
-            if(!empty($res_recordinfo[0]['avg_price'])){
-                $avg_price = $res_recordinfo[0]['avg_price'];
-                $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
-            }
-        }
+
+        $avg_price = $res_sale[0]['now_avg_price'];
+        $avg_rate_money = round($avg_price/$this->voucher_params['rate'],2);
         $avg_rate_money = $avg_rate_money*$res_sale[0]['num'];
         if($avg_rate_money==0){
             $this->output('移动平均价为0','saleissue/index',2,0);
