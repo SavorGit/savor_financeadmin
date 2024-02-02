@@ -9,6 +9,7 @@ class InventorypurchaseController extends BaseController {
         'supplier_id'=>'请选择供应商','purchase_date'=>"请选择采购日期"
         
     );*/
+    public $clean_writeoff_uid = array(361);//364 yingtao
     private $required_arr = array(
         'name'=>'请填写合同名称','department_id'=>'请选择采购组织',
         'department_user_id'=>'请选择采购人','supplier_id'=>'请选择供应商','purchase_date'=>"请选择采购日期"
@@ -21,9 +22,9 @@ class InventorypurchaseController extends BaseController {
     );
     private $session_key = 'inventorypurchase_id_';
     private $serial_number_prefix = 'TPCG';
+
     public function __construct() {
         parent::__construct();
-        
     }
     public function index(){
         $page = I('pageNum',1);
@@ -469,28 +470,37 @@ class InventorypurchaseController extends BaseController {
             $unit_info = $m_unit->field('convert_type')->where(array('id'=>$unit_id))->find();
             $total_amount = intval($unit_info['convert_type'] * $amount);  //总瓶数
             $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
-			$detail_info = $m_purchase_detail->field('goods_id,unit_id,price')->where(array('id'=>$id))->find();
-			
-			if($unit_id != $detail_info['unit_id'] || $goods_id!=$detail_info['goods_id']){
-				$where = array('purchase_detail_id'=>$id,'status'=>1);
-				$m_stock_detail = new \Admin\Model\StockDetailModel();
-				$ret = $m_stock_detail->field('id')->where($where)->select();
-				if(!empty($ret)){
-					$this->error('已有入库信息不可修改');
-				}
-			}
-			if($price!=$detail_info['price']){
-                $userinfo = session('sysUserInfo');
-			    $m_changeprice = new \Admin\Model\ChangepriceRecordModel();
-			    $cwhere = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id);
-			    $cwhere["DATE_FORMAT(add_time,'%Y-%m-%d')"] = date('Y-m-d');
-			    $res_data = $m_changeprice->getInfo($cwhere);
-                $cdata = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id,
-                    'price'=>$price,'old_price'=>$detail_info['price'],'sysuser_id'=>$userinfo['id']);
-			    if(empty($res_data)){
-                    $m_changeprice->add($cdata);
-                }else{
-                    $m_changeprice->updateData(array('id'=>$res_data['id']),$cdata);
+            if($id){
+                $sdwhere = array('purchase_detail_id'=>$id,'status'=>1);
+                $m_stock_detail = new \Admin\Model\StockDetailModel();
+                $ret_instock = $m_stock_detail->field('id')->where($sdwhere)->find();
+
+                $detail_info = $m_purchase_detail->field('goods_id,unit_id,price')->where(array('id'=>$id))->find();
+                if($unit_id != $detail_info['unit_id'] || $goods_id!=$detail_info['goods_id']){
+                    if(!empty($ret_instock)){
+                        $this->error('已有入库信息不可修改');
+                    }
+                }
+                if($price!=$detail_info['price']){
+                    $userinfo = session('sysUserInfo');
+                    $sysuser_id = $userinfo['id'];
+                    $is_in_changeprice = in_array($sysuser_id,$this->clean_writeoff_uid)?1:0;
+                    if($is_in_changeprice==0){
+                        if(!empty($ret_instock)){
+                            $this->error('已有入库信息不可修改，如需修改请发审批！');
+                        }
+                    }
+                    $m_changeprice = new \Admin\Model\ChangepriceRecordModel();
+                    $cwhere = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id);
+                    $cwhere["DATE_FORMAT(add_time,'%Y-%m-%d')"] = date('Y-m-d');
+                    $res_data = $m_changeprice->getInfo($cwhere);
+                    $cdata = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id,
+                        'price'=>$price,'old_price'=>$detail_info['price'],'sysuser_id'=>$userinfo['id']);
+                    if(empty($res_data)){
+                        $m_changeprice->add($cdata);
+                    }else{
+                        $m_changeprice->updateData(array('id'=>$res_data['id']),$cdata);
+                    }
                 }
             }
 
