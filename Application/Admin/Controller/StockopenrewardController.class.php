@@ -4,6 +4,7 @@ class StockopenrewardController extends BaseController {
 
     public function datalist(){
         $goods_name = I('goods_name','','trim');
+        $hotel_name = I('hotel_name','','trim');
         $idcode = I('idcode','','trim');
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
@@ -46,6 +47,9 @@ class StockopenrewardController extends BaseController {
         if(!empty($goods_name)){
             $where['goods.name'] = array("like","%$goods_name%");
         }
+        if(!empty($hotel_name)){
+            $where['hotel.name'] = array("like","%$hotel_name%");
+        }
         if(!empty($idcode)){
             $where['a.idcode'] = $idcode;
         }
@@ -82,6 +86,7 @@ class StockopenrewardController extends BaseController {
         $this->assign('area_id',$area_id);
         $this->assign('idcode',$idcode);
         $this->assign('goods_name',$goods_name);
+        $this->assign('hotel_name',$hotel_name);
         $this->assign('datalist',$data_list);
         $this->assign('recycle_status',$recycle_status);
         $this->assign('all_recycle_status',$all_recycle_status);
@@ -134,7 +139,7 @@ class StockopenrewardController extends BaseController {
 
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_record = $m_stock_record->getInfo(array('id'=>$stock_record_id));
-        if($res_record['recycle_status']!=5){
+        if(!in_array($res_record['recycle_status'],array(3,5))){
             $this->output('状态错误,不能重置', 'stockopenreward/datalist',2,0);
         }
         $userinfo = session('sysUserInfo');
