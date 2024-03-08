@@ -35,7 +35,7 @@
                     <div class="form-group">
                         <div class="input-group input-group-sm">供应商：</div>
                         <div class="input-group">
-                            <select name="supplier_id" class="form-control bs-select class-filter" data-style="btn-success btn-sm" data-container="body">
+                            <select name="supplier_id" class="form-control bs-select class-filter" data-live-search="true" data-style="btn-success btn-sm" data-container="body">
                                 <option value=0>全部</option>
                                 <volist name="supplier_arr" id="spinfo">
                                     <option value="{$spinfo.id}" <if condition="$spinfo.id eq $supplier_id">selected</if> >{$spinfo.name}</option>
@@ -91,6 +91,13 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">入库单号：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="serial_number" value="{$serial_number}">
+                        </div>
+                    </div>
+
                     <div class="input-group input-group-sm pull-right">
                         <a class="btn btn-success btn-sm add" href="{$host_name}/stock/addinstock" title="新增入库" target="dialog" mask="true"><i class="fa fa-plus"></i>新增入库</a>
                         &nbsp;&nbsp;&nbsp;
@@ -102,7 +109,7 @@
         </div>
     </form>
 </div>
-<div class="pageContent" id="pagecontent" style="margin-top:25px;">
+<div class="pageContent" id="pagecontent" style="margin-top:40px;">
     <div id="w_list_print">
         <div class="no-more-tables">
             <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">

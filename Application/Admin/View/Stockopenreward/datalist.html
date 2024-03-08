@@ -49,18 +49,6 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <div class="input-group input-group-sm">商品名称：</div>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="goods_name" value="{$goods_name}">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <div class="input-group input-group-sm">唯一识别码：</div>
-                        <div class="input-group">
-                            <input type="text" class="form-control" name="idcode" value="{$idcode}">
-                        </div>
-                    </div>
-                    <div class="form-group">
                         <div class="input-group input-group-sm">
                             <span class="input-group-btn">
                              <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
@@ -75,11 +63,33 @@
                     </div>
                 </div>
 
+                <div class="form-inline">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">商品名称：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="goods_name" value="{$goods_name}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">酒楼名称：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="hotel_name" value="{$hotel_name}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group input-group-sm">唯一识别码：</div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="idcode" value="{$idcode}">
+                        </div>
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </form>
 </div>
-<div class="pageContent" id="pagecontent">
+<div class="pageContent" id="pagecontent" style="margin-top:30px;">
     <div id="w_list_print">
         <div class="no-more-tables">
             <form method="post" action="#" id="del-form" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
@@ -124,7 +134,7 @@
                             <td data-title="核销时间">{$dinfo.add_time}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
-                                    <if condition="$dinfo.recycle_status eq 5">
+                                    <if condition="($dinfo.recycle_status eq 5) OR ($dinfo.recycle_status eq 3)">
                                         <a warn="重置" data-tip="重置" title="你确定要重置【{$dinfo.idcode}】状态吗？" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/stockopenreward/resetrecyclestatus?stock_record_id={$dinfo.id}"  class="btn btn-danger btn-icon">
                                             <i class="fa fa-remove"></i>
                                         </a>

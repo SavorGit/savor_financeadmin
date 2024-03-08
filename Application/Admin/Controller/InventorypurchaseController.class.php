@@ -9,6 +9,7 @@ class InventorypurchaseController extends BaseController {
         'supplier_id'=>'请选择供应商','purchase_date'=>"请选择采购日期"
         
     );*/
+    public $clean_writeoff_uid = array(361);//364 yingtao
     private $required_arr = array(
         'name'=>'请填写合同名称','department_id'=>'请选择采购组织',
         'department_user_id'=>'请选择采购人','supplier_id'=>'请选择供应商','purchase_date'=>"请选择采购日期"
@@ -21,72 +22,66 @@ class InventorypurchaseController extends BaseController {
     );
     private $session_key = 'inventorypurchase_id_';
     private $serial_number_prefix = 'TPCG';
+
     public function __construct() {
         parent::__construct();
-        
     }
     public function index(){
-        $ajaxversion   = I('ajaxversion',0,'intval');//1 版本升级酒店列表
+        $page = I('pageNum',1);
         $size   = I('numPerPage',50);//显示每页记录数
-        $this->assign('numPerPage',$size);
-        $start = I('pageNum',1);
-        $this->assign('pageNum',$start);
         $order = I('_order','a.id');
-        
-        $this->assign('_order',$order);
         $sort = I('_sort','desc');
-        $this->assign('_sort',$sort);
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
+
         $orders = $order.' '.$sort;
-        $start  = ( $start-1 ) * $size;
+        $start  = ($page-1 ) * $size;
         $where  = [];
-        
         $department_id = I('department_id',0,'intval');
         if($department_id){
             $where['a.department_id'] = $department_id;
-            $this->assign('department_id',$department_id);
         }
         $supplier_id  = I('supplier_id',0,'intval');
         if($supplier_id){
             $where['a.supplier_id'] = $supplier_id;
-            $this->assign('supplier_id',$supplier_id);
         }
         $name = I('name','','trim');
         if(!empty($name)){
             $where['a.name'] = array("like","%".$name."%");
-            $this->assign('name',$name);
         }
-        
+        if(!empty($start_time) && !empty($end_time)){
+            $where['a.purchase_date'] = array(array('egt',$start_time),array('elt',$end_time));
+        }
+
+        $department_arr = $this->getDepartmentTree(2);
+        //供应商
+        $m_supplier   = new \Admin\Model\SupplierModel();
+        $supplier_arr = $m_supplier->where(array('status'=>1))->select();
+
         $m_puchase = new \Admin\Model\PurchaseModel();
         $fileds = "a.id,a.serial_number,a.name,d.name department_name,a.purchase_date,a.amount,a.total_fee,s.name supplier_name,
                    case a.status
 				   when 1 then '进行中'
 				   when 2 then '已完成' END AS status";
-        
         $result = $m_puchase->getList($fileds,$where, $orders, $start,$size);
-        
-        
-        
-        //获取采购组织
-        /* $m_department = new \Admin\Model\DepartmentModel();
-        $where = [];
-        $where['status'] = 1;
-        $department_arr = $m_department->where($where)->select(); */
-        $department_arr = $this->getDepartmentTree(2);
-        
-        //供应商
-        $m_supplier   = new \Admin\Model\SupplierModel();
-        $where = [];
-        $where['status'] = 1;
-        $supplier_arr = $m_supplier->where($where)->select();
         
         $this->assign('list',$result['list']);
         $this->assign('page',$result['page']);
         $this->assign('department_arr',$department_arr);
-        $this->assign('supplier_arr',  $supplier_arr);
+        $this->assign('supplier_arr',$supplier_arr);
+        $this->assign('name',$name);
+        $this->assign('supplier_id',$supplier_id);
+        $this->assign('department_id',$department_id);
+        $this->assign('start_time',$start_time);
+        $this->assign('end_time',$end_time);
+        $this->assign('numPerPage',$size);
+        $this->assign('pageNum',$page);
+        $this->assign('_order',$order);
+        $this->assign('_sort',$sort);
         $this->display();
     }
+
     public function add(){
-        
         //采购合同
         //pcontract_arr
         $m_contract =  new \Admin\Model\ContractModel();
@@ -475,25 +470,32 @@ class InventorypurchaseController extends BaseController {
             $unit_info = $m_unit->field('convert_type')->where(array('id'=>$unit_id))->find();
             $total_amount = intval($unit_info['convert_type'] * $amount);  //总瓶数
             $m_purchase_detail = new \Admin\Model\PurchaseDetailModel();
-			$detail_info = $m_purchase_detail->field('goods_id,unit_id,price')->where(array('id'=>$id))->find();
-			
-			if($unit_id != $detail_info['unit_id'] || $goods_id!=$detail_info['goods_id']){
-				$where = array('purchase_detail_id'=>$id,'status'=>1);
-				$m_stock_detail = new \Admin\Model\StockDetailModel();
-				$ret = $m_stock_detail->field('id')->where($where)->select();
-				if(!empty($ret)){
-					$this->error('已有入库信息不可修改');
-				}
-			}
-			if($price!=$detail_info['price']){
+            $sdwhere = array('purchase_detail_id'=>$id,'status'=>1);
+            $m_stock_detail = new \Admin\Model\StockDetailModel();
+            $ret_instock = $m_stock_detail->field('id')->where($sdwhere)->find();
+
+            $detail_info = $m_purchase_detail->field('goods_id,unit_id,price')->where(array('id'=>$id))->find();
+            if($unit_id != $detail_info['unit_id'] || $goods_id!=$detail_info['goods_id']){
+                if(!empty($ret_instock)){
+                    $this->error('已有入库信息不可修改');
+                }
+            }
+            if($price!=$detail_info['price']){
                 $userinfo = session('sysUserInfo');
-			    $m_changeprice = new \Admin\Model\ChangepriceRecordModel();
-			    $cwhere = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id);
-			    $cwhere["DATE_FORMAT(add_time,'%Y-%m-%d')"] = date('Y-m-d');
-			    $res_data = $m_changeprice->getInfo($cwhere);
+                $sysuser_id = $userinfo['id'];
+                $is_in_changeprice = in_array($sysuser_id,$this->clean_writeoff_uid)?1:0;
+                if($is_in_changeprice==0){
+                    if(!empty($ret_instock)){
+                        $this->error('已有入库信息不可修改，如需修改请发审批！');
+                    }
+                }
+                $m_changeprice = new \Admin\Model\ChangepriceRecordModel();
+                $cwhere = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id);
+                $cwhere["DATE_FORMAT(add_time,'%Y-%m-%d')"] = date('Y-m-d');
+                $res_data = $m_changeprice->getInfo($cwhere);
                 $cdata = array('purchase_id'=>$purchase_id,'purchase_detail_id'=>$id,'goods_id'=>$goods_id,
                     'price'=>$price,'old_price'=>$detail_info['price'],'sysuser_id'=>$userinfo['id']);
-			    if(empty($res_data)){
+                if(empty($res_data)){
                     $m_changeprice->add($cdata);
                 }else{
                     $m_changeprice->updateData(array('id'=>$res_data['id']),$cdata);

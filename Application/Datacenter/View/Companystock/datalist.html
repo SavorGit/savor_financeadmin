@@ -32,6 +32,24 @@
                     </div>
 
                     <div class="form-group">
+                        <div class="input-group input-group-sm">时间：</div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$start_time}" data-ymd="true">
+                            <input name="start_time" type="text" size="16" class="form-control date" placeholder="开始日期" value="{$start_time}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                        <div class="input-group input-group-sm date form_datetime" data-pos="auto" data-date="{$end_time}" data-ymd="true">
+                            <input name="end_time" type="text" size="16" class="form-control date" placeholder="结束日期" value="{$end_time}">
+                            <span class="input-group-btn">
+                                <button class="btn default date-reset  btn-sm" type="button"><i class="fa fa-times"></i></button>
+                                <button class="btn btn-success date-set  btn-sm" type="button"><i class="fa fa-calendar"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <div class="input-group input-group-sm">
                             <span class="input-group-btn">
                              <button class="btn btn-primary" type="submit" id="choosedata">查询</button>
@@ -40,7 +58,7 @@
                     </div>
 
                     <div class="input-group input-group-sm pull-right">
-                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/companystock/datalist?area_id={$area_id}&category_id={$category_id}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
+                        <a class="btn btn-success btn-sm add" href="{$host_url}/dataexport/companystock/datalist?area_id={$area_id}&category_id={$category_id}&start_time={$start_time}&end_time={$end_time}" title="导出" target="_blank" mask="true"><i class="fa fa-download"></i>导出</a>
                     </div>
 
                 </div>
@@ -64,31 +82,33 @@
                         <th>仓库名称</th>
                         <th>期初数量</th>
                         <th>期初金额</th>
-                        <th>结余数量</th>
-                        <th>结余金额</th>
+                        <th>库存数量</th>
+                        <th>库存金额</th>
                         <th>入库数量</th>
                         <th>入库金额</th>
                         <th>出库数量</th>
                         <th>出库金额</th>
+                        <th>统计日期</th>
                     </tr>
                     </thead>
                     <tbody data-check="list" data-parent=".table">
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
-                            <td data-title="商品名称">{$dinfo.name}</td>
+                            <td data-title="商品名称">{$dinfo.goods_name}</td>
                             <td data-title="商品编码">{$dinfo.goods_id}</td>
-                            <td data-title="商品类型">{$dinfo.category}</td>
+                            <td data-title="商品类型">{$dinfo.category_name}</td>
                             <td data-title="商品单价">{$dinfo.avg_price}</td>
                             <td data-title="仓库编码">{$dinfo.area_id}</td>
                             <td data-title="仓库名称">{$dinfo.area_name}</td>
-                            <td data-title="期初数量">0</td>
-                            <td data-title="期初金额">0</td>
-                            <td data-title="结余数量">{$dinfo.surplus_num}</td>
-                            <td data-title="结余金额">{$dinfo.surplus_total_fee}</td>
+                            <td data-title="期初数量">{$dinfo.begin_num}</td>
+                            <td data-title="期初金额">{$dinfo.begin_total_fee}</td>
+                            <td data-title="库存数量">{$dinfo.stock_num}</td>
+                            <td data-title="库存金额">{$dinfo.stock_total_fee}</td>
                             <td data-title="入库数量">{$dinfo.in_num}</td>
                             <td data-title="入库金额">{$dinfo.in_total_fee}</td>
                             <td data-title="出库数量">{$dinfo.out_num}</td>
                             <td data-title="出库金额">{$dinfo.out_total_fee}</td>
+                            <td data-title="统计日期">{$dinfo.static_date}</td>
                         </tr>
                     </foreach>
                     </tbody>

@@ -17,6 +17,7 @@ class StockController extends BaseController {
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
         $keyword = I('keyword','','trim');
+        $serial_number = I('serial_number','','trim');
         $area_id = I('area_id',0,'intval');
         $io_type = I('io_type',0,'intval');
         $department_id = I('department_id',0,'intval');
@@ -27,6 +28,9 @@ class StockController extends BaseController {
         $where = array('type'=>10);
         if(!empty($keyword)){
             $where['a.name'] = array('like',"%$keyword%");
+        }
+        if(!empty($serial_number)){
+            $where['a.serial_number'] = $serial_number;
         }
         if($area_id){
             $where['a.area_id'] = $area_id;
@@ -97,7 +101,7 @@ class StockController extends BaseController {
                     $now_amount = intval($res_stock_record['total_amount']);
                 }
                 if(!empty($res_stock_record['total_fee'])){
-                    $now_total_fee = intval($res_stock_record['total_fee']);
+                    $now_total_fee = $res_stock_record['total_fee'];
                 }
                 $u8_start = 0;
                 if($v['io_date']>=$u8_start_date && $v['io_type']==11){
@@ -119,6 +123,7 @@ class StockController extends BaseController {
         $this->assign('departments', $res_departments);
         $this->assign('area', $area_arr);
         $this->assign('keyword',$keyword);
+        $this->assign('serial_number',$serial_number);
         $this->assign('start_time',$start_time);
         $this->assign('end_time',$end_time);
         $this->assign('datalist',$data_list);
@@ -140,7 +145,7 @@ class StockController extends BaseController {
             $department_user_id = I('post.department_user_id',0,'intval');
             $purchase_id = I('post.purchase_id',0,'intval');
             $area_id = I('post.area_id',0,'intval');
-            $total_money = I('post.total_money',0,'intval');
+            $total_money = I('post.total_money',0);
 
             if($io_type==11){
                 if($purchase_id==0){
@@ -1046,6 +1051,7 @@ class StockController extends BaseController {
         $pageNum = I('pageNum',1,'intval');//当前页码
         $area_id = I('area_id',0,'intval');
         $hotel_name = I('hotel_name','','trim');
+        $goods_name = I('goods_name','','trim');
 
         $area_arr = array();
         $m_area  = new \Admin\Model\AreaModel();
@@ -1066,6 +1072,9 @@ class StockController extends BaseController {
         }
         if($area_id){
             $where['stock.area_id'] = $area_id;
+        }
+        if(!empty($goods_name)){
+            $where['goods.name'] = array('like',"%$goods_name%");
         }
 
         $start = ($pageNum-1)*$size;
@@ -1129,6 +1138,7 @@ class StockController extends BaseController {
         $this->assign('area',$area_arr);
         $this->assign('area_id',$area_id);
         $this->assign('hotel_name',$hotel_name);
+        $this->assign('goods_name',$goods_name);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
@@ -1278,6 +1288,7 @@ class StockController extends BaseController {
         $push_u8_status13 = I('push_u8_status13',99,'intval');
         $idcode = I('idcode','','trim');
         $hotel_name = I('hotel_name','','trim');
+        $goods_name = I('goods_name','','trim');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
 
@@ -1315,11 +1326,19 @@ class StockController extends BaseController {
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
         }
+        if(!empty($goods_name)){
+            $where['goods.name'] = array('like',"%$goods_name%");
+        }
         if(!empty($start_time) && !empty($end_time)){
             $now_start_time = date('Y-m-d 00:00:00',strtotime($start_time));
             $now_end_time = date('Y-m-d 23:59:59',strtotime($end_time));
-            $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+        }else{
+            $start_time = date('Y-m-d',strtotime("-1 month"));
+            $end_time = date('Y-m-d');
+            $now_start_time = "$start_time 00:00:00";
+            $now_end_time = "$end_time 00:00:00";
         }
+        $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
         if($push_u8_status13<99){
             $where['sale.push_u8_status13'] = $push_u8_status13;
         }
@@ -1406,6 +1425,7 @@ class StockController extends BaseController {
         $this->assign('end_time',$end_time);
         $this->assign('idcode',$idcode);
         $this->assign('hotel_name',$hotel_name);
+        $this->assign('goods_name',$goods_name);
         $this->assign('wo_reason_type',$wo_reason_type);
         $this->assign('wo_status',$wo_status);
         $this->assign('recycle_status',$recycle_status);
