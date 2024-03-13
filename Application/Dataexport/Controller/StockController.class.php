@@ -103,7 +103,7 @@ class StockController extends BaseController {
             $shell = "/opt/install/php/bin/php /application_data/web/php/savor_financeadmin/cli.php dataexport/stock/hotelstocklistscript/area_id/$area_id > /tmp/null &";
             system($shell);
             $now_time = time();
-            $redis->set($cache_key,$now_time,3600);
+            $redis->set($cache_key,$now_time,600);
             $this->success('数据正在生成中,请稍后点击下载');
         }
     }
@@ -200,7 +200,7 @@ class StockController extends BaseController {
         $cache_key = 'cronscript:finance:hotelstocklist'.$area_id;
         $redis  =  \Common\Lib\SavorRedis::getInstance();
         $redis->select(1);
-        $redis->set($cache_key,$path,3600);
+        $redis->set($cache_key,$path,600);
     }
 
     public function allidcodeinfo(){
