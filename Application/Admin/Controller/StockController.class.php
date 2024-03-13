@@ -424,6 +424,7 @@ class StockController extends BaseController {
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
         $keyword = I('keyword','','trim');
+        $serial_number = I('serial_number','','trim');
         $io_type = I('io_type',0,'intval');
         $department_id = I('department_id',0,'intval');
         $area_id = I('area_id',0,'intval');
@@ -432,6 +433,9 @@ class StockController extends BaseController {
         $where = array('type'=>20);
         if(!empty($keyword)){
             $where['name'] = array('like',"%$keyword%");
+        }
+        if(!empty($serial_number)){
+            $where['serial_number'] = $serial_number;
         }
         if($department_id){
             $where['department_id'] = $department_id;
@@ -490,6 +494,7 @@ class StockController extends BaseController {
         $this->assign('io_type', $io_type);
         $this->assign('departments', $res_departments);
         $this->assign('keyword',$keyword);
+        $this->assign('serial_number',$serial_number);
         $this->assign('datalist',$data_list);
         $this->assign('page',$res_list['page']);
         $this->assign('numPerPage',$size);
