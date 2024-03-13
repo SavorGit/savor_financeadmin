@@ -75,7 +75,7 @@ class StockcheckController extends BaseController {
             $res_hotel_stock = $m_hotel_stock->getDataList('hotel_id,goods_id,num',array('hotel_id'=>array('in',$hotel_ids)),'id desc');
             $hotel_stocks = array();
             foreach ($res_hotel_stock as $v){
-                $hotel_stocks[$v['hotel_id'].$v['goods_id']]=$v['num'];
+                $hotel_stocks[$v['hotel_id'].'-'.$v['goods_id']]=$v['num'];
             }
             $check_stocks = array();
             if(!empty($hotel_salerecords)){
@@ -93,7 +93,7 @@ class StockcheckController extends BaseController {
             }
 
             foreach ($data_list as $k=>$v){
-                $stock_num = isset($hotel_stocks[$v['hotel_id'].$v['goods_id']])?$hotel_stocks[$v['hotel_id'].$v['goods_id']]:0;
+                $stock_num = isset($hotel_stocks[$v['hotel_id'].'-'.$v['goods_id']])?$hotel_stocks[$v['hotel_id'].'-'.$v['goods_id']]:0;
                 $check_stock_num=$diff_check_num=0;
                 if(isset($check_stocks[$v['salerecord_id'].$v['goods_id']])){
                     foreach ($check_stocks[$v['salerecord_id'].$v['goods_id']] as $ctv){
