@@ -109,6 +109,8 @@
                         <th>审核状态</th>
                         <th>审核不通过原因</th>
                         <th>核销时间</th>
+                        <th>物料上传时间</th>
+                        <th>通过审核时间</th>
                         <th>操作</th>
                     </tr>
                     </thead>
@@ -132,6 +134,8 @@
                             <td data-title="审核状态">{$dinfo.recycle_status_str}</td>
                             <td data-title="审核不通过原因">{$dinfo.reason}</td>
                             <td data-title="核销时间">{$dinfo.add_time}</td>
+                            <td data-title="物料上传时间">{$dinfo.recycle_time}</td>
+                            <td data-title="物料通过审核时间">{$dinfo.recycle_audit_time}</td>
                             <td class="table-tool" data-title="操作">
                                 <div class="tools-edit">
                                     <if condition="($dinfo.recycle_status eq 5) OR ($dinfo.recycle_status eq 3)">

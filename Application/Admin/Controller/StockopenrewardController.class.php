@@ -58,7 +58,7 @@ class StockopenrewardController extends BaseController {
         $where['a.add_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.id,a.idcode,a.vintner_code,a.out_time,a.recycle_img,a.recycle_status,a.reason,a.add_time,goods.name as goods_name,
+        $fields = 'a.id,a.idcode,a.vintner_code,a.out_time,a.recycle_img,a.recycle_status,a.reason,a.add_time,a.recycle_time,a.recycle_audit_time,goods.name as goods_name,
         sale.area_id,hotel.id as hotel_id,hotel.name as hotel_name,su.remark as residenter_name,user.nickName as username,user.mobile';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordSaleList($fields,$where, 'a.id desc', $start,$size);
