@@ -43,18 +43,21 @@ class StockcheckController extends BaseController {
             $m_hotel_stock = new \Admin\Model\HotelStockModel();
             $hotel_ids = array();
             $hotel_salerecords = array();
+            $oss_host = get_oss_host();
             foreach ($res_list['list'] as $v){
                 $hotel_id = $v['hotel_id'];
 
                 $hotel_ids[]=$hotel_id;
                 $salerecord_id = 0;
                 $check_uname=$check_time='';
+                $video_path = '';
                 if(isset($hotel_salerecords[$hotel_id])){
                     $salerecord_id = $hotel_salerecords[$hotel_id]['id'];
                     $check_uname = $hotel_salerecords[$hotel_id]['name'];
                     $check_time = $hotel_salerecords[$hotel_id]['time'];
+                    $video_path = $hotel_salerecords[$hotel_id]['video_path'];
                 }else{
-                    $sale_fields = 'record.id,record.add_time,record.stock_check_status,staff.id as staff_id,staff.job,sysuser.remark as staff_name';
+                    $sale_fields = 'record.id,record.add_time,record.video_path,record.stock_check_status,staff.id as staff_id,staff.job,sysuser.remark as staff_name';
                     $salewhere = array('record.signin_hotel_id'=>$v['hotel_id'],'record.type'=>2);
                     $salewhere["date_format(record.add_time,'%Y-%m')"] = $now_stat_date;
                     $res_salerecord = $m_sale_record->getRecordList($sale_fields,$salewhere,'record.id desc','0,1');
@@ -62,13 +65,17 @@ class StockcheckController extends BaseController {
                         $salerecord_id = $res_salerecord[0]['id'];
                         $check_uname = $res_salerecord[0]['staff_name'];
                         $check_time = $res_salerecord[0]['add_time'];
-                        $hotel_salerecords[$hotel_id] = array('id'=>$salerecord_id,'name'=>$check_uname,'time'=>$check_time);
+                        $video_path = $res_salerecord[0]['video_path'];
+                        $hotel_salerecords[$hotel_id] = array('id'=>$salerecord_id,'name'=>$check_uname,'time'=>$check_time,'video_path'=>$video_path);
                     }
                 }
-
+                if(!empty($video_path)){
+                    $video_path = $oss_host.$video_path;
+                }
                 $v['check_uname'] = $check_uname;
                 $v['check_time'] = $check_time;
                 $v['salerecord_id'] = $salerecord_id;
+                $v['video_path'] = $video_path;
                 $v['area_name'] = $area_arr[$v['area_id']]['region_name'];
                 $data_list[] = $v;
             }

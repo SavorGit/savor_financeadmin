@@ -75,6 +75,7 @@
                         <th>差异值</th>
                         <th>盘点人</th>
                         <th>盘点日期</th>
+                        <th>盘点视频</th>
                     </tr>
                     </thead>
                     <tbody data-check="list" data-parent=".table">
@@ -93,7 +94,11 @@
                             <td data-title="差异值">{$dinfo.diff_check_num}</td>
                             <td data-title="盘点人">{$dinfo.check_uname}</td>
                             <td data-title="盘点日期">{$dinfo.check_time}</td>
-
+                            <td data-title="盘点视频">
+                                <notempty name="$dinfo.video_path">
+                                    <a href="{$dinfo.video_path}" target="_blank">查看</a>
+                                </notempty>
+                            </td>
                         </tr>
                     </foreach>
                     </tbody>
