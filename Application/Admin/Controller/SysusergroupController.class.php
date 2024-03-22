@@ -81,6 +81,11 @@ class SysusergroupController extends BaseController {
                     if($count > 0){
                         $this->error('用户组名称已经存在');
                     }
+                    $maps = [];
+                    $maps['id'] = $id;
+                    $datas = [];
+                    $datas['name'] = $name;
+                    $sysusergroup->where($maps)->save($datas);
                 }else{
                     $dat['area_city'] = $manage_city_str;
                     $dat['id'] = $user_arr['id'];
