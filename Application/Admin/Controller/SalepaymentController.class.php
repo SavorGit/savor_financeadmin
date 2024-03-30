@@ -118,6 +118,8 @@ class SalepaymentController extends BaseController {
 
         $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
         $m_sale = new \Admin\Model\SaleModel();
+        $m_salepayment = new \Admin\Model\SalePaymentModel();
+        $res_salepayment = $m_salepayment->getInfo(array('id'=>$sale_payment_id));
         if(IS_POST){
             $sale_ids = I('post.sale_ids','','trim');
             $remain_money = I('post.remain_money',0);
@@ -168,7 +170,8 @@ class SalepaymentController extends BaseController {
                 if(!empty($pay_record)){
                     foreach ($pay_record as $v){
                         if($v['pay_money']>0){
-                            $m_sale->updateData(array('id'=>$v['sale_id']),array('status'=>2,'sale_payment_id'=>$sale_payment_id,'ptype'=>$v['ptype']));
+                            $pay_time = "{$res_salepayment['pay_time']} 00:00:00";
+                            $m_sale->updateData(array('id'=>$v['sale_id']),array('status'=>2,'sale_payment_id'=>$sale_payment_id,'ptype'=>$v['ptype'],'pay_time'=>$pay_time));
                             $m_sale->where(array('id'=>$v['sale_id']))->setInc('pay_money',$v['pay_money']);
 
                             $m_paymentrecord->add(array('sale_id'=>$v['sale_id'],'sale_payment_id'=>$sale_payment_id,'pay_money'=>$v['pay_money']));
@@ -183,8 +186,6 @@ class SalepaymentController extends BaseController {
             }
             $this->output('操作成功', $jump_url);
         }else{
-            $m_salepayment = new \Admin\Model\SalePaymentModel();
-            $res_salepayment = $m_salepayment->getInfo(array('id'=>$sale_payment_id));
             $res_money = $m_paymentrecord->getAllData('sum(pay_money) as all_pay_money',array('sale_payment_id'=>$sale_payment_id));
             $remain_money = $res_salepayment['pay_money']-intval($res_money[0]['all_pay_money']);
 
