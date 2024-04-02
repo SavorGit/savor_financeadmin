@@ -14,7 +14,7 @@ class SaleissueController extends BaseController {
     public function index(){
         $size   = I('numPerPage',50);//显示每页记录数
         $pageNum = I('pageNum',1);
-        $order = I('_order','a.id');
+        $order = I('_order','a.add_time');
         $sort = I('_sort','desc');
         $start_date = I('start_date','');
         $end_date   = I('end_date','');

@@ -1355,7 +1355,7 @@ class StockController extends BaseController {
         $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,sale.id as sale_id,
         stock.area_id,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price,su.remark as residenter_name';
         $m_stock_record = new \Admin\Model\StockRecordModel();
-        $res_list = $m_stock_record->getRecordList($fields,$where, 'a.id desc', $start,$size);
+        $res_list = $m_stock_record->getRecordList($fields,$where, 'a.add_time desc', $start,$size);
         $data_list = array();
         if(!empty($res_list['list'])){
             $u8_start_date = C('U8_START_DATE');
