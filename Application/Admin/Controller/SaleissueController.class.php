@@ -23,6 +23,7 @@ class SaleissueController extends BaseController {
         $ptype       = I('ptype',99,'intval');
         $idcode     = I('idcode','','trim');
         $hotel_name     = I('hotel_name','','trim');
+        $goods_name = I('goods_name','','trim');
 
         $orders = $order.' '.$sort;
         $start  = ($pageNum-1) * $size;
@@ -47,6 +48,9 @@ class SaleissueController extends BaseController {
         }
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
+        }
+        if(!empty($goods_name)){
+            $where['goods.name'] = array('like',"%$goods_name%");
         }
         $all_types = C('SALE_TYPES');
         $all_stock_types = C('STOCK_USE_TYPE');
@@ -116,6 +120,7 @@ class SaleissueController extends BaseController {
         $this->assign('_order',$order);
         $this->assign('_sort',$sort);
         $this->assign('hotel_name',$hotel_name);
+        $this->assign('goods_name',$goods_name);
         $this->assign('idcode',$idcode);
         $this->assign('ptype',$ptype);
         $this->assign('all_ptype',$all_ptype);
