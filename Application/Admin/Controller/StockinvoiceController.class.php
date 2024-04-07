@@ -176,7 +176,7 @@ class StockinvoiceController extends BaseController {
             $where = array('type'=>10,'io_type'=>11,'status'=>array('gt',1),'invoice_status'=>array('in','1,3'));
             $where['io_date'] = array('egt','2023-11-09');
             $where['stock_invoice_ids'] = array('notlike',"%,$stock_invoice_id,%");
-            $stock_list = $m_stock->getDataList('id,name,serial_number,pay_status,stock_invoice_ids,total_money-invoice_money as money,department_user_id',$where,'id desc');
+            $stock_list = $m_stock->getDataList('id,name,serial_number,pay_status,stock_invoice_ids,total_money-invoice_money as money,department_user_id,add_time',$where,'id desc');
             $all_stock = array();
             $m_duser = new \Admin\Model\DepartmentUserModel();
             foreach ($stock_list as $k=>$v){

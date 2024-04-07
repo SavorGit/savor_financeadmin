@@ -166,7 +166,7 @@ class StockpaymentController extends BaseController {
             $where = array('type'=>10,'io_type'=>11,'status'=>array('gt',1),'pay_status'=>array('in','1,3'));
             $where['io_date'] = array('egt','2023-11-09');
             $where['stock_payment_ids'] = array('notlike',"%,$stock_payment_id,%");
-            $stock_list = $m_stock->getDataList('id,name,serial_number,pay_status,stock_payment_ids,total_money-pay_money as money,department_user_id',$where,'id desc');
+            $stock_list = $m_stock->getDataList('id,name,serial_number,pay_status,stock_payment_ids,total_money-pay_money as money,department_user_id,add_time',$where,'id desc');
             $all_stock = array();
             $m_duser = new \Admin\Model\DepartmentUserModel();
             foreach ($stock_list as $k=>$v){

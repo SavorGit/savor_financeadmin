@@ -54,6 +54,9 @@ $(document).ready(function(){
     }
   	let showTotalAmountObject = $('#sale_total_money');
   	let showTotalAmount = parseFloat(showTotalAmountObject.val());
+  	if(isNaN(showTotalAmount)){
+  	    showTotalAmount = 0
+  	}
   	if(b === true){
     	showTotalAmount += parseFloat(itemSplitArray[3]);
     } else {
