@@ -197,6 +197,10 @@ $config['ROOM_TYPE'] = array(
     2=>'大厅',
     3=>'等候区'
 );
+$config['GOODS_LINK_TYPE'] = array(
+    1=>'扫码关联',
+    2=>'上传图片关联',
+);
 $config['HEART_LOSS_HOURS'] = 48;
 $config['FINACE_CONTRACT'] = array(
 	'company_property' => array( 

@@ -166,10 +166,11 @@ class GoodsController extends BaseController {
             $desc = I('post.desc','','trim');
             $media_id = I('post.media_id',0,'intval');
             $status = I('post.status',0,'intval');
+            $link_type = I('post.link_type',0,'intval');
 
             $data = array('name'=>$name,'price'=>$price,'barcode'=>$barcode,'category_id'=>$category_id,'specification_id'=>$specification_id,
                 'unit_id'=>$unit_id,'supplier_id'=>$supplier_id,'brand_id'=>$brand_id,'series_id'=>$series_id,
-                'desc'=>$desc,'media_id'=>$media_id,'status'=>$status);
+                'desc'=>$desc,'media_id'=>$media_id,'status'=>$status,'link_type'=>$link_type);
             if($id){
                 $result = $m_goods->updateData(array('id'=>$id),$data);
             }else{
