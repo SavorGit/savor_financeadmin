@@ -34,12 +34,9 @@ class StockopenrewardController extends BaseController {
         }
 
         $all_recycle_status = C('STOCK_RECYLE_STATUS');
-        unset($all_recycle_status['4']);
         $where = array('a.type'=>7,'a.wo_status'=>2,'a.wo_reason_type'=>1);
         if($recycle_status){
             $where['a.recycle_status'] = $recycle_status;
-        }else{
-            $where['a.recycle_status'] = array('in','1,2,3,5,6');
         }
         if($area_id){
             $where['sale.area_id'] = $area_id;
