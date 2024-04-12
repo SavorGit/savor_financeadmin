@@ -40,6 +40,7 @@
                     <thead>
                     <tr id="post">
                         <th>唯一识别码</th>
+                        <th>酒商码</th>
                         <th>商品名称</th>
                         <th>单位</th>
                         <th>状态</th>
@@ -52,6 +53,7 @@
                     <foreach name="datalist" item="dinfo">
                         <tr target="sid_user">
                             <td data-title="唯一识别码">{$dinfo.idcode}{$dinfo.unit_str}</td>
+                            <td data-title="酒商码">{$dinfo.winecode}</td>
                             <td data-title="商品名称">{$dinfo.goods_name}</td>
                             <td data-title="单位">{$dinfo.unit_name}</td>
                             <td data-title="状态">{$dinfo.type_str}</td>

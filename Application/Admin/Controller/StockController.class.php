@@ -1904,6 +1904,7 @@ class StockController extends BaseController {
                     }
                 }
                 $res_allqrcode = $m_qrcode_content->getDataList('id',array('parent_id'=>$parent_id),'id asc');
+                $m_winecode = new \Admin\Model\WinecodeModel();
                 foreach ($res_allqrcode as $v){
                     $qrcontent = encrypt_data($v['id']);
                     $res_record = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$qrcontent),'a.id desc','0,1','');
@@ -1918,9 +1919,15 @@ class StockController extends BaseController {
                         }else{
                             $dstatus_str = '正常';
                         }
+                        $winecode = '';
+                        $res_winecode = $m_winecode->getInfo(array('idcode'=>$qrcontent));
+                        if(!empty($res_winecode)){
+                            $winecode = $res_winecode['winecode'];
+                        }
                         $info['dstatus_str']= $dstatus_str;
                         $info['unit_str']= '';
                         $info['type_str']= $type_str;
+                        $info['winecode']= $winecode;
                         $data_list[] = $info;
                     }else{
                         $data_list[] = array('idcode'=>$qrcontent);
