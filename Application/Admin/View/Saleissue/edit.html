@@ -5,7 +5,8 @@
     <input type="hidden" name="id" value="{$vinfo.id}">
     <input type="hidden" id="honame" value="{$host_name}">
     <input type="hidden" id="s_type" value="{$vinfo.type}" >
-    
+    <input type="hidden" id="old_maintainer_id" value="{$vinfo.maintainer_id}" >
+
     <div class="pageFormContent modal-body">
       <div class="tabsContent">
         <ul class="nav nav-tabs">
@@ -43,12 +44,12 @@
               </div>
             </div>
 		  <div class="form-group row">
-            <div id="sale_user_id" style="display:none;">
+            <div id="sale_user_id">
               <label class="col-xs-2 col-sm-2 control-label">
                 	公司销售人员：
               </label>
               <div class="col-xs-2 col-sm-2">
-                <select id="sale_user_id"  name="sale_user_id"  class="form-control" >
+                <select id="sale_user_id"  name="sale_user_id"  class="form-control">
 					<option value="0" >请选择</option>
                   <volist name="sale_user_list" id="vo">
                     <option value="{$vo.sale_user_id}" <if condition="$vinfo['maintainer_id'] eq $vo['sale_user_id']">selected</if> > {$vo.user_name}</option>
@@ -270,7 +271,7 @@
 		var type  = $('#type').val();
 	  if(type==2 || type==4 || type==5){
 		  $('#select_hotel').hide()
-		  $('#sale_user_id').show();
+		  // $('#sale_user_id').show();
 		  if(type==5){
 			  $('#sale_gift_idcode').show();
 		  }else{
@@ -278,7 +279,7 @@
 		  }
 	  }else {
 		  $('#select_hotel').show();
-		  $('#sale_user_id').hide();
+		  // $('#sale_user_id').hide();
 		  $('#sale_gift_idcode').hide();
 	  }
   });

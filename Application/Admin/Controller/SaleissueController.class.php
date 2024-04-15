@@ -342,13 +342,15 @@ class SaleissueController extends BaseController {
         
         $m_opuser_role = new \Admin\Model\OpuserroleModel();
         $fields = 'a.user_id sale_user_id,user.remark user_name';
-        
-        $mps = [];
-        $mps['a.state'] = 1;
-        $mps['user.status'] = 1;
-        $mps['a.role_id'] = array('in',array(1,3));
-        $mps['user.id'] = array('gt',0);
-        $sale_user_list = $m_opuser_role->getAllRole($fields,$mps,'' );
+        $where = array('a.state'=>1,'user.status'=>1,'a.role_id'=>array('in',array(1,3)),'user.id'=>array('gt',0));
+        $sale_user_list = $m_opuser_role->getAllRole($fields,$where,'' );
+        foreach($sale_user_list as $k=>$v){
+            $firstCharter = getFirstCharter($v['user_name']);
+            $sale_user_list[$k]['user_name'] = $firstCharter.'--'.$v['user_name'];
+            $sale_user_list[$k]['first_name'] = $firstCharter;
+        }
+        sortArrByOneField($sale_user_list,'first_name',false);
+
         $sale_types = C('SALE_TYPES');
         foreach ($sale_types as $k=>$v){
             if($k!=$info['type']){
@@ -388,9 +390,8 @@ class SaleissueController extends BaseController {
             if($res_list[0]['convert_type']>1){
                 $this->error('商品识别码异常,请录入瓶码');
             }
-            $sale_user_id =0;
+            $sale_user_id = I('post.sale_user_id',0,'intval');//销售人员id
             if($type==2 || $type==5){//团购售卖
-                $sale_user_id = I('post.sale_user_id',0,'intval');//销售人员id
                 if(count($all_idcodes)>1){
                     foreach ($all_idcodes as $v){
                         if(!empty($v)){
@@ -446,6 +447,9 @@ class SaleissueController extends BaseController {
             if($type==2 || $type==5){
                 $data['maintainer_id'] = $sale_user_id;
                 $data['area_id'] = $goods_info['area_id'];
+            }else{
+                $data['maintainer_id'] = $sale_user_id;
+                $data['residenter_id'] = $sale_user_id;
             }
             if(!empty($settlement_price)){
                 $data['settlement_price'] = $settlement_price;
@@ -465,8 +469,8 @@ class SaleissueController extends BaseController {
             $data['edit_time']         = date('Y-m-d H:i:s');
             $m_sale = new \Admin\Model\SaleModel();
             $res_sale = $m_sale->getInfo(array('id'=>$id));
-            if(in_array($res_sale['ptype'],array(1,2))){
-                $this->error('当前出库单已收款，无法修改');
+            if($res_sale['settlement_price']>0 && $res_sale['settlement_price']!=$settlement_price  && in_array($res_sale['ptype'],array(1,2))){
+                $this->error('当前出库单已收款，无法修改结算价');
             }
 
             $ret = $m_sale->updateData(array('id'=>$id), $data);
