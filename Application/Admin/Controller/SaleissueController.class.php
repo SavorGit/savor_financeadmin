@@ -342,7 +342,7 @@ class SaleissueController extends BaseController {
         
         $m_opuser_role = new \Admin\Model\OpuserroleModel();
         $fields = 'a.user_id sale_user_id,user.remark user_name';
-        $where = array('a.state'=>1,'user.status'=>1,'a.role_id'=>array('in',array(1,3)),'user.id'=>array('gt',0));
+        $where = array('a.state'=>1,'a.role_id'=>array('in',array(1,3)),'user.id'=>array('gt',0));
         $sale_user_list = $m_opuser_role->getAllRole($fields,$where,'' );
         foreach($sale_user_list as $k=>$v){
             $firstCharter = getFirstCharter($v['user_name']);
@@ -448,8 +448,10 @@ class SaleissueController extends BaseController {
                 $data['maintainer_id'] = $sale_user_id;
                 $data['area_id'] = $goods_info['area_id'];
             }else{
-                $data['maintainer_id'] = $sale_user_id;
-                $data['residenter_id'] = $sale_user_id;
+                if($sale_user_id>0){
+                    $data['maintainer_id'] = $sale_user_id;
+                    $data['residenter_id'] = $sale_user_id;
+                }
             }
             if(!empty($settlement_price)){
                 $data['settlement_price'] = $settlement_price;
