@@ -3,9 +3,9 @@
   <form method="post" action="{$host_name}/saleissue/doedit" class="pageForm -validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
     
     <input type="hidden" name="id" value="{$vinfo.id}">
+    <input type="hidden" name="old_maintainer_id" value="{$vinfo.maintainer_id}" >
     <input type="hidden" id="honame" value="{$host_name}">
     <input type="hidden" id="s_type" value="{$vinfo.type}" >
-    <input type="hidden" id="old_maintainer_id" value="{$vinfo.maintainer_id}" >
 
     <div class="pageFormContent modal-body">
       <div class="tabsContent">
