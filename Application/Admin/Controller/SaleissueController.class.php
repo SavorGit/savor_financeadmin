@@ -60,7 +60,8 @@ class SaleissueController extends BaseController {
         $u8_start_date = C('U8_START_DATE');
         $m_pushu8_record = new \Admin\Model\Pushu8RecordModel();
         $m_sale = new \Admin\Model\SaleModel();
-        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.id as hotel_id,hotel.name hotel_name,a.add_time,a.type,a.ptype,a.num,a.status,record.wo_status,record.wo_reason_type";
+        $fileds = "a.id,a.settlement_price,goods.name goods_name,a.idcode,hotel.id as hotel_id,hotel.name hotel_name,a.add_time,a.type,
+        a.ptype,a.num,a.status,record.wo_status,record.wo_reason_type,suer.remark as residenter_name";
         $result = $m_sale->getList($fileds,$where, $orders, $start,$size);
         $datalist = $result['list'];
         foreach ($datalist as $k=>$v){
