@@ -23,8 +23,8 @@ class StockopenrewardController extends BaseController {
         }
         $stime = strtotime($start_date);
         $etime = strtotime($end_date);
-        if($etime-$stime>15*86400){
-            $this->output('请选择15天内的时间段', 'stockopenreward/datalist',2,0);
+        if($etime-$stime>31*86400){
+            $this->output('请选择31天内的时间段', 'stockopenreward/datalist',2,0);
         }
         $m_area  = new \Admin\Model\AreaModel();
         $res_area = $m_area->getHotelAreaList();
@@ -56,7 +56,7 @@ class StockopenrewardController extends BaseController {
 
         $start = ($pageNum-1)*$size;
         $fields = 'a.id,a.idcode,a.vintner_code,a.out_time,a.recycle_img,a.recycle_status,a.reason,a.add_time,a.recycle_time,a.recycle_audit_time,goods.name as goods_name,
-        sale.area_id,hotel.id as hotel_id,hotel.name as hotel_name,su.remark as residenter_name,user.nickName as username,user.mobile';
+        a.is_open_reward,sale.area_id,hotel.id as hotel_id,hotel.name as hotel_name,su.remark as residenter_name,user.nickName as username,user.mobile';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordSaleList($fields,$where, 'a.id desc', $start,$size);
         $data_list = $res_list['list'];
@@ -74,6 +74,11 @@ class StockopenrewardController extends BaseController {
             if($v['recycle_status']==3){
                 $data_list[$k]['reason'] = '未上传开瓶资料';
             }
+            $is_open_reward_str = '否';
+            if($v['is_open_reward_str']==1){
+                $is_open_reward_str = '是';
+            }
+            $data_list[$k]['is_open_reward_str'] = $is_open_reward_str;
             $data_list[$k]['area_name'] = $area_arr[$v['area_id']]['region_name'];
         }
 
