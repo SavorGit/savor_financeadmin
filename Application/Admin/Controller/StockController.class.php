@@ -2075,7 +2075,13 @@ class StockController extends BaseController {
                 $m_u8record->delData(array('stock_record_id'=>$stock_record_id));
                 $message.=',U8推送记录已清理';
             }
-
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            $res_record = $m_stock_record->getAll('id,add_time',array('idcode'=>$idcode,'type'=>5),0,1,'id desc');
+            if(!empty($res_record[0]['id'])){
+                $m_idcode = new \Admin\Model\IdcodeModel();
+                $m_idcode->updateData(array('idcode'=>$idcode),array('type'=>5,'update_time'=>$res_record[0]['add_time']));
+            }
+            
             $this->output($message, 'stock/writeofflist');
 
         }else{
