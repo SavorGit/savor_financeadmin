@@ -475,6 +475,7 @@ class StockController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             $m_user = new \Admin\Model\SmallappUserModel();
+            $oss_host = get_oss_host();
             foreach ($res_list['list'] as $v){
                 $v['department'] = $department_list[$v['department_id']]['name'];
                 $v['department_user'] = $departmentuser_arr[$v['department_user_id']]['name'];
@@ -485,6 +486,9 @@ class StockController extends BaseController {
                     $receive_username = $res_user['nickname'];
                 }
                 $v['receive_username'] = $receive_username;
+                if(!empty($v['check_img'])){
+                    $v['check_img'] = $oss_host.$v['check_img'];
+                }
                 $data_list[] = $v;
             }
         }
