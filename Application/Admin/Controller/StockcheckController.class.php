@@ -18,6 +18,7 @@ class StockcheckController extends BaseController {
 
         $where = array('stock.hotel_id'=>array('gt',0),'stock.type'=>20);
         $where['hotel.id'] = array('not in',C('TEST_HOTEL'));
+        $where['ext.is_salehotel'] = 1;
         if(!empty($hotel_name)){
             $where['hotel.name'] = array('like',"%$hotel_name%");
         }

@@ -54,6 +54,7 @@ class HotelstockController extends BaseController {
 
         $where = array('stock.hotel_id'=>array('gt',0),'stock.type'=>20);
         $where['hotel.id'] = array('not in',C('TEST_HOTEL'));
+        $where['ext.is_salehotel'] = 1;
         if($area_id){
             $where['stock.area_id'] = $area_id;
         }
