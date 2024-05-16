@@ -1954,7 +1954,7 @@ class StockController extends BaseController {
     }
 
     public function unbind(){
-        $idcode = I('idcode','','trim');
+        $idcode = I('get.idcode','','trim');
         $m_winecode = new \Admin\Model\WinecodeModel();
         $result = $m_winecode->delData(array('idcode'=>$idcode));
         if($result){
