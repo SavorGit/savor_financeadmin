@@ -1855,7 +1855,15 @@ class StockController extends BaseController {
             $m_qrcode_content = new \Admin\Model\QrcodeContentModel();
             $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
             $m_stock_record = new \Admin\Model\StockRecordModel();
+            $m_winecode = new \Admin\Model\WinecodeModel();
             if(empty($res_qrcontent)){
+                $res_winecode = $m_winecode->getInfo(array('winecode'=>$idcode));
+                if(!empty($res_winecode['idcode'])){
+                    $qrcontent = decrypt_data($res_winecode['idcode']);
+                    $qr_id = intval($qrcontent);
+                    $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
+                }
+                /*
                 $res_vintner_code = $m_stock_record->getAll('idcode',array('vintner_code'=>$idcode),0,1,'id asc');
                 if(!empty($res_vintner_code[0]['idcode'])){
                     $idcode = $res_vintner_code[0]['idcode'];
@@ -1863,6 +1871,7 @@ class StockController extends BaseController {
                     $qr_id = intval($qrcontent);
                     $res_qrcontent = $m_qrcode_content->getInfo(array('id'=>$qr_id));
                 }
+                */
             }
             if(!empty($res_qrcontent)){
                 $all_type = C('STOCK_RECORD_TYPE');
@@ -1908,7 +1917,7 @@ class StockController extends BaseController {
                     }
                 }
                 $res_allqrcode = $m_qrcode_content->getDataList('id',array('parent_id'=>$parent_id),'id asc');
-                $m_winecode = new \Admin\Model\WinecodeModel();
+
                 foreach ($res_allqrcode as $v){
                     $qrcontent = encrypt_data($v['id']);
                     $res_record = $m_stock_record->getStockRecordList($fileds,array('a.idcode'=>$qrcontent),'a.id desc','0,1','');
@@ -1942,6 +1951,17 @@ class StockController extends BaseController {
         $this->assign('idcode',$idcode);
         $this->assign('datalist',$data_list);
         $this->display();
+    }
+
+    public function unbind(){
+        $idcode = I('idcode','','trim');
+        $m_winecode = new \Admin\Model\WinecodeModel();
+        $result = $m_winecode->delData(array('idcode'=>$idcode));
+        if($result){
+            $this->output('操作成功!', 'stock/idcodesearch',2);
+        }else{
+            $this->output('操作失败', 'stock/idcodesearch',2,0);
+        }
     }
 
     public function idcodehistory(){

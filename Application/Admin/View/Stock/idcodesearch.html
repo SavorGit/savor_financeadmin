@@ -63,6 +63,9 @@
                                 <a title="{$dinfo.idcode}-流转明细" data-tip="流转明细" target="navTab" mask="true" rel="stock/idcodehistory" href="{$host_name}/stock/idcodehistory?idcode={$dinfo.idcode}" class="btn btn-success btn-icon">
                                     <i class="fa fa-list"></i>
                                 </a>
+                                <a warn="警告" data-tip="解绑" title="你确定要解绑吗？" target="ajaxTodo" calback="navTabAjaxDone" href="{$host_name}/stock/unbind?idcode={$dinfo.idcode}"  class="btn btn-danger btn-icon">
+                                    <i class="fa fa-unlock"></i>
+                                </a>
                             </td>
                         </tr>
                     </foreach>
