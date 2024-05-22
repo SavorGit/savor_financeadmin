@@ -1,0 +1,43 @@
+<div class="pageContent">
+	<form method="post" action="{$host_name}/activitypolicy/goodsadd" class="pageForm required-validate" enctype="multipart/form-data" onsubmit="return iframeCallback(this, dialogAjaxDone)">
+		<input name="id" type="hidden" value="{$vinfo.id}"/>
+		<input name="policy_id" type="hidden" value="{$policy_id}"/>
+
+		<div class="pageFormContent modal-body">
+
+		<div class="form-group row">
+			<label class="col-xs-12 col-sm-2 control-label">选择商品：</label>
+			<div class="col-xs-12 col-sm-10  form-inline">
+				<select name="goods_id" class="form-control bs-select class-filter" data-live-search="true" required >
+					<option name="goods_id" selected='selected' value="0">请选择商品</option>
+					<volist name="finance_goods" id="fginfo">
+						<option name="finance_goods_id" value="{$fginfo.id}" <if condition="$fginfo.id eq $vinfo['goods_id']"> selected </if> > {$fginfo.name}</option>
+					</volist>
+				</select>
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label class="col-xs-12 col-sm-2 control-label">系数：</label>
+			<div class="col-xs-12 col-sm-10">
+				<input name="coefficient" type="number" value="{$vinfo.coefficient}" class="form-control" min="0" max="10" required/>
+			</div>
+		</div>
+		<if condition="$apinfo.type eq 1">
+		<div class="form-group row">
+			<label class="col-xs-12 col-sm-2 control-label">积分：</label>
+			<div class="col-xs-12 col-sm-10">
+				<input name="integral" type="number" value="{$vinfo.integral}" class="form-control" min="1" max="999999"/>
+			</div>
+		</div>
+		</if>
+
+
+
+	</div>
+		<div class="modal-footer">
+			<button class="btn btn-default close-m" type="button">取消</button>
+			<button class="btn btn-primary" type="submit">保存</button>
+		</div>
+	</form>
+</div>
