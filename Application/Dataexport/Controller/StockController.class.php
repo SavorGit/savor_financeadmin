@@ -839,6 +839,8 @@ class StockController extends BaseController {
      * @desc 数据查询 库龄明细表
      */
     public function stockageDetail(){
+        set_time_limit(9000);
+        ini_set("memory_limit", "18018M");
         $order = 'id asc';
         $end_date   = I('end_date','');
         $end_date   =  !empty($end_date) ? $end_date: date('Y-m-d',strtotime('-1 day'));
