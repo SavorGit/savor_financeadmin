@@ -99,6 +99,7 @@
                 </label>
                 <div class="col-xs-12 col-sm-10">
                     <select id="link_type" name="link_type" class="form-control bs-select">
+                        <option value="0" >无</option>
                         <volist name=":C('GOODS_LINK_TYPE')" id="lkname">
                             <option value="{$key}" <if condition="$key eq $vinfo['link_type']"> selected </if> >{$lkname}</option>
                         </volist>
