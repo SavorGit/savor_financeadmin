@@ -27,4 +27,16 @@ class ActivityPolicyHotelModel extends BaseModel{
         $data = array('list'=>$list,'page'=>$show);
         return $data;
     }
+
+    public function getActivityPolicyHotels($fields,$where,$order,$limit=''){
+        $list = $this->alias('a')
+            ->join('savor_hotel hotel on a.hotel_id=hotel.id','left')
+            ->join('savor_finance_activity_policy ap on a.policy_id=ap.id','left')
+            ->field($fields)
+            ->where($where)
+            ->order($order)
+            ->limit($limit)
+            ->select();
+        return $list;
+    }
 }

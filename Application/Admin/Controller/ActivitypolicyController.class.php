@@ -238,6 +238,7 @@ class ActivitypolicyController extends BaseController {
     public function hoteladd(){
         $policy_id = I('policy_id',0,'intval');
         $m_activity_policy = new \Admin\Model\ActivityPolicyModel();
+        $dinfo = $m_activity_policy->getInfo(array('id'=>$policy_id));
         if(IS_POST){
             $hbarr = $_POST['hbarr'];
             if(empty($hbarr)){
@@ -248,6 +249,14 @@ class ActivitypolicyController extends BaseController {
                 $this->output('请选择酒楼','activitypolicy/hoteladd',2,0);
             }
             $m_activity_policy_hotel = new \Admin\Model\ActivityPolicyHotelModel();
+            $fields = 'a.hotel_id,hotel.name as hotel_name,ap.id as ap_id,ap.name';
+            $where = array('ap.type'=>$dinfo['type'],'ap.status'=>1);
+            $where['a.hotel_id'] = array('in',$hotel_arr);
+            $res_aphotels = $m_activity_policy_hotel->getActivityPolicyHotels($fields,$where,'a.id desc','0,1');
+            if(!empty($res_aphotels[0]['hotel_id'])){
+                $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-$res_aphotels[0]['hotel_name'],已有政策:{$res_aphotels[0]['ap_id']}-{$res_aphotels[0]['name']}";
+                $this->output($msg,'activitypolicy/datalist',2,0);
+            }
             $m_hotel = new \Admin\Model\HotelModel();
             $hotel_data = array();
             foreach ($hotel_arr as $hv){
@@ -266,7 +275,6 @@ class ActivitypolicyController extends BaseController {
             }
             $this->output('添加成功','activitypolicy/datalist');
         }else{
-            $dinfo = $m_activity_policy->getInfo(array('id'=>$policy_id));
             $areaModel  = new \Admin\Model\AreaModel();
             $area_arr = $areaModel->getHotelAreaList();
             $this->assign('areainfo', $area_arr);
