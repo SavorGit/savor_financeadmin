@@ -386,7 +386,7 @@ class StockController extends BaseController {
         $orders = $order.' '.$sort;
         
         $where = [];
-        $area_id    = I('area_id',0,'intval');
+        $area_id    = I('area_id',1,'intval');
         $store_type = I('store_type',0,'intval');
         if($area_id){
             $where['area_id'] = $area_id;
