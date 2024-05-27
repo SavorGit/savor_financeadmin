@@ -173,7 +173,7 @@ $config['SP_GR_STATE'] = array(
     '1'=>'已发布',
     '2'=>'已删除',
 );
-
+$config['ACTIVITY_AWARD_STATUS'] = array('1'=>'发放正常积分','2'=>'发放冻结积分','3'=>'待发放积分');
 $config['UMENT_API_CONFIG'] = array(
      'API_URL'=>'http://msg.umeng.com/api/send',
      'opclient'=>array(
