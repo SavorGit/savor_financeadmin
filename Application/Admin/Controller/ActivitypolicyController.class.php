@@ -123,6 +123,25 @@ class ActivitypolicyController extends BaseController {
                 }
             }
             if($id){
+                if($status==1){
+                    $res_ap_hotels = $m_ap_hotel->getAllData('hotel_id', array('policy_id'=>$id), '', '');
+                    $all_hotel_ids = array();
+                    foreach ($res_ap_hotels as $v){
+                        $all_hotel_ids[]=$v['hotel_id'];
+                    }
+                    if(!empty($all_hotel_ids)){
+                        $m_activity_policy_hotel = new \Admin\Model\ActivityPolicyHotelModel();
+                        $fields = 'a.hotel_id,hotel.name as hotel_name,ap.id as ap_id,ap.name';
+                        $where = array('ap.type'=>$dinfo['type'],'ap.status'=>1);
+                        $where['ap.id'] = array('neq',$id);
+                        $where['a.hotel_id'] = array('in',$all_hotel_ids);
+                        $res_aphotels = $m_activity_policy_hotel->getActivityPolicyHotels($fields,$where,'a.id desc','0,1');
+                        if(!empty($res_aphotels[0]['hotel_id'])){
+                            $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-$res_aphotels[0]['hotel_name'],已有政策:{$res_aphotels[0]['ap_id']}-{$res_aphotels[0]['name']}";
+                            $this->output($msg,'activitypolicy/policyadd',2,0);
+                        }
+                    }
+                }
                 $m_activity_policy->updateData(array('id'=>$id),$add_data);
             }else{
                 $policy_id = $m_activity_policy->add($add_data);
@@ -251,6 +270,7 @@ class ActivitypolicyController extends BaseController {
             $m_activity_policy_hotel = new \Admin\Model\ActivityPolicyHotelModel();
             $fields = 'a.hotel_id,hotel.name as hotel_name,ap.id as ap_id,ap.name';
             $where = array('ap.type'=>$dinfo['type'],'ap.status'=>1);
+            $where['ap.id'] = array('neq',$policy_id);
             $where['a.hotel_id'] = array('in',$hotel_arr);
             $res_aphotels = $m_activity_policy_hotel->getActivityPolicyHotels($fields,$where,'a.id desc','0,1');
             if(!empty($res_aphotels[0]['hotel_id'])){
