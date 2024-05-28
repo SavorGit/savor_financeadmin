@@ -264,14 +264,21 @@ class ActivitypolicyController extends BaseController {
                 $this->output('请选择酒楼','activitypolicy/hoteladd',2,0);
             }
             $hotel_arr = json_decode($hbarr, true);
-            if(empty($hotel_arr)){
+            $hotel_ids = array();
+            foreach ($hotel_arr as $hv){
+                $hotel_id = intval($hv['hotel_id']);
+                if($hotel_id>0){
+                    $hotel_ids[]=$hotel_id;
+                }
+            }
+            if(empty($hotel_ids)){
                 $this->output('请选择酒楼','activitypolicy/hoteladd',2,0);
             }
             $m_activity_policy_hotel = new \Admin\Model\ActivityPolicyHotelModel();
             $fields = 'a.hotel_id,hotel.name as hotel_name,ap.id as ap_id,ap.name';
             $where = array('ap.type'=>$dinfo['type'],'ap.status'=>1);
             $where['ap.id'] = array('neq',$policy_id);
-            $where['a.hotel_id'] = array('in',$hotel_arr);
+            $where['a.hotel_id'] = array('in',$hotel_ids);
             $res_aphotels = $m_activity_policy_hotel->getActivityPolicyHotels($fields,$where,'a.id desc','0,1');
             if(!empty($res_aphotels[0]['hotel_id'])){
                 $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-$res_aphotels[0]['hotel_name'],已有政策:{$res_aphotels[0]['ap_id']}-{$res_aphotels[0]['name']}";
@@ -279,16 +286,14 @@ class ActivitypolicyController extends BaseController {
             }
             $m_hotel = new \Admin\Model\HotelModel();
             $hotel_data = array();
-            foreach ($hotel_arr as $hv){
-                $hotel_id = intval($hv['hotel_id']);
-                if($hotel_id>0){
-                    $res_price_hotel = $m_activity_policy_hotel->getInfo(array('policy_id'=>$policy_id,'hotel_id'=>$hotel_id));
-                    if(!empty($res_price_hotel)){
-                        continue;
-                    }
-                    $res_hotel = $m_hotel->getRow('area_id',array('id'=>$hotel_id));
-                    $hotel_data[]=array('policy_id'=>$policy_id,'hotel_id'=>$hotel_id,'area_id'=>$res_hotel['area_id']);
+            foreach ($hotel_ids as $hv){
+                $hotel_id = intval($hv);
+                $res_price_hotel = $m_activity_policy_hotel->getInfo(array('policy_id'=>$policy_id,'hotel_id'=>$hotel_id));
+                if(!empty($res_price_hotel)){
+                    continue;
                 }
+                $res_hotel = $m_hotel->getRow('area_id',array('id'=>$hotel_id));
+                $hotel_data[]=array('policy_id'=>$policy_id,'hotel_id'=>$hotel_id,'area_id'=>$res_hotel['area_id']);
             }
             if(!empty($hotel_data)){
                 $m_activity_policy_hotel->addAll($hotel_data);
