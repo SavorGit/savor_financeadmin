@@ -26,7 +26,7 @@ class AwardhoteldataController extends BaseController {
 
         $all_status = C('ACTIVITY_AWARD_STATUS');
         $where = array('a.static_date'=>$now_stat_date);
-//        $where['a.hotel_id'] = array('not in',C('TEST_HOTEL'));
+        $where['a.hotel_id'] = array('not in',C('TEST_HOTEL'));
         if(!empty($hotel_name)){
             $where['a.hotel_name'] = array('like',"%$hotel_name%");
         }
@@ -44,7 +44,7 @@ class AwardhoteldataController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
-                $user_name = !empty($v['name'])?$v['name']:$v['nickName'];
+                $user_name = !empty($v['name'])?$v['name']:$v['nickname'];
                 $v['user_name'] = $user_name;
                 $v['status_str'] = $all_status[$v['status']];
                 $data_list[]=$v;

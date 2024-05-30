@@ -29,9 +29,9 @@ class AwardhoteldataController extends BaseController {
         $m_awardhoteldata = new \Admin\Model\AwardHoteldataModel();
         $res_list = $m_awardhoteldata->getHotelDatas($fileds,$where,'',0,0);
         $data_list = array();
-        if(!empty($res_list['list'])){
-            foreach ($res_list['list'] as $v){
-                $user_name = !empty($v['name'])?$v['name']:$v['nickName'];
+        if(!empty($res_list)){
+            foreach ($res_list as $v){
+                $user_name = !empty($v['name'])?$v['name']:$v['nickname'];
                 $v['user_name'] = $user_name;
                 $v['status_str'] = $all_status[$v['status']];
                 $data_list[]=$v;
