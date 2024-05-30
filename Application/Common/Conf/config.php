@@ -276,7 +276,7 @@ $config['MEMBER_INTEGRAL']=array(
 $config['STOCKCHECK_STATUS'] = array('21'=>'正常','22'=>'盘赢','23'=>'盘亏','24'=>'盘赢+盘亏');
 $config['TEMPLATE_TYPES'] = array('1'=>'通用政策','2'=>'特殊政策');
 $config['TEMPLATE_STATUS'] = array('1'=>'执行中','2'=>'已终止');
-$config['ACTIVITY_POLICY_TYPES'] = array('1'=>'单瓶激励','2'=>'开瓶阶梯激励');
+$config['ACTIVITY_POLICY_TYPES'] = array('1'=>'单品激励','2'=>'开瓶阶梯激励');
 $config['ACTIVITY_POLICY_INTEGRAL_CONFIG'] = array(
     array('n'=>8,'i'=>40000),
     array('n'=>20,'i'=>60000),
