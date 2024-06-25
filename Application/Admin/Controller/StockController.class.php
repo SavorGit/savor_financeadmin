@@ -475,6 +475,7 @@ class StockController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             $m_user = new \Admin\Model\SmallappUserModel();
+            $m_ops_staff = new \Admin\Model\OpsstaffModel();
             $oss_host = get_oss_host();
             foreach ($res_list['list'] as $v){
                 $v['department'] = $department_list[$v['department_id']]['name'];
@@ -484,6 +485,10 @@ class StockController extends BaseController {
                 if(!empty($v['receive_openid'])){
                     $res_user = $m_user->getInfo(array('openid'=>$v['receive_openid']));
                     $receive_username = $res_user['nickname'];
+                    $res_ops_staff = $m_ops_staff->getStaffInfo('u.remark as user_name',array('a.openid'=>$v['receive_openid']));
+                    if(!empty($res_ops_staff['user_name'])){
+                        $receive_username = $res_ops_staff['user_name'];
+                    }
                 }
                 $v['receive_username'] = $receive_username;
                 if(!empty($v['check_img'])){
