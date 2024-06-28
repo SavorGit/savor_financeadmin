@@ -6,7 +6,7 @@ class GlobalconfigController extends BaseController {
 
     public function configdata(){
         $m_sys_config = new \Admin\Model\SysConfigModel();
-        $where = " config_key in('sale_ys_money','sale_cq_money','hotel_stock_num')";
+        $where = " config_key in('sale_ys_money','sale_cq_money','hotel_stock_num','zz_day')";
         $volume_arr = $m_sys_config->getList($where);
         $info = array();
         foreach($volume_arr as $v){
@@ -24,6 +24,7 @@ class GlobalconfigController extends BaseController {
         $sale_ys_money = I('post.sale_ys_money',0,'intval');
         $sale_cq_money = I('post.sale_cq_money',0,'intval');
         $hotel_stock_num = I('post.hotel_stock_num',0,'intval');
+        $zz_day = I('post.zz_day',0,'intval');
 
         $m_sys_config = new \Admin\Model\SysConfigModel();
         if($sale_ys_money){
@@ -38,7 +39,10 @@ class GlobalconfigController extends BaseController {
             $data = array('config_value'=>$hotel_stock_num);
             $m_sys_config->editData($data, 'hotel_stock_num');
         }
-
+        if($zz_day){
+            $data = array('config_value'=>$zz_day);
+            $m_sys_config->editData($data, 'zz_day');
+        }
         $sys_list = $m_sys_config->getList(array('status'=>1));
         $redis  =  \Common\Lib\SavorRedis::getInstance();
         $redis->select(12);
