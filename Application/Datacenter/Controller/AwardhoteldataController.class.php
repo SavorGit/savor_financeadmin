@@ -76,9 +76,9 @@ class AwardhoteldataController extends BaseController {
 
                 $m_userintegral = new \Admin\Model\UserIntegralModel();
                 $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
-                $rwhere = array('jdorder_id'=>$id,'type'=>array('in','26,27'));
+                $rwhere = array('jdorder_id'=>$id,'type'=>array('in','26,27'),'status'=>2);
                 $res_recordinfo = $m_integralrecord->getAll('id,openid,integral,hotel_id,status',$rwhere,0,2,'id desc');
-                if(!empty($res_recordinfo[0]['id']) && $res_recordinfo[0]['status']==2){
+                if(!empty($res_recordinfo[0]['id'])){
                     foreach ($res_recordinfo as $rv){
                         $record_id = $rv['id'];
                         $m_integralrecord->updateData(array('id'=>$record_id),array('status'=>1,'integral_time'=>date('Y-m-d H:i:s')));
