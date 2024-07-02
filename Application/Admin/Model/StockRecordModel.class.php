@@ -128,6 +128,7 @@ class StockRecordModel extends BaseModel{
         if($start>=0 && $size>0){
             $list = $this->alias('a')
                 ->join('savor_finance_sale sale on a.id=sale.stock_record_id', 'left')
+                ->join('savor_finance_winecode wcode on a.idcode=wcode.idcode','left')
                 ->join('savor_smallapp_user user on a.op_openid=user.openid', 'left')
                 ->join('savor_finance_goods goods on a.goods_id=goods.id', 'left')
                 ->join('savor_hotel hotel on sale.hotel_id=hotel.id', 'left')
@@ -139,6 +140,7 @@ class StockRecordModel extends BaseModel{
                 ->select();
             $count = $this->alias('a')
                 ->join('savor_finance_sale sale on a.id=sale.stock_record_id', 'left')
+                ->join('savor_finance_winecode wcode on a.idcode=wcode.idcode','left')
                 ->join('savor_smallapp_user user on a.op_openid=user.openid', 'left')
                 ->join('savor_finance_goods goods on a.goods_id=goods.id', 'left')
                 ->join('savor_hotel hotel on sale.hotel_id=hotel.id', 'left')
