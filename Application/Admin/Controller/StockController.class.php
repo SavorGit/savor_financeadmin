@@ -1404,6 +1404,11 @@ class StockController extends BaseController {
                 if(isset($all_recycle_status[$v['recycle_status']])){
                     $recycle_status_str = $all_recycle_status[$v['recycle_status']];
                 }
+                $is_open_reward = 0;
+                if(in_array($v['recycle_status'],array(1,4,5))){
+                    $is_open_reward = 1;
+                }
+                $v['is_open_reward']=$is_open_reward;
                 $v['recycle_status_str']=$recycle_status_str;
                 $v['wo_status_str']=$all_wo_status[$v['wo_status']];
                 $v['imgs']=$imgs;
@@ -1454,7 +1459,92 @@ class StockController extends BaseController {
         $this->display();
     }
 
+    public function auditopenreward(){
+        $stock_record_id = I('stock_record_id',0,'intval');
+        if(IS_POST){
+            $status = I('post.recycle_status',0,'intval');//2审核通过,6审核不通过
+            $userinfo = session('sysUserInfo');
+            $sysuser_id = $userinfo['id'];
+
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            $m_userintegral = new \Admin\Model\UserIntegralModel();
+            $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
+            $m_merchant = new \Admin\Model\MerchantModel();
+            $up_record = array('recycle_audit_user_id'=>$sysuser_id,'recycle_audit_time'=>date('Y-m-d H:i:s'));
+            if($status==2){
+                //发放解冻积分 增加用户积分
+                $rwhere = array('jdorder_id'=>$stock_record_id,'type'=>25);
+                $res_recordinfo = $m_integralrecord->getAll('id,openid,integral,hotel_id,status',$rwhere,0,2,'id desc');
+                if(!empty($res_recordinfo[0]['id'])){
+                    if($res_recordinfo[0]['status']==2){
+                        $where = array('hotel_id'=>$res_recordinfo[0]['hotel_id'],'status'=>1);
+                        $field_merchant = 'id as merchant_id,is_integral,is_shareprofit,shareprofit_config';
+                        $res_merchant = $m_merchant->getRow($field_merchant,$where,'id desc');
+                        $is_integral = $res_merchant['is_integral'];
+
+                        foreach ($res_recordinfo as $rv){
+                            $record_id = $rv['id'];
+
+                            $m_integralrecord->updateData(array('id'=>$record_id),array('status'=>1,'integral_time'=>date('Y-m-d H:i:s')));
+                            $now_integral = $rv['integral'];
+                            if($is_integral==1){
+                                $res_integral = $m_userintegral->getInfo(array('openid'=>$rv['openid']));
+                                if(!empty($res_integral)){
+                                    $userintegral = $res_integral['integral']+$now_integral;
+                                    $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
+                                }else{
+                                    $m_userintegral->add(array('openid'=>$rv['openid'],'integral'=>$now_integral));
+                                }
+                            }else{
+                                $where = array('id'=>$res_merchant['merchant_id']);
+                                $m_merchant->where($where)->setInc('integral',$now_integral);
+                            }
+                        }
+                        $up_record['recycle_status']=2;
+                    }
+                }else{
+                    $up_record['recycle_status']=2;
+                    $stock_record_info = $m_stock_record->alias('a')
+                        ->join('savor_finance_sale sale on a.id=sale.stock_record_id', 'left')
+                        ->field('a.*,sale.area_id,sale.hotel_id')
+                        ->where(array('a.id'=>$stock_record_id))
+                        ->find();
+                    $m_integralrecord->finishRecycle($stock_record_info,1);
+                }
+            }elseif($status==6){
+                $rwhere = array('jdorder_id'=>$stock_record_id,'type'=>25,'status'=>2);
+                $res_recordinfo = $m_integralrecord->getAll('id,openid,integral,hotel_id',$rwhere,0,2,'id desc');
+                if(!empty($res_recordinfo[0]['id'])){
+                    $del_record_ids = array();
+                    foreach ($res_recordinfo as $rv){
+                        $del_record_ids[] = $rv['id'];
+                    }
+                    $m_integralrecord->delData(array('id'=>array('in',$del_record_ids)));
+                }
+                $up_record['recycle_status']=6;
+                if(!empty($reason)){
+                    $up_record['reason']=$reason;
+                }
+            }
+            $m_stock_record->updateData(array('id'=>$stock_record_id),$up_record);
+
+            $this->output('操作完成', 'stock/writeofflist');
+        }else{
+            $condition = array('id'=>$stock_record_id);
+            $m_stock_record = new \Admin\Model\StockRecordModel();
+            $res_info = $m_stock_record->getInfo($condition);
+            $m_winecode = new \Admin\Model\WinecodeModel();
+            $res_winecode = $m_winecode->getInfo(array('idcode'=>$res_info['idcode']));
+            $winecode = !empty($res_winecode['winecode'])?$res_winecode['winecode']:'';
+
+            $this->assign('winecode',$winecode);
+            $this->assign('vinfo',$res_info);
+            $this->display();
+        }
+    }
+
     public function auditwriteoff(){
+        $this->output('功能迭代已废弃使用审核核销功能改为运维端BD审核', "stock/writeofflist", 2, 0);
         $id = I('id',0,'intval');
 
         if(IS_POST){
@@ -1659,7 +1749,7 @@ class StockController extends BaseController {
     }
 
     public function auditrecycle(){
-        $this->output('审核物料回收功能暂停使用', "stock/writeofflist", 2, 0);
+        $this->output('功能迭代已废弃使用审核物料回收功能改为运维端库管审核', "stock/writeofflist", 2, 0);
         $id = I('id',0,'intval');
         $condition = array('id'=>$id);
         $m_stock_record = new \Admin\Model\StockRecordModel();
