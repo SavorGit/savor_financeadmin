@@ -1138,6 +1138,7 @@ class StockController extends BaseController {
 
 //                $stock_num = $out_num+$unpack_num+$wo_num+$report_num;
                 $stock_num = $out_num+$wo_num+$report_num;
+                $stock_num = $stock_num>0?$stock_num:0;
                 $m_price_template_hotel = new \Admin\Model\PriceTemplateHotelModel();
                 $settlement_price = $m_price_template_hotel->getHotelGoodsPrice($v['hotel_id'],$goods_id,1);
                 $v['settlement_price'] = $settlement_price;
@@ -1361,7 +1362,7 @@ class StockController extends BaseController {
         $is_clean_writeoff = in_array($sysuser_id,$this->clean_writeoff_uid)?1:0;
 
         $start = ($pageNum-1)*$size;
-        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,sale.id as sale_id,
+        $fields = 'a.*,goods.name,goods.specification_id,unit.name as unit_name,stock.serial_number,sale.id as sale_id,wcode.winecode,
         stock.area_id,hotel.name as hotel_name,hotel.id as hotel_id,sale.settlement_price,su.remark as residenter_name';
         $m_stock_record = new \Admin\Model\StockRecordModel();
         $res_list = $m_stock_record->getRecordList($fields,$where, 'a.add_time desc', $start,$size);
