@@ -133,4 +133,63 @@ class GoodsController extends BaseController {
         $this->exportToExcel($cell,$datalist,$filename,1);
     }
 
+    public function uppolicy(){
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        $area_arr = array();
+        foreach ($res_area as $v){
+            if($v['id']==246){
+                continue;
+            }
+            $area_arr[$v['id']]=$v;
+        }
+        $sql_goods = 'select * from savor_finance_goods where status=1';
+        $res_goods = $m_area->query($sql_goods);
+        $m_goods_policy = new \Admin\Model\GoodsPolicyModel();
+        $m_goods_policy_hotel = new \Admin\Model\GoodsPolicyHotelModel();
+        $m_goods_policy_wodata = new \Admin\Model\GoodsPolicyWodataModel();
+        foreach ($res_goods as $v){
+            $goods_id = $v['id'];
+            $sql_config = "select * from savor_finance_goods_config where goods_id={$goods_id} and type=10 order by id desc";
+            $res_config = $m_area->query($sql_config);
+            if(empty($res_config[0]['id'])){
+                echo "goods_id:$goods_id no data \r\n";
+                continue;
+            }
+            $open_area_ids = explode(',',$res_config[0]['open_area_ids']);
+            foreach ($area_arr as $av){
+                $name = $v['name'].'-'.$av['region_name'].'-'.'通用政策';
+                $open_integral = 0;
+                if(in_array($av['id'],$open_area_ids)){
+                    $open_integral = $res_config[0]['open_integral'];
+                }
+                $pdata = array('name'=>$name,'goods_id'=>$goods_id,'integral'=>$res_config[0]['integral'],'open_integral'=>$open_integral,
+                    'media_id'=>$res_config[0]['media_id'],'area_id'=>$av['id'],'type'=>1,'status'=>1);
+                $policy_id = $m_goods_policy->add($pdata);
+
+                echo "goods_id:$goods_id savor_finance_goods_policy \r\n";
+
+                $m_goods_policy_hotel->add(array('policy_id'=>$policy_id,'area_id'=>$av['id'],'hotel_id'=>0));
+
+                echo "goods_id:$goods_id savor_finance_goods_policy_hotel \r\n";
+
+                $sql_wodata = "select * from savor_finance_goods_config where goods_id={$goods_id} and type in (1,2,3,20,21) and status=1 order by id asc";
+                $res_wodata = $m_area->query($sql_wodata);
+                if(!empty($res_wodata[0]['id'])){
+                    $wo_data = array();
+                    foreach ($res_wodata as $wov){
+                        $wo_data[]=array('policy_id'=>$policy_id,'name'=>$wov['name'],'is_required'=>$wov['is_required'],
+                            'media_id'=>$wov['media_id'],'status'=>1,'type'=>$wov['type']);
+                    }
+                    $m_goods_policy_wodata->addAll($wo_data);
+
+                    echo "goods_id:$goods_id savor_finance_goods_policy_wodata \r\n";
+                }
+            }
+
+        }
+
+
+    }
+
 }
