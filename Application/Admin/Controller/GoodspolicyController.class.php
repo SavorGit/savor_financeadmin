@@ -49,6 +49,7 @@ class GoodspolicyController extends BaseController {
         $this->assign('gp_name',"商品ID：{$goods_id}，名称：{$goods_name}");
         $this->assign('data',$data_list);
         $this->assign('goods_id',$goods_id);
+        $this->assign('goods_name',$goods_name);
         $this->assign('type',$type);
         $this->assign('status',$status);
         $this->assign('page',$res_list['page']);
