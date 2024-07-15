@@ -114,7 +114,7 @@ class GoodspolicyController extends BaseController {
                         $where = array('gp.type'=>$dinfo['type'],'gp.status'=>1);
                         $where['gp.id'] = array('neq',$id);
                         $where['a.hotel_id'] = array('in',$all_hotel_ids);
-                        $res_aphotels = $m_gp_hotel->getActivityPolicyHotels($fields,$where,'a.id desc','0,1');
+                        $res_aphotels = $m_gp_hotel->getGoodsPolicyHotels($fields,$where,'a.id desc','0,1');
                         if(!empty($res_aphotels[0]['hotel_id'])){
                             $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-$res_aphotels[0]['hotel_name'],已有政策:{$res_aphotels[0]['gp_id']}-{$res_aphotels[0]['name']}";
                             $this->output($msg,'goodspolicy/policyadd',2,0);
@@ -232,7 +232,7 @@ class GoodspolicyController extends BaseController {
 
     public function hoteldel(){
         $id = I('get.id',0,'intval');
-        $m_goods_policy_hotel = new \Admin\Model\ActivityPolicyHotelModel();
+        $m_goods_policy_hotel = new \Admin\Model\GoodsPolicyHotelModel();
         $result = $m_goods_policy_hotel->delData(array('id'=>$id));
         if($result){
             $this->output('操作成功!', 'goodspolicy/hotellist',2);

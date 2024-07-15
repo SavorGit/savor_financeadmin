@@ -28,7 +28,7 @@ class GoodsPolicyHotelModel extends BaseModel{
         return $data;
     }
 
-    public function getActivityPolicyHotels($fields,$where,$order,$limit=''){
+    public function getGoodsPolicyHotels($fields,$where,$order,$limit=''){
         $list = $this->alias('a')
             ->join('savor_hotel hotel on a.hotel_id=hotel.id','left')
             ->join('savor_finance_goods_policy gp on a.policy_id=gp.id','left')
