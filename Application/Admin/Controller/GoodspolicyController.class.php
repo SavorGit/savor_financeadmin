@@ -176,7 +176,7 @@ class GoodspolicyController extends BaseController {
             $where = array('gp.type'=>$dinfo['type'],'gp.status'=>1);
             $where['gp.id'] = array('neq',$policy_id);
             $where['a.hotel_id'] = array('in',$hotel_ids);
-            $res_aphotels = $m_goods_policy_hotel->getActivityPolicyHotels($fields,$where,'a.id desc','0,1');
+            $res_aphotels = $m_goods_policy_hotel->getGoodsPolicyHotels($fields,$where,'a.id desc','0,1');
             if(!empty($res_aphotels[0]['hotel_id'])){
                 $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-$res_aphotels[0]['hotel_name'],已有政策:{$res_aphotels[0]['gp_id']}-{$res_aphotels[0]['name']}";
                 $this->output($msg,'goodspolicy/datalist',2,0);
