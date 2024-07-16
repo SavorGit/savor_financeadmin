@@ -17,16 +17,34 @@ class SalepaymentController extends BaseController {
         $m_salepayment = new \Admin\Model\SalePaymentModel();
         $res_list = $m_salepayment->getList('a.*,hotel.name as hotel_name',$where,'a.id desc');
         $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
+		$m_idcode = new \Admin\Model\IdcodeModel();
         $data_list = array();
         foreach ($res_list as $v){
             $res_idcodes = $m_paymentrecord->getList('a.*,sale.idcode',array('a.sale_payment_id'=>$v['id']),'a.id desc');
             foreach ($res_idcodes as $iv){
                 $idcode = $iv['idcode'];
+				
+				if(!empty($v['hotel_id'])){
+					
+					$goods_info = $m_idcode->alias('a')
+										   ->field('goods.name goods_name')
+										   ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
+										   ->where(array('a.idcode'=>$idcode,'a.io_type'=>22))
+										   ->find();
+										   
+					$goods_name	= $goods_info['goods_name'];				   
+					
+				}else {
+					
+					$goods_name = '';
+				}
+				
+				
                 if(is_numeric($idcode)){
                     $idcode = "'$idcode";
                 }
                 $data_list[]=array('id'=>$v['id'],'serial_number'=>$v['serial_number'],'hotel_id'=>$v['hotel_id'],'hotel_name'=>$v['hotel_name'],
-                    'tax_rate'=>$v['tax_rate'],'pay_time'=>$v['pay_time'],'idcode'=>$idcode,'idcode_pay_money'=>$iv['pay_money']
+                    'tax_rate'=>$v['tax_rate'],'pay_time'=>$v['pay_time'],'idcode'=>$idcode,'idcode_pay_money'=>$iv['pay_money'],'goods_name'=>$goods_name
                 );
             }
         }
@@ -39,6 +57,7 @@ class SalepaymentController extends BaseController {
             array('idcode_pay_money','收款金额'),
             array('pay_time','收款时间'),
             array('idcode','唯一识别码'),
+			array('goods_name','商品名称'),
         );
         $filename = '收款列表';
         $this->exportToExcel($cell,$data_list,$filename,1);
