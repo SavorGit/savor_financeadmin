@@ -75,7 +75,7 @@ class GoodspolicyController extends BaseController {
                 if(empty($area_id)){
                     $this->output('请选择城市', 'goodspolicy/policyadd',2,0);
                 }
-                $rwhere = array('type'=>$type,'area_id'=>$area_id,'status'=>1);
+                $rwhere = array('type'=>$type,'area_id'=>$area_id,'goods_id'=>$goods_id,'status'=>1);
                 if($id){
                     $rwhere['id'] = array('neq',$id);
                 }
