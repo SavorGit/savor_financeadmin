@@ -5,6 +5,7 @@ class GoodsController extends BaseController {
 
     public function datalist(){
         $category_id = I('category_id',0,'intval');
+        $status = I('status',0,'intval');
         $size = I('numPerPage',50,'intval');//显示每页记录数
         $pageNum = I('pageNum',1,'intval');//当前页码
         $keyword = I('keyword','','trim');
@@ -16,6 +17,9 @@ class GoodsController extends BaseController {
         }
         if($category_id){
             $where['category_id']=$category_id;
+        }
+        if($status){
+            $where['status'] = $status;
         }
         $start = ($pageNum-1)*$size;
         $orderby = 'id desc';
@@ -35,26 +39,17 @@ class GoodsController extends BaseController {
         foreach ($all_brand as $v){
             $brands[$v['id']]=$v;
         }
-        $m_goods_config = new \Admin\Model\GoodsConfigModel();
         $all_status = C('MANGER_STATUS');
         if(!empty($res_list['list'])){
             foreach ($res_list['list'] as $v){
                 $v['status_str'] = $all_status[$v['status']];
                 $v['brand'] = $brands[$v['brand_id']]['name'];
                 $v['category'] = $categorys[$v['category_id']]['name'];
-                $integral = 0;
-                $open_integral = 0;
-                $res_integral = $m_goods_config->getInfo(array('goods_id'=>$v['id'],'type'=>10));
-                if(!empty($res_integral)){
-                    $integral = intval($res_integral['integral']);
-                    $open_integral = intval($res_integral['open_integral']);
-                }
-                $v['integral'] = $integral;
-                $v['open_integral'] = $open_integral;
                 $data_list[] = $v;
             }
         }
         $this->assign('categorys',$categorys);
+        $this->assign('status',$status);
         $this->assign('category_id',$category_id);
         $this->assign('brands',$brands);
         $this->assign('keyword',$keyword);
