@@ -5,16 +5,8 @@ class UserIntegralrecordModel extends BaseModel{
 
     public function finishRecycle($stock_record_info,$integral_status=2){
         $stock_record_id = $stock_record_info['id'];
-
-        if($stock_record_info['hotel_id']==7){////上线后删除 然后打开注释掉代码
-            $m_goods_policy_hotel = new \Admin\Model\GoodsPolicyHotelModel();
-            $res_goodsintegral = $m_goods_policy_hotel->getGoodsPolicy($stock_record_info['goods_id'],$stock_record_info['area_id'],$stock_record_info['hotel_id']);
-        }else{
-            $m_goodsconfig = new \Admin\Model\GoodsConfigModel();
-            $res_goodsintegral = $m_goodsconfig->getInfo(array('goods_id'=>$stock_record_info['goods_id'],'type'=>10));
-        }
-//        $m_goods_policy_hotel = new \Admin\Model\GoodsPolicyHotelModel();
-//        $res_goodsintegral = $m_goods_policy_hotel->getGoodsPolicy($stock_record_info['goods_id'],$stock_record_info['area_id'],$stock_record_info['hotel_id']);
+        $m_goods_policy_hotel = new \Admin\Model\GoodsPolicyHotelModel();
+        $res_goodsintegral = $m_goods_policy_hotel->getGoodsPolicy($stock_record_info['goods_id'],$stock_record_info['area_id'],$stock_record_info['hotel_id']);
 
         if(empty($res_goodsintegral) || $res_goodsintegral['open_integral']==0){
             $msg = "stock_record_id:{$stock_record_id},goods_id:{$stock_record_info['goods_id']},open_integral:0";
@@ -23,14 +15,6 @@ class UserIntegralrecordModel extends BaseModel{
         if($stock_record_info['wo_reason_type']!=1){
             $msg = "stock_record_id:{$stock_record_id},wo_reason_type:{$stock_record_info['wo_reason_type']} error";
             return $msg;
-        }
-
-        if($stock_record_info['hotel_id']!=7){//上线后删除
-            $open_area_ids = explode(',',$res_goodsintegral['open_area_ids']);
-            if(!in_array($stock_record_info['area_id'],$open_area_ids)){
-                $msg = "stock_record_id:{$stock_record_id},area_ids:{$stock_record_info['area_id']} error";
-                return $msg;
-            }
         }
 
         $now_integral = $res_goodsintegral['open_integral'];
