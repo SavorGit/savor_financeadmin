@@ -112,11 +112,15 @@ class GoodspolicyController extends BaseController {
                     if(!empty($all_hotel_ids)){
                         $fields = 'a.hotel_id,hotel.name as hotel_name,gp.id as gp_id,gp.name';
                         $where = array('gp.type'=>$dinfo['type'],'gp.status'=>1);
-                        $where['gp.id'] = array('neq',$id);
+                        if($type==2){
+                            $where['gp.id'] = $id;
+                        }else{
+                            $where['gp.id'] = array('neq',$id);
+                        }
                         $where['a.hotel_id'] = array('in',$all_hotel_ids);
                         $res_aphotels = $m_gp_hotel->getGoodsPolicyHotels($fields,$where,'a.id desc','0,1');
                         if(!empty($res_aphotels[0]['hotel_id'])){
-                            $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-$res_aphotels[0]['hotel_name'],已有政策:{$res_aphotels[0]['gp_id']}-{$res_aphotels[0]['name']}";
+                            $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-{$res_aphotels[0]['hotel_name']},已有政策:{$res_aphotels[0]['gp_id']}-{$res_aphotels[0]['name']}";
                             $this->output($msg,'goodspolicy/policyadd',2,0);
                         }
                     }
@@ -174,11 +178,12 @@ class GoodspolicyController extends BaseController {
             $m_goods_policy_hotel = new \Admin\Model\GoodsPolicyHotelModel();
             $fields = 'a.hotel_id,hotel.name as hotel_name,gp.id as gp_id,gp.name';
             $where = array('gp.type'=>$dinfo['type'],'gp.status'=>1);
-            $where['gp.id'] = array('neq',$policy_id);
+//            $where['gp.id'] = array('neq',$policy_id);
+            $where['gp.id'] = $policy_id;
             $where['a.hotel_id'] = array('in',$hotel_ids);
             $res_aphotels = $m_goods_policy_hotel->getGoodsPolicyHotels($fields,$where,'a.id desc','0,1');
             if(!empty($res_aphotels[0]['hotel_id'])){
-                $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-$res_aphotels[0]['hotel_name'],已有政策:{$res_aphotels[0]['gp_id']}-{$res_aphotels[0]['name']}";
+                $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-{$res_aphotels[0]['hotel_name']},已有政策:{$res_aphotels[0]['gp_id']}-{$res_aphotels[0]['name']}";
                 $this->output($msg,'goodspolicy/datalist',2,0);
             }
             $m_hotel = new \Admin\Model\HotelModel();

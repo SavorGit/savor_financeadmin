@@ -281,7 +281,7 @@ class ActivitypolicyController extends BaseController {
             $where['a.hotel_id'] = array('in',$hotel_ids);
             $res_aphotels = $m_activity_policy_hotel->getActivityPolicyHotels($fields,$where,'a.id desc','0,1');
             if(!empty($res_aphotels[0]['hotel_id'])){
-                $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-$res_aphotels[0]['hotel_name'],已有政策:{$res_aphotels[0]['ap_id']}-{$res_aphotels[0]['name']}";
+                $msg = "酒楼:{$res_aphotels[0]['hotel_id']}-{$res_aphotels[0]['hotel_name']},已有政策:{$res_aphotels[0]['ap_id']}-{$res_aphotels[0]['name']}";
                 $this->output($msg,'activitypolicy/datalist',2,0);
             }
             $m_hotel = new \Admin\Model\HotelModel();
