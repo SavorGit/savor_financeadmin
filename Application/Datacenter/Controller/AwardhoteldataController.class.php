@@ -51,6 +51,7 @@ class AwardhoteldataController extends BaseController {
             }
         }
 
+        $this->assign('status',$status);
         $this->assign('stat_date',$stat_date);
         $this->assign('area',$area_arr);
         $this->assign('area_id',$area_id);
