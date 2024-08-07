@@ -23,14 +23,20 @@ class PricetemplateController extends BaseController {
         $data_list = array();
         if(!empty($res_list['list'])){
             $m_sysuser = new \Admin\Model\SysuserModel();
+            $m_area = new \Admin\Model\AreaModel();
             $all_status = C('TEMPLATE_STATUS');
             $all_types = C('TEMPLATE_TYPES');
             foreach ($res_list['list'] as $v){
                 $res_uinfo = $m_sysuser->getUserInfo($v['sysuser_id']);
                 $v['sys_username'] = $res_uinfo['remark'];
                 $hotel_num = 0;
+                $area_name = '';
                 if($v['type']==1){
                     $hotel_num = '全部售酒餐厅';
+                    $res_area = $m_area->getRow('region_name',array('id'=>$v['area_id']));
+                    if(!empty($res_area['region_name'])){
+                        $area_name = $res_area['region_name'];
+                    }
                 }else {
                     $m_pricehotel = new \Admin\Model\PriceTemplateHotelModel();
                     $all_hotels = $m_pricehotel->getAllData('COUNT(DISTINCT hotel_id) as hotel_num', array('template_id'=>$v['id']), '', '');
@@ -38,6 +44,7 @@ class PricetemplateController extends BaseController {
                         $hotel_num = $all_hotels[0]['hotel_num'];
                     }
                 }
+                $v['area_name'] = $area_name;
                 $v['hotel_num'] = $hotel_num;
                 $v['type_str'] = $all_types[$v['type']];
                 $v['status_str'] = $all_status[$v['status']];
@@ -61,6 +68,7 @@ class PricetemplateController extends BaseController {
             $name = I('post.name','','trim');
             $type = I('post.type',0,'intval');//1通用政策,2特殊政策
             $status = I('post.status',0,'intval');
+            $area_id = I('post.area_id',0,'intval');
             $goods_ids = I('post.goods_ids');
             $price = I('post.price');
             $goods_price = array();
@@ -76,7 +84,11 @@ class PricetemplateController extends BaseController {
                 }
             }
             if($type==1){
-                $repeat_where = array('type'=>1,'status'=>1);
+                if(empty($area_id)){
+                    $this->output('通用政策请选择城市', 'pricetemplate/templateadd',2,0);
+                }
+
+                $repeat_where = array('type'=>1,'status'=>1,'area_id'=>$area_id);
                 if($id){
                     $repeat_where['id'] = array('neq',$id);
                 }
@@ -87,8 +99,9 @@ class PricetemplateController extends BaseController {
             }
 
             $userInfo = session('sysUserInfo');
-            $add_data = array('name'=>$name,'type'=>$type,'status'=>$status);
+            $add_data = array('name'=>$name,'type'=>$type,'status'=>$status,'area_id'=>$area_id);
             $is_uphotel = 0;
+            $m_hotel = new \Admin\Model\HotelModel();
             if($id){
                 $old_templ = $m_pricetemplate->getInfo(array('id'=>$id));
                 if($old_templ['type']!=$type){
@@ -170,14 +183,15 @@ class PricetemplateController extends BaseController {
                     if($type==1){
                         $hotel_goods = array();
                         foreach ($goods_price as $v){
-                            $hotel_goods[]=array('template_id'=>$template_id,'goods_id'=>$v['goods_id'],'hotel_id'=>0);
+                            $hotel_goods[]=array('template_id'=>$template_id,'goods_id'=>$v['goods_id'],'hotel_id'=>0,'area_id'=>$area_id);
                         }
                         $m_pricehotel->addAll($hotel_goods);
                     }else{
                         foreach ($goods_price as $v){
                             $hotel_goods = array();
                             foreach ($all_hotel_ids as $hv){
-                                $hotel_goods[]=array('template_id'=>$template_id,'goods_id'=>$v['goods_id'],'hotel_id'=>$hv['hotel_id']);
+                                $res_hotel = $m_hotel->getRow('area_id',array('id'=>$hv['hotel_id']));
+                                $hotel_goods[]=array('template_id'=>$template_id,'goods_id'=>$v['goods_id'],'hotel_id'=>$hv['hotel_id'],'area_id'=>$res_hotel['area_id']);
                             }
                             $m_pricehotel->addAll($hotel_goods);
                         }
@@ -186,7 +200,7 @@ class PricetemplateController extends BaseController {
                     if($type==1){
                         $hotel_goods = array();
                         foreach ($goods_price as $v){
-                            $hotel_goods[]=array('template_id'=>$template_id,'goods_id'=>$v['goods_id'],'hotel_id'=>0);
+                            $hotel_goods[]=array('template_id'=>$template_id,'goods_id'=>$v['goods_id'],'hotel_id'=>0,'area_id'=>$area_id);
                         }
                         $m_pricehotel->addAll($hotel_goods);
                     }
@@ -226,6 +240,10 @@ class PricetemplateController extends BaseController {
             }
             $res_goods = array_merge($tmp_price_goods,$tmp_noprice_goods);
 
+            $m_area = new \Admin\Model\AreaModel();
+            $city_arr = $m_area->getHotelAreaList();
+            array_unshift($city_arr,array('id'=>0,'region_name'=>'全部'));
+            $this->assign('city_arr',$city_arr);
             $this->assign('dinfo',$dinfo);
             $this->assign('goods',$res_goods);
             $this->display();
@@ -244,6 +262,7 @@ class PricetemplateController extends BaseController {
             if(empty($hotel_arr)){
                 $this->output('请选择酒楼','pricetemplate/hoteladd',2,0);
             }
+            $m_hotel = new \Admin\Model\HotelModel();
             $m_pricegoods = new \Admin\Model\PriceTemplateGoodsModel();
             $field = 'id,goods_id,template_id';
             $res_pgoods = $m_pricegoods->getDataList($field,array('template_id'=>$template_id),'id desc');
@@ -261,9 +280,10 @@ class PricetemplateController extends BaseController {
                         $this->output($message,'pricetemplate/hoteladd',2,0);
                         break;
                     }
+                    $res_hotel = $m_hotel->getRow('area_id',array('id'=>$hotel_id));
                     $hotel_goods = array();
                     foreach ($res_pgoods as $v){
-                        $hotel_goods[]=array('template_id'=>$template_id,'goods_id'=>$v['goods_id'],'hotel_id'=>$hotel_id);
+                        $hotel_goods[]=array('template_id'=>$template_id,'goods_id'=>$v['goods_id'],'hotel_id'=>$hotel_id,'area_id'=>$res_hotel['area_id']);
                     }
                     if(!empty($hotel_goods)){
                         $m_pricehotel->addAll($hotel_goods);
@@ -292,9 +312,9 @@ class PricetemplateController extends BaseController {
             $where['h.name'] = array('like',"%$keyword%");
         }
         $start  = ($page-1) * $size;
-        $fields = 'a.add_time,h.id as hotel_id,h.name as hotel_name';
-        $m_couponhotel = new \Admin\Model\PriceTemplateHotelModel();
-        $result = $m_couponhotel->getHotelDatas($fields,$where,'a.hotel_id desc', 'a.hotel_id',$start,$size);
+        $fields = 'a.add_time,h.id as hotel_id,h.name as hotel_name,area.region_name as area_name';
+        $m_templatehotel = new \Admin\Model\PriceTemplateHotelModel();
+        $result = $m_templatehotel->getHotelDatas($fields,$where,'a.hotel_id desc', 'a.hotel_id',$start,$size);
         $datalist = $result['list'];
 
         $this->assign('template_id',$template_id);

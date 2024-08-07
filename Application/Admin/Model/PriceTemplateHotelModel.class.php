@@ -21,6 +21,7 @@ class PriceTemplateHotelModel extends BaseModel{
     public function getHotelDatas($fields,$where,$order,$group,$start=0,$size=5){
         $list = $this->alias('a')
             ->join('savor_hotel h on a.hotel_id=h.id','left')
+            ->join('savor_area_info area on h.area_id=area.id','left')
             ->field($fields)
             ->where($where)
             ->order($order)
@@ -30,6 +31,7 @@ class PriceTemplateHotelModel extends BaseModel{
 
         $count = $this->alias('a')
             ->join('savor_hotel h on a.hotel_id=h.id','left')
+            ->join('savor_area_info area on h.area_id=area.id','left')
             ->field('a.id')
             ->where($where)
             ->group($group)
