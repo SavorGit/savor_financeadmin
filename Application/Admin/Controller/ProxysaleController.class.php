@@ -26,7 +26,7 @@ class ProxysaleController extends BaseController{
 								  'company_name'=>'请填写公司名称','company_short_name'=>'请填写公司简介','company_area_id'=>'请选择公司所属城市',
 								  'address'=>'请填写公司注册地址','account_name'=>'请填写公司开户名称','company_property'=>'请选择公司企业性质',
 								  'bank_name'=>'请填写公司开户行名称','bank_account'=>'请填写公司开户账号',
-	                              'check_cycle'=>'请选择对账周期', 'closed_circle'=>'请选择结算周期',
+	                              'check_cycle'=>'请选择对账周期', 'closed_circle'=>'请选择结算周期','hotel_quota'=>'请输入餐厅配额'
 	                              //'contact1'=>'请填写联系人1','contact_phone1'=>'请填写联系人电话1','contact2'=>'请填写联系人2','contact_phone2'=>'请填写联系人电话2'
 	    
 	);
@@ -44,8 +44,6 @@ class ProxysaleController extends BaseController{
 		
     }
     public function index(){
-		
-		
 		$ajaxversion   = I('ajaxversion',0,'intval');//1 版本升级酒店列表
 		$size   = I('numPerPage',50);//显示每页记录数
 		$this->assign('numPerPage',$size);
@@ -117,9 +115,7 @@ class ProxysaleController extends BaseController{
 			$m_department_user = new \Admin\Model\DepartmentUserModel();
 			$sign_user_arr = $m_department_user->getAllData('id,name',array('department_id'=>$department_id,'status'=>1),'sort asc,id asc');
 		}
-		
-		 
-		
+
 		if($name){
 			$where['a.name'] = array('like',"%".$name."%");
 			$this->assign('name',$name);
@@ -127,10 +123,7 @@ class ProxysaleController extends BaseController{
 		$where['a.type'] = 20;
 		$m_contract = new \Admin\Model\ContractModel();
 		$fileds = "a.*,b.uname,d.name sign_name";
-		
 		$result = $m_contract->getList($fileds,$where, $orders, $start,$size);
-		
-		//print_r($this->contract_ctype_arr);exit;
 		$m_contract_hotel = new \Admin\Model\ContracthotelModel();
 		
 		foreach($result['list'] as $key=>$v){
@@ -139,7 +132,6 @@ class ProxysaleController extends BaseController{
 			
 		}
 		//城市
-		
 		$m_area = new \Admin\Model\AreaModel();
 		$city_arr = $m_area->getHotelAreaList();
 		
@@ -155,15 +147,12 @@ class ProxysaleController extends BaseController{
         $this->display('index');
     }
     public function add(){
-		
 		$m_area = new \Admin\Model\AreaModel();
 		$city_arr = $m_area->getHotelAreaList();
 		$m_signuser = new \Admin\Model\SignuserModel();
 		$sign_user_arr = $m_signuser->field('id,uname')->where('status=1')->select();
 		
 		$department_list_tree = $this->getDepartmentTree(2);
-		//print_r($this->contract_ctype_arr);exit;
-		
 		$this->assign('department_list_tree',$department_list_tree);
 		$this->assign('city_arr',$city_arr);
 		$this->assign('sign_user_arr',$sign_user_arr);
@@ -176,7 +165,6 @@ class ProxysaleController extends BaseController{
         $this->display('add');
     }
     public function doadd(){
-		
 		if(IS_POST){
 			$userinfo = session('sysUserInfo');
 			$data =  [];
@@ -188,7 +176,6 @@ class ProxysaleController extends BaseController{
 						$this->error($v);
 						break;
 					}
-					
 				}
 				//联系人1  联系人2
 				$contract_params["contact1"] = I('post.contact1','','trim');
@@ -219,13 +206,13 @@ class ProxysaleController extends BaseController{
 				    $this->error('请输入联系人和电话信息');
 				}
 			}
-			
-			
+
 			$data['serial_number']   	 = I('post.serial_number','','trim');     		//合同编号
 			$data['name']   	         = I('post.name','','trim');     		        //合同名称
 			$data['company_id']      	 = I('post.company_id',0,'intval');       		//签约公司          
 			$data['sign_department'] 	 = I('post.sign_department','','trim');   		//签约部门
 			$data['sign_user_id']    	 = I('post.sign_user_id',0,'intval');     		//签约人
+			$data['hotel_quota']    	 = I('post.hotel_quota',0,'intval');
 			if(!empty($data['sign_user_id'])){
 			    $m_department_user = new \Admin\Model\DepartmentUserModel();
 			    $department_user_info = $m_department_user->alias('a')
@@ -398,12 +385,7 @@ class ProxysaleController extends BaseController{
 		    $vinfo['department_id']   = $department_info['department_id'];
 		    
 		    $sign_user_arr = $m_department_user->getAllData('id,name uname',array('department_id'=>$department_info['department_id'],'status'=>1),'sort asc,id asc');
-		    
-		    
 		}
-		
-		
-		
 		$info_goods = json_decode($vinfo['info_goods'],true);
 		$this->assign('vinfo',$vinfo);
 		
@@ -480,6 +462,7 @@ class ProxysaleController extends BaseController{
 			$data['company_id']      	 = I('post.company_id',0,'intval');       		//签约公司          
 			$data['sign_department'] 	 = I('post.sign_department','','trim');   		//签约部门
 			$data['sign_user_id']    	 = I('post.sign_user_id',0,'intval');     		//签约人
+			$data['hotel_quota']    	 = I('post.hotel_quota',0,'intval');
 			if(!empty($data['sign_user_id'])){
 			    $m_department_user = new \Admin\Model\DepartmentUserModel();
 			    $department_user_info = $m_department_user->alias('a')
