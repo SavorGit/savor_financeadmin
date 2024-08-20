@@ -163,4 +163,134 @@ class StockopenrewardController extends BaseController {
 
         $this->output('操作成功!', 'stockopenreward/datalist',2);
     }
+
+    public function editrecycle(){
+        $stock_record_id = I('stock_record_id',0,'intval');
+        $m_stock_record = new \Admin\Model\StockRecordModel();
+        $res_record = $m_stock_record->getInfo(array('id'=>$stock_record_id));
+        $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
+        if(IS_POST){
+            $recyclemedia_id = I('post.recyclemedia_id','');
+            $total_integral = I('post.total_integral',0,'intval');
+            $recycle_status = I('post.recycle_status',0,'intval');
+
+            if($res_record['recycle_status']!=5){
+                $this->output('状态错误,不能修改资料', 'stockopenreward/datalist',2,0);
+            }
+            $rwhere = array('jdorder_id'=>$stock_record_id,'type'=>25,'status'=>2);
+            $res_recordinfo = $m_integralrecord->getAll('id,openid,integral,hotel_id',$rwhere,0,2,'id asc');
+            $all_integral = 0;
+            foreach ($res_recordinfo as $v){
+                $all_integral+=intval($v['integral']);
+            }
+            if($all_integral==0){
+                $this->output("开瓶奖励积分已发放,请勿重复操作", 'stockopenreward/datalist',2,0);
+            }
+            if($total_integral>$all_integral){
+                $this->output("开瓶奖励积分不能超过{$all_integral}", 'stockopenreward/datalist',2,0);
+            }
+            $userinfo = session('sysUserInfo');
+            $sysuser_id = $userinfo['id'];
+            $up_record = array('recycle_audit_user_id'=>$sysuser_id,'recycle_audit_time'=>date('Y-m-d H:i:s'),'recycle_status'=>$recycle_status);
+            $m_integralrecord = new \Admin\Model\UserIntegralrecordModel();
+            $m_merchant = new \Admin\Model\MerchantModel();
+            $m_userintegral = new \Admin\Model\UserIntegralModel();
+            if($recycle_status==2){
+                if(count($res_recordinfo)==1){
+                    $res_recordinfo[0]['integral'] = $total_integral;
+                }else{
+                    $percent_1 = round($res_recordinfo[0]['integral']/$all_integral,2);
+                    $integral_1 = round($total_integral*$percent_1);
+                    $integral_2 = $total_integral-$integral_1>0?$total_integral-$integral_1:1;
+
+                    $res_recordinfo[0]['integral'] = $integral_1;
+                    $res_recordinfo[1]['integral'] = $integral_2;
+                }
+
+                $where = array('hotel_id'=>$res_recordinfo[0]['hotel_id'],'status'=>1);
+                $field_merchant = 'id as merchant_id,is_integral,is_shareprofit,shareprofit_config';
+                $res_merchant = $m_merchant->getRow($field_merchant,$where,'id desc');
+                $is_integral = $res_merchant['is_integral'];
+                foreach ($res_recordinfo as $rv){
+                    $record_id = $rv['id'];
+
+                    $m_integralrecord->updateData(array('id'=>$record_id),array('status'=>1,'integral_time'=>date('Y-m-d H:i:s')));
+                    $now_integral = $rv['integral'];
+                    if($is_integral==1){
+                        $res_integral = $m_userintegral->getInfo(array('openid'=>$rv['openid']));
+                        if(!empty($res_integral)){
+                            $userintegral = $res_integral['integral']+$now_integral;
+                            $m_userintegral->updateData(array('id'=>$res_integral['id']),array('integral'=>$userintegral,'update_time'=>date('Y-m-d H:i:s')));
+                        }else{
+                            $m_userintegral->add(array('openid'=>$rv['openid'],'integral'=>$now_integral));
+                        }
+                    }else{
+                        $where = array('id'=>$res_merchant['merchant_id']);
+                        $m_merchant->where($where)->setInc('integral',$now_integral);
+                    }
+                }
+
+                $recycle_img = '';
+                if(!empty($recyclemedia_id)){
+                    $m_media = new \Admin\Model\MediaModel();
+                    $recycle_imgs = array();
+                    foreach ($recyclemedia_id as $v){
+                        if(!empty($v)){
+                            if(is_numeric($v)){
+                                $res_m = $m_media->getMediaInfoById($v);
+                                $img = $res_m['oss_path'];
+                            }else{
+                                $img = $v;
+                            }
+                            $recycle_imgs[]=$img;
+                        }
+                    }
+                    $recycle_img = join(',',$recycle_imgs);
+                    $up_record['edit_recycle_user_id'] = $sysuser_id;
+                }
+                $up_record['recycle_img'] = $recycle_img;
+            }else{
+                if(!empty($res_recordinfo[0]['id'])){
+                    $del_record_ids = array();
+                    foreach ($res_recordinfo as $rv){
+                        $del_record_ids[] = $rv['id'];
+                    }
+                    $m_integralrecord->delData(array('id'=>array('in',$del_record_ids)));
+                }
+            }
+
+            $m_stock_record->updateData(array('id'=>$stock_record_id),$up_record);
+            $this->output('操作成功!', 'stockopenreward/datalist',2);
+        }else{
+            $recycle_imgs = array();
+            $recycle_img_num = 3;
+            if(!empty($res_record['recycle_img'])){
+                $data_recycle_img = explode(',',$res_record['recycle_img']);
+                $oss_host = get_oss_host();
+                $img_addr = array();
+                foreach ($data_recycle_img as $k=>$v){
+                    if(!empty($v)){
+                        $img_addr[$k+1] = array('media_id'=>$v,'oss_addr'=>$oss_host.$v);
+                    }
+                }
+                for($i=1;$i<=$recycle_img_num;$i++){
+                    $img_info = array('id'=>$i,'imgid'=>'recycleimg_id'.$i,'media_id'=>0);
+                    if(isset($img_addr[$i])){
+                        $img_info['media_id'] = $img_addr[$i]['media_id'];
+                        $img_info['oss_addr'] = $img_addr[$i]['oss_addr'];
+                    }
+                    $recycle_imgs[] = $img_info;
+                }
+            }
+
+            $rwhere = array('jdorder_id'=>$stock_record_id,'type'=>25,'status'=>2);
+            $res_recordinfo = $m_integralrecord->getAll('sum(integral) as total_integral',$rwhere,0,1,'id desc');
+            $total_integral = intval($res_recordinfo[0]['total_integral']);
+
+            $this->assign('total_integral',$total_integral);
+            $this->assign('recycle_imgs',$recycle_imgs);
+            $this->assign('vinfo',$res_record);
+            $this->display();
+        }
+    }
 }

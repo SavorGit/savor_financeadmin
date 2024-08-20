@@ -145,6 +145,12 @@
                                             <i class="fa fa-remove"></i>
                                         </a>
                                     </if>
+
+                                    <if condition="$dinfo.recycle_status eq 5">
+                                        <a title="修改开瓶资料" data-tip="修改开瓶资料" target="dialog" mask="true" href="{$host_name}/stockopenreward/editrecycle?stock_record_id={$dinfo.id}" class="btn btn-success btn-icon">
+                                            <i class="fa fa-recycle"></i>
+                                        </a>
+                                    </if>
                                 </div>
                             </td>
                         </tr>
