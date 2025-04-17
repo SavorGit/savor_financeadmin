@@ -1536,6 +1536,11 @@ class StockController extends BaseController {
             $m_winecode = new \Admin\Model\WinecodeModel();
             $res_winecode = $m_winecode->getInfo(array('idcode'=>$res_info['idcode']));
             $winecode = !empty($res_winecode['winecode'])?$res_winecode['winecode']:'';
+            if(empty($winecode)){
+                if(in_array($res_info['goods_id'],array(72,29,73,74,90,75,48,40,103,102,101,100,99,94,93,92,91,7,8,10))){
+                    $winecode = '无需酒商码';
+                }
+            }
 
             $this->assign('winecode',$winecode);
             $this->assign('vinfo',$res_info);
