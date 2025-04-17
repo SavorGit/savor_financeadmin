@@ -6,16 +6,24 @@ class SalepaymentController extends BaseController {
     public function datalist(){
         $start_time = I('start_time','');
         $end_time = I('end_time','');
-
+        $area_id = I('area_id',0,'intval');
         $where = array();
         if(!empty($start_time) && !empty($end_time)){
             $now_start_time = date('Y-m-d',strtotime($start_time));
             $now_end_time = date('Y-m-d',strtotime($end_time));
             $where['a.pay_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
         }
-
+        if(!empty($area_id)){
+            $where['hotel.area_id'] = $area_id;
+        }
+        $area_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
         $m_salepayment = new \Admin\Model\SalePaymentModel();
-        $res_list = $m_salepayment->getList('a.*,hotel.name as hotel_name',$where,'a.id desc');
+        $res_list = $m_salepayment->getList('a.*,hotel.name as hotel_name,hotel.area_id',$where,'a.id desc');
         $m_paymentrecord = new \Admin\Model\SalePaymentRecordModel();
 		$m_idcode = new \Admin\Model\IdcodeModel();
         $data_list = array();
@@ -23,27 +31,25 @@ class SalepaymentController extends BaseController {
             $res_idcodes = $m_paymentrecord->getList('a.*,sale.idcode',array('a.sale_payment_id'=>$v['id']),'a.id desc');
             foreach ($res_idcodes as $iv){
                 $idcode = $iv['idcode'];
-				
 				if(!empty($v['hotel_id'])){
-					
 					$goods_info = $m_idcode->alias('a')
 										   ->field('goods.name goods_name')
 										   ->join('savor_finance_goods goods on a.goods_id=goods.id','left')
 										   ->where(array('a.idcode'=>$idcode,'a.io_type'=>22))
 										   ->find();
-										   
-					$goods_name	= $goods_info['goods_name'];				   
-					
+					$goods_name	= $goods_info['goods_name'];
 				}else {
-					
 					$goods_name = '';
 				}
-				
 				
                 if(is_numeric($idcode)){
                     $idcode = "'$idcode";
                 }
-                $data_list[]=array('id'=>$v['id'],'serial_number'=>$v['serial_number'],'hotel_id'=>$v['hotel_id'],'hotel_name'=>$v['hotel_name'],
+                $area_name = '';
+                if(!empty($v['area_id'])){
+                    $area_name = $area_arr[$v['area_id']]['region_name'];
+                }
+                $data_list[]=array('id'=>$v['id'],'serial_number'=>$v['serial_number'],'hotel_id'=>$v['hotel_id'],'hotel_name'=>$v['hotel_name'],'area_name'=>$area_name,
                     'tax_rate'=>$v['tax_rate'],'pay_time'=>$v['pay_time'],'idcode'=>$idcode,'idcode_pay_money'=>$iv['pay_money'],'goods_name'=>$goods_name
                 );
             }
@@ -53,6 +59,7 @@ class SalepaymentController extends BaseController {
             array('serial_number','收款单标识码'),
             array('hotel_id','酒楼ID'),
             array('hotel_name','酒楼名称'),
+            array('area_name','城市'),
             array('tax_rate','税率(%)'),
             array('idcode_pay_money','收款金额'),
             array('pay_time','收款时间'),
@@ -60,6 +67,55 @@ class SalepaymentController extends BaseController {
 			array('goods_name','商品名称'),
         );
         $filename = '收款列表';
+        $this->exportToExcel($cell,$data_list,$filename,1);
+    }
+
+    public function paymentdata(){
+        $start_time = I('start_time','');
+        $end_time = I('end_time','');
+        $area_id = I('area_id',0,'intval');
+        $where = array();
+        if(!empty($start_time) && !empty($end_time)){
+            $now_start_time = date('Y-m-d',strtotime($start_time));
+            $now_end_time = date('Y-m-d',strtotime($end_time));
+            $where['a.pay_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
+        }
+        if(!empty($area_id)){
+            $where['hotel.area_id'] = $area_id;
+        }
+        $area_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
+        $m_salepayment = new \Admin\Model\SalePaymentModel();
+        $res_list = $m_salepayment->getSalePayments('a.*,hotel.name as hotel_name,hotel.area_id,sysuser.remark as residenter_name',$where,'a.id desc');
+
+        $data_list = array();
+        $all_pay_types = array('1'=>'微信','2'=>'银行','3'=>'企微');
+        foreach ($res_list as $v){
+            $area_name = '';
+            if(!empty($v['area_id'])){
+                $area_name = $area_arr[$v['area_id']]['region_name'];
+            }
+            $residenter_name = !empty($v['residenter_name'])?$v['residenter_name']:'';
+            $pay_type_str = isset($all_pay_types[$v['pay_type']])?$all_pay_types[$v['pay_type']]:'';
+            $data_list[]=array('pay_time'=>$v['pay_time'],'hotel_id'=>$v['hotel_id'],'hotel_name'=>$v['hotel_name'],
+                'pay_type_str'=>$pay_type_str,'area_name'=>$area_name,'pay_money'=>$v['pay_money'],'residenter_name'=>$residenter_name,
+            );
+        }
+
+        $cell = array(
+            array('pay_time','收款日期'),
+            array('pay_money','金额'),
+            array('pay_type_str','收款方式'),
+            array('hotel_id','酒楼ID'),
+            array('hotel_name','酒楼名称'),
+            array('residenter_name','驻店人'),
+            array('area_name','城市'),
+        );
+        $filename = '销售收款日记账';
         $this->exportToExcel($cell,$data_list,$filename,1);
     }
 

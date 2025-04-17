@@ -9,6 +9,7 @@ class SalepaymentController extends BaseController {
         $keyword = I('keyword','','trim');
         $start_time = I('start_time','');
         $end_time = I('end_time','');
+        $area_id       = I('area_id',0,'intval');
 
         $where = array();
         if(!empty($keyword)){
@@ -21,7 +22,9 @@ class SalepaymentController extends BaseController {
         $now_start_time = date('Y-m-d',strtotime($start_time));
         $now_end_time = date('Y-m-d',strtotime($end_time));
         $where['a.pay_time'] = array(array('egt',$now_start_time),array('elt',$now_end_time));
-
+        if(!empty($area_id)){
+            $where['hotel.area_id'] = $area_id;
+        }
         $start = ($pageNum-1)*$size;
         $m_salepayment = new \Admin\Model\SalePaymentModel();
         $res_list = $m_salepayment->getList('a.*,hotel.name as hotel_name',$where,'a.id desc', $start,$size);
@@ -36,6 +39,14 @@ class SalepaymentController extends BaseController {
                 $data_list[$k]['type_str'] = $all_types[$v['type']];
             }
         }
+        $area_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
+        $this->assign('area_id', $area_id);
+        $this->assign('area', $area_arr);
         $this->assign('keyword',$keyword);
         $this->assign('start_time',$start_time);
         $this->assign('end_time',$end_time);
@@ -53,17 +64,22 @@ class SalepaymentController extends BaseController {
             $tax_rate = I('post.tax_rate',0,'intval');
             $pay_money = I('post.pay_money',0,'intval');
             $type = I('post.type',1,'intval');
+            $pay_type = I('post.pay_type',0,'intval');
             $hotel_id = I('post.hotel_id',0,'intval');
             $pay_time = I('post.pay_time','','trim');
             $userInfo = session('sysUserInfo');
             $sysuser_id = $userInfo['id'];
-            if($type==1){
-                if(empty($hotel_id)){
-                    $this->output('请选择酒楼', 'salepayment/addpayment',2,0);
-                }
+//            if($type==1){
+//                if(empty($hotel_id)){
+//                    $this->output('请选择酒楼', 'salepayment/addpayment',2,0);
+//                }
+//            }
+            if(empty($hotel_id)){
+                $this->output('请选择酒楼', 'salepayment/addpayment',2,0);
             }
 
-            $data = array('hotel_id'=>$hotel_id,'tax_rate'=>$tax_rate,'pay_money'=>$pay_money,'pay_time'=>$pay_time,'type'=>$type,'sysuser_id'=>$sysuser_id);
+            $data = array('hotel_id'=>$hotel_id,'tax_rate'=>$tax_rate,'pay_money'=>$pay_money,
+                'pay_time'=>$pay_time,'type'=>$type,'pay_type'=>$pay_type,'sysuser_id'=>$sysuser_id);
             if(!empty($id)){
                 $data['update_time'] = date('Y-m-d H:i:s');
                 $m_salepayment->updateData(array('id'=>$id),$data);

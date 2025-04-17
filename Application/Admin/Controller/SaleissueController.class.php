@@ -19,6 +19,7 @@ class SaleissueController extends BaseController {
         $start_date = I('start_date','');
         $end_date   = I('end_date','');
         $type       = I('type',0,'intval');
+        $area_id       = I('area_id',0,'intval');
         $push_u8_status2 = I('push_u8_status2',99,'intval');
         $ptype       = I('ptype',99,'intval');
         $idcode     = I('idcode','','trim');
@@ -42,6 +43,9 @@ class SaleissueController extends BaseController {
         }
         if($push_u8_status2<99){
             $where['a.push_u8_status2'] = $push_u8_status2;
+        }
+        if(!empty($area_id)){
+            $where['a.area_id'] = $area_id;
         }
         if(!empty($idcode)){
             $where['a.idcode'] = $idcode;
@@ -113,7 +117,14 @@ class SaleissueController extends BaseController {
             $datalist[$k]['pay_type_str'] = $pay_type_str;
             $datalist[$k]['wo_status_str'] = $wo_status_str;
         }
-
+        $area_arr = array();
+        $m_area  = new \Admin\Model\AreaModel();
+        $res_area = $m_area->getHotelAreaList();
+        foreach ($res_area as $v){
+            $area_arr[$v['id']]=$v;
+        }
+        $this->assign('area_id', $area_id);
+        $this->assign('area', $area_arr);
         $this->assign('list',$datalist);
         $this->assign('page',$result['page']);
         $this->assign('pageNum',$pageNum);

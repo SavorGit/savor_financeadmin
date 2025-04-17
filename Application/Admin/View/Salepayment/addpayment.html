@@ -39,6 +39,17 @@
                 </div>
             </div>
 
+            <div class="form-group row">
+                <label class="col-xs-12 col-sm-2 control-label">收款方式：</label>
+                <div class="col-xs-12 col-sm-10">
+                    <select name="pay_type" class="form-control bs-select" title="请选择" required>
+                        <option value="1" <if condition="$vinfo.pay_type eq 1">selected</if> >微信</option>
+                        <option value="2" <if condition="$vinfo.pay_type eq 2">selected</if> >银行</option>
+                        <option value="3" <if condition="$vinfo.pay_type eq 3">selected</if> >企微</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="form-group row" id="stock_hotel_id">
                 <label class="col-xs-12 col-sm-2 control-label">选择酒楼：</label>
                 <div class="col-xs-12 col-sm-10  form-inline">
@@ -58,15 +69,3 @@
     </form>
 </div>
 
-<script>
-
-    $('#sale_paytype').change(function() {
-        if($(this).val()==1){
-            $('#stock_hotel_id').show();
-        }else{
-            $('#stock_hotel_id').hide();
-        }
-    })
-    $('#sale_paytype').trigger('change');
-
-</script>
